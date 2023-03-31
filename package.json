@@ -1,0 +1,48 @@
+{
+  "name": "agvs_ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "bootstrap": "^5.2.0",
+    "bootstrap-icons": "^1.9.1",
+    "bootstrap-vue-3": "^0.2.12",
+    "core-js": "^3.8.3",
+    "element-plus": "^2.2.28",
+    "mitt": "^3.0.0",
+    "moment": "^2.29.4",
+    "ol": "^7.3.0",
+    "ol-contextmenu": "^5.2.0",
+    "ol-ext": "^4.0.6",
+    "proj4": "^2.8.1",
+    "simple-keyboard": "^3.5.16",
+    "three": "^0.149.0",
+    "three-css2drender": "^1.0.0",
+    "three-obj-mtl-loader": "^1.0.3",
+    "three-orbit-controls": "^82.1.0",
+    "vant": "^4.0.11",
+    "vue": "^3.2.13",
+    "vue-i18n": "^9.2.2",
+    "vue-router": "^4.0.3",
+    "vuex": "^4.0.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-plugin-vuex": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "sass": "^1.32.7",
+    "sass-loader": "^12.0.0",
+    "unplugin-vue-components": "^0.24.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}

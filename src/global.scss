@@ -1,0 +1,22 @@
+.card-like{
+    border: 1px solid #dadada;
+    border-radius: 10px;
+    margin: 3px;
+    background-color: white;
+    padding: 10px;
+    
+    .title{
+        text-align: left;
+        font-weight: bold;
+        font-size: 18px;
+        border-bottom: 1px solid rgb(202, 202, 202);
+        margin-bottom: 3px;
+        padding: 5px;
+        i{
+            letter-spacing: 2px;
+        }
+    }
+}
+
+
+
