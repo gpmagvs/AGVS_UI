@@ -10,6 +10,8 @@ import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { createI18n } from 'vue-i18n'
 import './global.scss'
+import Modal from './components/ModalHelper'
+
 const i18n = createI18n({
   legacy: false,
   locale: 'zh-TW',
@@ -19,7 +21,12 @@ const i18n = createI18n({
     'en-US': require('./locales/en-US.json'),
   },
 })
+
 const app = createApp(App)
+app.config.globalProperties.$ = app.config.globalProperties
+
+Modal.install(app)
+
 app.use(store)
 app.use(router)
 app.use(BootstrapVue3)

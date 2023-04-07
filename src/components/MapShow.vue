@@ -278,18 +278,10 @@ export default {
     }
   },
   async mounted() {
-    watch(() => this.agvList, (newValue, oldValue) => {
-      console.info(newValue, oldValue);
-    }
-    )
-    // create a map instance
     this.loading = true;
     setTimeout(() => {
       this.FetchMap();
-
-
       bus.on('/agv_name_list', (agv_data) => {
-
         this.UpdateAGVLayer(agv_data);
       });
 
@@ -338,7 +330,7 @@ export default {
     },
     Mesh_Layer() {
       return this.map.getLayers().item(this.layer_index.mesh);
-    }
+    },
   },
   methods: {
     Reload() {
@@ -349,13 +341,13 @@ export default {
       MapAPI.GetMapFromLocal().then((map) => {
         this.loading = false;
         if (map == undefined) {
-          Notifier.Danger('圖資取得失敗(後端伺服器異常)', 'top', 3000);
+          Notifier.Danger('圖資取得失敗(後端伺服器異常)', 'bottom', 3000);
         }
         else if (map.Points == undefined) {
-          Notifier.Danger('圖資取得失敗(AGVS伺服器異常)', 'top', 3000);
+          Notifier.Danger('圖資取得失敗(AGVS伺服器異常)', 'bottom', 3000);
         }
         else {
-          Notifier.Success('Success Fetch Map Data From Server.', 'top', 2000);
+          Notifier.Success('Success Fetch Map Data From Server.', 'bottom', 2000);
 
           this.map_data = map;
           this.map_name = map.Name;
@@ -408,30 +400,28 @@ export default {
     GetAgvFeatureByName(name) {
 
     },
+    GetNormalStations() {
+      if (!this.map_data)
+        return [];
+      var stations = Object.values(this.map_data.Points);
+      return stations.filter(st => st.StationType == 0);
+    },
+    GetSTKStations() {
+      if (!this.map_data)
+        return [];
+      var stations = Object.values(this.map_data.Points);
+      return stations.filter(st => st.StationType == 2);
+    },
+    GetChargeStations() {
+      if (!this.map_data)
+        return [];
+      const chargable_types = [3, 5, 6];
+      var stations = Object.values(this.map_data.Points);
+      return stations.filter(st => chargable_types.includes(st.StationType));
+    },
     MapInitializeRender() {
 
       const lineFeatures = this.CreateLineFeaturesOfEachStaion();
-
-      // var agv_features = [];
-      // var agv_nav_path_features = [];
-
-
-      // this.agvList.forEach(agv => {
-      //   var agv_position = this.get_agv_position(agv.name);
-      //   var agv_feature = new Feature({
-      //     geometry: new Point(agv_position),
-      //     name: agv.name,
-      //   })
-      //   agv_feature.setId(agv.name);
-      //   agv_features.push(agv_feature);
-
-      //   var nav_path_feature = new Feature({
-      //     geometry: new Point(agv_position),
-      //     name: agv.name
-      //   })
-      //   agv_nav_path_features.push(nav_path_feature);
-      // });
-
 
       this.map = new Map({
         target: this.$refs.map,
@@ -490,7 +480,6 @@ export default {
       this.CreateMapEvent()
       // add text to each point
       this.CreateMeshLayer();
-      this.CreateContextMenu();
       this.StationStyleRender();
 
 
@@ -583,8 +572,6 @@ export default {
       this.map.addInteraction(dragInteraction);
     },
     CreateMeshLayer() {
-
-
       // 创建一个矢量图层和矢量数据源
       var mesh_vectorSource = new VectorSource();
       var mesh_vectorLayer = new VectorLayer({
@@ -621,10 +608,6 @@ export default {
         mesh_vectorSource.addFeature(gridFeature);
       }
       this.map.addLayer(mesh_vectorLayer);
-    },
-    CreateContextMenu() {
-
-
     },
     UpdateAGVLayer(agv_data) {
 

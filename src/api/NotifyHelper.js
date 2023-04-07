@@ -9,7 +9,7 @@ let Notifier = {
       position: position,
       type: 'success',
       duration: duration,
-      background: 'rgba(7, 193, 96,0.7)',
+      background: 'rgba(7, 193, 96, 0.9)',
       onclick: () => {
         closeNotify()
       },

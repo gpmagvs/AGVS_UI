@@ -3,7 +3,7 @@
     <div class="title">
       <i class="bi bi-robot">AGV STATUS</i>
     </div>
-    <el-table :data="AGVDatas" size="large" empty-text="沒有AGV">
+    <el-table :data="AGVDatas" size="large" height="460" empty-text="沒有AGV" style="z-index:1">
       <el-table-column label="AGV Name" prop="BaseProps.AGV_Name" width="130px">
         <template #default="scope">
           <b>{{scope.row.BaseProps.AGV_Name }}</b>
@@ -46,7 +46,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" fixed="right">
         <template #default="scope">
           <div>
             <b-button
@@ -59,7 +59,7 @@
             </b-button>
             <b-button
               class="w-100"
-              @click="ShowTaskAllocationView(scope.row)"
+              @click="ShowAGVChargeConfirmDialog(scope.row)"
               size="sm"
               variant="info"
             >
@@ -81,6 +81,14 @@
     >
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
+    <b-modal
+      v-model="ShowChargeConfirmDialog"
+      :centered="true"
+      title="AGV Charge"
+      @ok="AGVChargeTask"
+    >
+      <p ref="charge_confirm_noti_text"></p>
+    </b-modal>
   </div>
 </template>
 
@@ -89,6 +97,8 @@ import { clsAgvStatus } from '@/ViewModels/WebViewModels.js'
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import WebSocketHelp from '@/api/WebSocketHepler';
+import { IsLoginLastTime } from '@/api/AuthHelper';
+import { OnlineRequest, OfflineRequest } from '@/api/VmsAPI';
 export default {
   mounted() {
     this.WebSocketInit();
@@ -97,6 +107,7 @@ export default {
     return {
       AGVDatas: [],
       ShowOnlineStateChange: false,
+      ShowChargeConfirmDialog: false,
       OnlineStatusReq: {
         AGV_Name: '',
         Online_Status: '',
@@ -124,6 +135,12 @@ export default {
       return agv_data_for_map;
     },
     ShowTaskAllocationView(clsAgvStatus) {
+
+      if (!IsLoginLastTime().isLogin) {
+        this.$Modal.ShowOKModal('Forbid', "您沒有指派任務的權限，請先進行登入。", 'warning');
+        return;
+      }
+
       bus.emit('bus-show-task-allocation', clsAgvStatus);
     },
     ShowOnlineStateChangeModal(agv_name, current_online_status) {
@@ -134,8 +151,29 @@ export default {
       this.$refs['online_status_change_noti_txt'].innerHTML = `<h4>確定要將 <span class='border-bottom'> ${this.OnlineStatusReq.AGV_Name}</span><b> <span class='${text_class}'>${this.OnlineStatusReq.Online_Status}</span></b>  ?</h4>`;
       this.ShowOnlineStateChange = true;
     },
-    SendOnlineStateChangeRequest() {
+    async SendOnlineStateChangeRequest() {
+      var response = {};
+      if (this.OnlineStatusReq.Online_Status == 'Online') {
+        response = await OnlineRequest(this.OnlineStatusReq.AGV_Name);
+      } else {
+        response = await OfflineRequest(this.OnlineStatusReq.AGV_Name);
+      }
+      console.log(response)
       Notifier.Success(`${this.OnlineStatusReq.AGV_Name} - ${this.OnlineStatusReq.Online_Status} 請求已送出`, 'top', 3000);
+    },
+    ShowAGVChargeConfirmDialog(agv_status) {
+
+      if (!IsLoginLastTime().isLogin) {
+        this.$Modal.ShowOKModal('Forbid', "您沒有指派AGV充電的權限，請先進行登入。", 'danger');
+        return;
+      }
+
+      this.Agv_Selected = agv_status.BaseProps.AGV_Name;
+      this.$refs["charge_confirm_noti_text"].innerHTML = `確定要將 <b>${agv_status.BaseProps.AGV_Name}</b> 派送至充電站充電?`;
+      this.ShowChargeConfirmDialog = true;
+    },
+    AGVChargeTask() {
+      alert(this.Agv_Selected);
     },
     AGV_Status_TagType(status_code) {
       if (status_code == 1)

@@ -1,5 +1,5 @@
 <template>
-  <div class="alarm-display w-100 fixed-bottom">
+  <div class="alarm-display w-100 fixed-bottom" v-bind:style="dynamic_style_setting">
     <transition name="el-zoom-in-bottom">
       <div v-show="mode=='show'" class="show-mode border">
         <div class="d-flex flex-row">
@@ -38,7 +38,10 @@ export default {
   },
   data() {
     return {
-      mode: 'show' //hidden;show
+      mode: 'show', //hidden;show
+      dynamic_style_setting: {
+        zIndex: 20000
+      }
     }
   },
   mounted() {
@@ -54,14 +57,16 @@ export default {
         else this.mode = 'show'
       }
     )
-
+    bus.on('/alarm_footer_send_to_back', (enable) => {
+      this.dynamic_style_setting.zIndex = enable ? 2 : 20000;
+    });
   },
 }
 </script>
 
 <style lang="scss" scoped>
 .alarm-display {
-  z-index: 2;
+  z-index: 22333;
   .alarm-display-container {
     border: 2px solid white;
     height: 85px;

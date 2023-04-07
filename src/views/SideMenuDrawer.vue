@@ -3,42 +3,67 @@
     <el-drawer
       v-model="show_draw"
       direction="ltr"
-      title="GPM VMS"
+      title="GPM AGVS"
       size="25%"
       @close="CLoseEventHandle"
     >
       <div @click="PageSwitch('/','AGVS')" class="menu-item-container">AGVS</div>
-      <div @click="PageSwitch('/map','MAP')" class="menu-item-container">MAP</div>
+      <div
+        @click="PageSwitch('/map','圖資管理')"
+        v-show="auth_confirmed"
+        class="menu-item-container"
+      >圖資管理</div>
       <div @click="PageSwitch('/','帳籍管理')" class="menu-item-container">帳籍管理</div>
-      <div @click="PageSwitch('/rd_test','TEST')" class="menu-item-container">TEST</div>
-      <div class="menu-item-container">SETTINGS</div>
+      <div
+        @click="PageSwitch('/sys_settings','系統設定')"
+        v-show="auth_confirmed"
+        class="menu-item-container"
+      >SETTINGS</div>
     </el-drawer>
   </div>
 </template>
 
 <script>
 import bus from '@/event-bus.js'
+import { IsLoginLastTime } from '@/api/AuthHelper'
 export default {
   data() {
     return {
-      show_draw: false
+      show_draw: false,
+      auth_confirmed: false
     }
   },
   methods: {
     Show() {
+      bus.emit('/alarm_footer_send_to_back', true);
       this.show_draw = true
     },
     CLoseEventHandle() {
       this.$emit('close', "");
+      bus.emit('/alarm_footer_send_to_back', false);
     },
     PageSwitch(route_name, display_name = '') {
       var current_route = this.$router.currentRoute.value.path;
       if (route_name != current_route) {
         this.$router.push(route_name);
-        bus.emit('/router-change', display_name);
+        bus.emit('/router-change', { route_display_name: display_name, route_name: route_name });
       }
       this.show_draw = false;
     }
+  },
+  mounted() {
+
+    var login_state = IsLoginLastTime();
+    if (login_state.isLogin) {
+      this.auth_confirmed = login_state.login_info.Role == 2;
+    }
+
+    bus.on("/login_success", user => {
+      this.auth_confirmed = user.Role == 2;
+    });
+    bus.on("/logout", () => {
+      this.auth_confirmed = false;
+    });
   },
 }
 </script>

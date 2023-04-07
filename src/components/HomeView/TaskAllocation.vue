@@ -7,15 +7,16 @@
       direction="btt"
       :modal="true"
       z-index="123"
+      @closed="HandleDrawerClosed"
     >
       <template #header>
-        <h3>Task Allocation-{{ clsAgvStatus.AGV_Name }}</h3>
+        <h3>Task Allocation-{{ clsAgvStatus.BaseProps.AGV_Name }}</h3>
       </template>
-      <div class="drawer-content my-1 px-1">
+      <div class="drawer-content my-1 p-1 border-top">
         <div class="d-flex flex-row">
           <el-form label-width="100px" label-position="left" size="large">
             <el-form-item label="AGV">
-              <el-input disabled v-model="clsAgvStatus.AGV_Name"></el-input>
+              <el-input disabled v-model="clsAgvStatus.BaseProps.AGV_Name"></el-input>
             </el-form-item>
             <el-form-item label="Action">
               <el-select class="w-100" v-model="selectedAction" placeholder="請選擇Action">
@@ -28,13 +29,23 @@
               </el-select>
             </el-form-item>
             <el-form-item :label="From_Lable_display">
-              <el-select class="w-100" v-model="selectedTag" placeholder="請選擇tag_id">
+              <el-select
+                class="w-100"
+                v-model="selectedTag"
+                placeholder="請選擇tag_id"
+                @click="TagsOptionsInit"
+              >
                 <el-option v-for="tag in tags" :key="tag.id" :label="tag.name" :value="tag.id"></el-option>
               </el-select>
             </el-form-item>
 
             <el-form-item v-if="selectedAction === 'carry'" :label="To">
-              <el-select class="w-100" v-model="selectedToTag" placeholder="請選擇to_tag">
+              <el-select
+                class="w-100"
+                v-model="selectedToTag"
+                placeholder="請選擇to_tag"
+                @click="TagsOptionsInit"
+              >
                 <el-option v-for="tag in tags" :key="tag.id" :label="tag.name" :value="tag.id"></el-option>
               </el-select>
             </el-form-item>
@@ -43,15 +54,18 @@
               v-if="selectedAction === 'carry'|selectedAction === 'load'|selectedAction === 'unload'"
               label="Cassttle ID"
             >
-              <el-select class="w-100" v-model="selectedCst" placeholder="請選擇cst_id">
-                <el-option v-for="cst in csts" :key="cst.id" :label="cst.name" :value="cst.id"></el-option>
-              </el-select>
+              <el-input class="w-100" v-model="Cst_ID_Input" placeholder="請選擇cst_id"></el-input>
             </el-form-item>
             <el-form-item>
-              <b-button class="w-100" @click="TaskDeliveryBtnClickHandle" variant="primary">派送任務</b-button>
+              <b-button
+                class="w-100 my-2"
+                @click="TaskDeliveryBtnClickHandle"
+                variant="primary"
+              >派送任務</b-button>
+              <b-button class="w-100" @click="TaskDeliveryBtnClickHandle" variant="default">預覽路徑</b-button>
             </el-form-item>
           </el-form>
-          <MapShowVue class="flex-fill mx-2" style="height:800px"></MapShowVue>
+          <MapShowVue ref="_map" class="flex-fill mx-2" style="height:800px"></MapShowVue>
         </div>
 
         <div v-if="selectedAction=='charge'" class="img charge"></div>
@@ -97,6 +111,7 @@ import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import { clsAgvStatus } from '@/ViewModels/WebViewModels';
 import MapShowVue from '../MapShow.vue';
+import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData } from '@/api/TaskAllocation'
 export default {
   components: {
     MapShowVue
@@ -104,13 +119,17 @@ export default {
   data() {
     return {
       show: false,
-      clsAgvStatus: new clsAgvStatus(),
+      clsAgvStatus: {
+        BaseProps: {
+          AGV_Name: ""
+        }
+      },
       confirm_dialog_show: false,
       notify_dialog_show: false,
       notify_text: '',
       selectedAction: 'move', // 選擇的Action
       selectedTag: '', // 選擇的tag_id
-      selectedCst: '', // 選擇的cst_id
+      Cst_ID_Input: '', // 選擇的cst_id
       selectedToTag: '', // 選擇的to_tag
       moveable_tags: [ // tag_id選項
         { id: 1, name: '標籤1' },
@@ -125,6 +144,10 @@ export default {
         { id: 3, name: '標籤3' },
         { id: 4, name: '標籤4' },
         { id: 5, name: '標籤5' },
+      ],
+      stock_tags: [
+        { id: 1, name: '標籤1' },
+        { id: 2, name: '標籤2' },
       ],
       chargable_tags: [ // tag_id選項
         { id: 50, name: '充電站(TAG-50)' },
@@ -148,14 +171,57 @@ export default {
     tags() {
       if (this.selectedAction == 'move')
         return this.moveable_tags;
-
       else if (this.selectedAction == 'charge')
         return this.chargable_tags;
+      else if (this.selectedAction == 'load' | this.selectedAction == 'unload' | this.selectedAction == 'carry') {
+        return this.stock_tags;
+      }
       else
         return this.parkable_tags;
+    },
+    NormalStations() {
+      return this.$refs["_map"].GetNormalStations()
     }
   },
   methods: {
+
+    TagSelectClick() {
+      this.TagsOptionsInit();
+    },
+    TagsOptionsInit() {
+      this.moveable_tags = [];
+      this.stock_tags = [];
+      this.chargable_tags = [];
+
+      var NormalStations = this.$refs["_map"].GetNormalStations()
+      var StockStations = this.$refs["_map"].GetSTKStations()
+
+
+      if (NormalStations) {
+        this.moveable_tags = NormalStations.map(st => ({
+          id: st.TagNumber,
+          name: `(Normal)${st.TagNumber}`
+        }))
+        this.moveable_tags.sort((a, b) => a.id - b.id);
+      }
+      if (StockStations) {
+        this.stock_tags = StockStations.map(st => ({
+          id: st.TagNumber,
+          name: `(STK)${st.TagNumber}`
+        }))
+        this.stock_tags.sort((a, b) => a.id - b.id);
+      }
+
+
+      var ChargeStations = this.$refs["_map"].GetChargeStations()
+      if (ChargeStations) {
+        this.chargable_tags = ChargeStations.map(st => ({
+          id: st.TagNumber,
+          name: `(CHARGE)${st.TagNumber}`
+        }))
+        this.chargable_tags.sort((a, b) => a.id - b.id);
+      }
+    },
     TaskDeliveryBtnClickHandle() {
       if (this.selectedTag == '' | this.selectedTag == undefined) {
         this.notify_text = '尚未選擇目的地';
@@ -167,26 +233,51 @@ export default {
         this.notify_dialog_show = true;
         return;
       }
-      if ((this.selectedAction == 'carry' | this.selectedAction == 'load' | this.selectedAction == 'unload') && (this.selectedCst == '' | this.selectedCst == undefined)) {
+      if ((this.selectedAction == 'carry' | this.selectedAction == 'load' | this.selectedAction == 'unload') && (this.Cst_ID_Input == '' | this.Cst_ID_Input == undefined)) {
         this.notify_text = '尚未選擇CST ID';
         this.notify_dialog_show = true;
         return;
       }
       this.confirm_dialog_show = true;
     },
-    TaskDeliveryHandle() {
-      //派送成功狀態
+    async TaskDeliveryHandle() {
+      // TaskAllocation.Task();
+      var agv_name = this.clsAgvStatus.BaseProps.AGV_Name;
+      if (this.selectedAction == 'move') {
+        await TaskAllocation.MoveTask(new clsMoveTaskData(agv_name, this.selectedTag));
+      }
+
+      if (this.selectedAction == 'load') {
+        await TaskAllocation.LoadTask(new clsLoadTaskData(agv_name, this.selectedTag, 69, this.Cst_ID_Input));
+      }
+
+      if (this.selectedAction == 'unload') {
+        await TaskAllocation.UnloadTask(new clsUnloadTaskData(agv_name, this.selectedTag, 69, this.Cst_ID_Input));
+      }
+
+      if (this.selectedAction == 'carry') {
+        await TaskAllocation.CarryTask(new clsCarryTaskData(agv_name, this.selectedTag, 69, this.selectedToTag, 6699, this.Cst_ID_Input));
+      }
+      if (this.selectedAction == 'charge') {
+        await TaskAllocation.ChargeTask(new clsChargeTaskData(agv_name, this.selectedTag));
+      }
+
+
       Notifier.Success('任務已派送', 'top', 3000);
-      this.show = false;
-    }
+      // setTimeout(() => {
+      //   this.show = false;
+      // }, 700);
+    },
+    HandleDrawerClosed() {
+      bus.emit('/alarm_footer_send_to_back', false);
+    },
   },
   mounted() {
     bus.on('bus-show-task-allocation', (clsAgvStatus) => {
       this.clsAgvStatus = clsAgvStatus;
       this.show = true;
-
+      bus.emit('/alarm_footer_send_to_back', true);
     })
-
   },
 }
 </script>

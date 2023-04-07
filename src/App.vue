@@ -15,17 +15,29 @@
         </keep-alive>
       </router-view>
     </div>
+
+    <b-modal
+      v-model="ShowOKOnlyModal"
+      :title="`${okOnlyModalProps.title}`"
+      :centered="true"
+      :ok-only="true"
+      :header-bg-variant="okOnlyModalProps.title_variant"
+      header-text-variant="light"
+    >
+      <p>{{ okOnlyModalProps.content }}</p>
+    </b-modal>
+
     <AlarmDisplayVue></AlarmDisplayVue>
   </div>
+
   <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
 </template>
 
 <script>
-import bus from '@/event-bus.js'
 import SideMenuDrawer from '@/views/SideMenuDrawer.vue'
 import Header from '@/components/App/Header.vue'
-
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
+import bus from '@/event-bus.js'
 export default {
   components: {
     Header, AlarmDisplayVue, SideMenuDrawer,
@@ -33,6 +45,12 @@ export default {
   data() {
     return {
       showMenuToggleIcon: true,
+      ShowOKOnlyModal: false,
+      okOnlyModalProps: {
+        title: '',
+        content: '',
+        title_variant: 'primary'
+      }
     }
   },
   methods: {
@@ -45,12 +63,10 @@ export default {
     }
   },
   mounted() {
-    // bus.on('/god_mode_changed', (is_god_mode_now) => {
-    //   this.showMenuToggleIcon = is_god_mode_now
-    // });
-    // if (process.env.NODE_ENV != 'production') {
-    //   this.showMenuToggleIcon = true;
-    // }
+    bus.on('/ShowOKOnlyModal', (props) => {
+      this.okOnlyModalProps = props;
+      this.ShowOKOnlyModal = true;
+    });
   },
 };
 </script>

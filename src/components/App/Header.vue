@@ -1,13 +1,13 @@
 <template>
   <div class="app-header bg-primary text-light fixed-top d-flex flex-row">
-    <h2 @click="Refresh">GPM AGVS</h2>
+    <h2 @click="LogoClickHandler">GPM AGVS</h2>
     <p class="px-2">V100</p>
-    <div class="page-name-display flex-fill">{{current_route_display}}</div>
+    <div class="page-name-display flex-fill">{{current_route_info.route_display_name}}</div>
     <div class="user-account" @click="LoginClickHandler">
-      <span>VISITOR</span>
+      <span>{{ RoleDisplay }}</span>
       <i class="bi bi-person-circle"></i>
     </div>
-    <Login ref="login"></Login>
+    <Login ref="login" :IsLogin="IsLogin" @RoleChanged="(role)=>{current_user_role=role}"></Login>
   </div>
 </template>
   
@@ -15,26 +15,59 @@
 <script>
 import Login from '@/views/Login.vue';
 import bus from '@/event-bus.js'
+import { IsLoginLastTime } from '@/api/AuthHelper';
 export default {
   components: {
     Login
   },
   data() {
     return {
-      current_route_display: 'AGVS'
+      current_route_info: {
+        route_display_name: 'AGVS',
+        route_name: '/'
+      },
+      current_user_role: 0
+    }
+  },
+  computed: {
+    IsLogin() {
+      return this.current_user_role != 0;
+    },
+    RoleDisplay() {
+      if (this.current_user_role == 0)
+        return 'VISITOR'
+
+      else if (this.current_user_role == 1)
+        return 'ENG'
+
+      else if (this.current_user_role == 2)
+        return 'DEVELOPER'
+      else
+        return 'VISITOR'
     }
   },
   mounted() {
     bus.on('/router-change', (new_rotue) => {
-      this.current_route_display = new_rotue
+      // {route_display_name:display_name,route_name:route_name}
+      this.current_route_info = new_rotue
     });
+
+    var login_state = IsLoginLastTime();
+    if (login_state.isLogin) {
+      this.current_user_role = login_state.login_info.Role;
+    }
+
   },
   methods: {
-    Refresh() {
-      window.location.reload();
+    LogoClickHandler() {
+      this.$router.push('/');
+      this.current_route_info = {
+        route_display_name: 'AGVS',
+        route_name: '/'
+      }
     },
     LoginClickHandler() {
-      this.$refs['login'].Show();
+      this.$refs['login'].Show(this.current_route_info.route_name);
     }
   },
 }

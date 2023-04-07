@@ -1,9 +1,11 @@
 import {
   createRouter,
   createWebHashHistory,
+  createWebHistory,
   createMemoryHistory,
 } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import SystemSettings from '../views/SystemSettings.vue'
 
 const routes = [
   {
@@ -12,19 +14,19 @@ const routes = [
     component: HomeView,
   },
   {
-    path: '/rd_test',
-    name: 'rd_test',
-    component: () => import('../views/RDTestView.vue'),
-  },
-  {
     path: '/map',
     name: 'map',
     component: () => import('../views/MapView.vue'),
   },
+  {
+    path: '/sys_settings',
+    name: 'sys_settings',
+    component: SystemSettings,
+  },
 ]
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes,
 })
 
