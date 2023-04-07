@@ -6,6 +6,7 @@ import {
 } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SystemSettings from '../views/SystemSettings.vue'
+import DataVue from '../views/DataView.vue'
 
 const routes = [
   {
@@ -22,6 +23,11 @@ const routes = [
     path: '/sys_settings',
     name: 'sys_settings',
     component: SystemSettings,
+  },
+  {
+    path: '/data',
+    name: 'data',
+    component: DataVue,
   },
 ]
 

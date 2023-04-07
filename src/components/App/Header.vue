@@ -1,7 +1,7 @@
 <template>
   <div class="app-header bg-primary text-light fixed-top d-flex flex-row">
     <h2 @click="LogoClickHandler">GPM AGVS</h2>
-    <p class="px-2">V100</p>
+    <p class="px-2">V1</p>
     <div class="page-name-display flex-fill">{{current_route_info.route_display_name}}</div>
     <div class="user-account" @click="LoginClickHandler">
       <span>{{ RoleDisplay }}</span>

@@ -20,9 +20,9 @@
       v-model="ShowOKOnlyModal"
       :title="`${okOnlyModalProps.title}`"
       :centered="true"
-      :ok-only="true"
-      :header-bg-variant="okOnlyModalProps.title_variant"
-      header-text-variant="light"
+      :okOnly="true"
+      :headerBgVariant="okOnlyModalProps.title_variant"
+      headerTextVariant="light"
     >
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
@@ -40,7 +40,7 @@ import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
 import bus from '@/event-bus.js'
 export default {
   components: {
-    Header, AlarmDisplayVue, SideMenuDrawer,
+    Header, AlarmDisplayVue, SideMenuDrawer
   },
   data() {
     return {

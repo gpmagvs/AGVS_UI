@@ -14,6 +14,7 @@
         class="menu-item-container"
       >圖資管理</div>
       <div @click="PageSwitch('/','帳籍管理')" class="menu-item-container">帳籍管理</div>
+      <div @click="PageSwitch('/data','資料')" class="menu-item-container">資料</div>
       <div
         @click="PageSwitch('/sys_settings','系統設定')"
         v-show="auth_confirmed"

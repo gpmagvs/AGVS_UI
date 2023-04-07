@@ -6,7 +6,7 @@
       size="100%"
       direction="btt"
       :modal="true"
-      z-index="123"
+      :z-index="123"
       @closed="HandleDrawerClosed"
     >
       <template #header>
@@ -67,7 +67,6 @@
           </el-form>
           <MapShowVue ref="_map" class="flex-fill mx-2" style="height:800px"></MapShowVue>
         </div>
-
         <div v-if="selectedAction=='charge'" class="img charge"></div>
         <div v-else class="img delivery"></div>
       </div>

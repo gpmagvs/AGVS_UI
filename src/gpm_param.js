@@ -2,9 +2,6 @@ var param = {
   type: 'jw',
   // backend_host: 'http://192.168.0.103:7025',
   get backend_host() {
-    console.log(process.env.NODE_ENV)
-    console.log(window.location.host)
-    console.log(window.location.protocol)
     if (process.env.NODE_ENV == 'development') {
       return 'http://localhost:5216'
     } else {
