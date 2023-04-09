@@ -27,7 +27,8 @@
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
 
-    <AlarmDisplayVue></AlarmDisplayVue>
+    <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
+    <ConnectionState></ConnectionState>
   </div>
 
   <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
@@ -37,10 +38,11 @@
 import SideMenuDrawer from '@/views/SideMenuDrawer.vue'
 import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
+import ConnectionState from '@/components/App/ConnectionState.vue'
 import bus from '@/event-bus.js'
 export default {
   components: {
-    Header, AlarmDisplayVue, SideMenuDrawer
+    Header, AlarmDisplayVue, SideMenuDrawer, ConnectionState
   },
   data() {
     return {

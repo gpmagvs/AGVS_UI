@@ -1,7 +1,7 @@
 <template>
   <div class="task-status card-like">
     <div class="title">
-      <i class="bi bi-list-task">TASK STATUS</i>
+      <i class="bi bi-list-task"></i>TASK STATUS
     </div>
     <el-table size="large" empty-text="沒有任務">
       <el-table-column label="Task ID"></el-table-column>

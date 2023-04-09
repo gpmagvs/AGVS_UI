@@ -4,44 +4,30 @@
       <b>GPM AGVS</b>
     </h2>
     <p class="px-2">V1</p>
-    <div v-if="maintain_mode" class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。</div>
+    <div
+      v-if="modes.system_operation_mode.actived"
+      class="matain-mode-notify py-2 px-3"
+    >維護模式:自動派車、充電功能已關閉。</div>
     <div class="page-name-display flex-fill">{{current_route_info.route_display_name}}</div>
     <div class="options d-flex justify-content-between">
-      <div class="op-mode-switch-container">
-        <span class="mx-1">操作模式</span>
+      <i class="bi bi-three-dots-vertical pt-2"></i>
+      <div class="op-mode-switch-container" v-for="(mode,key) in modes" :key="key">
+        <span class="mx-1">{{mode.name}}</span>
         <el-switch
-          v-model="maintain_mode"
-          :active-value="true"
-          :inactive-value="false"
+          v-model="mode.actived"
           active-color="rgb(95, 171, 80)"
-          inactive-color="rgb(109, 111, 114)"
-          active-text="運轉"
-          inactive-text="維護"
+          inactive-color="red"
+          :active-text="mode.active_text"
+          :inactive-text=" mode.inactive_text "
           border-color="grey"
           inline-prompt
-          :before-change="MaintainModeRequest"
+          :before-change="mode.beforeChangeHandler"
+          :loading="mode.loading"
           size="large"
           width="75px"
         ></el-switch>
       </div>
 
-      <div class="op-mode-switch-container">
-        <span class="mx-1">上層系統</span>
-        <el-switch
-          v-model="maintain_mode"
-          :active-value="true"
-          :inactive-value="false"
-          active-color="rgb(95, 171, 80)"
-          inactive-color="rgb(109, 111, 114)"
-          active-text="Online"
-          inactive-text="Offline"
-          border-color="grey"
-          inline-prompt
-          :before-change="MaintainModeRequest"
-          size="large"
-          width="75px"
-        ></el-switch>
-      </div>
       <div class="pt-1">
         <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
           <template #reference>
@@ -82,7 +68,34 @@ export default {
         route_name: '/'
       },
       current_user_role: 0,
-      maintain_mode: true
+      maintain_mode: true,
+      modes: {
+        system_operation_mode: {
+          name: '操作模式',
+          actived: true,
+          active_text: '運轉',
+          inactive_text: '維護',
+          loading: false,
+          beforeChangeHandler: this.SysOptModeChangeRequest
+        },
+        host_conn_mode: {
+          name: 'HOST連線',
+          enabled: false,
+          active_text: 'Online',
+          inactive_text: 'Offline',
+          loading: false,
+          beforeChangeHandler: this.HostConnModeChangeRequest
+        },
+        host_operation_mode: {
+          name: 'HOST模式',
+          enabled: false,
+          active_text: 'Remote',
+          inactive_text: 'Local',
+          loading: false,
+          beforeChangeHandler: this.HostOptModeChangeRequest
+        }
+
+      }
     }
   },
   computed: {
@@ -125,8 +138,30 @@ export default {
     LoginClickHandler() {
       this.$refs['login'].Show(this.current_route_info.route_name);
     },
-    MaintainModeRequest() {
-      //TODO  send maintain change request to server .
+    SysOptModeChangeRequest() {
+      this.modes.system_operation_mode.loading = true;
+      //TODO　詢問後端是否可切換系統操作模式(Run/Maintain)
+      setTimeout(() => {
+        this.modes.system_operation_mode.loading = false;
+      }, 200);
+
+      return true;
+    },
+    HostConnModeChangeRequest() {
+      this.modes.host_conn_mode.loading = true;
+      //TODO　詢問後端是否可切換HOST連線模式(Online/Offline) 
+      setTimeout(() => {
+        this.modes.host_conn_mode.loading = false;
+      }, 200);
+
+      return true;
+    },
+    HostOptModeChangeRequest() {
+      this.modes.host_operation_mode.loading = true;
+      //TODO　詢問後端是否可切換HOST操作模式(Remote/Local)
+      setTimeout(() => {
+        this.modes.host_operation_mode.loading = false;
+      }, 200);
 
       return true;
     },

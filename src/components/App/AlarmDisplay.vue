@@ -6,7 +6,7 @@
           <b-button squared variant="secondary" @click="mode='hidden'">
             <i class="bi bi-chevron-double-down"></i>
           </b-button>
-          <div class="alarm-display-container w-100">
+          <div class="alarm-display-container d-flex flex-row w-100">
             <div class="h-50 w-100 border d-flex flex-row">
               <div class="alarm-type">設備異常</div>
               <div>a</div>
@@ -94,7 +94,7 @@ export default {
   }
 
   .show-mode {
-    height: 90px;
+    height: 45px;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="map card-like">
     <div class="title">
-      <i class="bi bi-map">MAP SHOW</i>
+      <i class="bi bi-map"></i>MAP SHOW
     </div>
     <MapShow ref="home-map" :task_allocatable="true" style="height:95%"></MapShow>
   </div>

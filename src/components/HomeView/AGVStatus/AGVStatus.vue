@@ -1,7 +1,7 @@
 <template>
   <div class="agv-status card-like">
     <div class="title">
-      <i class="bi bi-robot">AGV STATUS</i>
+      <i class="bi bi-robot"></i>AGV STATUS
     </div>
     <el-table :data="AGVDatas" size="large" height="460" empty-text="沒有AGV" style="z-index:1">
       <el-table-column label="AGV Name" prop="BaseProps.AGV_Name" width="130px">
