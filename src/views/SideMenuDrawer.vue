@@ -4,7 +4,7 @@
       v-model="show_draw"
       direction="ltr"
       title="GPM AGVS"
-      size="25%"
+      size="20%"
       @close="CLoseEventHandle"
     >
       <div @click="PageSwitch('/','AGVS')" class="menu-item-container">AGVS</div>
@@ -20,6 +20,7 @@
         v-show="auth_confirmed"
         class="menu-item-container"
       >SETTINGS</div>
+      <div class="version">v23.4.10.1</div>
     </el-drawer>
   </div>
 </template>
@@ -71,6 +72,10 @@ export default {
 
 <style scoped lang="scss">
 .side-menu {
+  .version {
+    position: absolute;
+    bottom: 2px;
+  }
   .menu-item-container {
     // border: 1px solid black;
     padding: 3px;

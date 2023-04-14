@@ -3,7 +3,7 @@
     <div class="title">
       <i class="bi bi-robot"></i>AGV STATUS
     </div>
-    <el-table :data="AGVDatas" size="large" height="460" empty-text="沒有AGV" style="z-index:1">
+    <el-table :data="AGVDatas" size="small" height="90%" empty-text="沒有AGV" style="z-index:1">
       <el-table-column label="AGV Name" prop="BaseProps.AGV_Name" width="130px">
         <template #default="scope">
           <b>{{scope.row.BaseProps.AGV_Name }}</b>
@@ -42,7 +42,18 @@
       <el-table-column label="電量" prop="RunningStatus.Electric_Volume[0]">
         <template #default="scope">
           <div>
-            <el-progress :percentage="scope.row.RunningStatus.Electric_Volume[0]"></el-progress>
+            <b-progress class="flex-fill" :max="100" animated>
+              <b-progress-bar
+                :animated="true"
+                :value="scope.row.RunningStatus.Electric_Volume[0]"
+                :label="`${((scope.row.RunningStatus.Electric_Volume[0] / 100) * 100).toFixed(2)}%`"
+              ></b-progress-bar>
+            </b-progress>
+            <!-- <el-progress
+              style="height:40px"
+              :text-inside="true"
+              :percentage="scope.row.RunningStatus.Electric_Volume[0]"
+            ></el-progress>-->
           </div>
         </template>
       </el-table-column>
@@ -99,6 +110,7 @@ import bus from '@/event-bus';
 import WebSocketHelp from '@/api/WebSocketHepler';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VmsAPI';
+import param from '@/gpm_param';
 export default {
   mounted() {
     this.WebSocketInit();
@@ -116,12 +128,16 @@ export default {
   },
   methods: {
     WebSocketInit() {
-      var ws = new WebSocketHelp("ws/VMSStatus");
+      var ws = new WebSocketHelp("ws/VMSStatus", param.vms_ws_host);
       ws.Connect();
       ws.wssocket.onmessage = (event) => {
+        bus.emit('/connection/vms', true);
         var data = JSON.parse(event.data);
         this.AGVDatas = Object.values(data);
         bus.emit('/agv_name_list', this.CreateMapAGVData());
+      }
+      ws.wssocket.onclose = (ev) => {
+        bus.emit('/connection/vms', false);
       }
     },
     CreateMapAGVData() {
@@ -129,7 +145,9 @@ export default {
       this.AGVDatas.forEach(agvData => {
         agv_data_for_map.push({
           AGV_Name: agvData.BaseProps.AGV_Name,
-          Current_Tag: agvData.RunningStatus.Last_Visited_Node
+          Current_Tag: agvData.RunningStatus.Last_Visited_Node,
+          // Rotation: agvData.RunningStatus.Corrdination.Theta
+          Rotation: Math.PI / 180 * agvData.RunningStatus.Corrdination.Theta
         })
       })
       return agv_data_for_map;
@@ -152,14 +170,19 @@ export default {
       this.ShowOnlineStateChange = true;
     },
     async SendOnlineStateChangeRequest() {
-      var response = {};
+      var response = null
       if (this.OnlineStatusReq.Online_Status == 'Online') {
-        response = await OnlineRequest(this.OnlineStatusReq.AGV_Name);
+        var res = await OnlineRequest(this.OnlineStatusReq.AGV_Name);
+        response = res.data;
       } else {
-        response = await OfflineRequest(this.OnlineStatusReq.AGV_Name);
+        var res = response = await OfflineRequest(this.OnlineStatusReq.AGV_Name);
+        response = res.data;
       }
-      console.log(response)
-      Notifier.Success(`${this.OnlineStatusReq.AGV_Name} - ${this.OnlineStatusReq.Online_Status} 請求已送出`, 'top', 3000);
+      console.log(response.Success)
+      if (response.Success)
+        Notifier.Success(`${this.OnlineStatusReq.AGV_Name} 已經 ${this.OnlineStatusReq.Online_Status}`, 'top', 3000);
+      else
+        Notifier.Danger(`${this.OnlineStatusReq.AGV_Name} ${this.OnlineStatusReq.Online_Status} 失敗:${response.Message}`, 'top', 3000);
     },
     ShowAGVChargeConfirmDialog(agv_status) {
 
@@ -214,14 +237,15 @@ export default {
       });
 
       return agv_name_list
-    }
+    },
+
   },
 }
 </script>
 
 <style lang="scss" scoped>
 .agv-status {
-  height: 60%;
+  height: 50%;
 
   .online-status-div:hover {
     cursor: pointer;

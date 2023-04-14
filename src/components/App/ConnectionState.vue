@@ -18,13 +18,14 @@
 </template>
 
 <script>
+import bus from '@/event-bus.js'
 export default {
   data() {
     return {
       Connections: [
         {
           name: "HOST",
-          connected: true,
+          connected: false,
         },
         {
           name: "VMS",
@@ -32,7 +33,7 @@ export default {
         },
         {
           name: "DB",
-          connected: true,
+          connected: false,
         },
         {
           name: "UI",
@@ -40,6 +41,11 @@ export default {
         }
       ]
     }
+  },
+  mounted() {
+    bus.on('/connection/vms', state => {
+      this.Connections[1].connected = state
+    });
   },
 }
 </script>

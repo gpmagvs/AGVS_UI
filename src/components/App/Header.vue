@@ -5,7 +5,7 @@
     </h2>
     <p class="px-2">V1</p>
     <div
-      v-if="modes.system_operation_mode.actived"
+      v-if="!modes.system_operation_mode.actived"
       class="matain-mode-notify py-2 px-3"
     >維護模式:自動派車、充電功能已關閉。</div>
     <div class="page-name-display flex-fill">{{current_route_info.route_display_name}}</div>
@@ -147,6 +147,7 @@ export default {
 
       return true;
     },
+    /**This function handles the change of the host connection mode.  */
     HostConnModeChangeRequest() {
       this.modes.host_conn_mode.loading = true;
       //TODO　詢問後端是否可切換HOST連線模式(Online/Offline) 

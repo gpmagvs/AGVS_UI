@@ -10,16 +10,43 @@
 <script>
 import MapShow from '../MapShow.vue';
 import bus from '@/event-bus.js'
-
+import WebSocketHelp from '@/api/WebSocketHepler.js'
+import param from '@/gpm_param';
 export default {
   components: {
     MapShow,
+  },
+  data() {
+    return {
+      navPathDisplayData: {}
+    }
   },
   mounted() {
     // bus.emit('on_map_save_success', '');
     bus.on('on_map_save_success', () => {
       this.$refs['home-map'].Reload();
     });
+
+    var ws = new WebSocketHelp('ws/AGVNaviPathsInfo', param.vms_ws_host);
+    ws.Connect();
+    ws.onmessage = (evt) => {
+      var navPathDisplayData = JSON.parse(evt.data);
+      Object.keys(navPathDisplayData).forEach(agv_name => {
+        var newtags = navPathDisplayData[agv_name];
+        var oldtags = this.navPathDisplayData[agv_name]
+        if (oldtags) {
+          if (newtags.length != oldtags.length) {
+            // this.$refs['home-map'].UpdateNavPathRender(agv_name, newtags);
+            bus.emit('/nav_path_update', { name: agv_name, tags: newtags })
+          }
+        } else {
+
+          bus.emit('/nav_path_update', { name: agv_name, tags: newtags })
+        }
+
+      });
+      this.navPathDisplayData = navPathDisplayData;
+    }
   },
 }
 </script>

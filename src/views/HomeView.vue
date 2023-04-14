@@ -2,7 +2,7 @@
   <div class="home-view h-100 d-flex flex-row">
     <div class="left-col d-flex flex-column w-50 border-right">
       <AGVStatusVue></AGVStatusVue>
-      <TaskStatusVue class="w-100"></TaskStatusVue>
+      <TaskStatusVue></TaskStatusVue>
     </div>
     <Map class="flex-fill h-100"></Map>
     <TaskAllocationVue></TaskAllocationVue>

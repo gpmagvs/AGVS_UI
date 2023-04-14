@@ -297,7 +297,7 @@ export default {
       width: 200px;
       height: 200px;
       position: absolute;
-      bottom: 0;
+      bottom: 30px;
       opacity: 0.2;
       background-repeat: no-repeat;
       background-size: cover;

@@ -8,6 +8,12 @@ var param = {
       return `${window.location.protocol}//${window.location.host}`
     }
   },
+  get vms_host() {
+    return 'http://localhost:5036'
+  },
+  get vms_ws_host() {
+    return this.vms_host.replace('http', 'ws')
+  },
 }
 class golbal_data {
   test = 1

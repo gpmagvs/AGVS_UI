@@ -154,7 +154,7 @@ import 'ol/ol.css';
 import ContextMenu from 'ol-contextmenu';
 
 import { Map, View, Feature } from 'ol';
-import { Vector as VectorLayer } from 'ol/layer';
+import { Layer, Vector as VectorLayer } from 'ol/layer';
 import { Vector as VectorSource } from 'ol/source';
 import { Point } from 'ol/geom';
 import { Circle as CircleStyle, Fill, Stroke, Style, Text, RegularShape, Image, Icon } from 'ol/style';
@@ -162,10 +162,8 @@ import { Pointer } from 'ol/interaction'
 import LineString from 'ol/geom/LineString';
 import MapAPI from '@/api/MapAPI'
 import bus from '@/event-bus'
-import { my_data } from '@/gpm_param.js'
 import Notifier from '@/api/NotifyHelper';
 import MapPointSettingDrawer from '@/components/MapPointSettingDrawer.vue'
-import { watch, ref } from 'vue';
 
 export default {
   name: 'MapComponent',
@@ -202,6 +200,9 @@ export default {
       showAGVMenu: false,
       path_plan_tags: [],
       contextMenu: {},
+      agv_color_set: [
+        'lime', 'orange', 'yellow', 'blue', 'pink', 'gold', 'red'
+      ],
       map_contextmenu_style: {
         position: 'absolute',
         top: '112px',
@@ -227,26 +228,10 @@ export default {
         name: 'AGV-1',
         current_tag: 50,
         previous_tag: -1,
-        color: 'rgb(255, 101, 70)'
-      },
-      {
-        name: 'AGV-2',
-        current_tag: 49,
-        previous_tag: -1,
-        color: 'rgb(18, 141, 70)'
-      },
-      {
-        name: 'AGV-3',
-        current_tag: 47,
-        previous_tag: -1,
-        color: 'rgb(43, 165, 255)'
-      },
-      {
-        name: 'AGV-4',
-        current_tag: 45,
-        previous_tag: -1,
-        color: 'rgb(255, 183, 8)'
-      }],
+        color: 'rgb(255, 101, 70)',
+        theta: 0
+      }
+      ],
       doubleArrowStyle: new Style({
         stroke: new Stroke({
           color: 'grey',
@@ -268,13 +253,6 @@ export default {
           lineDash: null,
         }),
       }),
-      agvIcon: new Icon({
-        src: '/emo.png', // 设置PNG图像的路径
-        scale: 1, // 设置PNG图像的缩放比例
-        anchor: [0.5, 1], // 设置PNG图像的锚点，即图片的中心点位置
-        size: [50, 50] // 设置PNG图像的大小
-      })
-
     }
   },
   async mounted() {
@@ -284,6 +262,9 @@ export default {
       bus.on('/agv_name_list', (agv_data) => {
         this.UpdateAGVLayer(agv_data);
       });
+      bus.on('/nav_path_update', (dto) => {
+        this.UpdateNavPathRender(dto.name, dto.tags)
+      })
 
     }, 1000);
 
@@ -397,9 +378,6 @@ export default {
         return station.feature.getGeometry().getCoordinates();
       }
     },
-    GetAgvFeatureByName(name) {
-
-    },
     GetNormalStations() {
       if (!this.map_data)
         return [];
@@ -422,13 +400,13 @@ export default {
     MapInitializeRender() {
 
       const lineFeatures = this.CreateLineFeaturesOfEachStaion();
-
       this.map = new Map({
         target: this.$refs.map,
         layers: [
           // add a vector layer with no source
           new VectorLayer({//0
             source: new VectorSource(),
+            name: '1'
           }),
           // add a vector layer with three points
           new VectorLayer({//1
@@ -453,13 +431,13 @@ export default {
               features: [],
             }
             ),
-            zIndex: 4
+            zIndex: 11111
           }),
           new VectorLayer({//5:導航任務路徑顯示
             source: new VectorSource({
               features: []
             }),
-            style: this.NavPathLineStyle
+            zIndex: 122
           }),
 
           new VectorLayer({//路徑規劃測試顯示
@@ -613,29 +591,35 @@ export default {
 
       var output = this.CreateAGVFeatures(agv_data);
       var agv_layer_source = this.AGV_Layer.getSource()
-      var agv_nav_path_layer_source = this.Nav_Path_Layer.getSource()
       agv_layer_source.clear();
-      agv_nav_path_layer_source.clear();
       agv_layer_source.addFeatures(output.agv_features);
-      agv_nav_path_layer_source.addFeatures(output.agv_nav_path_features);
       agv_layer_source.changed();
+
+      var agv_nav_path_layer_source = this.Nav_Path_Layer.getSource()
+      agv_nav_path_layer_source.clear();
+      agv_nav_path_layer_source.addFeatures(output.agv_nav_path_features);
       agv_nav_path_layer_source.changed();
-      this.AGVStyleRender();
+
+
     },
     CreateAGVFeatures(agv_data = []) {
 
       var agv_features = [];
       var agv_nav_path_features = [];
       this.agvList = [];
+      var idx = 0;
       agv_data.forEach(info => {
         var agv_name = info.AGV_Name;
         var agv_current_tag = info.Current_Tag
-        this.agvList.push({
+        var agv_prop = {
           name: agv_name,
           current_tag: agv_current_tag,
           previous_tag: -1,
-          color: 'red'
-        })
+          color: this.agv_color_set[idx],
+          theta: info.Rotation
+        }
+        idx += 1;
+        this.agvList.push(agv_prop)
 
         var agv_position = this.get_agv_position(agv_name);
         var agv_feature = new Feature({
@@ -644,6 +628,32 @@ export default {
         })
         agv_feature.setId('AGV_' + agv_name);
         agv_features.push(agv_feature);
+
+        var agvIcon = new Icon({
+          src: '/agv.png', // 设置PNG图像的路径
+          scale: .5, // 设置PNG图像的缩放比例
+          anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
+          size: [70, 70],// 设置PNG图像的大小
+          opacity: 1,
+        })
+
+        agv_feature.setStyle(new Style({
+          image: agvIcon,
+          text: new Text({
+            text: agv_name,
+            offsetX: 10,
+            offsetY: 30,
+            font: 'bold 18px Arial',
+            fill: new Fill({
+              color: agv_prop.color
+            }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 3
+            })
+          }),
+        }));
+        agv_feature.getStyle().getImage().setRotation(-agv_prop.theta);//設定旋轉角度
 
         var nav_path_feature = new Feature({
           geometry: new Point(agv_position),
@@ -775,6 +785,7 @@ export default {
             let lineFeature = new Feature({
               geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
             });
+
             lineFeatures.push(lineFeature);
           }
         })
@@ -792,26 +803,26 @@ export default {
         var isEQStation = nameInt % 2 == 0
 
         var trangleImg = new RegularShape({
-          radius: 6,
+          radius: 8,
           fill: new Fill({
             color: 'rgb(37, 172, 95)',
           }),
           stroke: new Stroke({
             color: 'black',
-            width: 2,
+            width: 3,
           }),
           angle: 0,
           points: 3,
         })
 
         var circleImg = new CircleStyle({
-          radius: 6,
+          radius: 8,
           fill: new Fill({
             color: 'rgb(243, 123, 55)',
           }),
           stroke: new Stroke({
             color: 'black',
-            width: 2,
+            width: 3,
           }),
         })
 
@@ -823,7 +834,11 @@ export default {
             offsetY: -18,
             font: 'bold 14px sans-serif',
             fill: new Fill({
-              color: showTagNumber ? 'black' : 'grey'
+              color: showTagNumber ? 'gold' : 'lime'
+            }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 3
             })
           }),
         }));
@@ -832,42 +847,6 @@ export default {
       this.Station_Layer.getSource().changed();
     },
 
-    AGVStyleRender() {
-
-      this.AGV_Layer.getSource().getFeatures().forEach(agv_feature => {
-        const name = agv_feature.get('name');
-        var agv_prop = this.agvList.find(agv => agv.name == name);
-        if (agv_prop) {
-          var agvIcon = new Icon({
-            src: '/station.png', // 设置PNG图像的路径
-            scale: .4, // 设置PNG图像的缩放比例
-            anchor: [-0.1, 1], // 设置PNG图像的锚点，即图片的中心点位置
-            size: [70, 70],// 设置PNG图像的大小
-            opacity: .7,
-          })
-
-          agv_feature.setStyle(new Style({
-            image: agvIcon,
-            text: new Text({
-              text: name,
-              offsetX: 30,
-              offsetY: -38,
-              font: 'bold 18px sans-serif',
-              fill: new Fill({
-                color: 'white'
-              }),
-              backgroundFill: new Fill({
-                color: agv_prop.color
-              })
-            }),
-          }));
-
-        }
-      })
-
-
-
-    },
     NameDisplayChangeHandle() {
       this.StationStyleRender();
     },
@@ -875,22 +854,27 @@ export default {
 
       this.AGVDisplayControl(this.agv_display_mode_selected == 'show');
     },
-    ClearNavPath() {
-      let source = this.Nav_Path_Layer.getSource();
-      source.clear(); //把原有的feature移除
-    },
-    UpdateNavPathRender(tags = []) {
-
-      my_data.test = Date.now();
-      this.ClearNavPath();
-      if (tags.length == 0) {
-        return;
+    UpdateNavPathRender(agv_name, tags) {
+      var layerName = `agv_path_layer_${agv_name}`
+      var layer = this.map.getLayers().getArray().find(layer => layer.get('id') == layerName);
+      if (layer) {
+        this.map.removeLayer(layer);
       }
-      let source = this.Nav_Path_Layer.getSource();
-      var features = this.CreateLineFeaturesOfPath(tags);
-      features.forEach(feature => {
-        source.addFeature(feature)
-      })
+
+      // 创建一个矢量图层和矢量数据源
+      var path_vectorSource = new VectorSource();
+      var path_vectorLayer = new VectorLayer({
+        source: path_vectorSource,
+        zIndex: 666,
+        id: layerName
+      });
+      this.map.addLayer(path_vectorLayer)
+      let source = path_vectorLayer.getSource();
+      var color = this.agvList.find(agv => agv.name == agv_name).color;
+      if (color) {
+        var features = this.CreateLineFeaturesOfPath(tags, color);
+      }
+      source.addFeatures(features)
       source.changed();
     },
     UpdatePathPlanRender(tags = []) {
@@ -903,12 +887,10 @@ export default {
         return;
       }
       var features = this.CreateLineFeaturesOfPath(tags);
-      features.forEach(feature => {
-        source.addFeature(feature)
-      })
+      source.addFeatures(features);
       source.changed();
     },
-    CreateLineFeaturesOfPath(tags = []) {
+    CreateLineFeaturesOfPath(tags = [], color) {
       // 创建一条线要素，连接两个点要素
       var lineFeatures = [];
 
@@ -921,8 +903,18 @@ export default {
           var current_station = this.stations.find(st => st.tag == tag);
           var next_station = this.stations.find(st => st.tag == next_tag);
           let lineFeature = new Feature({
-            geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), next_station.feature.getGeometry().getCoordinates()]),
+            geometry: new LineString(
+              [current_station.feature.getGeometry().getCoordinates(), next_station.feature.getGeometry().getCoordinates()],
+            ),
           });
+          lineFeature.setStyle(new Style(
+            {
+              stroke: new Stroke({
+                color: color,
+                width: 6
+              }),
+            }
+          ));
           lineFeatures.push(lineFeature);
 
         }

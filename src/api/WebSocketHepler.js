@@ -7,6 +7,10 @@ class WebSocketHelp {
     bus.on('/ws_force_close', () => {
       this.Close()
     })
+
+    if (ws_path.startsWith('/')) {
+      ws_path = ws_path.substr(1)
+    }
     this.ws_path = ws_path
     if (ws_host == undefined) {
       this.ws_url = `${backend_ws_host}/${this.ws_path}`
@@ -32,11 +36,31 @@ class WebSocketHelp {
       this.wssocket.close()
     }
   }
+  set onclose(ev) {
+    this.wssocket.onclose = ev
+  }
+  get onclose() {
+    return this.wssocket.onclose
+  }
+
+  set onopen(ev) {
+    this.wssocket.onopen = ev
+  }
+  get onopen() {
+    return this.wssocket.onopen
+  }
+
+  set onmessage(ev) {
+    this.wssocket.onmessage = ev
+  }
+  get onmessage() {
+    return this.wssocket.onmessage
+  }
 
   SendAliveCheck() {
     this.alive_check_timer = setInterval(() => {
       this.wssocket.send('alive')
-    }, 1000)
+    }, 100)
   }
 }
 
