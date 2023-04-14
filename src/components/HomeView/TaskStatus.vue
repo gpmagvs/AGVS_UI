@@ -16,57 +16,86 @@
           <el-table-column label="任務名稱" prop="TaskName" width="170"></el-table-column>
           <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
           <el-table-column label="任務狀態" prop="StateName" width="80"></el-table-column>
-          <el-table-column label="動作" prop="TaskDispatchData.ActionName" width="80"></el-table-column>
-          <el-table-column label="卡匣ID" prop="TaskDispatchData.Carrier_ID" width="100"></el-table-column>
+          <el-table-column label="動作" prop="ActionName" width="80"></el-table-column>
+          <el-table-column label="卡匣ID" prop="Carrier_ID" width="100"></el-table-column>
           <el-table-column label="起點">
-            <el-table-column label="站點" prop="TaskDispatchData.From_Station"></el-table-column>
-            <el-table-column label="Port" prop="TaskDispatchData.From_Slot" width="50"></el-table-column>
+            <el-table-column label="站點" prop="From_Station"></el-table-column>
+            <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column>
           </el-table-column>
           <el-table-column label="終點">
-            <el-table-column label="站點" prop="TaskDispatchData.To_Station"></el-table-column>
-            <el-table-column label="Port" prop="TaskDispatchData.To_Slot" width="50"></el-table-column>
+            <el-table-column label="站點" prop="To_Station"></el-table-column>
+            <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column>
           </el-table-column>
-          <el-table-column label="執行AGV" prop="TaskDispatchData.DesignatedAGVName"></el-table-column>
+          <el-table-column label="執行AGV" prop="DesignatedAGVName"></el-table-column>
           <el-table-column label="派工人員" prop="DispatcherName"></el-table-column>
+          <el-table-column fixed="right" width="100">
+            <template #default="scope">
+              <div>
+                <b-button
+                  size="sm"
+                  variant="danger"
+                  @click="CancelTaskHandler(scope.row.TaskName)"
+                >取消任務</b-button>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
       </b-tab>
       <b-tab title="已完成任務">
-        <el-table :data="CompletedTaskList" row-key="TaskName" size="small" empty-text="沒有任務">
+        <el-table
+          :data="CompletedTaskList"
+          row-key="TaskName"
+          size="small"
+          height="280px"
+          empty-text="沒有任務"
+        >
           <el-table-column label="任務名稱" prop="TaskName" width="170"></el-table-column>
           <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
-          <el-table-column label="完成時間" prop="RecieveTime_Formated" width="80"></el-table-column>
+          <el-table-column label="完成時間" prop="FinishTime_Formated" width="80"></el-table-column>
           <el-table-column label="任務狀態" prop="StateName" width="80"></el-table-column>
-          <el-table-column label="動作" prop="TaskDispatchData.ActionName" width="80"></el-table-column>
-          <el-table-column label="卡匣ID" prop="TaskDispatchData.Carrier_ID"></el-table-column>
+          <el-table-column label="動作" prop="ActionName" width="80"></el-table-column>
+          <el-table-column label="卡匣ID" prop="Carrier_ID"></el-table-column>
           <el-table-column label="起點">
-            <el-table-column label="站點" prop="TaskDispatchData.From_Station"></el-table-column>
-            <el-table-column label="Port" prop="TaskDispatchData.From_Slot" width="50"></el-table-column>
+            <el-table-column label="站點" prop="From_Station"></el-table-column>
+            <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column>
           </el-table-column>
           <el-table-column label="終點">
-            <el-table-column label="站點" prop="TaskDispatchData.To_Station"></el-table-column>
-            <el-table-column label="Port" prop="TaskDispatchData.To_Slot" width="50"></el-table-column>
+            <el-table-column label="站點" prop="To_Station"></el-table-column>
+            <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column>
           </el-table-column>
-          <el-table-column label="執行AGV" prop="TaskDispatchData.DesignatedAGVName"></el-table-column>
+          <el-table-column label="執行AGV" prop="DesignatedAGVName"></el-table-column>
           <el-table-column label="派工人員" prop="DispatcherName"></el-table-column>
         </el-table>
       </b-tab>
     </b-tabs>
+
+    <!--Modal-->
+    <b-modal
+      title="任務取消"
+      :centered="true"
+      header-bg-variant="warning"
+      v-model="showCancelTaskConfirm"
+      @ok="SendCancelTaskRequest"
+    >
+      <p ref="cancel-task-diaglog-text">確定要取消該任務?({{ cancelTaskName}})</p>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import clsTaskState from '@/ViewModels/TaskState.js'
 import WebSocketHelp from '@/api/WebSocketHepler'
+import { TaskAllocation } from '@/api/TaskAllocation'
 export default {
   data() {
     return {
       IncompletedTaskList: [
-        new clsTaskState("*Test-202304120922333")
       ],
       CompletedTaskList: [
-        new clsTaskState("*Test-202304120922333")
       ],
-      wsHelper: new WebSocketHelp('')
+      wsHelper: new WebSocketHelp(''),
+      showCancelTaskConfirm: false,
+      cancelTaskName: ''
     }
   },
   mounted() {
@@ -74,19 +103,26 @@ export default {
   },
   methods: {
     WsInit() {
-      this.wsHelper = new WebSocketHelp('/ws/InCompletedTaskList');
+      this.wsHelper = new WebSocketHelp('/ws/TaskData');
       this.wsHelper.Connect();
-      this.wsHelper.onopen = (ev) => console.info('task status vue : ws connected!');
       this.wsHelper.onclose = (ev) => {
         console.info('task status vue : ws closed!');
       }
       this.wsHelper.onmessage = (ev) => {
         var parsedArray = JSON.parse(ev.data);
-        this.IncompletedTaskList = parsedArray.map(task => new clsTaskState(task));
+        this.IncompletedTaskList = parsedArray.incompleteds.map(task => new clsTaskState(task));
+        this.CompletedTaskList = parsedArray.completeds.map(task => new clsTaskState(task));
 
       }
     },
+    CancelTaskHandler(task_name) {
+      this.cancelTaskName = task_name;
 
+      this.showCancelTaskConfirm = true;
+    },
+    async SendCancelTaskRequest() {
+      await TaskAllocation.Cancel(this.cancelTaskName);
+    }
   },
 }
 </script>

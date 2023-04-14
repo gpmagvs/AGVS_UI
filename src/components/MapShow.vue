@@ -201,7 +201,7 @@ export default {
       path_plan_tags: [],
       contextMenu: {},
       agv_color_set: [
-        'lime', 'orange', 'yellow', 'blue', 'pink', 'gold', 'red'
+        'lime', 'orange', 'yellow', 'rgb(64, 158, 255)', 'pink', 'gold', 'red', 'grey'
       ],
       map_contextmenu_style: {
         position: 'absolute',

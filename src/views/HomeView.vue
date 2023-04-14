@@ -1,10 +1,10 @@
 <template>
   <div class="home-view h-100 d-flex flex-row">
-    <div class="left-col d-flex flex-column w-50 border-right">
+    <div class="left-col d-flex flex-column w-50 border-right flex-fill">
       <AGVStatusVue></AGVStatusVue>
       <TaskStatusVue></TaskStatusVue>
     </div>
-    <Map class="flex-fill h-100"></Map>
+    <Map class="h-100" v-bind:style="{width:'40%'}"></Map>
     <TaskAllocationVue></TaskAllocationVue>
   </div>
 </template>

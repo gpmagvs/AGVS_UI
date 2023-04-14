@@ -12,7 +12,39 @@ export class clsMoveTaskData {
     this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 0
     this.DesignatedAGVName = agv_name
+    this.From_Station = '-1'
+    this.From_Slot = '-1'
     this.To_Station = to_tag + ''
+    this.To_Slot = '-1'
+    this.Carrier_ID = '-1'
+    this.Priority = Priority
+  }
+}
+
+export class clsLoadTaskData {
+  constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
+    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.Action = 1
+    this.DesignatedAGVName = agv_name
+    this.From_Station = '-1'
+    this.From_Slot = '-1'
+    this.To_Station = to_tag + ''
+    this.To_Slot = to_slot + ''
+    this.Carrier_ID = cst_id
+    this.Priority = Priority
+  }
+}
+
+export class clsUnloadTaskData {
+  constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
+    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.Action = 2
+    this.DesignatedAGVName = agv_name
+    this.From_Station = '-1'
+    this.From_Slot = '-1'
+    this.To_Station = to_tag + ''
+    this.To_Slot = to_slot + ''
+    this.Carrier_ID = cst_id
     this.Priority = Priority
   }
 }
@@ -22,34 +54,14 @@ export class clsChargeTaskData {
     this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 3
     this.DesignatedAGVName = agv_name
+    this.From_Station = '-1'
+    this.From_Slot = '-1'
     this.To_Station = to_tag + ''
+    this.To_Slot = '-1'
+    this.Carrier_ID = '-1'
     this.Priority = Priority
   }
 }
-export class clsLoadTaskData {
-  constructor(agv_name, to_tag, slot_number, cst_id, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
-    this.Action = 1
-    this.DesignatedAGVName = agv_name
-    this.To_Station = to_tag + ''
-    this.To_Slot = slot_number + ''
-    this.Carrier_ID = cst_id
-    this.Priority = Priority
-  }
-}
-
-export class clsUnloadTaskData {
-  constructor(agv_name, to_tag, slot_number, cst_id, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
-    this.Action = 2
-    this.AGV_Name = agv_name
-    this.To_Station = to_tag + ''
-    this.To_Slot = slot_number + ''
-    this.Carrier_ID = cst_id
-    this.Priority = Priority
-  }
-}
-
 export class clsCarryTaskData {
   constructor(
     agv_name,
@@ -83,7 +95,11 @@ export var TaskAllocation = {
         console.error('Error:', error)
       })
   },
-
+  async Cancel(taskName) {
+    return await axios_entity.get(`/api/Task/Cancel?task_name=${taskName}`, {
+      headers: getAuthHeaders(),
+    })
+  },
   async MoveTask(clsMoveTaskData = new clsMoveTaskData('agv', 1)) {
     return CallAPI('/api/Task/Move', clsMoveTaskData)
   },

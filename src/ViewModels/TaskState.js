@@ -4,12 +4,30 @@ class clsTaskState {
   constructor(task) {
     this.TaskName = task.TaskName
     this.State = task.State
-    this.TaskDispatchData = task.TaskDispatchData
     this.RecieveTime = task.RecieveTime
+    this.FinishTime = task.FinishTime
     this.DispatcherName = task.DispatcherName
+    this.DesignatedAGVName = task.DesignatedAGVName
+    this.ACTIONS = {
+      MOVE: 0,
+      LOAD: 1,
+      UNLOAD: 2,
+      CHARGE: 3,
+      CARRY: 4,
+    }
+    this.Action = task.Action
+    this.From_Station = task.From_Station
+    this.From_Slot = task.From_Slot
+    this.To_Station = task.To_Station
+    this.To_Slot = task.To_Slot
+    this.Carrier_ID = task.Carrier_ID
+    this.Priority = task.Priority
   }
   get RecieveTime_Formated() {
     return moment(this.RecieveTime).format('HH:mm:ss')
+  }
+  get FinishTime_Formated() {
+    return moment(this.FinishTime).format('HH:mm:ss')
   }
   get StateName() {
     switch (this.State) {
@@ -25,28 +43,6 @@ class clsTaskState {
         return '等待'
     }
   }
-}
-
-class clsTaskDispatchDto {
-  constructor() {
-    this.TaskName = ''
-    this.DesignatedAGVName = ''
-    this.ACTIONS = {
-      MOVE: 0,
-      LOAD: 1,
-      UNLOAD: 2,
-      CHARGE: 3,
-      CARRY: 4,
-    }
-    this.Action = this.ACTIONS.MOVE
-    this.From_Station = ''
-    this.From_Slot = ''
-    this.To_Station = ''
-    this.To_Slot = ''
-    this.Carrier_ID = ''
-    this.Priority = 50
-  }
-
   get ActionName() {
     switch (this.Action) {
       case 0:

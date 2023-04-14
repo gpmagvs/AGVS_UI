@@ -35,14 +35,17 @@ export default {
           name: "DB",
           connected: false,
         },
-        {
-          name: "UI",
-          connected: false,
-        }
+        // {
+        //   name: "UI",
+        //   connected: false,
+        // }
       ]
     }
   },
   mounted() {
+    bus.on('/connection/host', state => {
+      this.Connections[0].connected = state
+    });
     bus.on('/connection/vms', state => {
       this.Connections[1].connected = state
     });

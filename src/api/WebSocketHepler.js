@@ -4,6 +4,9 @@ var backend_ws_host = param.backend_host.replace('http', 'ws')
 
 class WebSocketHelp {
   constructor(ws_path, ws_host) {
+    this.wssocket = null
+    this.closed_actived = false
+    this.previousWsState = WebSocket.CLOSED
     bus.on('/ws_force_close', () => {
       this.Close()
     })
@@ -22,21 +25,35 @@ class WebSocketHelp {
   Connect() {
     console.info(`Try Connect to : ${this.ws_url}`)
     const socket = new WebSocket(`${this.ws_url}`)
+
     socket.onopen = () => {
-      console.info('ws opened')
+      console.info(`ws: ${this.ws_url} opened`)
       this.SendAliveCheck()
+    }
+    socket.onerror = (ev) => {
+      console.info(`Try Connect to : ${this.ws_url} ON ＥＲＲＯＲ FAIL`)
     }
     this.wssocket = socket
   }
+  /**重新連線 */
+  ReconnectWorker() {
+    console.info(`[Reconnect] Try Connect to : ${this.ws_url}`)
+    this.wssocket = new WebSocket(`${this.ws_url}`)
+
+    this.wssocket.onmessage = this.onmessageHandler
+    this.wssocket.onclose = this.oncloseHandler
+    this.wssocket.onopen = this.onopen
+  }
 
   Close() {
+    this.closed_actived = true
     clearInterval(this.alive_check_timer)
-
     if (this.wssocket) {
       this.wssocket.close()
     }
   }
   set onclose(ev) {
+    this.oncloseHandler = ev
     this.wssocket.onclose = ev
   }
   get onclose() {
@@ -44,6 +61,7 @@ class WebSocketHelp {
   }
 
   set onopen(ev) {
+    this.onopenHandler = ev
     this.wssocket.onopen = ev
   }
   get onopen() {
@@ -51,6 +69,7 @@ class WebSocketHelp {
   }
 
   set onmessage(ev) {
+    this.onmessageHandler = ev
     this.wssocket.onmessage = ev
   }
   get onmessage() {
@@ -59,8 +78,23 @@ class WebSocketHelp {
 
   SendAliveCheck() {
     this.alive_check_timer = setInterval(() => {
-      this.wssocket.send('alive')
-    }, 100)
+      if (this.wssocket) {
+        if (this.wssocket.readyState == WebSocket.CONNECTING) {
+        } else {
+          if (this.wssocket.readyState == WebSocket.OPEN) {
+            this.wssocket.send('alive')
+          }
+
+          if (
+            this.wssocket.readyState != this.previousWsState &&
+            this.wssocket.readyState == WebSocket.CLOSED
+          ) {
+            this.ReconnectWorker()
+          }
+        }
+        this.previousWsState = this.wssocket.readyState
+      }
+    }, 1000)
   }
 }
 

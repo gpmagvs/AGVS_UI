@@ -263,9 +263,9 @@ export default {
 
 
       Notifier.Success('任務已派送', 'top', 3000);
-      // setTimeout(() => {
-      //   this.show = false;
-      // }, 700);
+      setTimeout(() => {
+        this.show = false;
+      }, 400);
     },
     HandleDrawerClosed() {
       bus.emit('/alarm_footer_send_to_back', false);

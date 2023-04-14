@@ -3,7 +3,7 @@
     <div class="title">
       <i class="bi bi-robot"></i>AGV STATUS
     </div>
-    <el-table :data="AGVDatas" size="small" height="90%" empty-text="沒有AGV" style="z-index:1">
+    <el-table :data="AGVDatas" size="small" height="93%" empty-text="沒有AGV" style="z-index:1">
       <el-table-column label="AGV Name" prop="BaseProps.AGV_Name" width="130px">
         <template #default="scope">
           <b>{{scope.row.BaseProps.AGV_Name }}</b>
@@ -85,10 +85,12 @@
   <div class="modals">
     <b-modal
       v-model="ShowOnlineStateChange"
-      title="Online/Offline Change"
+      title="ONLINE / OFFLINE REQUEST CONFIRM."
       :centered="true"
       @ok="SendOnlineStateChangeRequest"
       :no-close-on-esc="true"
+      header-bg-variant="warning"
+      header-text-variant="light"
     >
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
@@ -110,6 +112,7 @@ import bus from '@/event-bus';
 import WebSocketHelp from '@/api/WebSocketHepler';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VmsAPI';
+import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
 import param from '@/gpm_param';
 export default {
   mounted() {
@@ -130,14 +133,15 @@ export default {
     WebSocketInit() {
       var ws = new WebSocketHelp("ws/VMSStatus", param.vms_ws_host);
       ws.Connect();
-      ws.wssocket.onmessage = (event) => {
+      ws.onmessage = (event) => {
         bus.emit('/connection/vms', true);
         var data = JSON.parse(event.data);
         this.AGVDatas = Object.values(data);
         bus.emit('/agv_name_list', this.CreateMapAGVData());
       }
-      ws.wssocket.onclose = (ev) => {
+      ws.onclose = (ev) => {
         bus.emit('/connection/vms', false);
+        console.info('[AGVStatus]vue Websocket closed');
       }
     },
     CreateMapAGVData() {
@@ -166,7 +170,7 @@ export default {
       this.OnlineStatusReq.AGV_Name = agv_name;
       this.OnlineStatusReq.Online_Status = current_online_status == 0 ? 'Online' : 'Offline';
       var text_class = current_online_status == 0 ? 'text-success' : 'text-danger';
-      this.$refs['online_status_change_noti_txt'].innerHTML = `<h4>確定要將 <span class='border-bottom'> ${this.OnlineStatusReq.AGV_Name}</span><b> <span class='${text_class}'>${this.OnlineStatusReq.Online_Status}</span></b>  ?</h4>`;
+      this.$refs['online_status_change_noti_txt'].innerHTML = `<h4>確定要將 <span class='border'> ${this.OnlineStatusReq.AGV_Name}</span><b> <span class='${text_class}'>${this.OnlineStatusReq.Online_Status}</span></b>  ?</h4>`;
       this.ShowOnlineStateChange = true;
     },
     async SendOnlineStateChangeRequest() {
@@ -196,7 +200,7 @@ export default {
       this.ShowChargeConfirmDialog = true;
     },
     AGVChargeTask() {
-      alert(this.Agv_Selected);
+      TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))
     },
     AGV_Status_TagType(status_code) {
       if (status_code == 1)
@@ -206,7 +210,7 @@ export default {
       else if (status_code == 3)
         return "danger"
       else if (status_code == 4)
-        return "primary"
+        return ""
       else
         return "default"
     },

@@ -34,16 +34,16 @@ export default {
       Object.keys(navPathDisplayData).forEach(agv_name => {
         var newtags = navPathDisplayData[agv_name];
         var oldtags = this.navPathDisplayData[agv_name]
-        if (oldtags) {
-          if (newtags.length != oldtags.length) {
-            // this.$refs['home-map'].UpdateNavPathRender(agv_name, newtags);
-            bus.emit('/nav_path_update', { name: agv_name, tags: newtags })
-          }
-        } else {
-
+        const emitAction = () => {
           bus.emit('/nav_path_update', { name: agv_name, tags: newtags })
         }
-
+        if (oldtags) {
+          if (newtags.length != oldtags.length) {
+            emitAction()
+          }
+        } else {
+          emitAction()
+        }
       });
       this.navPathDisplayData = navPathDisplayData;
     }
