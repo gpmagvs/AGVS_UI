@@ -8,7 +8,8 @@
       ></i>
       <Header></Header>
     </div>
-    <div class="flex-fill" style="height:100vh;padding-top:48px;">
+
+    <div class="flex-fill" style="height:100vh;padding-top:150px;">
       <router-view v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" />

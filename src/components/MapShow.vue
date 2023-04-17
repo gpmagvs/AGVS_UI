@@ -611,12 +611,15 @@ export default {
       agv_data.forEach(info => {
         var agv_name = info.AGV_Name;
         var agv_current_tag = info.Current_Tag
+        var agv_state = info.State
+        var isOnline = info.IsOnline
         var agv_prop = {
           name: agv_name,
           current_tag: agv_current_tag,
           previous_tag: -1,
           color: this.agv_color_set[idx],
-          theta: info.Rotation
+          theta: info.Rotation,
+          state: agv_state
         }
         idx += 1;
         this.agvList.push(agv_prop)
@@ -640,12 +643,12 @@ export default {
         agv_feature.setStyle(new Style({
           image: agvIcon,
           text: new Text({
-            text: agv_name,
+            text: agv_name + `\r\n(${agv_state})`,
             offsetX: 10,
             offsetY: 30,
             font: 'bold 18px Arial',
             fill: new Fill({
-              color: agv_prop.color
+              color: isOnline ? agv_prop.color : 'rgb(192, 192, 192)'
             }),
             stroke: new Stroke({
               color: 'black',
@@ -769,31 +772,7 @@ export default {
         return undefined;
 
     },
-    CreateLineFeaturesOfEachStaion() {
-      // 创建一条线要素，连接两个点要素
-      var lineFeatures = [];
-      Object.keys(this.map_data.Points).forEach(index_str => {
-        var index = parseInt(index_str)
-        var current_station = this.stations.find(st => st.index == index);
-        var targets = this.map_data.Points[index_str].Target;
-        Object.keys(targets).forEach(index_str => {
-          var _index = parseInt(index_str)
-          //找到
-          var station_link = this.stations.find(st => st.index == _index);
-          if (station_link != undefined) {
 
-            let lineFeature = new Feature({
-              geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
-            });
-
-            lineFeatures.push(lineFeature);
-          }
-        })
-
-      })
-
-      return lineFeatures;
-    },
     StationStyleRender() {
       this.map.getLayers().item(this.layer_index.station).getSource().getFeatures().forEach((feature) => {
         var station = this.stations.find(st => st.feature == feature);
@@ -889,6 +868,31 @@ export default {
       var features = this.CreateLineFeaturesOfPath(tags);
       source.addFeatures(features);
       source.changed();
+    },
+    CreateLineFeaturesOfEachStaion() {
+      // 创建一条线要素，连接两个点要素
+      var lineFeatures = [];
+      Object.keys(this.map_data.Points).forEach(index_str => {
+        var index = parseInt(index_str)
+        var current_station = this.stations.find(st => st.index == index);
+        var targets = this.map_data.Points[index_str].Target;
+        Object.keys(targets).forEach(index_str => {
+          var _index = parseInt(index_str)
+          //找到
+          var station_link = this.stations.find(st => st.index == _index);
+          if (station_link != undefined) {
+
+            let lineFeature = new Feature({
+              geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
+            });
+
+            lineFeatures.push(lineFeature);
+          }
+        })
+
+      })
+
+      return lineFeatures;
     },
     CreateLineFeaturesOfPath(tags = [], color) {
       // 创建一条线要素，连接两个点要素

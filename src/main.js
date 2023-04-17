@@ -11,6 +11,9 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import { createI18n } from 'vue-i18n'
 import './global.scss'
 import Modal from './components/ModalHelper'
+import Vuesax from 'vuesax3'
+
+import 'vuesax3/dist/vuesax.css'
 
 const i18n = createI18n({
   legacy: false,
@@ -27,6 +30,7 @@ app.config.globalProperties.$ = app.config.globalProperties
 
 Modal.install(app)
 
+app.use(Vuesax)
 app.use(store)
 app.use(router)
 app.use(BootstrapVue3)

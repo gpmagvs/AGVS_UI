@@ -7,7 +7,7 @@
       size="20%"
       @close="CLoseEventHandle"
     >
-      <div @click="PageSwitch('/','AGVS')" class="menu-item-container">AGVS</div>
+      <div @click="PageSwitch('/','Home')" class="menu-item-container">Home</div>
       <div
         @click="PageSwitch('/map','圖資管理')"
         v-show="auth_confirmed"

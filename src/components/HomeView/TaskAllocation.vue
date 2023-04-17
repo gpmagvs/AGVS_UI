@@ -10,13 +10,13 @@
       @closed="HandleDrawerClosed"
     >
       <template #header>
-        <h3>Task Allocation-{{ clsAgvStatus.BaseProps.AGV_Name }}</h3>
+        <h3>Task Allocation-{{ clsAgvStatus.AGV_Name }}</h3>
       </template>
       <div class="drawer-content my-1 p-1 border-top">
         <div class="d-flex flex-row">
           <el-form label-width="100px" label-position="left" size="large">
             <el-form-item label="AGV">
-              <el-input disabled v-model="clsAgvStatus.BaseProps.AGV_Name"></el-input>
+              <el-input disabled v-model="clsAgvStatus.AGV_Name"></el-input>
             </el-form-item>
             <el-form-item label="Action">
               <el-select class="w-100" v-model="selectedAction" placeholder="請選擇Action">
@@ -108,7 +108,7 @@
 <script>
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
-import { clsAgvStatus } from '@/ViewModels/WebViewModels';
+import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import MapShowVue from '../MapShow.vue';
 import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData } from '@/api/TaskAllocation'
 export default {
@@ -118,11 +118,7 @@ export default {
   data() {
     return {
       show: false,
-      clsAgvStatus: {
-        BaseProps: {
-          AGV_Name: ""
-        }
-      },
+      clsAgvStatus: new clsAGVStateDto(),
       confirm_dialog_show: false,
       notify_dialog_show: false,
       notify_text: '',
@@ -241,7 +237,7 @@ export default {
     },
     async TaskDeliveryHandle() {
       // TaskAllocation.Task();
-      var agv_name = this.clsAgvStatus.BaseProps.AGV_Name;
+      var agv_name = this.clsAgvStatus.AGV_Name;
       if (this.selectedAction == 'move') {
         await TaskAllocation.MoveTask(new clsMoveTaskData(agv_name, this.selectedTag));
       }

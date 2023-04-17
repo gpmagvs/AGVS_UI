@@ -25,11 +25,7 @@ class WebSocketHelp {
   Connect() {
     console.info(`Try Connect to : ${this.ws_url}`)
     const socket = new WebSocket(`${this.ws_url}`)
-
-    socket.onopen = () => {
-      console.info(`ws: ${this.ws_url} opened`)
-      this.SendAliveCheck()
-    }
+    this.SendAliveCheck()
     socket.onerror = (ev) => {
       console.info(`Try Connect to : ${this.ws_url} ON ＥＲＲＯＲ FAIL`)
     }
@@ -42,7 +38,7 @@ class WebSocketHelp {
 
     this.wssocket.onmessage = this.onmessageHandler
     this.wssocket.onclose = this.oncloseHandler
-    this.wssocket.onopen = this.onopen
+    this.wssocket.onopen = this.onopenHandler
   }
 
   Close() {

@@ -4,6 +4,7 @@ class clsTaskState {
   constructor(task) {
     this.TaskName = task.TaskName
     this.State = task.State
+    this.StateName = task.StateName
     this.RecieveTime = task.RecieveTime
     this.FinishTime = task.FinishTime
     this.DispatcherName = task.DispatcherName
@@ -29,20 +30,7 @@ class clsTaskState {
   get FinishTime_Formated() {
     return moment(this.FinishTime).format('HH:mm:ss')
   }
-  get StateName() {
-    switch (this.State) {
-      case 0:
-        return '等待'
-      case 1:
-        return '執行中'
-      case 2:
-        return '完成'
-      case 3:
-        return '失敗'
-      default:
-        return '等待'
-    }
-  }
+
   get ActionName() {
     switch (this.Action) {
       case 0:

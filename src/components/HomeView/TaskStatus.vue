@@ -12,10 +12,15 @@
           size="small"
           empty-text="沒有任務"
           height="280px"
+          style="z-index:1"
         >
           <el-table-column label="任務名稱" prop="TaskName" width="170"></el-table-column>
           <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
-          <el-table-column label="任務狀態" prop="StateName" width="80"></el-table-column>
+          <el-table-column label="任務狀態" prop="StateName" width="80">
+            <!-- <tempte #default="scope">
+              <el-tag :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
+            </tempte>-->
+          </el-table-column>
           <el-table-column label="動作" prop="ActionName" width="80"></el-table-column>
           <el-table-column label="卡匣ID" prop="Carrier_ID" width="100"></el-table-column>
           <el-table-column label="起點">
@@ -48,11 +53,16 @@
           size="small"
           height="280px"
           empty-text="沒有任務"
+          style="z-index:1"
         >
           <el-table-column label="任務名稱" prop="TaskName" width="170"></el-table-column>
           <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
           <el-table-column label="完成時間" prop="FinishTime_Formated" width="80"></el-table-column>
-          <el-table-column label="任務狀態" prop="StateName" width="80"></el-table-column>
+          <el-table-column label="任務狀態" prop="StateName" width="80">
+            <template #default="scope">
+              <el-tag :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="動作" prop="ActionName" width="80"></el-table-column>
           <el-table-column label="卡匣ID" prop="Carrier_ID"></el-table-column>
           <el-table-column label="起點">
@@ -102,6 +112,17 @@ export default {
     this.WsInit();
   },
   methods: {
+    GetTaskStateType(state_code) {
+      //success",", "info", "warning", "danger", ""],
+      if (state_code == 0)      //wait
+        return 'warning'
+      else if (state_code == 1) //Running
+        return ''
+      else if (state_code == 2) //Finish
+        return 'success'
+      else
+        return 'danger'         //Failure
+    },
     WsInit() {
       this.wsHelper = new WebSocketHelp('/ws/TaskData');
       this.wsHelper.Connect();

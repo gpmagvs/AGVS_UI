@@ -4,19 +4,19 @@
       <i class="bi bi-robot"></i>AGV STATUS
     </div>
     <el-table :data="AGVDatas" size="small" height="93%" empty-text="沒有AGV" style="z-index:1">
-      <el-table-column label="AGV Name" prop="BaseProps.AGV_Name" width="130px">
+      <el-table-column label="AGV Name" prop="AGV_Name" width="90px">
         <template #default="scope">
-          <b>{{scope.row.BaseProps.AGV_Name }}</b>
+          <b>{{scope.row.AGV_Name }}</b>
         </template>
       </el-table-column>
       <!-- <el-table-column label="AGV ID" prop="AGV_ID"></el-table-column> -->
       <!-- <el-table-column label="通訊狀態"></el-table-column> -->
-      <el-table-column label="上線狀態" prop="OnlineStatus">
+      <el-table-column label="上線狀態" prop="OnlineStatus" align="center">
         <template #default="scope">
           <div class="online-status-div">
             <el-tag
               effect="dark"
-              @click="ShowOnlineStateChangeModal(scope.row.BaseProps.AGV_Name,scope.row.OnlineStatus)"
+              @click="ShowOnlineStateChangeModal(scope.row.AGV_Name,scope.row.OnlineStatus)"
               :type="scope.row.OnlineStatus ==0?'danger':'success'"
             >
               <b>{{ scope.row.OnlineStatus==1?'ONLINE':'OFFLINE' }}</b>
@@ -24,36 +24,46 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="運轉狀態" prop="RunningStatus.AGV_Status" :formatter="AGVStatusFormatter">
+      <el-table-column
+        label="運轉狀態"
+        prop="MainStatus"
+        :formatter="AGVStatusFormatter"
+        align="center"
+      >
         <template #default="scope">
           <div>
-            <el-tag effect="dark" :type="AGV_Status_TagType(scope.row.RunningStatus.AGV_Status)">
+            <el-tag effect="dark" :type="AGV_Status_TagType(scope.row.MainStatus)">
               <b>{{AGVStatusFormatter(scope.row)}}</b>
             </el-tag>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="位置" prop="RunningStatus.Last_Visited_Node"></el-table-column>
-      <el-table-column label="任務" prop="RunningStatus.Last_Visited_Node">
-        <el-table-column prop="state" label="名稱" />
-        <el-table-column prop="city" label="狀態" />
+      <el-table-column label="位置" prop="CurrentLocation" align="center">
+        <template #default="scope">
+          <div>{{ scope.row.CurrentLocation }}({{scope.row.Theta.toFixed(1)}})</div>
+        </template>
       </el-table-column>
-      <el-table-column label="載物ID" prop="RunningStatus.CSTID"></el-table-column>
-      <el-table-column label="電量" prop="RunningStatus.Electric_Volume[0]">
+      <el-table-column label="任務" prop="CurrentLocation">
+        <el-table-column prop="TaskName" label="名稱" />
+        <el-table-column prop="TaskRunStatus" label="狀態">
+          <template #default="scope">
+            <div
+              v-show="scope.row.TaskName!=''"
+            >{{ this.GetTaskRunStatusString(scope.row.TaskRunStatus) }}</div>
+          </template>
+        </el-table-column>
+      </el-table-column>
+      <el-table-column label="載物ID" prop="CurrentCarrierID"></el-table-column>
+      <el-table-column label="電量" prop="BatteryLevel">
         <template #default="scope">
           <div>
             <b-progress class="flex-fill" :max="100" animated>
               <b-progress-bar
                 :animated="true"
-                :value="scope.row.RunningStatus.Electric_Volume[0]"
-                :label="`${((scope.row.RunningStatus.Electric_Volume[0] / 100) * 100).toFixed(2)}%`"
+                :value="scope.row.BatteryLevel"
+                :label="`${((scope.row.BatteryLevel / 100) * 100).toFixed(2)}%`"
               ></b-progress-bar>
             </b-progress>
-            <!-- <el-progress
-              style="height:40px"
-              :text-inside="true"
-              :percentage="scope.row.RunningStatus.Electric_Volume[0]"
-            ></el-progress>-->
           </div>
         </template>
       </el-table-column>
@@ -106,7 +116,7 @@
 </template>
 
 <script>
-import { clsAgvStatus } from '@/ViewModels/WebViewModels.js'
+import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import WebSocketHelp from '@/api/WebSocketHepler';
@@ -120,7 +130,9 @@ export default {
   },
   data() {
     return {
-      AGVDatas: [],
+      AGVDatas: [
+        new clsAGVStateDto()
+      ],
       ShowOnlineStateChange: false,
       ShowChargeConfirmDialog: false,
       OnlineStatusReq: {
@@ -131,16 +143,14 @@ export default {
   },
   methods: {
     WebSocketInit() {
-      var ws = new WebSocketHelp("ws/VMSStatus", param.vms_ws_host);
+      var ws = new WebSocketHelp("ws/VMSStatus");
       ws.Connect();
       ws.onmessage = (event) => {
-        bus.emit('/connection/vms', true);
         var data = JSON.parse(event.data);
-        this.AGVDatas = Object.values(data);
+        this.AGVDatas = Object.values(data).map(d => new clsAGVStateDto(d));
         bus.emit('/agv_name_list', this.CreateMapAGVData());
       }
       ws.onclose = (ev) => {
-        bus.emit('/connection/vms', false);
         console.info('[AGVStatus]vue Websocket closed');
       }
     },
@@ -148,10 +158,11 @@ export default {
       var agv_data_for_map = [];
       this.AGVDatas.forEach(agvData => {
         agv_data_for_map.push({
-          AGV_Name: agvData.BaseProps.AGV_Name,
-          Current_Tag: agvData.RunningStatus.Last_Visited_Node,
-          // Rotation: agvData.RunningStatus.Corrdination.Theta
-          Rotation: Math.PI / 180 * agvData.RunningStatus.Corrdination.Theta
+          AGV_Name: agvData.AGV_Name,
+          Current_Tag: agvData.CurrentLocation,
+          Rotation: Math.PI / 180 * agvData.Theta,
+          State: this.GetAGVStatusString(agvData.MainStatus),
+          IsOnline: agvData.OnlineStatus == 1
         })
       })
       return agv_data_for_map;
@@ -195,8 +206,8 @@ export default {
         return;
       }
 
-      this.Agv_Selected = agv_status.BaseProps.AGV_Name;
-      this.$refs["charge_confirm_noti_text"].innerHTML = `確定要將 <b>${agv_status.BaseProps.AGV_Name}</b> 派送至充電站充電?`;
+      this.Agv_Selected = agv_status.AGV_Name;
+      this.$refs["charge_confirm_noti_text"].innerHTML = `確定要將 <b>${agv_status.AGV_Name}</b> 派送至充電站充電?`;
       this.ShowChargeConfirmDialog = true;
     },
     AGVChargeTask() {
@@ -214,12 +225,25 @@ export default {
       else
         return "default"
     },
-    AGVStatusFormatter(row, column) {
+    GetTaskRunStatusString(status_code) {
+      if (status_code == 1)
+        return "等待"
+      else if (status_code == 2)
+        return "執行中"
+      else if (status_code == 3)
+        return "完成"
+      else if (status_code == 4)
+        return "失敗"
+      else
+        return "Unknown"
+    },
+    GetAGVStatusString(status_code) {
+
       //1. IDLE: active but no mission 
       // 2. RUN: executing mission
       // 3. DOWN: alarm or error
       // 4. Charging: in chargin
-      var status_code = row.RunningStatus.AGV_Status;
+
       if (status_code == 1)
         return "IDLE"
       else if (status_code == 2)
@@ -227,9 +251,16 @@ export default {
       else if (status_code == 3)
         return "DOWN"
       else if (status_code == 4)
-        return "Charging"
+        return "充電"
       else
         return "Unknown"
+    },
+    AGVStatusFormatter(row, column) {
+      if (row == undefined)
+        return this.GetAGVStatusString(999)
+
+      var status_code = row.MainStatus;
+      return this.GetAGVStatusString(status_code)
     }
   },
   computed: {
@@ -237,7 +268,7 @@ export default {
 
       var agv_name_list = [];
       this.AGVDatas.forEach(agvData => {
-        agv_name_list.push(agvData.BaseProps.AGV_Name);
+        agv_name_list.push(agvData.AGV_Name);
       });
 
       return agv_name_list
