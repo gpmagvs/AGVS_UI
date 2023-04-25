@@ -90,25 +90,61 @@ export default {
           value: 2
         },
         {
-          label: 'Charging',
+          label: 'Charge',
           value: 3
         },
         {
-          label: 'EQ_LD',
+          label: 'Buffer',
           value: 4
         },
         {
-          label: 'STK_LD',
+          label: 'Charge & Buffer',
           value: 5
         },
         {
-          label: 'EQ_ULD',
+          label: ' Charge & STK',
           value: 6
         },
         {
+          label: 'Escape',
+          value: 8
+        },
+        {
+          label: 'EQ_LD',
+          value: 11
+        },
+        {
+          label: 'STK_LD',
+          value: 12
+        },
+        {
+          label: 'EQ_ULD',
+          value: 21
+        },
+        {
           label: 'STK_ULD',
-          value: 7
-        }
+          value: 22
+        },
+        {
+          label: 'Fire Door',
+          value: 31
+        },
+        {
+          label: 'Fire EQ',
+          value: 32
+        },
+        {
+          label: 'Auto Door',
+          value: 33
+        },
+        {
+          label: 'Elevator',
+          value: 100
+        },
+        {
+          label: 'Repair',
+          value: 110
+        },
       ]
     }
   },

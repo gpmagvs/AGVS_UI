@@ -243,7 +243,7 @@ export default {
       }
 
       if (this.selectedAction == 'load') {
-        await TaskAllocation.LoadTask(new clsLoadTaskData(agv_name, this.selectedTag, 69, this.Cst_ID_Input));
+        await TaskAllocation.LoadTask(new clsLoadTaskData(agv_name, this.selectedTag, 1, this.Cst_ID_Input));
       }
 
       if (this.selectedAction == 'unload') {
@@ -264,14 +264,15 @@ export default {
       }, 400);
     },
     HandleDrawerClosed() {
-      bus.emit('/alarm_footer_send_to_back', false);
     },
   },
   mounted() {
     bus.on('bus-show-task-allocation', (clsAgvStatus) => {
       this.clsAgvStatus = clsAgvStatus;
       this.show = true;
-      bus.emit('/alarm_footer_send_to_back', true);
+      setTimeout(() => {
+        this.$refs['_map'].HightlightAGV(this.clsAgvStatus.AGV_Name)
+      }, 100);
     })
   },
 }

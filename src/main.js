@@ -15,6 +15,8 @@ import Vuesax from 'vuesax3'
 
 import 'vuesax3/dist/vuesax.css'
 
+import VueApexCharts from 'vue3-apexcharts'
+
 const i18n = createI18n({
   legacy: false,
   locale: 'zh-TW',
@@ -29,6 +31,8 @@ const app = createApp(App)
 app.config.globalProperties.$ = app.config.globalProperties
 
 Modal.install(app)
+
+app.use(VueApexCharts)
 
 app.use(Vuesax)
 app.use(store)

@@ -3,7 +3,14 @@
     <div class="title">
       <i class="bi bi-robot"></i>AGV STATUS
     </div>
-    <el-table :data="AGVDatas" size="small" height="93%" empty-text="沒有AGV" style="z-index:1">
+    <el-table
+      :data="AGVDatas"
+      size="small"
+      height="93%"
+      empty-text="沒有AGV"
+      style="z-index:1"
+      :row-class-name="connected_class"
+    >
       <el-table-column label="AGV Name" prop="AGV_Name" width="90px">
         <template #default="scope">
           <b>{{scope.row.AGV_Name }}</b>
@@ -223,7 +230,7 @@ export default {
       else if (status_code == 4)
         return ""
       else
-        return "default"
+        return ""
     },
     GetTaskRunStatusString(status_code) {
       if (status_code == 1)
@@ -261,6 +268,9 @@ export default {
 
       var status_code = row.MainStatus;
       return this.GetAGVStatusString(status_code)
+    },
+    connected_class({ row, rowIndex }) {
+      return row.Connected ? 'connect' : 'disconnect'
     }
   },
   computed: {
@@ -278,12 +288,18 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" >
 .agv-status {
   height: 50%;
 
   .online-status-div:hover {
     cursor: pointer;
+  }
+  .connect {
+    background-color: rgb(229, 255, 240);
+  }
+  .disconnect {
+    background-color: rgb(255, 184, 182);
   }
 }
 </style>

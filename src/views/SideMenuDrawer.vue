@@ -15,6 +15,7 @@
       >圖資管理</div>
       <div @click="PageSwitch('/','帳籍管理')" class="menu-item-container">帳籍管理</div>
       <div @click="PageSwitch('/data','資料')" class="menu-item-container">資料</div>
+      <div @click="PageSwitch('/alarm','警報')" class="menu-item-container">警報</div>
       <div
         @click="PageSwitch('/sys_settings','系統設定')"
         v-show="auth_confirmed"
@@ -47,11 +48,14 @@ export default {
     PageSwitch(route_name, display_name = '') {
       var current_route = this.$router.currentRoute.value.path;
       if (route_name != current_route) {
-        this.$router.push(route_name);
-        bus.emit('/router-change', { route_display_name: display_name, route_name: route_name });
+        setTimeout(() => {
+          this.$router.push(route_name);
+          bus.emit('/router-change', { route_display_name: display_name, route_name: route_name });
+        }, 100);
       }
       this.show_draw = false;
-    }
+    },
+
   },
   mounted() {
 

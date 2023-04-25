@@ -9,7 +9,7 @@
       <Header></Header>
     </div>
 
-    <div class="flex-fill" style="height:100vh;padding-top:150px;">
+    <div class="flex-fill" v-bind:style="router_view_style">
       <router-view v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" />
@@ -41,6 +41,8 @@ import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
 import ConnectionState from '@/components/App/ConnectionState.vue'
 import bus from '@/event-bus.js'
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
 export default {
   components: {
     Header, AlarmDisplayVue, SideMenuDrawer, ConnectionState
@@ -53,10 +55,22 @@ export default {
         title: '',
         content: '',
         title_variant: 'primary'
+      },
+      router_view_style: {
+        //style="height:100vh;padding-top:150px;"
+        height: '100vh',
+        paddingTop: '150px'
       }
     }
   },
   methods: {
+
+    OpenLoading() {
+      this.$vs.loading()
+      setTimeout(() => {
+        this.$vs.loading.close()
+      }, 800);
+    },
     ToggleMenu() {
       this.showMenuToggleIcon = false;
       this.$refs.side_menu.Show();
@@ -70,6 +84,20 @@ export default {
       this.okOnlyModalProps = props;
       this.ShowOKOnlyModal = true;
     });
+
+    const route = useRoute()
+    watch(
+      () => route.path,
+      (newValue, oldValue) => {
+        console.info(newValue);
+        this.OpenLoading();
+        if (newValue == "/alarm") {
+          this.router_view_style.paddingTop = '50px';
+        }
+        else
+          this.router_view_style.paddingTop = '150px';
+      }
+    )
   },
 };
 </script>

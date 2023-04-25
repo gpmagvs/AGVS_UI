@@ -201,7 +201,7 @@ export default {
       path_plan_tags: [],
       contextMenu: {},
       agv_color_set: [
-        'lime', 'orange', 'yellow', 'rgb(64, 158, 255)', 'pink', 'gold', 'red', 'grey'
+        'lime', 'rgb(51, 194, 255)', 'yellow', 'rgb(64, 158, 255)', 'pink', 'gold', 'red', 'grey'
       ],
       map_contextmenu_style: {
         position: 'absolute',
@@ -224,14 +224,7 @@ export default {
       },
       map_data: {},
       stations: [],
-      agvList: [{
-        name: 'AGV-1',
-        current_tag: 50,
-        previous_tag: -1,
-        color: 'rgb(255, 101, 70)',
-        theta: 0
-      }
-      ],
+      agvList: [],
       doubleArrowStyle: new Style({
         stroke: new Stroke({
           color: 'grey',
@@ -355,15 +348,6 @@ export default {
           })
 
           this.MapInitializeRender();
-          bus.on('/agv_current_tag', (tag) => {
-
-            if (tag != 0 && this.agv.previous_tag != tag) {
-              this.agv.current_tag = tag;
-              this.AGV_Feature.setGeometry(new Point(this.agv_position));
-              this.AGV_Layer.getSource().changed();
-            }
-            this.agv.previous_tag = tag;
-          })
 
         }
 
@@ -602,28 +586,44 @@ export default {
 
 
     },
+    GetAgvProp(agv_name) {
+      return this.agvList.find(av => av.name == agv_name);
+    },
+    HightlightAGV(agv_name) {
+      this.agvList.forEach(prop => {
+        prop.heighlight = false
+        prop.isOnline = false
+      })
+      this.GetAgvProp(agv_name).heighlight = true;
+    },
     CreateAGVFeatures(agv_data = []) {
 
       var agv_features = [];
       var agv_nav_path_features = [];
-      this.agvList = [];
       var idx = 0;
       agv_data.forEach(info => {
         var agv_name = info.AGV_Name;
         var agv_current_tag = info.Current_Tag
         var agv_state = info.State
         var isOnline = info.IsOnline
-        var agv_prop = {
-          name: agv_name,
-          current_tag: agv_current_tag,
-          previous_tag: -1,
-          color: this.agv_color_set[idx],
-          theta: info.Rotation,
-          state: agv_state
-        }
-        idx += 1;
-        this.agvList.push(agv_prop)
 
+        var agv_prop_exist = this.GetAgvProp(agv_name);
+        if (agv_prop_exist) {
+          agv_prop_exist.current_tag = agv_current_tag;
+          agv_prop_exist.theta = info.Rotation;
+          agv_prop_exist.state = agv_state;
+        } else {
+          agv_prop_exist = {
+            name: agv_name,
+            current_tag: agv_current_tag,
+            previous_tag: -1,
+            color: this.agv_color_set[idx],
+            theta: info.Rotation,
+            state: agv_state,
+            heighlight: false
+          }
+          this.agvList.push(agv_prop_exist)
+        }
         var agv_position = this.get_agv_position(agv_name);
         var agv_feature = new Feature({
           geometry: new Point(agv_position),
@@ -638,6 +638,7 @@ export default {
           anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
           size: [70, 70],// 设置PNG图像的大小
           opacity: 1,
+
         })
 
         agv_feature.setStyle(new Style({
@@ -648,21 +649,22 @@ export default {
             offsetY: 30,
             font: 'bold 18px Arial',
             fill: new Fill({
-              color: isOnline ? agv_prop.color : 'rgb(192, 192, 192)'
+              color: isOnline ? agv_prop_exist.color : 'rgb(192, 192, 192)'
             }),
             stroke: new Stroke({
-              color: 'black',
+              color: agv_prop_exist.heighlight ? 'red' : 'black',
               width: 3
             })
           }),
         }));
-        agv_feature.getStyle().getImage().setRotation(-agv_prop.theta);//設定旋轉角度
+        agv_feature.getStyle().getImage().setRotation(-agv_prop_exist.theta);//設定旋轉角度
 
         var nav_path_feature = new Feature({
           geometry: new Point(agv_position),
           name: agv_name
         })
         agv_nav_path_features.push(nav_path_feature);
+        idx += 1;
       });
       return { agv_features: agv_features, agv_nav_path_features: agv_nav_path_features }
     },

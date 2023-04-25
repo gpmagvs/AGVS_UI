@@ -1,0 +1,3 @@
+class clsTimelineData {
+  constructor() {}
+}

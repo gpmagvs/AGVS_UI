@@ -53,7 +53,8 @@
       </div>
       <Login ref="login" :IsLogin="IsLogin" @RoleChanged="(role)=>{current_user_role=role}"></Login>
     </div>
-    <div class="alarm text-dark">
+    <!--Alarm-->
+    <div v-show="showAlarm" class="alarm text-dark">
       <div class="alarm-container" v-bind:class="system_alarms">
         <div class="flex-fill">
           <span class="type-text">
@@ -63,8 +64,16 @@
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
         <div class="opt">
-          <i class="bi bi-clock-history"></i>
-          <b-button class="mb-2" size="sm" variant="danger">警報復歸</b-button>
+          <div>
+            <b-button
+              v-if="current_user_role!=0"
+              @click="ResetSysAlarmsHandler"
+              class="mb-2"
+              size="sm"
+              variant="danger"
+            >警報復歸</b-button>
+          </div>
+          <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
       </div>
       <div class="alarm-container" v-bind:class="equipment_alarms">
@@ -76,8 +85,16 @@
           <span class="alarm-text">{{ eq_alrm_text }}</span>
         </div>
         <div class="opt">
-          <i class="bi bi-clock-history"></i>
-          <b-button @click="openAlert" class="mb-2" size="sm" variant="danger">警報復歸</b-button>
+          <div>
+            <b-button
+              v-if="false"
+              @click="ResetEqpAlarmsHandler"
+              class="mb-2"
+              size="sm"
+              variant="danger"
+            >警報復歸</b-button>
+          </div>
+          <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
       </div>
     </div>
@@ -89,7 +106,11 @@ import Login from '@/views/Login.vue';
 import bus from '@/event-bus.js'
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import WebSocketHelp from '@/api/WebSocketHepler';
+import { ResetSystemAlarm, ResetEquipmentAlarm, AlarmHelper } from '@/api/AlarmAPI.js'
 import moment from 'moment'
+
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
 export default {
   components: {
     Login
@@ -100,6 +121,7 @@ export default {
         route_display_name: 'Home',
         route_name: '/'
       },
+
       current_user_role: 0,
       maintain_mode: true,
       modes: {
@@ -133,7 +155,8 @@ export default {
       equipment_alarms: [''],
       system_alrm_text: '',
       eq_alrm_text: '',
-      unchecked_alarms: []
+      unchecked_alarms: [],
+      showAlarm: true
     }
   },
   computed: {
@@ -157,35 +180,41 @@ export default {
     },
     EquipmentAlarms() {
       return this.unchecked_alarms.filter(alarm => alarm.Source == 1)
-    }
+    },
+
+
   },
   mounted() {
     bus.on('/router-change', (new_rotue) => {
-      // {route_display_name:display_name,route_name:route_name}
       this.current_route_info = new_rotue
-    });
 
+    });
+    const route = useRoute()
+    watch(
+      () => route.path,
+      (newValue, oldValue) => {
+        this.showAlarm = newValue != "/alarm";
+      }
+    )
     var login_state = IsLoginLastTime();
     if (login_state.isLogin) {
       this.current_user_role = login_state.login_info.Role;
     }
+    var alarmHelper = new AlarmHelper(this.on_alarm_message);
 
-    var _alarm_ws = new WebSocketHelp('/ws/UncheckedAlarm');
-    _alarm_ws.Connect();
-    _alarm_ws.onmessage = (evt) => {
-
-      this.unchecked_alarms = JSON.parse(evt.data);
-
-    }
     // var sys_alrms = ['2023/04/17 19:22:22 異常碼[0023]-路徑規劃模組異常', '2023/04/18 19:22:22 異常碼[0043]-腦袋異常', '2023/04/19 19:22:22 異常碼[0053]排泄模組異常']
     // this.system_alarms = ['alarm']
     this.AlarmDisplayHandler();
   },
   methods: {
+    on_alarm_message(ev) {
+      this.unchecked_alarms = JSON.parse(ev.data)
+    },
+
     LogoClickHandler() {
       this.$router.push('/');
       this.current_route_info = {
-        route_display_name: 'AGVS',
+        route_display_name: 'Home',
         route_name: '/'
       }
     },
@@ -224,31 +253,28 @@ export default {
       this.$i18n.locale = lang;
 
     },
-    openAlert() {
+    async ResetSysAlarmsHandler() {
+      await ResetSystemAlarm()
       this.$vs.notify({
-        color: 'danger',
-        title: 'Accept Selected',
-        text: 'Lorem ipsum dolor sit amet, consectetur'
+        color: 'success',
+        title: '警報復歸請求',
+        text: '系統警報復歸請求完成',
+        position: 'bottom-right',
+        time: 1000
       })
-      setTimeout(() => {
-        this.$vs.notify({
-          color: 'danger',
-          title: 'Accept Selected',
-          text: 'Lorem ipsum dolor sit amet, consectetur'
-        })
-      }, 1000);
-      setTimeout(() => {
-        this.$vs.notify({
-          color: 'danger',
-          title: 'Accept Selected',
-          text: 'Lorem ipsum dolor sit amet, consectetur'
-        })
-      }, 2000);
-
-
+    },
+    async ResetEqpAlarmsHandler() {
+      await ResetEquipmentAlarm()
+      this.$vs.notify({
+        color: 'success',
+        title: '警報復歸請求',
+        text: '設備警報復歸請求完成',
+        position: 'bottom-right',
+        time: 1000
+      })
     },
     CreateAlarmDisplayText(alarm) {
-      return `${moment(alarm.Time).format('yyyy/MM/DD HH:mm:ss')} 異常碼[${alarm.AlarmCode}]-${alarm.Description_Zh}(${alarm.Description_En})]`
+      return `${moment(alarm.Time).format('yyyy/MM/DD HH:mm:ss')} 異常碼[${alarm.AlarmCode}]-${alarm.Description_Zh}(${alarm.Description_En})`
     },
     AlarmDisplayHandler() {
       var sys_alarm_inx = 0;
@@ -257,7 +283,7 @@ export default {
       setInterval(() => {
         var sys_alarm = this.SystemAlarms[sys_alarm_inx]
         if (sys_alarm) {
-          this.system_alarms = [sys_alarm.Level == 0 ? 'alarm' : 'warning'];
+          this.system_alarms = [sys_alarm.Level == 1 ? 'alarm' : 'warning'];
           this.system_alrm_text = this.CreateAlarmDisplayText(sys_alarm);
         } else {
           this.system_alarms = [''];
@@ -272,7 +298,7 @@ export default {
       setInterval(() => {
         var eq_alarm = this.EquipmentAlarms[eq_alarm_inx]
         if (eq_alarm) {
-          this.equipment_alarms = [eq_alarm.Level == 0 ? 'alarm' : 'warning'];
+          this.equipment_alarms = [eq_alarm.Level == 1 ? 'alarm' : 'warning'];
           this.eq_alrm_text = this.CreateAlarmDisplayText(eq_alarm);
         } else {
           this.equipment_alarms = [''];
@@ -282,6 +308,9 @@ export default {
         if (eq_alarm_inx >= this.EquipmentAlarms.length)
           eq_alarm_inx = 0
       }, 2000);
+    },
+    NavigateToAlarmView() {
+      this.$router.push('/alarm');
     }
   },
 }
@@ -304,7 +333,7 @@ export default {
       display: flex;
       flex-direction: row;
       background-color: rgb(255, 229, 234);
-      border: 2px solid white;
+      border: 2px solid rgb(248, 195, 195);
       .type-text,
       .alarm-text {
         margin: auto 5px;
@@ -323,6 +352,12 @@ export default {
       }
       .opt {
         padding-inline: 3px;
+        display: flex;
+        flex-direction: row;
+        div {
+          width: 85px;
+          padding-top: 3px;
+        }
 
         i {
           font-size: 25px;
@@ -385,7 +420,7 @@ export default {
     font-size: 20px;
     animation: blink 1s linear infinite;
     position: absolute;
-    left: 250px;
+    left: 350px;
     border-radius: 3px;
     border: 1px solid white;
     height: 44px;

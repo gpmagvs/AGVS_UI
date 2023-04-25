@@ -7,7 +7,7 @@ import {
 import HomeView from '../views/HomeView.vue'
 import SystemSettings from '../views/SystemSettings.vue'
 import DataVue from '../views/DataView.vue'
-
+import AlarmView from '@/views/AlarmView.vue'
 const routes = [
   {
     path: '/',
@@ -28,6 +28,11 @@ const routes = [
     path: '/data',
     name: 'data',
     component: DataVue,
+  },
+  {
+    path: '/alarm',
+    name: 'alarm',
+    component: AlarmView,
   },
 ]
 
