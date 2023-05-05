@@ -167,7 +167,7 @@ export default {
         agv_data_for_map.push({
           AGV_Name: agvData.AGV_Name,
           Current_Tag: agvData.CurrentLocation,
-          Rotation: Math.PI / 180 * agvData.Theta,
+          Rotation: Math.PI / 180 * (agvData.Theta - 90),
           State: this.GetAGVStatusString(agvData.MainStatus),
           IsOnline: agvData.OnlineStatus == 1
         })

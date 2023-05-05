@@ -80,6 +80,8 @@ export default {
     }
   },
   mounted() {
+    document.title = "AGVSystem";
+
     bus.on('/ShowOKOnlyModal', (props) => {
       this.okOnlyModalProps = props;
       this.ShowOKOnlyModal = true;
