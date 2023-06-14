@@ -193,7 +193,7 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        this.showAlarm = newValue != "/alarm";
+        this.showAlarm = newValue != "/alarm" && newValue != "/map";
       }
     )
     var login_state = IsLoginLastTime();

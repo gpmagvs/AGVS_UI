@@ -128,7 +128,7 @@ import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import WebSocketHelp from '@/api/WebSocketHepler';
 import { IsLoginLastTime } from '@/api/AuthHelper';
-import { OnlineRequest, OfflineRequest } from '@/api/VmsAPI';
+import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
 import param from '@/gpm_param';
 export default {

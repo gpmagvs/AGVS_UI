@@ -17,7 +17,7 @@ import TaskAllocationVue from '@/components/HomeView/TaskAllocation.vue';
 import bus from '@/event-bus.js'
 export default {
   components: {
-    AGVStatusVue, TaskStatusVue, Map, TaskAllocationVue
+    AGVStatusVue, TaskStatusVue, Map, TaskAllocationVue,
   }
 }
 </script>

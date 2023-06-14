@@ -24,7 +24,7 @@ export class clsMoveTaskData {
 export class clsLoadTaskData {
   constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
     this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
-    this.Action = 1
+    this.Action = 7
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
     this.From_Slot = '-1'
@@ -38,7 +38,7 @@ export class clsLoadTaskData {
 export class clsUnloadTaskData {
   constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
     this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
-    this.Action = 2
+    this.Action = 1
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
     this.From_Slot = '-1'
@@ -52,7 +52,7 @@ export class clsUnloadTaskData {
 export class clsChargeTaskData {
   constructor(agv_name, to_tag, Priority = 50) {
     this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
-    this.Action = 3
+    this.Action = 8
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
     this.From_Slot = '-1'
@@ -73,7 +73,7 @@ export class clsCarryTaskData {
     Priority = 50,
   ) {
     this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
-    this.Action = 4
+    this.Action = 9
     this.DesignatedAGVName = agv_name
     this.From_Station = from_tag + ''
     this.From_Slot = from_slot + ''

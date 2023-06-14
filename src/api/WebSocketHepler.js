@@ -75,22 +75,22 @@ class WebSocketHelp {
   SendAliveCheck() {
     this.alive_check_timer = setInterval(() => {
       if (this.wssocket) {
-        if (this.wssocket.readyState == WebSocket.CONNECTING) {
-        } else {
-          if (this.wssocket.readyState == WebSocket.OPEN) {
-            this.wssocket.send('alive')
-          }
-
-          if (
-            this.wssocket.readyState != this.previousWsState &&
-            this.wssocket.readyState == WebSocket.CLOSED
-          ) {
-            this.ReconnectWorker()
-          }
+        if (this.wssocket.readyState == WebSocket.CONNECTING) 
+        {
+          return;
+        } 
+        if (this.wssocket.readyState == WebSocket.OPEN) 
+        {
+          this.wssocket.send('alive')
+        }
+        
+        if (this.wssocket.readyState != this.previousWsState &&this.wssocket.readyState == WebSocket.CLOSED) 
+        {
+          this.ReconnectWorker()
         }
         this.previousWsState = this.wssocket.readyState
       }
-    }, 1000)
+    }, 5000)
   }
 }
 

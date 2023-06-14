@@ -23,8 +23,8 @@
                 <el-option label="移動" value="move"></el-option>
                 <el-option label="停車" value="park"></el-option>
                 <el-option label="搬運" value="carry"></el-option>
-                <el-option label="Load" value="load"></el-option>
-                <el-option label="Unload" value="unload"></el-option>
+                <el-option label="放貨" value="load"></el-option>
+                <el-option label="取貨" value="unload"></el-option>
                 <el-option label="充電" value="charge"></el-option>
               </el-select>
             </el-form-item>
@@ -189,7 +189,7 @@ export default {
       this.chargable_tags = [];
 
       var NormalStations = this.$refs["_map"].GetNormalStations()
-      var StockStations = this.$refs["_map"].GetSTKStations()
+      var StockStations = this.$refs["_map"].GetLDULDableStations()
 
 
       if (NormalStations) {

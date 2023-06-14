@@ -1,170 +1,135 @@
 <template>
-  <div class="map-show border py-2 px-2 d-flex flex-row bg-light">
-    <div class="text-start m-3 py-3" style="width:117px">
-      <span>顯示方式</span>
-      <b-form-group
-        @change="NameDisplayChangeHandle"
-        class="w-100 px-3"
-        v-slot="{ ariaDescribedby }"
-      >
-        <b-form-radio
-          v-model="display_selected"
-          :aria-describedby="ariaDescribedby"
-          name="some-radios"
-          value="Tag"
-        >Tag</b-form-radio>
-        <b-form-radio
-          v-model="display_selected"
-          :aria-describedby="ariaDescribedby"
-          name="some-radios"
-          value="Index"
-        >Index</b-form-radio>
-      </b-form-group>
-      <span>AGV顯示</span>
-      <b-form-group @change="AGVDisplayChangeHandle" class="w-100 px-3">
-        <b-form-radio v-model="agv_display_mode_selected" value="hidden">隱藏</b-form-radio>
-        <b-form-radio v-model="agv_display_mode_selected" value="show">顯示</b-form-radio>
-      </b-form-group>
-    </div>
-    <div class="w-100">
-      <div class="w-100 d-flex flex-row justify-content-end">
-        <span class="p-1">MAP</span>
-        <div>
-          <b-form-input v-model="map_name" disabled size="sm" :state="map_data.Name!=undefined"></b-form-input>
+  <div>
+    <b-alert class="map-notify py-1 px-2 text-start" v-if="!only_view" show variant="info">
+      <div class="mode-text">{{Mode_Text}}</div>
+      <div class="d-flex flex-row">
+        <div class="tips-text" v-for="tip in Tips" :key="tip">
+          <i class="bi bi-info-square"></i>
+          {{tip}}
         </div>
       </div>
-      <div
-        v-loading="loading"
-        ref="map"
-        :key="reload_key"
-        class="map border"
-        @contextmenu.prevent="showContextMenu"
-        @click="HideAllMenus"
-      >
-        <!--編輯模式選單(有站點被選擇)-->
-        <div
-          class="edit-mode-menu bg-light border rounded"
-          v-if="showStationMenu"
-          ref="contextMenu"
-          :style="map_contextmenu_style"
+    </b-alert>
+    <div class="map-show h-100 border py-2 px-2 d-flex flex-row bg-light">
+      <div class="text-start m-3 py-3" style="width:117px">
+        <span>顯示方式</span>
+        <b-form-group
+          @change="NameDisplayChangeHandle"
+          class="w-100 px-3"
+          v-slot="{ ariaDescribedby }"
         >
-          <div class="p-2 text-start">
-            Tag:
-            <b>{{ current_select_featureID}}</b>
-          </div>
-          <div class="px-1" style="position:absolute;left:6px">
-            <b-button
-              class="w-100 my-1"
-              size="sm"
-              variant="danger"
-              @click="handleEditModeMenuClick('remove')"
-            >移除</b-button>
-            <b-button
-              variant="primary"
-              class="w-100 my-1"
-              size="sm"
-              @click="handleEditModeMenuClick('point_setting')"
-            >點位設定</b-button>
-            <!-- <b-button class="w-100 my-1" size="sm" @click="handleEditModeMenuClick('cut')">剪切</b-button> -->
+          <b-form-radio
+            v-model="display_selected"
+            :aria-describedby="ariaDescribedby"
+            name="some-radios"
+            value="Name"
+          >Name</b-form-radio>
+          <b-form-radio
+            v-model="display_selected"
+            :aria-describedby="ariaDescribedby"
+            name="some-radios"
+            value="Tag"
+          >Tag</b-form-radio>
+          <b-form-radio
+            v-model="display_selected"
+            :aria-describedby="ariaDescribedby"
+            name="some-radios"
+            value="Index"
+          >Index</b-form-radio>
+        </b-form-group>
+        <span>AGV顯示</span>
+        <b-form-group @change="AGVDisplayChangeHandle" class="w-100 px-3">
+          <b-form-radio v-model="agv_display_mode_selected" value="hidden">隱藏</b-form-radio>
+          <b-form-radio v-model="agv_display_mode_selected" value="show">顯示</b-form-radio>
+        </b-form-group>
+      </div>
+      <div class="w-100">
+        <div class="w-100 d-flex flex-row justify-content-end">
+          <span class="p-1">MAP</span>
+          <div>
+            <b-form-input v-model="map_name" disabled size="sm" :state="map_data.Name!=undefined"></b-form-input>
           </div>
         </div>
-
-        <!--編輯模式選單(無站點被選擇)-->
         <div
-          class="edit-mode-menu bg-light border rounded"
-          v-if="showNoPointSelectedMenu"
-          ref="contextMenu"
-          :style="map_contextmenu_style"
+          v-loading="loading"
+          ref="map"
+          :key="reload_key"
+          class="map border"
+          @click="HideAllMenus"
         >
-          <div class="px-1" style="position:absolute;left:6px">
-            <b-button
-              class="w-100 my-1"
-              size="sm"
-              variant="danger"
-              @click="handleNoPointSelectedMenuClick('add_point')"
-            >新增站點</b-button>
-            <!-- <b-button class="w-100 my-1" size="sm" @click="handleEditModeMenuClick('cut')">剪切</b-button> -->
+          <!--任務選單-->
+          <div
+            class="edit-mode-menu bg-light border rounded"
+            v-if="showTaskAllocationMenu"
+            ref="contextMenu"
+            :style="map_contextmenu_style"
+          >
+            <div class="p-2 text-start">
+              <span v-show="!is_agv_feature_selected">Tag:</span>
+              <span v-show="is_agv_feature_selected">AGV:</span>
+              <b>{{is_agv_feature_selected? current_select_agv_name:current_select_featureID}}</b>
+            </div>
+            <div class="px-1" style="position:absolute;left:6px">
+              <b-button
+                class="w-100 my-1"
+                size="sm"
+                variant="primary"
+                @click="handleTaskAllocatModeMenuClick('move')"
+              >移動</b-button>
+              <b-button
+                class="w-100 my-1"
+                size="sm"
+                variant="primary"
+                @click="handleTaskAllocatModeMenuClick('load')"
+              >放貨</b-button>
+              <b-button
+                class="w-100 my-1"
+                size="sm"
+                variant="primary"
+                @click="handleTaskAllocatModeMenuClick('unload')"
+              >取貨</b-button>
+            </div>
           </div>
-        </div>
 
-        <!--任務選單-->
-        <div
-          class="edit-mode-menu bg-light border rounded"
-          v-if="showTaskAllocationMenu"
-          ref="contextMenu"
-          :style="map_contextmenu_style"
-        >
-          <div class="p-2 text-start">
-            <span v-show="!is_agv_feature_selected">Tag:</span>
-            <span v-show="is_agv_feature_selected">AGV:</span>
-            <b>{{is_agv_feature_selected? current_select_agv_name:current_select_featureID}}</b>
-          </div>
-          <div class="px-1" style="position:absolute;left:6px">
-            <b-button
-              class="w-100 my-1"
-              size="sm"
-              variant="primary"
-              @click="handleTaskAllocatModeMenuClick('move')"
-            >移動</b-button>
-            <b-button
-              class="w-100 my-1"
-              size="sm"
-              variant="primary"
-              @click="handleTaskAllocatModeMenuClick('load')"
-            >放貨</b-button>
-            <b-button
-              class="w-100 my-1"
-              size="sm"
-              variant="primary"
-              @click="handleTaskAllocatModeMenuClick('unload')"
-            >取貨</b-button>
-          </div>
-        </div>
-
-        <!--AGV選單-->
-        <div
-          class="edit-mode-menu bg-light border rounded"
-          v-if="showAGVMenu"
-          ref="contextMenu"
-          :style="map_contextmenu_style"
-        >
-          <div class="p-2 text-start border-bottom">
-            <span>AGV :</span>
-            <b>{{ current_select_agv_name}}</b>
-          </div>
-          <div class="px-1" style="position:absolute;left:6px">
-            <el-color-picker v-model="color" show-alpha />
-            <!-- <b-button
-              class="w-100 my-1"
-              size="sm"
-              variant="danger"
-              @click="handleAGVMenuItemClick('setting-color')"
-            >設定顏色</b-button>-->
-            <!-- <b-button class="w-100 my-1" size="sm" @click="handleEditModeMenuClick('cut')">剪切</b-button> -->
+          <!--AGV選單-->
+          <div
+            class="edit-mode-menu bg-light border rounded"
+            v-if="showAGVMenu"
+            ref="contextMenu"
+            :style="map_contextmenu_style"
+          >
+            <div class="p-2 text-start border-bottom">
+              <span>AGV :</span>
+              <b>{{ current_select_agv_name}}</b>
+            </div>
+            <div class="px-1" style="position:absolute;left:6px">
+              <el-color-picker v-model="color" show-alpha />
+            </div>
           </div>
         </div>
       </div>
+      <MapPointSettingDrawer
+        ref="point-setting-drawer"
+        @OnPointSettingChanged="PointSettingChangedHandle"
+      ></MapPointSettingDrawer>
     </div>
-    <MapPointSettingDrawer ref="point-setting-drawer"></MapPointSettingDrawer>
   </div>
 </template>
   
   <script>
 import 'ol/ol.css';
 import ContextMenu from 'ol-contextmenu';
-
 import { Map, View, Feature } from 'ol';
 import { Layer, Vector as VectorLayer } from 'ol/layer';
 import { Vector as VectorSource } from 'ol/source';
 import { Point } from 'ol/geom';
 import { Circle as CircleStyle, Fill, Stroke, Style, Text, RegularShape, Image, Icon } from 'ol/style';
-import { Pointer } from 'ol/interaction'
+import { Pointer, DragPan } from 'ol/interaction'
 import LineString from 'ol/geom/LineString';
 import MapAPI from '@/api/MapAPI'
 import bus from '@/event-bus'
 import Notifier from '@/api/NotifyHelper';
 import MapPointSettingDrawer from '@/components/MapPointSettingDrawer.vue'
-
+import MapPoint from '@/ViewModels/MapPoint.js'
 export default {
   name: 'MapComponent',
   components: {
@@ -172,8 +137,13 @@ export default {
   },
   props: {
     edit_mode: {
-      type: Boolean,
-      default: false
+      type: Object,
+      default() {
+        return {
+          enabled: false,
+          mode_selected: 'none'
+        }
+      }
     },
     task_allocatable: {
       type: Boolean,
@@ -182,6 +152,14 @@ export default {
     show_agv: {
       type: Boolean,
       default: true
+    },
+    only_view: {
+      type: Boolean,
+      default: true
+    },
+    zoom: {
+      type: Number,
+      default: 6
     }
   },
   data() {
@@ -191,12 +169,10 @@ export default {
       selected_feature: undefined,
       mouse_click_coordinate: undefined,
       map_name: 'Unknown',
-      display_selected: "Tag",
+      display_selected: "Name",
       agv_display_mode_selected: "show",
       map: new Map(),
-      showStationMenu: false,
       showTaskAllocationMenu: false,
-      showNoPointSelectedMenu: false,
       showAGVMenu: false,
       path_plan_tags: [],
       contextMenu: {},
@@ -225,20 +201,10 @@ export default {
       map_data: {},
       stations: [],
       agvList: [],
-      doubleArrowStyle: new Style({
-        stroke: new Stroke({
-          color: 'grey',
-          width: 3,
-          lineDash: null,
-        }),
-      }),
-      NavPathLineStyle: new Style({
-        stroke: new Stroke({
-          color: 'red',
-          width: 8,
-          lineDash: null,
-        }),
-      }),
+      path_start_end: {
+        start: undefined,
+        end: undefined
+      },
       PathPlanLineStyle: new Style({
         stroke: new Stroke({
           color: 'blue',
@@ -246,10 +212,122 @@ export default {
           lineDash: null,
         }),
       }),
+
+      pointStyle: (feature) => {
+        const GetPointFeatureInfo = function (feature) {
+          var featureID = feature.getId();
+          if (featureID) {
+            //var featureID = `Point:${index}:${_tagID}:${stationType}:${Name}`;
+            var split = featureID.split(':')
+            var index = split[1];
+            var tag = split[2];
+            var stationType = split[3];
+            var name = split[4];
+            return {
+              index: index,
+              tag: tag,
+              station_type: stationType,
+              name: name
+            }
+          }
+        }
+
+
+        var pointRawData = feature.get('data');
+        var pointInfo = GetPointFeatureInfo(feature)
+        var text_display = '';
+        var text_color = 'gold'
+        if (this.display_selected == 'Name') {
+          text_display = pointInfo.name;
+          text_color = 'gold'
+        }
+        else if (this.display_selected == 'Tag') {
+          text_display = pointInfo.tag;
+          text_color = 'lime'
+        }
+        else {
+          text_display = pointInfo.index;
+          text_color = 'rgb(90, 213, 255)'
+        }
+
+        var polygonImg = (points, rotation = 0, color = 'rgb(37, 172, 95)') => {
+          return new RegularShape({
+            radius: 6,
+            fill: new Fill({
+              color: color,
+            }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 2,
+            }),
+            angle: rotation,
+            points: points,
+          })
+        }
+
+        var circleImg = (color) => {
+          return new CircleStyle({
+            radius: 6,
+            fill: new Fill({
+              color: color,
+            }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 2,
+            }),
+          })
+        }
+        var EQ_Ints = [1, 11, 21, 32];
+        var STK_Ints = [2, 6, 12, 22];
+        var Charge_Ints = [3, 5, 6];
+        var polyPoint = 3;
+        var polyRotation = 0;
+        var color = 'rgb(243, 123, 55)'
+        if (EQ_Ints.includes(pointRawData.StationType)) {
+          polyPoint = 4;
+          polyRotation = Math.PI / 180.0 * 45;
+        }
+        else if (STK_Ints.includes(pointRawData.StationType))
+          polyPoint = 3;
+        else if (Charge_Ints.includes(pointRawData.StationType)) {
+          polyPoint = 4;
+          polyRotation = Math.PI / 180.0 * 90;
+        }
+
+        if (!pointRawData.Enable)
+          color = 'red';
+        else {
+          if (pointRawData.IsSegment | pointRawData.IsSegment)
+            color = 'rgb(38, 255, 0)';
+          if (pointRawData.IsParking)
+            color = 'pink';
+        }
+
+        return new Style({
+          image: pointRawData.StationType == 0 ? circleImg(color) : polygonImg(polyPoint, polyRotation, color),
+          text: new Text({
+            text: text_display,
+            offsetX: -18,
+            offsetY: -18,
+            font: 'bold 12px sans-serif',
+            fill: new Fill({
+              color: pointRawData.Enable ? text_color : 'red'
+            }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 3
+            })
+          }),
+        });
+      }
     }
   },
   async mounted() {
     this.loading = true;
+    if (!this.show_agv) {
+      this.agv_display_mode_selected = 'hidden'
+
+    }
     setTimeout(() => {
       this.FetchMap();
       bus.on('/agv_name_list', (agv_data) => {
@@ -263,6 +341,34 @@ export default {
 
   },
   computed: {
+    Mode_Text() {
+      if (!this.edit_mode.enabled)
+        return "檢視模式"
+      if (this.edit_mode.mode_selected == 'edit_point')
+        return "編輯點位模式"
+      if (this.edit_mode.mode_selected == 'add_point')
+        return "新增點位模式"
+      if (this.edit_mode.mode_selected == 'remove_point')
+        return "移除點位模式"
+      if (this.edit_mode.mode_selected == 'add_path')
+        return "新增路徑模式"
+      if (this.edit_mode.mode_selected == 'remove_path')
+        return "移除路徑模式"
+    },
+    Tips() {
+      if (!this.edit_mode.enabled)
+        return []
+      if (this.edit_mode.mode_selected == 'edit_point')
+        return ["使用滑鼠【左鍵】拖曳點位。", "滑鼠【右鍵】點擊點位顯示編輯頁面。"]
+      if (this.edit_mode.mode_selected == 'add_point')
+        return ["使用滑鼠【右鍵】點擊地圖新增點位。"]
+      if (this.edit_mode.mode_selected == 'remove_point')
+        return ["使用滑鼠【左鍵】點擊欲移除的點位。"]
+      if (this.edit_mode.mode_selected == 'add_path')
+        return ["使用滑鼠【左鍵】點擊路徑起點點位以及終點點位。"]
+      if (this.edit_mode.mode_selected == 'remove_path')
+        return ["使用滑鼠【左鍵】點擊欲移除的路徑。"]
+    },
     current_select_featureID() {
       if (this.selected_feature) {
         return this.selected_feature.getId();
@@ -323,30 +429,7 @@ export default {
         else {
           Notifier.Success('Success Fetch Map Data From Server.', 'bottom', 2000);
 
-          this.map_data = map;
-          this.map_name = map.Name;
-
-          this.stations = [];
-          Object.keys(map.Points).forEach(index => {
-            var Graph = map.Points[index].Graph
-            var _tagID = map.Points[index].TagNumber;
-            var _feature = new Feature({
-              geometry: new Point([Graph.X * 1000, Graph.Y * -1000]),
-              //   name: Graph.Display,
-              name: index,
-            });
-            _feature.setId(_tagID);
-
-            this.stations.push(
-              {
-                index: parseInt(index),
-                tag: _tagID,
-                feature: _feature
-              }
-
-            );
-          })
-
+          this.MapDataInit(map);
           this.MapInitializeRender();
 
         }
@@ -368,11 +451,14 @@ export default {
       var stations = Object.values(this.map_data.Points);
       return stations.filter(st => st.StationType == 0);
     },
-    GetSTKStations() {
+    GetLDULDableStations() {
       if (!this.map_data)
         return [];
+
+      const lduldable_types = [1, 2, 6, 11, 12, 21, 22];
+
       var stations = Object.values(this.map_data.Points);
-      return stations.filter(st => st.StationType == 2);
+      return stations.filter(st => lduldable_types.includes(st.StationType));
     },
     GetChargeStations() {
       if (!this.map_data)
@@ -381,7 +467,63 @@ export default {
       var stations = Object.values(this.map_data.Points);
       return stations.filter(st => chargable_types.includes(st.StationType));
     },
+    MapDataInit(map) {
+      this.map_data = map;
+      this.map_name = map.Name;
+      this.stations = [];
+      Object.keys(map.Points).forEach(index => {
+        var Graph = map.Points[index].Graph
+        var _tagID = map.Points[index].TagNumber;
+        var _feature = new Feature({
+          geometry: new Point([Graph.X * 1000, Graph.Y * -1000]),
+          name: index,
+        });
+
+        this.SetPointFeatureIDByPointData(_feature, index, map.Points[index]);
+
+        this.stations.push(
+          {
+            index: parseInt(index),
+            tag: _tagID,
+            feature: _feature
+          }
+
+        );
+      })
+    },
     MapInitializeRender() {
+
+      const pathStyle = function (feature) {
+        const geometry = feature.getGeometry();
+        const styles = [
+          new Style({
+            stroke: new Stroke({
+              color: 'grey',
+              width: 4,
+            }),
+          }),
+        ];
+
+        geometry.forEachSegment(function (start, end) {
+          const dx = end[0] - start[0];
+          const dy = end[1] - start[1];
+          const rotation = Math.atan2(dy, dx);
+          // arrows
+          styles.push(
+            new Style({
+              geometry: new Point(end),
+              image: new Icon({
+                src: 'arrow.png',
+                anchor: [1.2, 0.5],
+                rotateWithView: true,
+                rotation: -rotation,
+                scale: 0.25,
+              }),
+            })
+          );
+        });
+        return styles;
+      };
 
       const lineFeatures = this.CreateLineFeaturesOfEachStaion();
       this.map = new Map({
@@ -392,18 +534,18 @@ export default {
             source: new VectorSource(),
             name: '1'
           }),
-          // add a vector layer with three points
           new VectorLayer({//1
             source: new VectorSource({
               features: this.station_features
             }),
-            zIndex: 2
+            style: this.pointStyle,
+            zIndex: 2,
           }),
           new VectorLayer({//3
             source: new VectorSource({
               features: lineFeatures
             }),
-            style: this.doubleArrowStyle,
+            style: pathStyle,
             zIndex: 1
           }),
           new VectorLayer({//2
@@ -432,52 +574,114 @@ export default {
           }),
         ],
         view: new View({
-          center: [0, 0],
-          zoom: 6,
+          center: [800000, 2000],
+          zoom: this.zoom,
         }),
       });
 
-      // this.UpdateAGVLayer(['AGV_1', 'AGV_2', 'AGV_3']);
-
+      if (!this.show_agv) {
+        this.AGVDisplayControl(false);
+      }
       this.CreateMapEvent()
-      // add text to each point
       this.CreateMeshLayer();
-      this.StationStyleRender();
-
-
-
-      //this.Line_Layer.getSource().addFeature(lineFeature);
     },
     CreateMapEvent() {
-      this.map.on('click', (evt) => {
-        this.showTaskAllocationMenu = this.showStationMenu = this.showNoPointSelectedMenu = false;
+
+
+      var that = this;
+      var isEditMode = () => { return that.edit_mode.enabled };
+      var isEditPointMode = () => { return that.edit_mode.mode_selected == 'edit_point' };
+      var isRemovePointMode = () => { return that.edit_mode.mode_selected == 'remove_point' };
+      var isAddPointMode = () => { return that.edit_mode.mode_selected == 'add_point' };
+      var isRemovePathMode = () => { return that.edit_mode.mode_selected == 'remove_path' };
+      var isAddPathMode = () => { return that.edit_mode.mode_selected == 'add_path' };
+
+      var dragControl = (active) => {
+        var interactions = that.map.getInteractions();
+        interactions.forEach(function (interaction) {
+          if (interaction instanceof DragPan) {
+            interaction.setActive(active);
+          }
+        });
+      }
+
+      this.map.on('pointerup', event => {
+
+        if (isEditMode() && isAddPointMode() && event.originalEvent.button === 2) {
+          document.addEventListener('contextmenu', function (event) {
+            event.preventDefault();
+          });
+
+          that.AddNewPoint();
+        }
       })
 
-      // 监听 feature 的右键点击事件
+
       this.map.on('pointerdown', (event) => {
-        if (event.originalEvent.button === 2) {
-          this.selected_feature = this.map.forEachFeatureAtPixel(event.pixel, (feature) => {
-            return feature;
-          });
-        }
+
+        that.mouse_click_coordinate = event.coordinate
+        console.log(that.mouse_click_coordinate)
+
+
+        this.selected_feature = this.map.forEachFeatureAtPixel(event.pixel, (feature) => {
+
+          if (feature) {
+            that.selected_feature = feature;
+            if (!isEditMode())
+              return undefined;
+
+            var feature_id = feature.getId();
+            var isPathFeature = (feature_id + '').includes('path:')
+            if (event.originalEvent.button === 2) { // 右键
+              document.addEventListener('contextmenu', function (event) {
+                event.preventDefault();
+              });
+
+              if (isEditPointMode()) {
+                that.ShowPointSettingDrawer();
+              }
+            }
+            else if (event.originalEvent.button === 0) {//左键
+              if (isRemovePathMode()) {
+                if (!isPathFeature)
+                  return;
+                that.RemovePath();
+              }
+              else if (isRemovePointMode()) {
+                if (isPathFeature)
+                  return;
+                that.RemovePoint();
+              }
+              else if (isAddPathMode()) {
+                if (isPathFeature)
+                  return;
+                if (that.path_start_end.start == undefined) {
+                  that.path_start_end.start = feature
+                } else {
+                  that.path_start_end.end = feature
+                  that.UpdatePathOfBetweenTags();
+                }
+              }
+            }
+          }
+
+          return feature;
+        });
+
+
       });
       // 创建一个拖动交互操作
-      var that = this;
       var dragInteraction = new Pointer({
         handleDownEvent: function (event) {
-
+          if (isEditMode() && isAddPointMode() && event.originalEvent.button === 0)
+            return;
           var map = event.map;
           var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) {
             return feature;
           });
-          that.mouse_click_coordinate = event.coordinate
+          if (!feature)
+            return false;
           that.selected_feature = feature;
-          if (!that.edit_mode)
-            return false;
-          if (!feature) {
-            return false;
-          }
-
           var feature_id = feature.getId();
           if (feature_id) {
             this.feature_ = feature;
@@ -487,28 +691,30 @@ export default {
           return false;
         },
         handleDragEvent: function (event) {
+          if (isEditMode() && isAddPointMode() && event.originalEvent.button === 0)
+            return;
+
+          if (!isEditMode())
+            return;
+          if (!isEditPointMode()) {
+            return;
+          }
+          console.log('drag!')
           var deltaX = event.coordinate[0] - this.coordinate_[0];
           var deltaY = event.coordinate[1] - this.coordinate_[1];
           var geometry = this.feature_.getGeometry();
           geometry.translate(deltaX, deltaY);
           this.coordinate_ = event.coordinate;
 
-          var New_lineFeatures = that.CreateLineFeaturesOfEachStaion();
-          var source = that.Line_Layer.getSource();
-          source.clear(); // 清空原有的要素
-          source.addFeatures(New_lineFeatures); // 添加新的要素
-          //更新本地圖資
-          var tagID = that.selected_feature.getId();
-          var coordinates = that.selected_feature.getGeometry().getCoordinates();
-          // 找到 tagid 为 3 的对象并替换其 value 属性
-          for (let pt_index in that.map_data.Points) {
-            if (that.map_data.Points[pt_index].TagNumber === tagID) {
-              that.map_data.Points[pt_index].Graph.X = Math.round(coordinates[0] / 1000.0, 0);
-              that.map_data.Points[pt_index].Graph.Y = Math.round(coordinates[1] / -1000.0, 0);
-              break; // 找到一个即可停止循环
-            }
-          }
+          that.UpdateStationPathLayer();
 
+          //更新本地圖資
+          var featureID = that.selected_feature.getId();
+          var index = parseInt(featureID.split(':')[1])
+
+          var coordinates = that.selected_feature.getGeometry().getCoordinates();
+          that.map_data.Points[index].Graph.X = Math.round(coordinates[0] / 1000.0, 0);
+          that.map_data.Points[index].Graph.Y = Math.round(coordinates[1] / -1000.0, 0);
           that.UpdatePathPlanRender(that.path_plan_tags);
 
         },
@@ -518,6 +724,7 @@ export default {
           return false;
         },
         handleMoveEvent: function (event) {
+
           var map = event.map;
           var feature = map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
             return feature;
@@ -532,6 +739,29 @@ export default {
 
       // 将拖动交互操作添加到地图中
       this.map.addInteraction(dragInteraction);
+
+    },
+    /**更新地圖路徑圖層 */
+    UpdateStationPathLayer() {
+      var New_lineFeatures = this.CreateLineFeaturesOfEachStaion();
+      var source = this.Line_Layer.getSource();
+      source.clear(); // 清空原有的要素
+      source.addFeatures(New_lineFeatures); // 添加新的要素
+      source.changed();
+    },
+    UpdatePathOfBetweenTags() {
+      var start_ = this.GetPointDataByFeature(this.path_start_end.start)
+      var end_ = this.GetPointDataByFeature(this.path_start_end.end)
+      if (!start_ | !end_) {
+        this.path_start_end = { start: undefined, end: undefined }
+        return;
+      }
+      if (start_.index != end_.index) {
+        if (this.map_data.Points[start_.index].Target[end_.index] == undefined)
+          this.map_data.Points[start_.index].Target[end_.index] = 1
+        this.UpdateStationPathLayer();
+      }
+      this.path_start_end = { start: undefined, end: undefined }
     },
     CreateMeshLayer() {
       // 创建一个矢量图层和矢量数据源
@@ -668,44 +898,54 @@ export default {
       });
       return { agv_features: agv_features, agv_nav_path_features: agv_nav_path_features }
     },
-    handleEditModeMenuClick(action) {
-      console.log(action);
-      this.showStationMenu = false;
-      if (action === 'point_setting') {
-        var pointData = this.GetPointDataByFeature(this.selected_feature);
-        if (pointData)
-          this.$refs['point-setting-drawer'].Show(pointData);
+    /**顯示站點設定抽屜 */
+    ShowPointSettingDrawer() {
+      var pointData = this.GetPointDataByFeature(this.selected_feature);
+      if (pointData) {
+        this.$refs['point-setting-drawer'].Show(pointData);
       }
     },
-    handleNoPointSelectedMenuClick(action) {
-      console.log(action);
-      this.showNoPointSelectedMenu = false;
-      if (action === 'add_point') {
-        var pt_index = this.GetNewPointIndex();
-        var source = this.Station_Layer.getSource()
-        var _feature = new Feature({
-          geometry: new Point(this.mouse_click_coordinate),
-          //   name: Graph.Display,
-          name: pt_index,
-        });
-        _feature.setId(pt_index);
-        this.stations.push(
-          {
-            index: pt_index,
-            tag: pt_index,
-            feature: _feature
-          }
-        );
+    /**移除站點 */
+    RemovePoint() {
+      var pointData = this.GetPointDataByFeature(this.selected_feature);
+      delete this.map_data.Points[pointData.index];
+      var _index = this.stations.findIndex(p => p.index == pointData.index);
+      this.stations.splice(_index, 1)
+      this.Station_Layer.getSource().removeFeature(this.selected_feature)
+      this.Station_Layer.getSource().changed();
+      this.UpdateStationPathLayer();
+    },
 
-        source.addFeature(_feature);
-        //新增資料
-        var new_point = this.CloneAPointData();
-        new_point.Graph.Display = new_point.Name = pt_index + '';
-        new_point.TagNumber = (pt_index);
+    async AddNewPoint() {
 
-        this.map_data.Points[pt_index] = new_point;
-        this.StationStyleRender();
+      var pt_index = this.GetNewPointIndex();
+      var source = this.Station_Layer.getSource()
+      var _feature = new Feature({
+        geometry: new Point(this.mouse_click_coordinate),
+        name: pt_index,
+      });
+
+      //新增資料
+      var new_point = await this.CloneAPointData();
+      new_point.Graph = {
+        X: parseInt(this.mouse_click_coordinate[0] / (1000.0)),
+        Y: parseInt(this.mouse_click_coordinate[1] / (-1000.0)),
+        Display: pt_index + ''
       }
+      new_point.TagNumber = (pt_index);
+      new_point.Target = {}
+      new_point.Name = pt_index + ''
+      this.map_data.Points[pt_index] = new_point;
+      this.SetPointFeatureIDByPointData(_feature, pt_index, new_point);
+      this.stations.push(
+        {
+          index: pt_index,
+          tag: pt_index,
+          feature: _feature
+        }
+      );
+      source.addFeature(_feature);
+      this.UpdateStationPathLayer();
     },
 
     handleAGVMenuItemClick(action) {
@@ -718,54 +958,54 @@ export default {
       console.log(action);
       this.showTaskAllocationMenu = false;
     },
+    ChangeFillColorOfFeature(feature, color) {
+      var fillStyle = new Fill({
+        color: color // 设置填充颜色，例如绿色半透明
+      });
+      var style = new Style({
+        fill: fillStyle // 设置要素的填充样式
+      });
+      feature.setStyle(style)
+      this.GetLayerOfFeature(feature).getSource().refresh();
+    },
+
+    RemovePath() {
+
+      var pathID = this.selected_feature.getId();
+      var splited = pathID.split(':')
+      var startStation_Index = parseInt(splited[1])
+      var endStation_Index = parseInt(splited[2])
+      delete this.map_data.Points[startStation_Index].Target[endStation_Index]
+      this.UpdateStationPathLayer()
+      this.path_start_end = { start: undefined, end: undefined }
+    },
     /**從圖資資料中產生一個新的Point Index */
     GetNewPointIndex() {
+      if (this.stations.length == 0)
+        return 1;
       const sortedKeys = Object.keys(this.map_data.Points).map(Number).sort((a, b) => a - b); // 小到大排序
       const lastKey = sortedKeys[sortedKeys.length - 1]; // 取得最後一個key
       return lastKey + 1;
     },
-    CloneAPointData() {
-      var points = Object.values(this.map_data.Points);
-      return points[points.length - 1]
-    },
-    HideAllMenus() {
-      this.showAGVMenu = this.showNoPointSelectedMenu = this.showStationMenu = this.showTaskAllocationMenu = false;
-    },
-    showContextMenu(event) {
-      event.preventDefault();
-
-      this.showStationMenu = false;
-      this.map_contextmenu_style.top = event.clientY + 'px'
-      this.map_contextmenu_style.left = event.clientX + 'px'
-
-      if (this.selected_feature) {
-
-        this.map_contextmenu_style.height = '157px';
-
-        if (this.edit_mode) {
-
-          if (this.is_agv_feature_selected) {
-
-            this.showAGVMenu = true;
-          } else {
-            this.showStationMenu = true;
-          }
-        }
-        if (this.task_allocatable) {
-          this.showTaskAllocationMenu = true;
-        }
-      } else {
-        if (this.edit_mode) {
-          this.map_contextmenu_style.height = '100px';
-          this.showNoPointSelectedMenu = true;
-        }
+    async CloneAPointData() {
+      if (this.stations.length == 0) {
+        var template = await MapAPI.GetMapStationTemplate()
+        return JSON.parse(JSON.stringify(template));
       }
+      var points = Object.values(this.map_data.Points);
+      var lastPoint = points[points.length - 1]
+      return JSON.parse(JSON.stringify(lastPoint))
     },
+
+
     GetPointDataByFeature(feature) {
-      var tagID = feature.getId();
+
+      // var featureID = `Point:${index}:${_tagID}:${stationType}`;
+      var featureID = feature.getId();
+      var index = parseInt(featureID.split(':')[1]);
+      var tagID = parseInt(featureID.split(':')[2]);
       if (tagID) {
-        var point = Object.values(this.map_data.Points).find(pt => pt.TagNumber == tagID);
-        var index = Object.keys(this.map_data.Points).find(key => this.map_data.Points[key] == point);
+        var point = this.map_data.Points[index]
         return {
           index: index,
           point: point
@@ -775,61 +1015,8 @@ export default {
 
     },
 
-    StationStyleRender() {
-      this.map.getLayers().item(this.layer_index.station).getSource().getFeatures().forEach((feature) => {
-        var station = this.stations.find(st => st.feature == feature);
-        var showTagNumber = this.display_selected == 'Tag';
-        const name = (showTagNumber ? station.tag : station.index) + '';
-        var nameInt = parseInt(name);
-        var isEQStation = nameInt % 2 == 0
-
-        var trangleImg = new RegularShape({
-          radius: 8,
-          fill: new Fill({
-            color: 'rgb(37, 172, 95)',
-          }),
-          stroke: new Stroke({
-            color: 'black',
-            width: 3,
-          }),
-          angle: 0,
-          points: 3,
-        })
-
-        var circleImg = new CircleStyle({
-          radius: 8,
-          fill: new Fill({
-            color: 'rgb(243, 123, 55)',
-          }),
-          stroke: new Stroke({
-            color: 'black',
-            width: 3,
-          }),
-        })
-
-        feature.setStyle(new Style({
-          image: isEQStation ? trangleImg : circleImg,
-          text: new Text({
-            text: name,
-            offsetX: -18,
-            offsetY: -18,
-            font: 'bold 14px sans-serif',
-            fill: new Fill({
-              color: showTagNumber ? 'gold' : 'lime'
-            }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 3
-            })
-          }),
-        }));
-      });
-
-      this.Station_Layer.getSource().changed();
-    },
-
     NameDisplayChangeHandle() {
-      this.StationStyleRender();
+      this.UpdatePointDisplay();
     },
     AGVDisplayChangeHandle() {
 
@@ -842,7 +1029,6 @@ export default {
         this.map.removeLayer(layer);
       }
 
-      // 创建一个矢量图层和矢量数据源
       var path_vectorSource = new VectorSource();
       var path_vectorLayer = new VectorLayer({
         source: path_vectorSource,
@@ -880,14 +1066,16 @@ export default {
         var targets = this.map_data.Points[index_str].Target;
         Object.keys(targets).forEach(index_str => {
           var _index = parseInt(index_str)
-          //找到
+
           var station_link = this.stations.find(st => st.index == _index);
           if (station_link != undefined) {
+            let lineFeature = new Feature(
+              {
+                geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
+              },
+            );
 
-            let lineFeature = new Feature({
-              geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
-            });
-
+            lineFeature.setId(`path:${index}:${_index}`);
             lineFeatures.push(lineFeature);
           }
         })
@@ -929,13 +1117,44 @@ export default {
     },
     AGVDisplayControl(display) {
       this.AGV_Layer.setVisible(display);
-    }
+      this.Nav_Path_Layer.setVisible(display);
+    },
 
+    UpdatePointDisplay() {
+      this.Station_Layer.getSource().changed();
+    },
+    PointSettingChangedHandle(dto) {
+      var index = dto.index;
+      var pointData = dto.pointData;
+
+      this.map_data.Points[index] = pointData;
+      var feature = this.stations.filter(pt => pt.index == index)[0].feature;
+      this.SetPointFeatureIDByPointData(feature, index, pointData);
+      this.stations.filter(pt => pt.index == index)[0].feature = feature;
+      //this.UpdatePointDisplay();
+
+    },
+    /**使用站點資料設定Point Feature ID */
+    SetPointFeatureIDByPointData(feature, pt_index, pointData) {
+      var featureID = `Point:${pt_index}:${pointData.TagNumber}:${pointData.StationType}:${pointData.Name}`;
+      feature.setId(featureID);
+      feature.set('data', pointData)
+    }
   },
 };
   </script>
   
-<style scoped>
+<style lang="scss" scoped>
+.map-notify {
+  .mode-text {
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  .tips-text {
+    color: "orange";
+  }
+}
 .map-show {
 }
 

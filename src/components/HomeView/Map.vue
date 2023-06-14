@@ -3,7 +3,7 @@
     <div class="title">
       <i class="bi bi-map"></i>MAP SHOW
     </div>
-    <MapShow ref="home-map" :task_allocatable="true" style="height:95%"></MapShow>
+    <MapShow ref="home-map" :task_allocatable="true" style="height:95%" :zoom="5"></MapShow>
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import WebSocketHelp from '@/api/WebSocketHepler.js'
 import param from '@/gpm_param';
 export default {
   components: {
-    MapShow,
+    MapShow
   },
   data() {
     return {

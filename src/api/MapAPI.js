@@ -65,6 +65,16 @@ const MapAPI = {
         return undefined
       })
   },
+  GetMapStationTemplate(){
+    return axios_entity
+    .get('api/Map/MapPointTemplate')
+    .then((ret) => {
+      return ret.data
+    })
+    .catch((err) => {
+      return undefined
+    })
+  }
 }
 
 export default MapAPI

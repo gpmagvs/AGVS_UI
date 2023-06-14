@@ -7,7 +7,7 @@
     </div>
     <div class="border">
       <el-table :data="UserData" empty-text="沒有用戶" size="large">
-        <el-table-column label="User Name" prop="Username"></el-table-column>
+        <el-table-column label="User Name" prop="UserName"></el-table-column>
         <el-table-column label="Password" prop="Password">
           <template #default="scope">
             <div>
@@ -63,17 +63,17 @@ export default {
       RestoreConfirmDialogShow: false,
       UserData: [
         {
-          Username: "jinwei",
+          UserName: "jinwei",
           Password: "1020",
           Role: 2
         },
         {
-          Username: "eng",
+          UserName: "eng",
           Password: "tset-pw2",
           Role: 1
         },
         {
-          Username: "test",
+          UserName: "test",
           Password: "tset-pw3",
           Role: 0
         }

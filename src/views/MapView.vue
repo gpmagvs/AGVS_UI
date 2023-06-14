@@ -1,30 +1,38 @@
 <template>
-  <div class="map-view h-100 d-flex flex-row my-4">
-    <div class="opts-container mx-3 p-3 border">
-      <el-form label-width="80px" label-position="left">
+  <div class="map-view h-100 d-flex flex-row my-1">
+    <div class="opts-container mx-1 p-2 border">
+      <div class="border-bottom mb-2 py-2 text-start">
+        <b-button
+          class="mx-1"
+          variant="primary"
+          @click="SaveMapClickHandle"
+          :disabled="!IsEditable"
+        >儲存圖資</b-button>
+        <b-button class="mx-1" variant="danger" :disabled="!IsEditable">重新載入</b-button>
+        <!-- <b-button class="mx-1" variant="info">產生新地圖</b-button> -->
+      </div>
+
+      <el-form class="px-2 pt-3" label-width="80px" label-position="left">
         <el-form-item label="模式">
-          <el-radio-group v-model="mode_selected">
+          <el-radio-group v-model="mode_selected" @change="EditModeEnableChanged">
             <el-radio-button label="檢視" />
             <el-radio-button label="編輯" />
           </el-radio-group>
         </el-form-item>
         <el-form-item label="編輯動作">
-          <el-radio-group v-model="action_selected">
-            <el-radio-button label="無" />
-            <el-radio-button label="新增點位" />
-            <el-radio-button label="移除點位" />
-            <el-radio-button label="編輯點位" />
+          <el-radio-group v-model="edit_mode_opts.action_selected" @change="EditActionChanged">
+            <el-radio-button :disabled="!IsEditable" label="無" />
+            <el-radio-button :disabled="!IsEditable" label="編輯點位" />
+            <el-radio-button :disabled="!IsEditable" label="新增點位" />
+            <el-radio-button :disabled="!IsEditable" label="移除點位" />
+            <el-radio-button :disabled="!IsEditable" label="新增路徑" />
+            <el-radio-button :disabled="!IsEditable" label="移除路徑" />
           </el-radio-group>
-        </el-form-item>
-
-        <el-form-item label>
-          <b-button variant="primary" @click="SaveMapClickHandle">儲存圖資</b-button>
-          <b-button variant="danger">重新載入</b-button>
         </el-form-item>
       </el-form>
 
       <!--路徑規劃-->
-
+      <!-- 
       <div class="border rounded text-start p-3 w-100">
         <h4 class="border-bottom">路徑規劃</h4>
         <el-form class="my-3" label-width="80px" label-position="left">
@@ -46,9 +54,15 @@
           </el-form-item>
           <b-button @click="GetPathPlanedFromServer" class="w-100" variant="primary">PLAN</b-button>
         </el-form>
-      </div>
+      </div>-->
     </div>
-    <MapShow ref="map" :edit_mode="mode_selected=='編輯'" style="height:100%;width: 100%;"></MapShow>
+    <MapShow
+      ref="map"
+      :only_view="false"
+      :show_agv="false"
+      :edit_mode="edit_mode_opts"
+      style="height:100%;width: 100%;"
+    ></MapShow>
   </div>
 </template>
 
@@ -66,25 +80,66 @@ export default {
   },
   data() {
     return {
+      edit_mode_opts: {
+        enabled: false,
+        action_selected: '無',
+        mode_selected: 'point'
+      },
       mode_selected: '檢視',
-      action_selected: '無',
       path_plan_point_type: 'Tag',
       path_plan_point_from: 1,
       path_plan_point_to: 2,
       tags: [1, 2, 3, 59, 11]
     }
   },
+  computed: {
+    IsEditable() {
+      return this.mode_selected == '編輯'
+    }
+  },
   methods: {
+    EditModeEnableChanged(e) {
+      this.edit_mode_opts.enabled = e == '編輯'
+    },
+    EditActionChanged(action) {
+      if (action == '無')
+        this.edit_mode_opts.mode_selected = 'none';
+      if (action == '編輯點位')
+        this.edit_mode_opts.mode_selected = 'edit_point';
+      if (action == '新增點位')
+        this.edit_mode_opts.mode_selected = 'add_point';
+      if (action == '移除點位')
+        this.edit_mode_opts.mode_selected = 'remove_point';
+      if (action == '新增路徑')
+        this.edit_mode_opts.mode_selected = 'add_path';
+      if (action == '移除路徑')
+        this.edit_mode_opts.mode_selected = 'remove_path';
+    },
     async SaveMapClickHandle() {
       var data = this.$refs["map"].map_data
       console.log(data);
       var success = await MapAPI.SaveMap(data);
       if (success) {
-        Notifier.Success('圖資儲存成功');
+        //Notifier.Success('圖資儲存成功');
+        this.$swal.fire({
+          title: '圖資儲存成功',
+          icon: 'success',
+          showCancelButton: false,
+          showConfirmButton: false,
+          customClass: 'my-sweetalert',
+          timer: 1500,
+        })
         bus.emit('on_map_save_success', '');
       }
       else {
         Notifier.Danger('圖資儲存失敗');
+        this.$swal.fire({
+          title: '圖資儲存失敗',
+          icon: 'error',
+          showCancelButton: false,
+          showConfirmButton: true,
+          customClass: 'my-sweetalert',
+        })
       }
     },
     async GetPathPlanedFromServer() {
@@ -105,8 +160,11 @@ export default {
 
 <style lang="scss" scoped>
 .map-view {
+  position: absolute;
+  top: 50px;
+  width: 100%;
   .opts-container {
-    width: 40%;
+    width: 30%;
   }
 }
 </style>

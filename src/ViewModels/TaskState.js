@@ -36,13 +36,21 @@ class clsTaskState {
       case 0:
         return '移動'
       case 1:
-        return '放貨'
-      case 2:
         return '取貨'
+      case 2:
+        return '取貨並停車'
       case 3:
-        return '充電'
+        return '前進'
       case 4:
+        return '後退'
+      case 7:
+        return '放貨'
+      case 8:
+        return '充電'
+      case 9:
         return '搬運'
+      case 12:
+        return '停車'
       default:
         return 'Unknown'
     }
