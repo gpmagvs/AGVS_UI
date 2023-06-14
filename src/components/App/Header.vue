@@ -1,6 +1,7 @@
 <template>
   <div class="app-header text-light border-bottom fixed-top">
     <div class="bg-primary d-flex flex-row py-1">
+      <i @click="ToggleMenu" class="bi bi-list menu-toggle-icon text-light px-2"></i>
       <h3 @click="LogoClickHandler">
         <b>GPM AGVS</b>
       </h3>
@@ -210,7 +211,9 @@ export default {
     on_alarm_message(ev) {
       this.unchecked_alarms = JSON.parse(ev.data)
     },
-
+    ToggleMenu() {
+      this.$emit('onMenuToggleClicked', '')
+    },
     LogoClickHandler() {
       this.$router.push('/');
       this.current_route_info = {
@@ -256,21 +259,21 @@ export default {
     async ResetSysAlarmsHandler() {
       await ResetSystemAlarm()
       this.$vs.notify({
-        color: 'success',
+        color: 'primary',
         title: '警報復歸請求',
         text: '系統警報復歸請求完成',
         position: 'bottom-right',
-        time: 1000
+        time: 1400
       })
     },
     async ResetEqpAlarmsHandler() {
       await ResetEquipmentAlarm()
       this.$vs.notify({
-        color: 'success',
+        color: 'primary',
         title: '警報復歸請求',
         text: '設備警報復歸請求完成',
         position: 'bottom-right',
-        time: 1000
+        time: 1400
       })
     },
     CreateAlarmDisplayText(alarm) {

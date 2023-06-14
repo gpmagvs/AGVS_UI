@@ -526,9 +526,6 @@ export default {
       })
     },
     MapInitializeRender() {
-
-
-
       const lineFeatures = this.CreateLineFeaturesOfEachStaion();
       this.map = new Map({
         target: this.$refs.map,
@@ -590,7 +587,6 @@ export default {
       this.CreateMeshLayer();
     },
     CreateMapEvent() {
-
 
       var that = this;
       var isEditMode = () => { return that.edit_mode.enabled };
@@ -677,8 +673,6 @@ export default {
       // 创建一个拖动交互操作
       var dragInteraction = new Pointer({
         handleDownEvent: function (event) {
-          if (isEditMode() && isAddPointMode() && event.originalEvent.button === 0)
-            return;
           var map = event.map;
           var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) {
             return feature;
@@ -700,7 +694,7 @@ export default {
 
           if (!isEditMode())
             return;
-          if (!isEditPointMode()) {
+          if (!isEditPointMode() && !isAddPointMode()) {
             return;
           }
           console.log('drag!')

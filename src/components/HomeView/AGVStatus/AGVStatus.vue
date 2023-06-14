@@ -187,8 +187,9 @@ export default {
 
       this.OnlineStatusReq.AGV_Name = agv_name;
       this.OnlineStatusReq.Online_Status = current_online_status == 0 ? 'Online' : 'Offline';
+      var online_text = this.OnlineStatusReq.Online_Status == 'Online' ? '上線' : '下線';
       var text_class = current_online_status == 0 ? 'text-success' : 'text-danger';
-      this.$refs['online_status_change_noti_txt'].innerHTML = `<h4>確定要將 <span class='border'> ${this.OnlineStatusReq.AGV_Name}</span><b> <span class='${text_class}'>${this.OnlineStatusReq.Online_Status}</span></b>  ?</h4>`;
+      this.$refs['online_status_change_noti_txt'].innerHTML = `<h4>確定要將 <span > ${this.OnlineStatusReq.AGV_Name}</span><b> <span class='${text_class}'>${online_text}</span></b>  ?</h4>`;
       this.ShowOnlineStateChange = true;
     },
     async SendOnlineStateChangeRequest() {

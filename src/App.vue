@@ -1,12 +1,7 @@
 <template>
   <div class="d-flex flex-row">
     <div>
-      <i
-        @click="ToggleMenu"
-        v-show="showMenuToggleIcon"
-        class="bi bi-list menu-toggle-icon text-light"
-      ></i>
-      <Header></Header>
+      <Header @onMenuToggleClicked="ToggleMenu"></Header>
     </div>
 
     <div class="flex-fill" v-bind:style="router_view_style">
