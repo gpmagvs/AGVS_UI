@@ -4,13 +4,13 @@
       v-model="show"
       :header="false"
       size="100%"
-      direction="btt"
+      direction="ltr"
       :modal="true"
       :z-index="123"
       @closed="HandleDrawerClosed"
     >
       <template #header>
-        <h3>Task Allocation-{{ clsAgvStatus.AGV_Name }}</h3>
+        <h3>Local任務派送-車輛:{{ clsAgvStatus.AGV_Name }}</h3>
       </template>
       <div class="drawer-content my-1 p-1 border-top">
         <div class="d-flex flex-row">

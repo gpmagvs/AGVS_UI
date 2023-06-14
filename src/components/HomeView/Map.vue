@@ -3,7 +3,7 @@
     <div class="title">
       <i class="bi bi-map"></i>MAP SHOW
     </div>
-    <MapShow ref="home-map" :task_allocatable="true" style="height:95%" :zoom="5"></MapShow>
+    <MapShow ref="home-map" :task_allocatable="true" style="height:90%" :zoom="5.5"></MapShow>
   </div>
 </template>
 

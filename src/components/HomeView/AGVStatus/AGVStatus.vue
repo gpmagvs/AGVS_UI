@@ -11,7 +11,7 @@
       style="z-index:1"
       :row-class-name="connected_class"
     >
-      <el-table-column label="AGV Name" prop="AGV_Name" width="90px">
+      <el-table-column label="車輛名稱" prop="AGV_Name" width="90px">
         <template #default="scope">
           <b>{{scope.row.AGV_Name }}</b>
         </template>

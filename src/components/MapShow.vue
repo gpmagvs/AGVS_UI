@@ -10,41 +10,44 @@
       </div>
     </b-alert>
     <div class="map-show h-100 border py-2 px-2 d-flex flex-row bg-light">
-      <div class="text-start m-3 py-3" style="width:117px">
-        <span>顯示方式</span>
-        <b-form-group
-          @change="NameDisplayChangeHandle"
-          class="w-100 px-3"
-          v-slot="{ ariaDescribedby }"
-        >
-          <b-form-radio
-            v-model="display_selected"
-            :aria-describedby="ariaDescribedby"
-            name="some-radios"
-            value="Name"
-          >Name</b-form-radio>
-          <b-form-radio
-            v-model="display_selected"
-            :aria-describedby="ariaDescribedby"
-            name="some-radios"
-            value="Tag"
-          >Tag</b-form-radio>
-          <b-form-radio
-            v-model="display_selected"
-            :aria-describedby="ariaDescribedby"
-            name="some-radios"
-            value="Index"
-          >Index</b-form-radio>
-        </b-form-group>
-        <span>AGV顯示</span>
-        <b-form-group @change="AGVDisplayChangeHandle" class="w-100 px-3">
-          <b-form-radio v-model="agv_display_mode_selected" value="hidden">隱藏</b-form-radio>
-          <b-form-radio v-model="agv_display_mode_selected" value="show">顯示</b-form-radio>
-        </b-form-group>
-      </div>
       <div class="w-100">
-        <div class="w-100 d-flex flex-row justify-content-end">
-          <span class="p-1">MAP</span>
+        <div class="header-div w-100 d-flex flex-row justify-content-between">
+          <div class="options text-start d-flex flex-row">
+            <div class="d-flex flex-row option-container">
+              <span>
+                <i class="bi bi-three-dots-vertical"></i>顯示方式
+              </span>
+              <b-form-group @change="NameDisplayChangeHandle" v-slot="{ ariaDescribedby }">
+                <b-form-radio
+                  v-model="display_selected"
+                  :aria-describedby="ariaDescribedby"
+                  name="some-radios"
+                  value="Index"
+                >Index</b-form-radio>
+                <b-form-radio
+                  v-model="display_selected"
+                  :aria-describedby="ariaDescribedby"
+                  name="some-radios"
+                  value="Tag"
+                >Tag</b-form-radio>
+                <b-form-radio
+                  v-model="display_selected"
+                  :aria-describedby="ariaDescribedby"
+                  name="some-radios"
+                  value="Name"
+                >名稱</b-form-radio>
+              </b-form-group>
+            </div>
+            <div class="d-flex flex-row option-container">
+              <span>
+                <i class="bi bi-three-dots-vertical"></i>AGV顯示
+              </span>
+              <b-form-group @change="AGVDisplayChangeHandle">
+                <b-form-radio v-model="agv_display_mode_selected" value="hidden">隱藏</b-form-radio>
+                <b-form-radio v-model="agv_display_mode_selected" value="show">顯示</b-form-radio>
+              </b-form-group>
+            </div>
+          </div>
           <div>
             <b-form-input v-model="map_name" disabled size="sm" :state="map_data.Name!=undefined"></b-form-input>
           </div>
@@ -231,8 +234,6 @@ export default {
             }
           }
         }
-
-
         var pointRawData = feature.get('data');
         var pointInfo = GetPointFeatureInfo(feature)
         var text_display = '';
@@ -252,13 +253,13 @@ export default {
 
         var polygonImg = (points, rotation = 0, color = 'rgb(37, 172, 95)') => {
           return new RegularShape({
-            radius: 6,
+            radius: 7,
             fill: new Fill({
               color: color,
             }),
             stroke: new Stroke({
               color: 'black',
-              width: 2,
+              width: 1,
             }),
             angle: rotation,
             points: points,
@@ -273,7 +274,7 @@ export default {
             }),
             stroke: new Stroke({
               color: 'black',
-              width: 2,
+              width: 1,
             }),
           })
         }
@@ -287,18 +288,20 @@ export default {
           polyPoint = 4;
           polyRotation = Math.PI / 180.0 * 45;
         }
-        else if (STK_Ints.includes(pointRawData.StationType))
-          polyPoint = 3;
-        else if (Charge_Ints.includes(pointRawData.StationType)) {
+        else if (STK_Ints.includes(pointRawData.StationType)) {
           polyPoint = 4;
           polyRotation = Math.PI / 180.0 * 90;
+        }
+        else if (Charge_Ints.includes(pointRawData.StationType)) {
+          polyPoint = 3;
+          polyRotation = Math.PI / 180.0 * 0;
         }
 
         if (!pointRawData.Enable)
           color = 'red';
         else {
-          if (pointRawData.IsSegment | pointRawData.IsSegment)
-            color = 'rgb(38, 255, 0)';
+          if (pointRawData.IsSegment | pointRawData.IsAvoid)
+            color = 'rgb(0, 122, 255)';
           if (pointRawData.IsParking)
             color = 'pink';
         }
@@ -307,11 +310,11 @@ export default {
           image: pointRawData.StationType == 0 ? circleImg(color) : polygonImg(polyPoint, polyRotation, color),
           text: new Text({
             text: text_display,
-            offsetX: -18,
-            offsetY: -18,
-            font: 'bold 12px sans-serif',
+            offsetX: 12,
+            offsetY: -15,
+            font: 'bold 14px sans-serif',
             fill: new Fill({
-              color: pointRawData.Enable ? text_color : 'red'
+              color: pointRawData.Enable ? text_color : 'rgb(255, 106, 138)'
             }),
             stroke: new Stroke({
               color: 'black',
@@ -319,6 +322,37 @@ export default {
             })
           }),
         });
+      },
+      pathStyle: (feature) => {
+        const geometry = feature.getGeometry();
+        const styles = [
+          new Style({
+            stroke: new Stroke({
+              color: 'rgb(176, 176, 178)',
+              width: 3,
+            }),
+          }),
+        ];
+
+        geometry.forEachSegment(function (start, end) {
+          const dx = end[0] - start[0];
+          const dy = end[1] - start[1];
+          const rotation = Math.atan2(dy, dx);
+          // arrows
+          styles.push(
+            new Style({
+              geometry: new Point(end),
+              image: new Icon({
+                src: 'arrow.png',
+                anchor: [1.2, 0.5],
+                rotateWithView: true,
+                rotation: -rotation,
+                scale: 0.15,
+              }),
+            })
+          );
+        });
+        return styles;
       }
     }
   },
@@ -493,37 +527,7 @@ export default {
     },
     MapInitializeRender() {
 
-      const pathStyle = function (feature) {
-        const geometry = feature.getGeometry();
-        const styles = [
-          new Style({
-            stroke: new Stroke({
-              color: 'grey',
-              width: 4,
-            }),
-          }),
-        ];
 
-        geometry.forEachSegment(function (start, end) {
-          const dx = end[0] - start[0];
-          const dy = end[1] - start[1];
-          const rotation = Math.atan2(dy, dx);
-          // arrows
-          styles.push(
-            new Style({
-              geometry: new Point(end),
-              image: new Icon({
-                src: 'arrow.png',
-                anchor: [1.2, 0.5],
-                rotateWithView: true,
-                rotation: -rotation,
-                scale: 0.25,
-              }),
-            })
-          );
-        });
-        return styles;
-      };
 
       const lineFeatures = this.CreateLineFeaturesOfEachStaion();
       this.map = new Map({
@@ -545,7 +549,7 @@ export default {
             source: new VectorSource({
               features: lineFeatures
             }),
-            style: pathStyle,
+            style: this.pathStyle,
             zIndex: 1
           }),
           new VectorLayer({//2
@@ -802,7 +806,8 @@ export default {
       this.map.addLayer(mesh_vectorLayer);
     },
     UpdateAGVLayer(agv_data) {
-
+      if (!this.AGV_Layer)
+        return;
       var output = this.CreateAGVFeatures(agv_data);
       var agv_layer_source = this.AGV_Layer.getSource()
       agv_layer_source.clear();
@@ -824,7 +829,10 @@ export default {
         prop.heighlight = false
         prop.isOnline = false
       })
-      this.GetAgvProp(agv_name).heighlight = true;
+      var agvProp = this.GetAgvProp(agv_name);
+      if (agvProp) {
+        this.GetAgvProp(agv_name).heighlight = true;
+      }
     },
     CreateAGVFeatures(agv_data = []) {
 
@@ -864,9 +872,9 @@ export default {
 
         var agvIcon = new Icon({
           src: '/agv.png', // 设置PNG图像的路径
-          scale: .5, // 设置PNG图像的缩放比例
+          scale: .4, // 设置PNG图像的缩放比例
           anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
-          size: [70, 70],// 设置PNG图像的大小
+          size: [60, 60],// 设置PNG图像的大小
           opacity: 1,
 
         })
@@ -877,7 +885,7 @@ export default {
             text: agv_name + `\r\n(${agv_state})`,
             offsetX: 10,
             offsetY: 30,
-            font: 'bold 18px Arial',
+            font: 'bold 14px Arial',
             fill: new Fill({
               color: isOnline ? agv_prop_exist.color : 'rgb(192, 192, 192)'
             }),
@@ -1037,12 +1045,15 @@ export default {
       });
       this.map.addLayer(path_vectorLayer)
       let source = path_vectorLayer.getSource();
-      var color = this.agvList.find(agv => agv.name == agv_name).color;
-      if (color) {
-        var features = this.CreateLineFeaturesOfPath(tags, color);
+      var agv_prop = this.agvList.find(agv => agv.name == agv_name);
+      if (agv_prop) {
+        var color = agv_prop.color;
+        if (color) {
+          var features = this.CreateLineFeaturesOfPath(tags, color);
+        }
+        source.addFeatures(features)
+        source.changed();
       }
-      source.addFeatures(features)
-      source.changed();
     },
     UpdatePathPlanRender(tags = []) {
 
@@ -1156,6 +1167,28 @@ export default {
   }
 }
 .map-show {
+  .header-div {
+    height: 26px;
+    margin-bottom: 9px;
+    .options {
+      .option-container {
+        background-color: rgb(235, 235, 235);
+        margin-right: 3px;
+        border-radius: 12px;
+        padding-left: 8px;
+
+        span {
+          // background-color: pink;
+          margin-right: 10px;
+          font-weight: bold;
+        }
+      }
+      .form-check {
+        float: right;
+        margin-right: 15px;
+      }
+    }
+  }
 }
 
 .map {
