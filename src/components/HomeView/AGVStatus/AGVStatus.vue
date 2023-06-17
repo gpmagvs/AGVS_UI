@@ -4,6 +4,7 @@
       <i class="bi bi-robot"></i>AGV STATUS
     </div>
     <el-table
+      :header-cell-style="{color:'black',backgroundColor:'white'}"
       :data="AGVDatas"
       size="small"
       height="93%"

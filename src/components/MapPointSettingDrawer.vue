@@ -25,7 +25,15 @@
                   <el-input v-model="index" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="顯示名稱">
-                  <el-input v-model="pointData_editing.Name"></el-input>
+                  <div>
+                    <el-input v-model="pointData_editing.Name"></el-input>
+                  </div>
+                  <div>
+                    <el-button
+                      v-show="IsEQPoint"
+                      @click="pointData_editing.Name=BindingEQInfo.Name"
+                    >使用繫連的EQ名稱</el-button>
+                  </div>
                 </el-form-item>
                 <el-form-item label="Tag">
                   <div class="tag">
@@ -44,14 +52,17 @@
                   </div>
                 </el-form-item>
                 <el-form-item label="站點類型">
-                  <el-select v-model="pointData_editing.StationType">
+                  <el-select v-model="pointData_editing.StationType" @change="StationTypeOnChange">
                     <el-option
-                      v-for="pt_type in pointTypes"
+                      v-for="pt_type in stationTypes"
                       :key="pt_type.value"
                       :label="pt_type.label"
                       :value="pt_type.value"
                     ></el-option>
                   </el-select>
+                  <div v-show="IsEQPoint">
+                    <el-input disabled v-model="BindingEQInfo.Name"></el-input>
+                  </div>
                 </el-form-item>
                 <el-form-item label="角度">
                   <el-input v-model="pointData_editing.Direction"></el-input>
@@ -83,6 +94,13 @@
                 </el-form-item>
               </el-form>
             </el-collapse-item>
+            <el-collapse-item title="分區設定" name="4">
+              <el-form>
+                <el-form-item label="所屬區域">
+                  <RegionsSelector v-model="pointData_editing.Region"></RegionsSelector>
+                </el-form-item>
+              </el-form>
+            </el-collapse-item>
           </el-collapse>
         </div>
       </div>
@@ -91,7 +109,14 @@
 </template>
 
 <script>
+import { GetEQInfoByTag } from '@/api/EquipmentAPI.js';
+import { pointTypes } from '@/api/MapAPI.js'
+import RegionsSelector from '@/components/RegionsSelector.vue'
+
 export default {
+  components: {
+    RegionsSelector
+  },
   data() {
     return {
       show: false,
@@ -99,92 +124,64 @@ export default {
       pointData: {},
       pointData_editing: {},
       activeNames: ['1'],
-      pointTypes: [
-        {
-          label: 'Normal',
-          value: 0
+      BindingEQInfo: {
+        ConnOptions: {
+          ConnMethod: 0,
+          IP: "127.0.0.1",
+          Port: 503,
+          ComPort: "COM1"
         },
-        {
-          label: 'EQ',
-          value: 1
-        },
-        {
-          label: 'STK',
-          value: 2
-        },
-        {
-          label: 'Charge',
-          value: 3
-        },
-        {
-          label: 'Buffer',
-          value: 4
-        },
-        {
-          label: 'Charge & Buffer',
-          value: 5
-        },
-        {
-          label: ' Charge & STK',
-          value: 6
-        },
-        {
-          label: 'Escape',
-          value: 8
-        },
-        {
-          label: 'EQ_LD',
-          value: 11
-        },
-        {
-          label: 'STK_LD',
-          value: 12
-        },
-        {
-          label: 'EQ_ULD',
-          value: 21
-        },
-        {
-          label: 'STK_ULD',
-          value: 22
-        },
-        {
-          label: 'Fire Door',
-          value: 31
-        },
-        {
-          label: 'Fire EQ',
-          value: 32
-        },
-        {
-          label: 'Auto Door',
-          value: 33
-        },
-        {
-          label: 'Elevator',
-          value: 100
-        },
-        {
-          label: 'Repair',
-          value: 110
-        },
-      ]
+        Name: "LDULD#2",
+        TagID: 2
+      }
     }
+  },
+  mounted() {
   },
   computed: {
     hasAnyChange() {
       var ori_ = JSON.stringify(this.pointData)
       var current_ = JSON.stringify(this.pointData_editing)
       return ori_ != current_;
+    },
+    IsEQPoint() {
+      return this.pointData_editing.StationType == 1;
+    },
+    stationTypes() {
+      return pointTypes;
     }
   },
   methods: {
-    Show(ptObj) {
+    async Show(ptObj) {
+
       this.index = ptObj.index
       this.pointData = ptObj.point
+
+      // {
+      //   "ConnOptions": {
+      //       "ConnMethod": 0,
+      //       "IP": "127.0.0.1",
+      //       "Port": 503,
+      //       "ComPort": "COM1"
+      //   },
+      //   "Name": "LDULD#2",
+      //   "TagID": 2
+      // }
+
       this.pointData_editing = JSON.parse(JSON.stringify(ptObj.point))
+
+      if (this.IsEQPoint)//EQ
+      {
+        this.BindingEQInfo = await GetEQInfoByTag(this.pointData.TagNumber);
+      }
       this.show = true;
     },
+    async StationTypeOnChange(e) {
+      if (e == 1) {
+        this.BindingEQInfo = await GetEQInfoByTag(this.pointData.TagNumber);
+      }
+    },
+
     SaveBtnClickHandle() {
       this.pointData = this.pointData_editing;
       this.$emit('OnPointSettingChanged', { index: this.index, pointData: this.pointData })

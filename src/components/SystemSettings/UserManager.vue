@@ -1,5 +1,5 @@
 <template>
-  <div class="user-manager my-2">
+  <div class="user-manager">
     <div class="d-flex flex-row">
       <OperatieButtonSet @save="SaveSetting" @restore="RestoreConfirmDialogShow=true"></OperatieButtonSet>
       <span class="flex-fill"></span>
@@ -7,15 +7,15 @@
     </div>
     <div class="border">
       <el-table :data="UserData" empty-text="沒有用戶" size="large">
-        <el-table-column label="User Name" prop="UserName"></el-table-column>
-        <el-table-column label="Password" prop="Password">
+        <el-table-column label="User Name" prop="UserName" width="180"></el-table-column>
+        <el-table-column label="Password" prop="Password" width="220">
           <template #default="scope">
             <div>
               <el-input v-model="scope.row.Password"></el-input>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="Role" prop="Role">
+        <el-table-column label="Role" prop="Role" width="180">
           <template #default="scope">
             <div>
               <el-select v-model="scope.row.Role">
@@ -29,7 +29,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" min-width="120">
           <template #default="scope">
             <div>
               <el-button @click="DeleteUser(scope.row)" type="danger">刪除</el-button>
@@ -120,5 +120,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+.user-manager {
+}
 </style>

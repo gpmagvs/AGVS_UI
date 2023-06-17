@@ -14,6 +14,7 @@
     "bootstrap-icons": "^1.9.1",
     "bootstrap-vue-3": "^0.2.12",
     "chart.js": "^3.7.0",
+    "clipboard": "^2.0.11",
     "core-js": "^3.8.3",
     "element-plus": "^2.2.28",
     "mitt": "^3.0.0",
@@ -31,10 +32,10 @@
     "vue": "^3.2.13",
     "vue-i18n": "^9.2.2",
     "vue-router": "^4.0.3",
+    "vue-sweetalert2": "^5.0.5",
     "vue3-apexcharts": "^1.4.1",
     "vuesax3": "^4.1.1",
-    "vuex": "^4.0.0",
-    "vue-sweetalert2": "^5.0.5"
+    "vuex": "^4.0.0"
   },
   "devDependencies": {
     "@vue-leaflet/vue-leaflet": "^0.9.0",

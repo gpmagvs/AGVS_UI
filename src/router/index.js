@@ -20,6 +20,11 @@ const routes = [
     component: () => import('../views/MapView.vue'),
   },
   {
+    path: '/racks_status',
+    name: 'racks_status',
+    component: () => import('../views/RacksStatusView.vue'),
+  },
+  {
     path: '/sys_settings',
     name: 'sys_settings',
     component: SystemSettings,

@@ -12,14 +12,19 @@
       <template #header>
         <h3>Local任務派送-車輛:{{ clsAgvStatus.AGV_Name }}</h3>
       </template>
-      <div class="drawer-content my-1 p-1 border-top">
+      <div class="drawer-content my-1 p-1 border-top" v-loading="wait_task_confirm">
         <div class="d-flex flex-row">
           <el-form label-width="100px" label-position="left" size="large">
             <el-form-item label="AGV">
               <el-input disabled v-model="clsAgvStatus.AGV_Name"></el-input>
             </el-form-item>
             <el-form-item label="Action">
-              <el-select class="w-100" v-model="selectedAction" placeholder="請選擇Action">
+              <el-select
+                class="w-100"
+                v-model="selectedAction"
+                placeholder="請選擇Action"
+                @change="selectedTag=null"
+              >
                 <el-option label="移動" value="move"></el-option>
                 <el-option label="停車" value="park"></el-option>
                 <el-option label="搬運" value="carry"></el-option>
@@ -32,7 +37,7 @@
               <el-select
                 class="w-100"
                 v-model="selectedTag"
-                placeholder="請選擇tag_id"
+                placeholder="選擇站點"
                 @click="TagsOptionsInit"
               >
                 <el-option v-for="tag in tags" :key="tag.id" :label="tag.name" :value="tag.id"></el-option>
@@ -43,7 +48,7 @@
               <el-select
                 class="w-100"
                 v-model="selectedToTag"
-                placeholder="請選擇to_tag"
+                placeholder="選擇站點"
                 @click="TagsOptionsInit"
               >
                 <el-option v-for="tag in tags" :key="tag.id" :label="tag.name" :value="tag.id"></el-option>
@@ -111,6 +116,7 @@ import bus from '@/event-bus';
 import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import MapShowVue from '../MapShow.vue';
 import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData } from '@/api/TaskAllocation'
+import { GetPointTypeNameByTypeNum } from '@/api/MapAPI.js'
 export default {
   components: {
     MapShowVue
@@ -121,24 +127,16 @@ export default {
       clsAgvStatus: new clsAGVStateDto(),
       confirm_dialog_show: false,
       notify_dialog_show: false,
+      wait_task_confirm: false,
       notify_text: '',
       selectedAction: 'move', // 選擇的Action
       selectedTag: '', // 選擇的tag_id
-      Cst_ID_Input: '', // 選擇的cst_id
+      Cst_ID_Input: '123', // 選擇的cst_id
       selectedToTag: '', // 選擇的to_tag
       moveable_tags: [ // tag_id選項
         { id: 1, name: '標籤1' },
-        { id: 2, name: '標籤2' },
-        { id: 3, name: '標籤3' },
-        { id: 4, name: '標籤4' },
-        { id: 5, name: '標籤5' },
       ],
       parkable_tags: [ // tag_id選項
-        { id: 1, name: '標籤1' },
-        { id: 2, name: '標籤2' },
-        { id: 3, name: '標籤3' },
-        { id: 4, name: '標籤4' },
-        { id: 5, name: '標籤5' },
       ],
       stock_tags: [
         { id: 1, name: '標籤1' },
@@ -150,10 +148,6 @@ export default {
       ],
       csts: [ // cst_id選項
         { id: 1, name: '客戶1' },
-        { id: 2, name: '客戶2' },
-        { id: 3, name: '客戶3' },
-        { id: 4, name: '客戶4' },
-        { id: 5, name: '客戶5' },
       ],
     }
   },
@@ -195,14 +189,14 @@ export default {
       if (NormalStations) {
         this.moveable_tags = NormalStations.map(st => ({
           id: st.TagNumber,
-          name: `(Normal)${st.TagNumber}`
+          name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
         }))
         this.moveable_tags.sort((a, b) => a.id - b.id);
       }
       if (StockStations) {
         this.stock_tags = StockStations.map(st => ({
           id: st.TagNumber,
-          name: `(STK)${st.TagNumber}`
+          name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
         }))
         this.stock_tags.sort((a, b) => a.id - b.id);
       }
@@ -212,7 +206,7 @@ export default {
       if (ChargeStations) {
         this.chargable_tags = ChargeStations.map(st => ({
           id: st.TagNumber,
-          name: `(CHARGE)${st.TagNumber}`
+          name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
         }))
         this.chargable_tags.sort((a, b) => a.id - b.id);
       }
@@ -237,31 +231,47 @@ export default {
     },
     async TaskDeliveryHandle() {
       // TaskAllocation.Task();
+      this.wait_task_confirm = true
       var agv_name = this.clsAgvStatus.AGV_Name;
+      var response = { confirm: true, message: '' }
+
       if (this.selectedAction == 'move') {
-        await TaskAllocation.MoveTask(new clsMoveTaskData(agv_name, this.selectedTag));
+        response = await TaskAllocation.MoveTask(new clsMoveTaskData(agv_name, this.selectedTag));
       }
 
       if (this.selectedAction == 'load') {
-        await TaskAllocation.LoadTask(new clsLoadTaskData(agv_name, this.selectedTag, 1, this.Cst_ID_Input));
+        response = await TaskAllocation.LoadTask(new clsLoadTaskData(agv_name, this.selectedTag, 1, this.Cst_ID_Input));
       }
 
       if (this.selectedAction == 'unload') {
-        await TaskAllocation.UnloadTask(new clsUnloadTaskData(agv_name, this.selectedTag, 69, this.Cst_ID_Input));
+        response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(agv_name, this.selectedTag, 69, this.Cst_ID_Input));
       }
 
       if (this.selectedAction == 'carry') {
-        await TaskAllocation.CarryTask(new clsCarryTaskData(agv_name, this.selectedTag, 69, this.selectedToTag, 6699, this.Cst_ID_Input));
+        response = await TaskAllocation.CarryTask(new clsCarryTaskData(agv_name, this.selectedTag, 69, this.selectedToTag, 6699, this.Cst_ID_Input));
       }
       if (this.selectedAction == 'charge') {
-        await TaskAllocation.ChargeTask(new clsChargeTaskData(agv_name, this.selectedTag));
+        response = await TaskAllocation.ChargeTask(new clsChargeTaskData(agv_name, this.selectedTag));
+      }
+      this.wait_task_confirm = false;
+      if (!response.confirm) {
+        this.$swal.fire({
+          title: '任務派送失敗!',
+          text: response.message,
+          icon: 'error',
+          showCancelButton: false,
+          showConfirmButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert',
+        })
+      }
+      else {
+        Notifier.Success('任務已派送', 'top', 3000);
+        setTimeout(() => {
+          this.show = false;
+        }, 400);
       }
 
-
-      Notifier.Success('任務已派送', 'top', 3000);
-      setTimeout(() => {
-        this.show = false;
-      }, 400);
     },
     HandleDrawerClosed() {
     },

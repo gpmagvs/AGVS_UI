@@ -128,7 +128,7 @@ export default {
       modes: {
         system_operation_mode: {
           name: '操作模式',
-          actived: true,
+          actived: false,
           active_text: '運轉',
           inactive_text: '維護',
           loading: false,
@@ -194,7 +194,7 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        this.showAlarm = newValue != "/alarm" && newValue != "/map";
+        this.showAlarm = newValue != "/alarm" && newValue != "/map" && newValue != "/sys_settings";
       }
     )
     var login_state = IsLoginLastTime();

@@ -101,26 +101,26 @@ export var TaskAllocation = {
     })
   },
   async MoveTask(clsMoveTaskData = new clsMoveTaskData('agv', 1)) {
-    return CallAPI('/api/Task/Move', clsMoveTaskData)
+    return await CallAPI('/api/Task/Move', clsMoveTaskData)
   },
   async LoadTask(clsLoadTaskData = new clsLoadTaskData('agv', 1, 1, 'CST_ID')) {
-    return CallAPI('/api/Task/Load', clsLoadTaskData)
+    return await  CallAPI('/api/Task/Load', clsLoadTaskData)
   },
   async UnloadTask(
     clsUnloadTaskData = new clsUnloadTaskData('agv', 1, 1, 'CST_ID'),
   ) {
-    return CallAPI('/api/Task/Unload', clsUnloadTaskData)
+    return await  CallAPI('/api/Task/Unload', clsUnloadTaskData)
   },
   async CarryTask(clsCarryTaskData) {
-    return CallAPI('/api/Task/Carry', clsCarryTaskData)
+    return await CallAPI('/api/Task/Carry', clsCarryTaskData)
   },
   async ChargeTask(clsChargeTaskData) {
-    return CallAPI('/api/Task/Charge', clsChargeTaskData)
+    return await  CallAPI('/api/Task/Charge', clsChargeTaskData)
   },
 }
 
 async function CallAPI(path, data) {
-  axios_entity
+  return axios_entity
     .post(path, data, { headers: getAuthHeaders() })
     .then((response) => {
       console.log('Response:', response.data)

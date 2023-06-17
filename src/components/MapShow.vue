@@ -215,9 +215,9 @@ export default {
           lineDash: null,
         }),
       }),
-
       pointStyle: (feature) => {
         const GetPointFeatureInfo = function (feature) {
+
           var featureID = feature.getId();
           if (featureID) {
             //var featureID = `Point:${index}:${_tagID}:${stationType}:${Name}`;
@@ -234,94 +234,108 @@ export default {
             }
           }
         }
-        var pointRawData = feature.get('data');
-        var pointInfo = GetPointFeatureInfo(feature)
-        var text_display = '';
-        var text_color = 'gold'
-        if (this.display_selected == 'Name') {
-          text_display = pointInfo.name;
-          text_color = 'gold'
-        }
-        else if (this.display_selected == 'Tag') {
-          text_display = pointInfo.tag;
-          text_color = 'lime'
-        }
-        else {
-          text_display = pointInfo.index;
-          text_color = 'rgb(90, 213, 255)'
-        }
+        var featureID = feature.getId();
+        var isIcon = feature.get('isIcon');
+        if (!isIcon) {
 
-        var polygonImg = (points, rotation = 0, color = 'rgb(37, 172, 95)') => {
-          return new RegularShape({
-            radius: 7,
-            fill: new Fill({
-              color: color,
-            }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 1,
-            }),
-            angle: rotation,
-            points: points,
-          })
-        }
+          var pointRawData = feature.get('data');
+          var pointInfo = GetPointFeatureInfo(feature)
+          var text_display = '';
+          var text_color = 'gold'
+          if (this.display_selected == 'Name') {
+            text_display = pointInfo.name;
+            text_color = 'gold'
+          }
+          else if (this.display_selected == 'Tag') {
+            text_display = pointInfo.tag;
+            text_color = 'lime'
+          }
+          else {
+            text_display = pointInfo.index;
+            text_color = 'rgb(90, 213, 255)'
+          }
 
-        var circleImg = (color) => {
-          return new CircleStyle({
-            radius: 6,
-            fill: new Fill({
-              color: color,
-            }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 1,
-            }),
-          })
-        }
-        var EQ_Ints = [1, 11, 21, 32];
-        var STK_Ints = [2, 6, 12, 22];
-        var Charge_Ints = [3, 5, 6];
-        var polyPoint = 3;
-        var polyRotation = 0;
-        var color = 'rgb(243, 123, 55)'
-        if (EQ_Ints.includes(pointRawData.StationType)) {
-          polyPoint = 4;
-          polyRotation = Math.PI / 180.0 * 45;
-        }
-        else if (STK_Ints.includes(pointRawData.StationType)) {
-          polyPoint = 4;
-          polyRotation = Math.PI / 180.0 * 90;
-        }
-        else if (Charge_Ints.includes(pointRawData.StationType)) {
-          polyPoint = 3;
-          polyRotation = Math.PI / 180.0 * 0;
-        }
-
-        if (!pointRawData.Enable)
-          color = 'red';
-        else {
-          if (pointRawData.IsSegment | pointRawData.IsAvoid)
-            color = 'rgb(0, 122, 255)';
-          if (pointRawData.IsParking)
-            color = 'pink';
-        }
-
-        return new Style({
-          image: pointRawData.StationType == 0 ? circleImg(color) : polygonImg(polyPoint, polyRotation, color),
-          text: new Text({
-            text: text_display,
-            offsetX: 12,
-            offsetY: -15,
-            font: 'bold 14px sans-serif',
-            fill: new Fill({
-              color: pointRawData.Enable ? text_color : 'rgb(255, 106, 138)'
-            }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 3
+          var polygonImg = (points, rotation = 0, color = 'rgb(37, 172, 95)') => {
+            return new RegularShape({
+              radius: 7,
+              fill: new Fill({
+                color: color,
+              }),
+              stroke: new Stroke({
+                color: 'black',
+                width: 1,
+              }),
+              angle: rotation,
+              points: points,
             })
-          }),
-        });
+          }
+
+          var circleImg = (color) => {
+            return new CircleStyle({
+              radius: 6,
+              fill: new Fill({
+                color: color,
+              }),
+              stroke: new Stroke({
+                color: 'black',
+                width: 1,
+              }),
+            })
+          }
+          var EQ_Ints = [1, 11, 21, 32];
+          var STK_Ints = [2, 6, 12, 22];
+          var Charge_Ints = [3, 5, 6];
+          var polyPoint = 3;
+          var polyRotation = 0;
+          var color = 'rgb(243, 123, 55)'
+          if (EQ_Ints.includes(pointRawData.StationType)) {
+            polyPoint = 4;
+            polyRotation = Math.PI / 180.0 * 45;
+          }
+          else if (STK_Ints.includes(pointRawData.StationType)) {
+            polyPoint = 4;
+            polyRotation = Math.PI / 180.0 * 90;
+          }
+          else if (Charge_Ints.includes(pointRawData.StationType)) {
+            polyPoint = 3;
+            polyRotation = Math.PI / 180.0 * 0;
+          }
+
+          if (!pointRawData.Enable)
+            color = 'red';
+          else {
+            if (pointRawData.IsSegment | pointRawData.IsAvoid)
+              color = 'rgb(0, 122, 255)';
+            if (pointRawData.IsParking)
+              color = 'pink';
+          }
+
+          return new Style({
+            image: pointRawData.StationType == 0 ? circleImg(color) : polygonImg(polyPoint, polyRotation, color),
+            text: new Text({
+              text: text_display,
+              offsetX: 12,
+              offsetY: -15,
+              font: 'bold 14px sans-serif',
+              fill: new Fill({
+                color: pointRawData.Enable ? text_color : 'rgb(255, 106, 138)'
+              }),
+              stroke: new Stroke({
+                color: 'black',
+                width: 3
+              })
+            }),
+          });
+
+        }
+        else {
+          return new Style({})
+        }
+      },
+      point_icon_style: (feature) => {
+        return new Style({
+
+        })
       },
       pathStyle: (feature) => {
         const geometry = feature.getGeometry();
@@ -415,8 +429,13 @@ export default {
     station_features() {
       let features = [];
       this.stations.forEach(st => {
-        if (st.feature != undefined)
+        if (st.feature != undefined) {
           features.push(st.feature);
+          var icon = st.feature.get('icon_feature')
+          if (icon) {
+            features.push(icon);
+          }
+        }
       });
       return features;
     },
@@ -424,7 +443,6 @@ export default {
       if (!this.selected_feature)
         return false;
       var feature_id = this.selected_feature.getId();
-      console.info(feature_id);
       return (feature_id + '').includes('AGV')
     },
     Station_Layer() {
@@ -464,7 +482,9 @@ export default {
           Notifier.Success('Success Fetch Map Data From Server.', 'bottom', 2000);
 
           this.MapDataInit(map);
-          this.MapInitializeRender();
+          setTimeout(() => {
+            this.MapInitializeRender();
+          }, 599);
 
         }
 
@@ -513,16 +533,24 @@ export default {
           name: index,
         });
 
+        var _feature_icon = new Feature({
+          geometry: new Point([Graph.X * 1000, (Graph.Y + 100000) * -1000]),
+          name: 'icon-' + index,
+        });
+        _feature_icon.set('data', map.Points[index])
+        _feature_icon.set('isIcon', true)
+        _feature_icon.setId('icon-' + _tagID);
+        _feature.set('icon_feature', _feature_icon)
         this.SetPointFeatureIDByPointData(_feature, index, map.Points[index]);
-
         this.stations.push(
           {
             index: parseInt(index),
             tag: _tagID,
-            feature: _feature
+            feature: _feature,
           }
 
         );
+
       })
     },
     MapInitializeRender() {
@@ -620,7 +648,6 @@ export default {
       this.map.on('pointerdown', (event) => {
 
         that.mouse_click_coordinate = event.coordinate
-        console.log(that.mouse_click_coordinate)
 
 
         this.selected_feature = this.map.forEachFeatureAtPixel(event.pixel, (feature) => {
@@ -697,7 +724,6 @@ export default {
           if (!isEditPointMode() && !isAddPointMode()) {
             return;
           }
-          console.log('drag!')
           var deltaX = event.coordinate[0] - this.coordinate_[0];
           var deltaY = event.coordinate[1] - this.coordinate_[1];
           var geometry = this.feature_.getGeometry();
@@ -951,13 +977,11 @@ export default {
     },
 
     handleAGVMenuItemClick(action) {
-      console.log(action);
       this.showAGVMenu = false;
       if (action === 'add_point') {
       }
     },
     handleTaskAllocatModeMenuClick(action) {
-      console.log(action);
       this.showTaskAllocationMenu = false;
     },
     ChangeFillColorOfFeature(feature, color) {

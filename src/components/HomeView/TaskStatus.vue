@@ -7,6 +7,7 @@
     <b-tabs @activate-tab="TabActiveHandle" size>
       <b-tab title="未完成任務">
         <el-table
+          :header-cell-style="{color:'black',backgroundColor:'white'}"
           :data="IncompletedTaskList"
           row-key="TaskName"
           size="small"
@@ -51,6 +52,7 @@
       </b-tab>
       <b-tab title="已完成任務">
         <el-table
+          :header-cell-style="{color:'black',backgroundColor:'white'}"
           :data="CompletedTaskList"
           row-key="TaskName"
           size="small"

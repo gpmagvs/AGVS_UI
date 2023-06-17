@@ -1,9 +1,9 @@
 <template>
   <div class="map card-like">
-    <div class="title">
+    <!-- <div class="title">
       <i class="bi bi-map"></i>MAP SHOW
-    </div>
-    <MapShow ref="home-map" :task_allocatable="true" style="height:90%" :zoom="5.5"></MapShow>
+    </div>-->
+    <MapShow class="h-100" ref="home-map" :task_allocatable="true" :zoom="5.5"></MapShow>
   </div>
 </template>
 
@@ -53,5 +53,6 @@ export default {
 
 <style lang="scss" scoped>
 .map {
+  height: 100%;
 }
 </style>
