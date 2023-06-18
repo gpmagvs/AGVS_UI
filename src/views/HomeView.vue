@@ -27,6 +27,7 @@ import EQStatus from '@/components/HomeView/EQStatus.vue'
 import TaskStatusVue from '@/components/HomeView/TaskStatus.vue';
 import TaskAllocationVue from '@/components/HomeView/TaskAllocation.vue';
 import bus from '@/event-bus.js'
+import store from '@/store';
 export default {
   components: {
     AGVStatusVue, TaskStatusVue, Map, TaskAllocationVue, EQStatus

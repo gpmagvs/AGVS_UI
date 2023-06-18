@@ -23,7 +23,7 @@
                 class="w-100"
                 v-model="selectedAction"
                 placeholder="請選擇Action"
-                @change="selectedTag=null"
+                @change="ActionChangeHandler"
               >
                 <el-option label="移動" value="move"></el-option>
                 <el-option label="停車" value="park"></el-option>
@@ -40,7 +40,7 @@
                 placeholder="選擇站點"
                 @click="TagsOptionsInit"
               >
-                <el-option v-for="tag in tags" :key="tag.id" :label="tag.name" :value="tag.id"></el-option>
+                <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
               </el-select>
             </el-form-item>
 
@@ -51,7 +51,7 @@
                 placeholder="選擇站點"
                 @click="TagsOptionsInit"
               >
-                <el-option v-for="tag in tags" :key="tag.id" :label="tag.name" :value="tag.id"></el-option>
+                <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
               </el-select>
             </el-form-item>
 
@@ -70,7 +70,14 @@
               <b-button class="w-100" @click="TaskDeliveryBtnClickHandle" variant="default">預覽路徑</b-button>
             </el-form-item>
           </el-form>
-          <MapShowVue ref="_map" class="flex-fill mx-2" style="height:800px"></MapShowVue>
+          <MapShowVue
+            ref="_map"
+            class="flex-fill mx-2"
+            style="height:800px"
+            :task_allocatable="true"
+            @loaded="OnMapLoaded"
+            @onStationClick="MapStationClicked"
+          ></MapShowVue>
         </div>
         <div v-if="selectedAction=='charge'" class="img charge"></div>
         <div v-else class="img delivery"></div>
@@ -134,21 +141,21 @@ export default {
       Cst_ID_Input: '123', // 選擇的cst_id
       selectedToTag: '', // 選擇的to_tag
       moveable_tags: [ // tag_id選項
-        { id: 1, name: '標籤1' },
+        { tag: 1, name: '標籤1' },
       ],
       parkable_tags: [ // tag_id選項
       ],
       stock_tags: [
-        { id: 1, name: '標籤1' },
-        { id: 2, name: '標籤2' },
+        { tag: 1, name: '標籤1' },
+        { tag: 2, name: '標籤2' },
       ],
       chargable_tags: [ // tag_id選項
-        { id: 50, name: '充電站(TAG-50)' },
-        { id: 70, name: '充電站(TAG-70)' },
+        { tag: 50, name: '充電站(TAG-50)' },
+        { tag: 70, name: '充電站(TAG-70)' },
       ],
       csts: [ // cst_id選項
-        { id: 1, name: '客戶1' },
-      ],
+        { tag: 1, name: '' },
+      ]
     }
   },
   computed: {
@@ -169,11 +176,23 @@ export default {
         return this.parkable_tags;
     },
     NormalStations() {
-      return this.$refs["_map"].GetNormalStations()
+      return this.Map.GetNormalStations()
+    },
+    Map() {
+      return this.$refs['_map'];
     }
   },
   methods: {
+    ActionChangeHandler(action) {
 
+      this.selectedTag = undefined;
+      if (action == 'move')
+        this.Map.Highlight('normal');
+      if (action == 'carry' | action == 'load' | action == 'unload')
+        this.Map.Highlight('eq');
+      if (action == 'charge')
+        this.Map.Highlight('charge');
+    },
     TagSelectClick() {
       this.TagsOptionsInit();
     },
@@ -182,33 +201,33 @@ export default {
       this.stock_tags = [];
       this.chargable_tags = [];
 
-      var NormalStations = this.$refs["_map"].GetNormalStations()
-      var StockStations = this.$refs["_map"].GetLDULDableStations()
+      var NormalStations = this.Map.GetNormalStations()
+      var StockStations = this.Map.GetLDULDableStations()
 
 
       if (NormalStations) {
         this.moveable_tags = NormalStations.map(st => ({
-          id: st.TagNumber,
+          tag: st.TagNumber,
           name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
         }))
-        this.moveable_tags.sort((a, b) => a.id - b.id);
+        this.moveable_tags.sort((a, b) => a.tag - b.tag);
       }
       if (StockStations) {
         this.stock_tags = StockStations.map(st => ({
-          id: st.TagNumber,
+          tag: st.TagNumber,
           name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
         }))
-        this.stock_tags.sort((a, b) => a.id - b.id);
+        this.stock_tags.sort((a, b) => a.tag - b.tag);
       }
 
 
       var ChargeStations = this.$refs["_map"].GetChargeStations()
       if (ChargeStations) {
         this.chargable_tags = ChargeStations.map(st => ({
-          id: st.TagNumber,
+          tag: st.TagNumber,
           name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
         }))
-        this.chargable_tags.sort((a, b) => a.id - b.id);
+        this.chargable_tags.sort((a, b) => a.tag - b.tag);
       }
     },
     TaskDeliveryBtnClickHandle() {
@@ -275,14 +294,41 @@ export default {
     },
     HandleDrawerClosed() {
     },
+    OnMapLoaded() {
+      this.Map.Highlight('normal')
+      this.TagsOptionsInit();
+    },
+    MapStationClicked(MapPoint) {
+      // alert(MapPoint.TagNumber)
+      var _station_type = MapPoint.StationType
+      if (_station_type == 0)
+        this.selectedAction = 'move'
+      if (_station_type == 1)
+        this.selectedAction = 'unload'
+      if (_station_type == 3)
+        this.selectedAction = 'charge'
+
+      var option = this.tags.findLast(tag => tag.tag == MapPoint.TagNumber);
+      console.info(option)
+      if (option)
+        this.selectedTag = MapPoint.TagNumber
+    }
   },
   mounted() {
+    // var timer_ = setInterval(() => {
+    //   if (this.Map) {
+    //     this.Map.HightlightAGV(this.clsAgvStatus.AGV_Name)
+    //     this.Map.Highlight('normal');
+    //     clearInterval(timer_)
+    //   }
+    // }, 100);
     bus.on('bus-show-task-allocation', (clsAgvStatus) => {
       this.clsAgvStatus = clsAgvStatus;
       this.show = true;
       setTimeout(() => {
-        this.$refs['_map'].HightlightAGV(this.clsAgvStatus.AGV_Name)
-      }, 100);
+        this.Map.HightlightAGV(this.clsAgvStatus.AGV_Name)
+      }, 1000);
+
     })
   },
 }

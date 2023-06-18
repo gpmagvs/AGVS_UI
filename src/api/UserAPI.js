@@ -36,7 +36,7 @@ export async function Modify(users) {
   return ret.data
 }
 
-function StoreToLocalStorage(user) {
+export function StoreToLocalStorage(user) {
   user.LoginTime = Date.now()
   localStorage.setItem('user', JSON.stringify(user))
 }

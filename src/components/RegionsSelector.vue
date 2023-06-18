@@ -35,7 +35,8 @@ export default {
   mounted() {
     setTimeout(async () => {
       this.valid_map_regions_options = await GetValidRegionOptions();
-      this.valid_map_regions_options.unshift({ label: '不分區', value: 'all' })
+      if (this.valid_map_regions_options)
+        this.valid_map_regions_options.unshift({ label: '不分區', value: 'all' })
     }, 10);
   },
 }

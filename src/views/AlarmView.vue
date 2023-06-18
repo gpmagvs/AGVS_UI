@@ -2,7 +2,7 @@
   <div class="alarm-view">
     <div class="d-flex flex-row mb-2">
       <h3 class="flex-fill">系統警報</h3>
-      <b-button variant="danger">警報復歸</b-button>
+      <b-button v-if="is_user_login" variant="danger" @click="ResetSystemAlarm()">警報復歸</b-button>
     </div>
     <el-table :data="sys_alarms" border :row-class-name="row_state_class_name">
       <el-table-column label="時間" prop="Time" width="160">
@@ -54,6 +54,7 @@
 <script>
 import { AlarmHelper, ResetSystemAlarm } from '@/api/AlarmAPI.js'
 import moment from 'moment'
+import { userStore } from '@/store'
 export default {
   data() {
     return {
@@ -91,6 +92,9 @@ export default {
     }
   },
   computed: {
+    is_user_login() {
+      return userStore.getters.IsLogin;
+    },
     sys_alarms() {
       return this.alarms.filter(alarm => alarm.Source == 0)
     },
@@ -102,6 +106,9 @@ export default {
     var alarmHelper = new AlarmHelper(this.onmessage);
   },
   methods: {
+    ResetSystemAlarm() {
+      ResetSystemAlarm();
+    },
     formatTime(time) {
       return moment(time).format('yyyy/MM/DD HH:mm:ss')
     },

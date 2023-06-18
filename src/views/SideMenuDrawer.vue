@@ -1,26 +1,26 @@
 <template>
-  <div class="side-menu">
+  <div class="side-menu text-start">
     <el-drawer
       v-model="show_draw"
       direction="ltr"
       title="GPM AGVS"
-      size="20%"
+      size="15%"
       @close="CLoseEventHandle"
     >
-      <div @click="PageSwitch('/','Home')" class="menu-item-container">Home</div>
+      <div @click="PageSwitch('/','Home')" class="menu-item-container">主頁 Home</div>
+      <div @click="PageSwitch('/racks_status','帳籍管理')" class="menu-item-container">帳籍管理 Rack</div>
       <div
         @click="PageSwitch('/map','圖資管理')"
-        v-show="auth_confirmed"
+        v-show="IsUserLogin"
         class="menu-item-container"
-      >圖資管理</div>
-      <div @click="PageSwitch('/racks_status','帳籍管理')" class="menu-item-container">帳籍管理</div>
-      <div @click="PageSwitch('/data','資料')" class="menu-item-container">資料</div>
-      <div @click="PageSwitch('/alarm','警報')" class="menu-item-container">警報</div>
+      >圖資管理 Map</div>
+      <div @click="PageSwitch('/data','資料')" class="menu-item-container">資料 Data</div>
+      <div @click="PageSwitch('/alarm','警報')" class="menu-item-container">警報 Alarm</div>
       <div
         @click="PageSwitch('/sys_settings','系統設定')"
-        v-show="auth_confirmed"
+        v-show="IsUserLogin"
         class="menu-item-container"
-      >SETTINGS</div>
+      >設定 SETTINGS</div>
       <div class="version">v23.4.10.1</div>
     </el-drawer>
   </div>
@@ -28,12 +28,16 @@
 
 <script>
 import bus from '@/event-bus.js'
-import { IsLoginLastTime } from '@/api/AuthHelper'
+import { userStore } from '@/store'
 export default {
   data() {
     return {
       show_draw: false,
-      auth_confirmed: false
+    }
+  },
+  computed: {
+    IsUserLogin() {
+      return userStore.getters.IsLogin
     }
   },
   methods: {
@@ -58,18 +62,6 @@ export default {
 
   },
   mounted() {
-
-    var login_state = IsLoginLastTime();
-    if (login_state.isLogin) {
-      this.auth_confirmed = login_state.login_info.Role == 2;
-    }
-
-    bus.on("/login_success", user => {
-      this.auth_confirmed = user.Role == 2;
-    });
-    bus.on("/logout", () => {
-      this.auth_confirmed = false;
-    });
   },
 }
 </script>

@@ -34,15 +34,6 @@
       :row-class-name="eq_connection_status"
       row-key="EQName"
     >
-      <el-table-column type="expand" width="30">
-        <template #default="scope">
-          <div class="d-flex mx-5">
-            <div class="mx-3">模擬器:</div>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'load')">切換為Load</el-button>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'unload')">切換為Unload</el-button>
-          </div>
-        </template>
-      </el-table-column>
       <el-table-column sortable label="設備名稱" prop="EQName" width="140">
         <template #default="scope">
           <div>
@@ -84,6 +75,16 @@
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">EQP Down</div>
         </template>
       </el-table-column>
+      <el-table-column type="expand" width="30">
+        <template #default="scope">
+          <div v-if="IsDeveloperLogining" class="d-flex mx-5">
+            <div class="mx-3">模擬器:</div>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'busy')">切換為Busy</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'load')">切換為Load</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'unload')">切換為Unload</el-button>
+          </div>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -94,7 +95,9 @@ import RegionsSelector from '@/components/RegionsSelector.vue'
 import Clipboard from 'clipboard'
 import { ElNotification } from 'element-plus'
 import { EmuAPI } from '@/api/EquipmentAPI.js'
-
+import bus from '@/event-bus'
+import store from '@/store';
+import { userStore } from '@/store';
 export default {
   components: {
     RegionsSelector,
@@ -119,6 +122,9 @@ export default {
     }
   },
   computed: {
+    IsDeveloperLogining() {
+      return userStore.getters.IsDeveloperLogining;
+    },
     display_data() {
       if (this.selected_region == 'all')
         return this.eq_data;
@@ -133,12 +139,17 @@ export default {
 
   },
   methods: {
+    userStoreTest() {
+      alert(userStore.getters.IsDeveloperLogining)
+    },
     WsConnect() {
 
       var ws = new WebSocketHelp('/ws/EQStatus');
       ws.Connect();
       ws.onmessage = (ev) => {
         this.eq_data = JSON.parse(ev.data)
+        var unload_req_EQS = this.eq_data.filter(eq => eq.Unload_Request).map(eq => eq.Tag)
+        bus.emit('unload_eq_tags', unload_req_EQS)
       }
 
     },
@@ -181,12 +192,8 @@ export default {
         clipboard.destroy();
       });
     },
-    LDULD_Emu_State_Switch(EQName = "", mode = 'load/unlod') {
-      if (mode == 'load') {
-        EmuAPI.SetAsLoadState(EQName)
-      } else {
-        EmuAPI.SetAsUnloadState(EQName)
-      }
+    LDULD_Emu_State_Switch(EQName = "", mode = 'busy|load|unlod') {
+      EmuAPI.SetState(EQName, mode)
     }
   }
 }

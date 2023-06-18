@@ -132,7 +132,6 @@ import MapAPI from '@/api/MapAPI'
 import bus from '@/event-bus'
 import Notifier from '@/api/NotifyHelper';
 import MapPointSettingDrawer from '@/components/MapPointSettingDrawer.vue'
-import MapPoint from '@/ViewModels/MapPoint.js'
 export default {
   name: 'MapComponent',
   components: {
@@ -203,6 +202,7 @@ export default {
       },
       map_data: {},
       stations: [],
+      station_features: [],
       agvList: [],
       path_start_end: {
         start: undefined,
@@ -234,103 +234,96 @@ export default {
             }
           }
         }
-        var featureID = feature.getId();
-        var isIcon = feature.get('isIcon');
-        if (!isIcon) {
 
-          var pointRawData = feature.get('data');
-          var pointInfo = GetPointFeatureInfo(feature)
-          var text_display = '';
-          var text_color = 'gold'
-          if (this.display_selected == 'Name') {
-            text_display = pointInfo.name;
-            text_color = 'gold'
-          }
-          else if (this.display_selected == 'Tag') {
-            text_display = pointInfo.tag;
-            text_color = 'lime'
-          }
-          else {
-            text_display = pointInfo.index;
-            text_color = 'rgb(90, 213, 255)'
-          }
-
-          var polygonImg = (points, rotation = 0, color = 'rgb(37, 172, 95)') => {
-            return new RegularShape({
-              radius: 7,
-              fill: new Fill({
-                color: color,
-              }),
-              stroke: new Stroke({
-                color: 'black',
-                width: 1,
-              }),
-              angle: rotation,
-              points: points,
-            })
-          }
-
-          var circleImg = (color) => {
-            return new CircleStyle({
-              radius: 6,
-              fill: new Fill({
-                color: color,
-              }),
-              stroke: new Stroke({
-                color: 'black',
-                width: 1,
-              }),
-            })
-          }
-          var EQ_Ints = [1, 11, 21, 32];
-          var STK_Ints = [2, 6, 12, 22];
-          var Charge_Ints = [3, 5, 6];
-          var polyPoint = 3;
-          var polyRotation = 0;
-          var color = 'rgb(243, 123, 55)'
-          if (EQ_Ints.includes(pointRawData.StationType)) {
-            polyPoint = 4;
-            polyRotation = Math.PI / 180.0 * 45;
-          }
-          else if (STK_Ints.includes(pointRawData.StationType)) {
-            polyPoint = 4;
-            polyRotation = Math.PI / 180.0 * 90;
-          }
-          else if (Charge_Ints.includes(pointRawData.StationType)) {
-            polyPoint = 3;
-            polyRotation = Math.PI / 180.0 * 0;
-          }
-
-          if (!pointRawData.Enable)
-            color = 'red';
-          else {
-            if (pointRawData.IsSegment | pointRawData.IsAvoid)
-              color = 'rgb(0, 122, 255)';
-            if (pointRawData.IsParking)
-              color = 'pink';
-          }
-
-          return new Style({
-            image: pointRawData.StationType == 0 ? circleImg(color) : polygonImg(polyPoint, polyRotation, color),
-            text: new Text({
-              text: text_display,
-              offsetX: 12,
-              offsetY: -15,
-              font: 'bold 14px sans-serif',
-              fill: new Fill({
-                color: pointRawData.Enable ? text_color : 'rgb(255, 106, 138)'
-              }),
-              stroke: new Stroke({
-                color: 'black',
-                width: 3
-              })
-            }),
-          });
-
+        var pointRawData = feature.get('data');
+        var pointInfo = GetPointFeatureInfo(feature)
+        var text_display = '';
+        var text_color = 'gold'
+        if (this.display_selected == 'Name') {
+          text_display = pointInfo.name;
+          text_color = 'gold'
+        }
+        else if (this.display_selected == 'Tag') {
+          text_display = pointInfo.tag;
+          text_color = 'lime'
         }
         else {
-          return new Style({})
+          text_display = pointInfo.index;
+          text_color = 'rgb(90, 213, 255)'
         }
+
+        var polygonImg = (points, rotation = 0, color = 'rgb(37, 172, 95)') => {
+          return new RegularShape({
+            radius: 7,
+            fill: new Fill({
+              color: color,
+            }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 1,
+            }),
+            angle: rotation,
+            points: points,
+          })
+        }
+
+        var circleImg = (color) => {
+          return new CircleStyle({
+            radius: 6,
+            fill: new Fill({
+              color: color,
+            }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 1,
+            }),
+          })
+        }
+        var EQ_Ints = [1, 11, 21, 32];
+        var STK_Ints = [2, 6, 12, 22];
+        var Charge_Ints = [3, 5, 6];
+        var polyPoint = 3;
+        var polyRotation = 0;
+        var color = 'rgb(243, 123, 55)'
+        if (EQ_Ints.includes(pointRawData.StationType)) {
+          polyPoint = 4;
+          polyRotation = Math.PI / 180.0 * 45;
+        }
+        else if (STK_Ints.includes(pointRawData.StationType)) {
+          polyPoint = 4;
+          polyRotation = Math.PI / 180.0 * 90;
+        }
+        else if (Charge_Ints.includes(pointRawData.StationType)) {
+          polyPoint = 3;
+          polyRotation = Math.PI / 180.0 * 0;
+        }
+
+        if (!pointRawData.Enable)
+          color = 'red';
+        else {
+          if (pointRawData.IsSegment | pointRawData.IsAvoid)
+            color = 'rgb(0, 122, 255)';
+          if (pointRawData.IsParking)
+            color = 'pink';
+        }
+        var highlight = feature.get('highlight')
+        return new Style({
+          image: pointRawData.StationType == 0 ? circleImg(color) : polygonImg(polyPoint, polyRotation, color),
+          text: new Text({
+            text: text_display,
+            offsetX: 12,
+            offsetY: -15,
+            font: 'bold 14px sans-serif',
+            fill: new Fill({
+              color: pointRawData.Enable ? text_color : 'rgb(255, 106, 138)'
+            }),
+            stroke: new Stroke({
+              color: highlight ? 'red' : 'black',
+              width: highlight ? 4 : 3
+            })
+          }),
+        });
+
       },
       point_icon_style: (feature) => {
         return new Style({
@@ -367,6 +360,33 @@ export default {
           );
         });
         return styles;
+      },
+      UnloadIconStyle: (feature) => {
+
+        if (!this.task_allocatable)
+          return;
+
+        var data = feature.get('data');
+        if (data.StationType != 1) {
+          return;
+        }
+
+        if (!feature.get('unload'))
+          return;
+        var unload_icon = new Icon({
+          src: '/unloading.png', // 设置PNG图像的路径
+          scale: 1, // 设置PNG图像的缩放比例
+          anchor: [0, 1.3], // 设置PNG图像的锚点，即图片的中心点位置
+          size: [44, 44],// 设置PNG图像的大小
+          opacity: 1,
+          offset: [0, 1]  // 向上移動10像素
+
+        })
+
+        return new Style({
+          image: unload_icon,
+
+        })
       }
     }
   },
@@ -383,6 +403,9 @@ export default {
       });
       bus.on('/nav_path_update', (dto) => {
         this.UpdateNavPathRender(dto.name, dto.tags)
+      })
+      bus.on('unload_eq_tags', (unload_tags) => {
+        this.SetFeatureHasUnloadReq(unload_tags)
       })
 
     }, 1000);
@@ -426,19 +449,7 @@ export default {
     current_select_agv_name() {
       return (this.current_select_featureID + '').replace("AGV_", "");
     },
-    station_features() {
-      let features = [];
-      this.stations.forEach(st => {
-        if (st.feature != undefined) {
-          features.push(st.feature);
-          var icon = st.feature.get('icon_feature')
-          if (icon) {
-            features.push(icon);
-          }
-        }
-      });
-      return features;
-    },
+
     is_agv_feature_selected() {
       if (!this.selected_feature)
         return false;
@@ -484,7 +495,7 @@ export default {
           this.MapDataInit(map);
           setTimeout(() => {
             this.MapInitializeRender();
-          }, 599);
+          }, 100);
 
         }
 
@@ -526,23 +537,19 @@ export default {
       this.map_name = map.Name;
       this.stations = [];
       Object.keys(map.Points).forEach(index => {
-        var Graph = map.Points[index].Graph
-        var _tagID = map.Points[index].TagNumber;
+        var pt_data = map.Points[index];
+        var Graph = pt_data.Graph
+        var _tagID = pt_data.TagNumber;
+        var _stationType = pt_data.StationType;
         var _feature = new Feature({
           geometry: new Point([Graph.X * 1000, Graph.Y * -1000]),
           name: index,
         });
 
-        var _feature_icon = new Feature({
-          geometry: new Point([Graph.X * 1000, (Graph.Y + 100000) * -1000]),
-          name: 'icon-' + index,
-        });
-        _feature_icon.set('data', map.Points[index])
-        _feature_icon.set('isIcon', true)
-        _feature_icon.setId('icon-' + _tagID);
-        _feature.set('icon_feature', _feature_icon)
-        this.SetPointFeatureIDByPointData(_feature, index, map.Points[index]);
-        this.stations.push(
+        this.SetPointFeatureIDByPointData(_feature, index, pt_data);
+        _feature.set('StationType', _stationType)
+        _feature.set('Tag', _tagID)
+        this.AddStation(
           {
             index: parseInt(index),
             tag: _tagID,
@@ -552,6 +559,20 @@ export default {
         );
 
       })
+    },
+    AddStation(data) {
+      data.feature.set('highlight', false)
+      this.stations.push(data);
+      this.station_features.push(data.feature)
+    },
+    GetAllNormalPtFeature() {
+      return this.station_features.filter(ft => ft.get('StationType') == 0);
+    },
+    GetAllEQPtFeature() {
+      return this.station_features.filter(ft => ft.get('StationType') == 1);
+    },
+    GetAllChargePtFeature() {
+      return this.station_features.filter(ft => ft.get('StationType') == 3);
     },
     MapInitializeRender() {
       const lineFeatures = this.CreateLineFeaturesOfEachStaion();
@@ -594,12 +615,18 @@ export default {
             }),
             zIndex: 122
           }),
-
           new VectorLayer({//路徑規劃測試顯示
             source: new VectorSource({
               features: []
             }),
             style: this.PathPlanLineStyle
+          }),
+          new VectorLayer({ //Unload Icon 圖層
+            source: new VectorSource({
+              features: this.station_features
+            }),
+            style: this.UnloadIconStyle,
+            zIndex: 122
           }),
         ],
         view: new View({
@@ -613,6 +640,7 @@ export default {
       }
       this.CreateMapEvent()
       this.CreateMeshLayer();
+      this.$emit('loaded', '')
     },
     CreateMapEvent() {
 
@@ -634,6 +662,8 @@ export default {
       }
 
       this.map.on('pointerup', event => {
+        if (!that.selected_feature)
+          return
 
         if (isEditMode() && isAddPointMode() && event.originalEvent.button === 2) {
           document.addEventListener('contextmenu', function (event) {
@@ -642,6 +672,7 @@ export default {
 
           that.AddNewPoint();
         }
+        that.$emit('onStationClick', that.selected_feature.get('data'))
       })
 
 
@@ -943,7 +974,16 @@ export default {
       this.Station_Layer.getSource().changed();
       this.UpdateStationPathLayer();
     },
+    /**設定Feature屬性Unload */
+    SetFeatureHasUnloadReq(unload_tags) {
+      //console.info(unload_eqs)
+      this.station_features.forEach(feat => {
+        var data = feat.get('data')
+        var isUnload = unload_tags.includes(data.TagNumber)
+        feat.set('unload', isUnload)
+      })
 
+    },
     async AddNewPoint() {
 
       var pt_index = this.GetNewPointIndex();
@@ -965,7 +1005,7 @@ export default {
       new_point.Name = pt_index + ''
       this.map_data.Points[pt_index] = new_point;
       this.SetPointFeatureIDByPointData(_feature, pt_index, new_point);
-      this.stations.push(
+      this.AddStation(
         {
           index: pt_index,
           tag: pt_index,
@@ -1168,6 +1208,28 @@ export default {
       var featureID = `Point:${pt_index}:${pointData.TagNumber}:${pointData.StationType}:${pointData.Name}`;
       feature.setId(featureID);
       feature.set('data', pointData)
+    },
+    Highlight(layer = 'normal|eq|charge') {
+      this.AllUnHighlight()
+      var features = []
+      if (layer == 'normal') {
+        features = this.GetAllNormalPtFeature();
+      }
+      if (layer == 'eq') {
+        features = this.GetAllEQPtFeature()
+      }
+      if (layer == 'charge') {
+        features = this.GetAllChargePtFeature()
+      }
+      this.HighlightControl(features, true)
+    },
+    AllUnHighlight() {
+      this.HighlightControl(this.station_features, false);
+    },
+    HighlightControl(features = [], IsHighlight) {
+      features.forEach(feature => {
+        feature.set('highlight', IsHighlight)
+      })
     }
   },
 };

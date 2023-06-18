@@ -38,6 +38,8 @@ import ConnectionState from '@/components/App/ConnectionState.vue'
 import bus from '@/event-bus.js'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { IsLoginLastTime } from '@/api/AuthHelper.js'
+import { userStore } from '@/store'
 export default {
   components: {
     Header, AlarmDisplayVue, SideMenuDrawer, ConnectionState
@@ -76,6 +78,13 @@ export default {
   },
   mounted() {
     document.title = "AGVSystem";
+    let login_states = IsLoginLastTime();
+
+    //嘗試存取前次的登入狀態，並更新 userStore的值
+    if (login_states.isLogin) {
+      console.info(login_states);
+      userStore.commit('setUser', login_states.login_info)
+    }
 
     bus.on('/ShowOKOnlyModal', (props) => {
       this.okOnlyModalProps = props;

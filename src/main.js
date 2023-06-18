@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import { userStore } from './store'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import BootstrapVue3 from 'bootstrap-vue-3'
@@ -16,7 +17,6 @@ import 'vuesax3/dist/vuesax.css'
 import VueApexCharts from 'vue3-apexcharts'
 import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
-
 const i18n = createI18n({
   legacy: false,
   locale: 'zh-TW',
@@ -26,6 +26,9 @@ const i18n = createI18n({
     'en-US': require('./locales/en-US.json'),
   },
 })
+
+store.commit('setConfig',{Test:'123_abc'})
+
 
 const Sweetalert_options = {
   confirmButtonColor: 'rgb(13, 110, 253)',
@@ -37,10 +40,14 @@ app.config.globalProperties.$ = app.config.globalProperties
 
 Modal.install(app)
 
+// 合併 store
+const mergedStore = { ...store, ...userStore };
+
+app.use(mergedStore);
 app.use(VueApexCharts)
 
 app.use(Vuesax)
-app.use(store)
+app.use(mergedStore)
 app.use(router)
 app.use(BootstrapVue3)
 app.use(ElementPlus)

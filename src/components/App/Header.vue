@@ -31,10 +31,10 @@
           ></el-switch>
         </div>
 
-        <div class="pt-1">
+        <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" variant="primary">
+              <b-button size="md" variant="primary">
                 中文
                 <i class="bi bi-caret-down-fill"></i>
               </b-button>
@@ -47,12 +47,31 @@
             </template>
           </el-popover>
         </div>
+        <div @click="LoginClickHandler">
+          <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
+            <template #reference>
+              <b-button size="md" variant="primary">
+                {{ UserName }}
+                <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
+              </b-button>
+            </template>
+            <template #default>
+              <div class="d-flex flex-column">
+                <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">登入</b-button>
+                <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">登出</b-button>
+                <b-button
+                  v-if="IsLogin"
+                  class="my-1 text-light"
+                  @click="LoginClickHandler('switch')"
+                  variant="info"
+                >切換使用者</b-button>
+              </div>
+            </template>
+          </el-popover>
+        </div>
       </div>
-      <div class="user-account" @click="LoginClickHandler">
-        <span>{{ RoleDisplay }}</span>
-        <i class="bi bi-person-circle"></i>
-      </div>
-      <Login ref="login" :IsLogin="IsLogin" @RoleChanged="(role)=>{current_user_role=role}"></Login>
+
+      <Login ref="login" :IsLogin="IsLogin"></Login>
     </div>
     <!--Alarm-->
     <div v-show="showAlarm" class="alarm text-dark">
@@ -105,13 +124,14 @@
 <script>
 import Login from '@/views/Login.vue';
 import bus from '@/event-bus.js'
+import { RunMode, HostConnMode, HostOperationMode } from '@/api/SystemAPI';
 import { IsLoginLastTime } from '@/api/AuthHelper';
-import WebSocketHelp from '@/api/WebSocketHepler';
 import { ResetSystemAlarm, ResetEquipmentAlarm, AlarmHelper } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { userStore } from '@/store'
 export default {
   components: {
     Login
@@ -123,7 +143,6 @@ export default {
         route_name: '/'
       },
 
-      current_user_role: 0,
       maintain_mode: true,
       modes: {
         system_operation_mode: {
@@ -162,17 +181,23 @@ export default {
   },
   computed: {
     IsLogin() {
-      return this.current_user_role != 0;
+      return userStore.getters.IsLogin;
     },
-    RoleDisplay() {
-      if (this.current_user_role == 0)
-        return 'VISITORRRR'
+    current_user_role() {
+      return userStore.getters.level;
+    },
+    UserName() {
+      var level = userStore.getters.level;
+      var username = userStore.getters.UserName.toUpperCase();
+      if (level == 0)
+        return '訪客'
+      else if (level == 1)
+        return `${username}(ENG)`
 
-      else if (this.current_user_role == 1)
-        return 'ENG'
-
-      else if (this.current_user_role == 2)
-        return 'DEVELOPER'
+      else if (level == 2)
+        return `${username}(DEV)`
+      else if (level == 3)
+        return `${username}(GOD)`
       else
         return 'VISITOR'
     },
@@ -188,8 +213,10 @@ export default {
   mounted() {
     bus.on('/router-change', (new_rotue) => {
       this.current_route_info = new_rotue
-
     });
+    bus.on('/show-login-view-invoke', () => {
+      this.LoginClickHandler();
+    })
     const route = useRoute()
     watch(
       () => route.path,
@@ -197,10 +224,7 @@ export default {
         this.showAlarm = newValue != "/alarm" && newValue != "/map" && newValue != "/sys_settings";
       }
     )
-    var login_state = IsLoginLastTime();
-    if (login_state.isLogin) {
-      this.current_user_role = login_state.login_info.Role;
-    }
+
     var alarmHelper = new AlarmHelper(this.on_alarm_message);
 
     // var sys_alrms = ['2023/04/17 19:22:22 異常碼[0023]-路徑規劃模組異常', '2023/04/18 19:22:22 異常碼[0043]-腦袋異常', '2023/04/19 19:22:22 異常碼[0053]排泄模組異常']
@@ -221,36 +245,57 @@ export default {
         route_name: '/'
       }
     },
-    LoginClickHandler() {
-      this.$refs['login'].Show(this.current_route_info.route_name);
+    LoginClickHandler(action = '') {
+      if (!this.IsLogin | action == 'switch')
+        this.$refs['login'].Show(this.current_route_info.route_name);
     },
-    SysOptModeChangeRequest() {
+    LogoutQickly() {
+      userStore.commit('setUser', null)
+    },
+    async SysOptModeChangeRequest() {
       this.modes.system_operation_mode.loading = true;
-      //TODO　詢問後端是否可切換系統操作模式(Run/Maintain)
-      setTimeout(() => {
-        this.modes.system_operation_mode.loading = false;
-      }, 200);
-
-      return true;
+      var response = await RunMode(this.modes.system_operation_mode.actived ? 0 : 1);
+      var success = response.confirm;
+      var msg = response.message;
+      if (!success) {
+        this.ModeRequestFailHandler("操作模式", msg);
+      }
+      this.modes.system_operation_mode.loading = false;
+      return success
     },
     /**This function handles the change of the host connection mode.  */
-    HostConnModeChangeRequest() {
+    async HostConnModeChangeRequest() {
       this.modes.host_conn_mode.loading = true;
-      //TODO　詢問後端是否可切換HOST連線模式(Online/Offline) 
-      setTimeout(() => {
-        this.modes.host_conn_mode.loading = false;
-      }, 200);
+      var mode_req_text = this.modes.host_conn_mode.actived ? 'OFFLINE' : 'ONLINE';
+      var response = await HostConnMode(this.modes.host_conn_mode.actived ? 0 : 1);
+      var success = response.confirm;
+      var msg = response.message;
+      if (!success) {
+        this.ModeRequestFailHandler(`HOST ${mode_req_text}`, msg);
+      }
 
-      return true;
+      this.modes.host_conn_mode.loading = false;
+      return success;
     },
-    HostOptModeChangeRequest() {
+    async HostOptModeChangeRequest() {
       this.modes.host_operation_mode.loading = true;
-      //TODO　詢問後端是否可切換HOST操作模式(Remote/Local)
-      setTimeout(() => {
-        this.modes.host_operation_mode.loading = false;
-      }, 200);
+      var mode_req_text = this.modes.host_operation_mode.actived ? 'LOCAL' : 'REMOTE';
+      var response = await HostOperationMode(this.modes.host_operation_mode.actived ? 0 : 1);
+      var success = response.confirm;
+      var msg = response.message;
+      if (!success) {
+        this.ModeRequestFailHandler(`HOST ${mode_req_text}`, msg);
+      }
+      this.modes.host_operation_mode.loading = false;
 
-      return true;
+      return success;
+    },
+    ModeRequestFailHandler(action, message) {
+      this.$swal.fire({
+        title: `${action} 切換失敗`,
+        text: message + '，請稍後再嘗試切換。',
+        icon: 'error'
+      })
     },
     LangSwitch(lang) {
       this.$i18n.locale = lang;
@@ -351,7 +396,7 @@ export default {
       .alarm-text {
         padding: 3px;
         font-weight: normal;
-        font-size: 20px;
+        font-size: 18px;
       }
       .opt {
         padding-inline: 3px;
@@ -445,18 +490,6 @@ export default {
     font-weight: bold;
   }
   .user-account {
-    padding-right: 8px;
-    :hover {
-      cursor: pointer;
-    }
-    span {
-      font-size: 20px;
-      margin-right: 10px;
-    }
-    i {
-      font-size: 28px;
-      // background-color: green;
-    }
   }
 }
 </style>

@@ -4,7 +4,7 @@
       <i class="bi bi-robot"></i>AGV STATUS
     </div>
     <el-table
-      :header-cell-style="{color:'black',backgroundColor:'white'}"
+      :header-cell-style="{color:'black',backgroundColor:'rgb(241, 241, 241)'}"
       :data="AGVDatas"
       size="small"
       height="93%"
@@ -75,7 +75,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="操作" fixed="right">
+      <el-table-column v-if="IsLogin" label="操作" fixed="right">
         <template #default="scope">
           <div>
             <b-button
@@ -131,6 +131,7 @@ import WebSocketHelp from '@/api/WebSocketHepler';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
+import { userStore } from '@/store'
 import param from '@/gpm_param';
 export default {
   mounted() {
@@ -178,7 +179,16 @@ export default {
     ShowTaskAllocationView(clsAgvStatus) {
 
       if (!IsLoginLastTime().isLogin) {
-        this.$Modal.ShowOKModal('Forbid', "您沒有指派任務的權限，請先進行登入。", 'warning');
+
+        this.$swal.fire({
+          title: '權限不足',
+          text: '您沒有指派任務的權限，請先進行登入。',
+          icon: 'warning',
+          showCancelButton: true
+        }).then((confirm) => {
+          if (confirm.isConfirmed)
+            bus.emit('/show-login-view-invoke', '');
+        });
         return;
       }
 
@@ -211,7 +221,16 @@ export default {
     ShowAGVChargeConfirmDialog(agv_status) {
 
       if (!IsLoginLastTime().isLogin) {
-        this.$Modal.ShowOKModal('Forbid', "您沒有指派AGV充電的權限，請先進行登入。", 'danger');
+        this.$swal.fire({
+          title: '權限不足',
+          text: '您沒有指派AGV充電的權限，請先進行登入。',
+          icon: 'warning',
+          showCancelButton: true
+
+        }).then((confirm) => {
+          if (confirm.isConfirmed)
+            bus.emit('/show-login-view-invoke', '');
+        });
         return;
       }
 
@@ -276,13 +295,14 @@ export default {
     }
   },
   computed: {
+    IsLogin() {
+      return userStore.getters.IsLogin;
+    },
     AGV_Names() {
-
       var agv_name_list = [];
       this.AGVDatas.forEach(agvData => {
         agv_name_list.push(agvData.AGV_Name);
       });
-
       return agv_name_list
     },
 
