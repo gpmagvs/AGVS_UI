@@ -4,6 +4,14 @@ var _axios = axios.create({
   baseURL: param.backend_host,
 })
 
+
+/**取得模式設定狀態(RUNMODE, HOST_CONN, HOST_OPERATION ) */
+export async function GetOperationStates(mode =0|1){
+   var ret= await _axios.get(`api/system/OperationStates`);
+   return ret.data;
+}
+
+
 /**運轉模式切換。
  * 0:Maintain
  * 1:Run

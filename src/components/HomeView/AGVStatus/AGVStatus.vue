@@ -9,10 +9,9 @@
       size="small"
       height="93%"
       empty-text="沒有AGV"
-      style="z-index:1"
       :row-class-name="connected_class"
     >
-      <el-table-column label="車輛名稱" prop="AGV_Name" width="90px">
+      <el-table-column label="車輛名稱" prop="AGV_Name" width="80px">
         <template #default="scope">
           <b>{{scope.row.AGV_Name }}</b>
         </template>
@@ -46,12 +45,14 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="位置" prop="CurrentLocation" align="center">
+      <el-table-column label="位置" prop="StationName" align="center">
         <template #default="scope">
-          <div>{{ scope.row.CurrentLocation }}({{scope.row.Theta.toFixed(1)}})</div>
+          <div>
+            <b>{{ scope.row.StationName }}</b>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="任務" prop="CurrentLocation">
+      <el-table-column label="任務">
         <el-table-column prop="TaskName" label="名稱" />
         <el-table-column prop="TaskRunStatus" label="狀態">
           <template #default="scope">
@@ -65,9 +66,10 @@
       <el-table-column label="電量" prop="BatteryLevel">
         <template #default="scope">
           <div>
-            <b-progress class="flex-fill" :max="100" animated>
+            <b-progress class="flex-fill" :max="100" :min="0" animated>
               <b-progress-bar
                 :animated="true"
+                v-bind:class="BatteryClass(scope.row.BatteryLevel)"
                 :value="scope.row.BatteryLevel"
                 :label="`${((scope.row.BatteryLevel / 100) * 100).toFixed(2)}%`"
               ></b-progress-bar>
@@ -75,7 +77,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column v-if="IsLogin" label="操作" fixed="right">
+      <el-table-column v-if="!IsRunMode" label="操作" fixed="right">
         <template #default="scope">
           <div>
             <b-button
@@ -131,7 +133,7 @@ import WebSocketHelp from '@/api/WebSocketHepler';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
-import { userStore } from '@/store'
+import { userStore, agvs_settings_store } from '@/store'
 import param from '@/gpm_param';
 export default {
   mounted() {
@@ -291,12 +293,28 @@ export default {
       return this.GetAGVStatusString(status_code)
     },
     connected_class({ row, rowIndex }) {
-      return row.Connected ? 'connect' : 'disconnect'
+      var agv_row_class = this.IsRunMode ? 'agv-row-no-operation' : 'agv-row';
+      return row.Connected ? `${agv_row_class} connect` : `${agv_row_class} disconnect`
+    }
+    ,
+    BatteryClass(level) {
+      if (level >= 30) {
+        return 'batter-full-level'
+      }
+      else if (level > 10 && level < 30) {
+        return 'batter-mid-level'
+      }
+      else {
+        return 'batter-low-level'
+      }
     }
   },
   computed: {
     IsLogin() {
       return userStore.getters.IsLogin;
+    },
+    IsRunMode() {
+      return agvs_settings_store.getters.IsRunMode;
     },
     AGV_Names() {
       var agv_name_list = [];
@@ -304,8 +322,7 @@ export default {
         agv_name_list.push(agvData.AGV_Name);
       });
       return agv_name_list
-    },
-
+    }
   },
 }
 </script>
@@ -317,11 +334,26 @@ export default {
   .online-status-div:hover {
     cursor: pointer;
   }
+  .agv-row-no-operation {
+    .cell {
+      padding: 8px 11px;
+    }
+  }
   .connect {
     background-color: rgb(229, 255, 240);
   }
   .disconnect {
     background-color: rgb(255, 184, 182);
+  }
+
+  .batter-full-level {
+    background-color: rgb(57, 194, 57);
+  }
+  .batter-mid-level {
+    background-color: orange;
+  }
+  .batter-low-level {
+    background-color: red;
   }
 }
 </style>

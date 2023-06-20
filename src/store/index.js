@@ -20,6 +20,46 @@ export default  createStore({
    }
 })
 
+
+/**系統參數設定狀態管理 */
+export const agvs_settings_store= createStore({
+  state: {
+    sys_settings:{
+      operations:{
+        system_run_mode:false,
+        host_online_mode:false,
+        host_remote_mode:false
+      }
+    }
+  },
+  mutations: {
+    setOperations(state,operations){
+      state.sys_settings.operations = operations
+    },
+    setRunMode(state,actived){
+      state.sys_settings.operations.system_run_mode=actived
+    },
+    setHostOnline(state,actived){
+      state.sys_settings.operations.host_online_mode=actived
+    },
+    setHostRemote(state,actived){
+      state.sys_settings.operations.host_remote_mode=actived
+    }
+  },
+  actions: {
+    
+  },
+  getters: {
+    IsRunMode:state=>{
+      return state.sys_settings.operations.system_run_mode;
+    },
+   
+  },
+  // modules: {
+  // }
+})
+
+
 /**用戶狀態管理 */
 export const userStore= createStore({
   state: {
@@ -30,6 +70,8 @@ export const userStore= createStore({
       state.user = user
       if(user){
         StoreToLocalStorage(user)
+      }else{
+        localStorage.removeItem('user')
       }
     }
   },
@@ -76,4 +118,7 @@ export const userStore= createStore({
   // modules: {
   // }
 })
+
+
+
 

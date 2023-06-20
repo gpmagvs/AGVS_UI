@@ -15,6 +15,7 @@ class clsAGVStateDto {
       this.TaskRunAction = 0
       this.Theta = 0
       this.Connected = false
+      this.StationName=''
     } else {
       this.AGV_Name = dto.AGV_Name
       this.AGV_Description = dto.AGV_Description
@@ -29,6 +30,7 @@ class clsAGVStateDto {
       this.TaskRunAction = dto.TaskRunAction
       this.Theta = dto.Theta
       this.Connected = dto.Connected
+      this.StationName=dto.StationName
     }
   }
 }

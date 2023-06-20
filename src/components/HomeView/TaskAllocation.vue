@@ -16,7 +16,7 @@
         <div class="d-flex flex-row">
           <el-form label-width="100px" label-position="left" size="large">
             <el-form-item label="AGV">
-              <el-input disabled v-model="clsAgvStatus.AGV_Name"></el-input>
+              <el-input :disabled="!IsDeveloper" v-model="clsAgvStatus.AGV_Name"></el-input>
             </el-form-item>
             <el-form-item label="Action">
               <el-select
@@ -124,6 +124,7 @@ import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import MapShowVue from '../MapShow.vue';
 import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData } from '@/api/TaskAllocation'
 import { GetPointTypeNameByTypeNum } from '@/api/MapAPI.js'
+import { userStore } from '@/store';
 export default {
   components: {
     MapShowVue
@@ -180,6 +181,9 @@ export default {
     },
     Map() {
       return this.$refs['_map'];
+    },
+    IsDeveloper() {
+      return userStore.getters.IsDeveloperLogining;
     }
   },
   methods: {

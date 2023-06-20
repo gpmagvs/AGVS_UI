@@ -5,7 +5,6 @@
       <h3 @click="LogoClickHandler">
         <b>GPM AGVS</b>
       </h3>
-      <p class="px-2">V1</p>
       <div
         v-if="!modes.system_operation_mode.actived"
         class="matain-mode-notify py-2 px-3"
@@ -78,7 +77,7 @@
       <div class="alarm-container" v-bind:class="system_alarms">
         <div class="flex-fill">
           <span class="type-text">
-            <i class="bi bi-three-dots-vertical pt-2"></i>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
             系統警報
           </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
@@ -99,7 +98,7 @@
       <div class="alarm-container" v-bind:class="equipment_alarms">
         <div class="flex-fill">
           <span class="type-text">
-            <i class="bi bi-three-dots-vertical pt-2"></i>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
             設備警報
           </span>
           <span class="alarm-text">{{ eq_alrm_text }}</span>
@@ -124,14 +123,14 @@
 <script>
 import Login from '@/views/Login.vue';
 import bus from '@/event-bus.js'
-import { RunMode, HostConnMode, HostOperationMode } from '@/api/SystemAPI';
+import { GetOperationStates, RunMode, HostConnMode, HostOperationMode } from '@/api/SystemAPI';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { ResetSystemAlarm, ResetEquipmentAlarm, AlarmHelper } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { userStore } from '@/store'
+import { agvs_settings_store, userStore } from '@/store'
 export default {
   components: {
     Login
@@ -211,6 +210,7 @@ export default {
 
   },
   mounted() {
+    this.DownloadSystemOperationsSettings();
     bus.on('/router-change', (new_rotue) => {
       this.current_route_info = new_rotue
     });
@@ -226,12 +226,19 @@ export default {
     )
 
     var alarmHelper = new AlarmHelper(this.on_alarm_message);
-
-    // var sys_alrms = ['2023/04/17 19:22:22 異常碼[0023]-路徑規劃模組異常', '2023/04/18 19:22:22 異常碼[0043]-腦袋異常', '2023/04/19 19:22:22 異常碼[0053]排泄模組異常']
-    // this.system_alarms = ['alarm']
     this.AlarmDisplayHandler();
   },
   methods: {
+    async DownloadSystemOperationsSettings() {
+      setTimeout(async () => {
+        var settings = await GetOperationStates()
+        agvs_settings_store.commit('setOperations', settings)
+        this.modes.system_operation_mode.actived = settings.system_run_mode;
+        this.modes.host_conn_mode.actived = settings.host_online_mode;
+        this.modes.host_operation_mode.actived = settings.host_remote_mode;
+
+      }, 1000);
+    },
     on_alarm_message(ev) {
       this.unchecked_alarms = JSON.parse(ev.data)
     },
@@ -250,21 +257,44 @@ export default {
         this.$refs['login'].Show(this.current_route_info.route_name);
     },
     LogoutQickly() {
-      userStore.commit('setUser', null)
+
+      this.$swal.fire({
+        title: 'Logout!',
+        text: '確定要登出?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes'
+      }).then(ret => {
+        if (ret.isConfirmed) {
+          userStore.commit('setUser', null)
+          this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 3000 })
+
+        }
+      })
+
     },
     async SysOptModeChangeRequest() {
+      if (!this.CheckUserLoginState())
+        return false;
       this.modes.system_operation_mode.loading = true;
+      var mode_req_text = this.modes.system_operation_mode.actived ? '操作模式-MAINTAIN' : '操作模式-RUN';
       var response = await RunMode(this.modes.system_operation_mode.actived ? 0 : 1);
       var success = response.confirm;
       var msg = response.message;
       if (!success) {
         this.ModeRequestFailHandler("操作模式", msg);
       }
+      else {
+        agvs_settings_store.commit('setRunMode', !this.modes.system_operation_mode.actived)
+        this.ModeRequestSuccessHandler(mode_req_text);
+      }
       this.modes.system_operation_mode.loading = false;
       return success
     },
     /**This function handles the change of the host connection mode.  */
     async HostConnModeChangeRequest() {
+      if (!this.CheckUserLoginState())
+        return false;
       this.modes.host_conn_mode.loading = true;
       var mode_req_text = this.modes.host_conn_mode.actived ? 'OFFLINE' : 'ONLINE';
       var response = await HostConnMode(this.modes.host_conn_mode.actived ? 0 : 1);
@@ -273,11 +303,16 @@ export default {
       if (!success) {
         this.ModeRequestFailHandler(`HOST ${mode_req_text}`, msg);
       }
-
+      else {
+        this.ModeRequestSuccessHandler(mode_req_text);
+        agvs_settings_store.commit('setHostOnline', !this.modes.host_conn_mode.actived)
+      }
       this.modes.host_conn_mode.loading = false;
       return success;
     },
     async HostOptModeChangeRequest() {
+      if (!this.CheckUserLoginState())
+        return false;
       this.modes.host_operation_mode.loading = true;
       var mode_req_text = this.modes.host_operation_mode.actived ? 'LOCAL' : 'REMOTE';
       var response = await HostOperationMode(this.modes.host_operation_mode.actived ? 0 : 1);
@@ -286,15 +321,40 @@ export default {
       if (!success) {
         this.ModeRequestFailHandler(`HOST ${mode_req_text}`, msg);
       }
+      else {
+        this.ModeRequestSuccessHandler(mode_req_text);
+        agvs_settings_store.commit('setHostRemote', !this.modes.host_operation_mode.actived)
+      }
       this.modes.host_operation_mode.loading = false;
 
       return success;
+    },
+    CheckUserLoginState() {
+      if (!this.IsLogin) {
+        this.$vs.notify({
+          color: 'danger',
+          title: '權限不足',
+          text: '切換失敗，請先進行登入。',
+          position: 'bottom-right',
+          time: 3000
+        })
+      }
+      return this.IsLogin;
     },
     ModeRequestFailHandler(action, message) {
       this.$swal.fire({
         title: `${action} 切換失敗`,
         text: message + '，請稍後再嘗試切換。',
         icon: 'error'
+      })
+    },
+    ModeRequestSuccessHandler(action) {
+      this.$vs.notify({
+        color: 'success',
+        title: `${action}請求`,
+        text: `${action}請求成功`,
+        position: 'bottom-right',
+        time: 2000
       })
     },
     LangSwitch(lang) {
@@ -390,8 +450,12 @@ export default {
       }
       .type-text {
         width: 99px;
-        text-align: left;
-        text-decoration: underline;
+        border-radius: 13px;
+        background-color: rgb(255, 62, 62);
+        color: white;
+        margin-top: 4px;
+        text-align: center;
+        // text-decoration: underline;
       }
       .alarm-text {
         padding: 3px;

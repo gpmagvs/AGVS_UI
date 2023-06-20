@@ -1,6 +1,6 @@
 <template>
-  <div class="home-view h-100 d-flex flex-row custom-tabs-head">
-    <div class="left-col d-flex flex-column border-right flex-fill">
+  <div class="home-view h-100 w-100 d-flex flex-row custom-tabs-head">
+    <div class="left-col border-right flex-fill">
       <AGVStatusVue></AGVStatusVue>
       <TaskStatusVue></TaskStatusVue>
     </div>

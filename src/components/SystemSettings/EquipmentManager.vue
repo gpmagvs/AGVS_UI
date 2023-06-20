@@ -1,6 +1,6 @@
 <template>
-  <div class="equipment-manager border-start border-end px-3">
-    <p class="text-start py-2 my-3 px-1">
+  <div class="equipment-manager border-start border-end">
+    <p class="text-start px-1">
       <b-button variant="primary" squared @click="SaveSettingHandler">儲存設定</b-button>
       <b-button variant="info" squared class="mx-2" @click="AddNewEqHandler">新增設備</b-button>
       <b-button squared @click="ReloadSettingsHandler">重新載入</b-button>
@@ -214,7 +214,7 @@ export default {
     }
   },
   mounted() {
-  
+
     this.DownloadEQOptions();
   },
 }

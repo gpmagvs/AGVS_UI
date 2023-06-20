@@ -1,13 +1,24 @@
 <template>
-  <div class="sys-settings custom-tabs-head p-1">
+  <div class="sys-settings custom-tabs-head-large p-1 w-100">
     <b-tabs>
       <b-tab title="設備管理" active>
-        <EQManager></EQManager>
+        <div class="setting-tab">
+          <EQManager></EQManager>
+        </div>
       </b-tab>
       <b-tab title="用戶管理">
-        <UserManager ref="user_manager"></UserManager>
+        <div class="setting-tab">
+          <UserManager ref="user_manager"></UserManager>
+        </div>
       </b-tab>
-      <b-tab title="電池管理">This is the content of Tab 2</b-tab>
+      <b-tab title="AGV 電量設定">
+        <div class="setting-tab">
+          <AGVBatterySetting></AGVBatterySetting>
+        </div>
+      </b-tab>
+      <b-tab title="電池管理">
+        <div class="setting-tab">bat</div>
+      </b-tab>
     </b-tabs>
   </div>
 </template>
@@ -16,10 +27,11 @@
 
 import UserManager from '@/components/SystemSettings/UserManager.vue';
 import EQManager from '@/components/SystemSettings/EquipmentManager.vue';
+import AGVBatterySetting from '@/components/SystemSettings/AGVBatterySetting.vue';
 
 export default {
   components: {
-    UserManager, EQManager
+    UserManager, EQManager, AGVBatterySetting
   },
   data() {
     return {
@@ -63,6 +75,11 @@ export default {
 <style lang="scss">
 .sys-settings {
   position: absolute;
-  top: 50px;
+  top: 55px;
+
+  .setting-tab {
+    padding: 12px;
+    width: 100%;
+  }
 }
 </style>

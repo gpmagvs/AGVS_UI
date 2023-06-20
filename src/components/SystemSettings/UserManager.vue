@@ -1,5 +1,5 @@
 <template>
-  <div class="user-manager">
+  <div class="user-manager ">
     <div class="d-flex flex-row">
       <OperatieButtonSet @save="SaveSetting" @restore="RestoreConfirmDialogShow=true"></OperatieButtonSet>
       <span class="flex-fill"></span>

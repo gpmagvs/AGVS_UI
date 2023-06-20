@@ -1,27 +1,46 @@
 <template>
-  <div class="side-menu text-start">
+  <div class="side-menu">
     <el-drawer
       v-model="show_draw"
       direction="ltr"
       title="GPM AGVS"
-      size="15%"
+      size="18%"
       @close="CLoseEventHandle"
     >
-      <div @click="PageSwitch('/','Home')" class="menu-item-container">主頁 Home</div>
-      <div @click="PageSwitch('/racks_status','帳籍管理')" class="menu-item-container">帳籍管理 Rack</div>
-      <div
-        @click="PageSwitch('/map','圖資管理')"
-        v-show="IsUserLogin"
-        class="menu-item-container"
-      >圖資管理 Map</div>
-      <div @click="PageSwitch('/data','資料')" class="menu-item-container">資料 Data</div>
-      <div @click="PageSwitch('/alarm','警報')" class="menu-item-container">警報 Alarm</div>
-      <div
-        @click="PageSwitch('/sys_settings','系統設定')"
-        v-show="IsUserLogin"
-        class="menu-item-container"
-      >設定 SETTINGS</div>
-      <div class="version">v23.4.10.1</div>
+      <div class="text-start">
+        <div @click="PageSwitch('/','Home')" class="menu-item-container">
+          <i class="bi bi-three-dots-vertical"></i>主頁
+          <span>Home</span>
+        </div>
+        <div @click="PageSwitch('/racks_status','帳籍管理')" class="menu-item-container">
+          <i class="bi bi-three-dots-vertical"></i>帳籍管理
+          <span>Rack</span>
+        </div>
+        <div @click="PageSwitch('/map','圖資管理')" v-show="IsUserLogin" class="menu-item-container">
+          <i class="bi bi-three-dots-vertical"></i>圖資管理
+          <span>Map</span>
+        </div>
+        <div @click="PageSwitch('/data','資料')" class="menu-item-container">
+          <i class="bi bi-three-dots-vertical"></i>資料
+          <span>Data</span>
+        </div>
+        <div @click="PageSwitch('/alarm','警報')" class="menu-item-container">
+          <i class="bi bi-three-dots-vertical"></i>警報
+          <span>Alarm</span>
+        </div>
+        <div
+          @click="PageSwitch('/sys_settings','系統設定')"
+          v-show="IsUserLogin"
+          class="menu-item-container"
+        >
+          <i class="bi bi-three-dots-vertical"></i>設定
+          <span>SETTINGS</span>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <img src="GPM_Logo.png" width="220" alt="GPM" />
+      </div>
     </el-drawer>
   </div>
 </template>
@@ -68,9 +87,18 @@ export default {
 
 <style scoped lang="scss">
 .side-menu {
-  .version {
+  div {
+    width: 100%;
+    span {
+      font-size: smaller;
+    }
+  }
+  .bottom {
     position: absolute;
     bottom: 2px;
+    right: 2px;
+
+    width: 100%;
   }
   .menu-item-container {
     // border: 1px solid black;

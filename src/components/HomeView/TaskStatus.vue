@@ -13,7 +13,6 @@
           size="small"
           empty-text="沒有任務"
           height="260px"
-          style="z-index:1;"
         >
           <el-table-column fixed="left" label="任務名稱" prop="TaskName" width="170"></el-table-column>
           <el-table-column fixed="left" label="執行AGV" prop="DesignatedAGVName"></el-table-column>
@@ -50,7 +49,7 @@
           </el-table-column>
         </el-table>
       </b-tab>
-      <b-tab title="已完成任務">
+      <b-tab title="已結束任務">
         <el-table
           :header-cell-style="{color:'black',backgroundColor:'rgb(241, 241, 241)'}"
           :data="CompletedTaskList"
@@ -58,12 +57,11 @@
           size="small"
           height="260px"
           empty-text="沒有任務"
-          style="z-index:1"
         >
           <el-table-column fixed="left" label="任務名稱" prop="TaskName" width="170"></el-table-column>
           <el-table-column fixed="left" label="執行AGV" prop="DesignatedAGVName"></el-table-column>
           <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
-          <el-table-column label="完成時間" prop="FinishTime_Formated" width="80"></el-table-column>
+          <el-table-column label="結束時間" prop="FinishTime_Formated" width="80"></el-table-column>
           <el-table-column label="任務狀態" prop="StateName" width="80">
             <template #default="scope">
               <el-tag

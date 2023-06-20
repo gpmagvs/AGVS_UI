@@ -3,10 +3,11 @@
     v-model="dialogVisible"
     :show-close="true"
     :close-on-click-modal="false"
+    :close-on-press-escape="false"
     :modal="false"
     draggable
-    width="600"
-    style="z-index:9100"
+    width="400"
+    style="z-index:9900"
   >
     <template #header="{titleId, login_title }">
       <div class="login-header">
@@ -16,59 +17,54 @@
     </template>
     <div class="login-content">
       <el-form label-position="top">
-        <el-form-item label="Account" :required="true">
-          <el-input
-            :disabled="IsLogin"
-            name="account"
-            class="input"
-            @click="OnInputFocus('account')"
-            @change="message=''"
-            @clear="keyboard_input=''"
-            placeholder="Account"
-            v-model="UserName"
+        <el-form-item label="Username" :required="true">
+          <b-form-input
+            autofocus
             autocomplete="new-password"
-            clearable
-          ></el-input>
+            :disabled="IsLogin"
+            ref="account"
+            @keyup.enter="FocusPasswordInput"
+            @keyup.down="FocusPasswordInput"
+            @keyup.esc="UserName=''"
+            v-model="UserName"
+            :state="UserName!=''"
+            placeholder="請輸入帳號"
+            required
+          ></b-form-input>
         </el-form-item>
         <el-form-item label="Password" :required="true">
-          <el-input
-            :disabled="IsLogin"
-            name="pw"
-            class="input"
-            ref="pw_input"
-            @click="OnInputFocus('pw')"
-            @clear="keyboard_input=''"
-            @change="message=''"
-            clearable
-            show-password
-            placeholder="Password"
-            v-model="Password"
-            type="password"
+          <b-form-input
             autocomplete="new-password"
-          ></el-input>
+            type="password"
+            :disabled="IsLogin"
+            ref="pw_input"
+            @keyup.enter="PasswordEnterClickHandler"
+            @keyup.up="FocusAccountInput"
+            @keyup.esc="Password=''"
+            v-model="Password"
+            :state="Password!=''"
+            placeholder="請輸入密碼"
+            required
+          ></b-form-input>
+        </el-form-item>
+        <el-form-item v-if="IsLogin">
+          <b-button
+            @click="LogoutHandle()"
+            :loading="logouting"
+            class="w-100"
+            variant="danger"
+          >Logout</b-button>
+        </el-form-item>
+        <el-form-item v-if="!IsLogin">
+          <b-button @click="LoginHandle()" :loading="logining" class="w-100" variant="primary">Login</b-button>
+        </el-form-item>
+        <el-form-item>
+          <b-button @click="dialogVisible = false" class="w-100">Cancel</b-button>
         </el-form-item>
       </el-form>
       <div class="login-message">{{ message}}</div>
     </div>
-    <KeyBoard @onChange="onChange" :input="keyboard_input"></KeyBoard>
-
-    <b-modal
-      title="LOGOUT"
-      :centered="true"
-      :ok-only="true"
-      v-model="ShowLogoutDialog"
-      @ok="dialogVisible = false;"
-    >
-      <p>已登出!</p>
-    </b-modal>
-
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button v-if="!IsLogin" :loading="logining" type="primary" @click="LoginHandle()">Login</el-button>
-        <el-button v-else type="danger" :loading="logouting" @click="LogoutHandle()">Logout</el-button>
-        <el-button type="info" @click="dialogVisible = false">Cancel</el-button>
-      </span>
-    </template>
+    <!-- <KeyBoard @onChange="onChange" :input="keyboard_input"></KeyBoard> -->
   </el-dialog>
 </template>
 
@@ -103,6 +99,16 @@ export default {
     }
   },
   methods: {
+    FocusPasswordInput() {
+      this.$refs['pw_input'].focus();
+    },
+    FocusAccountInput() {
+      this.$refs['account'].focus();
+    },
+
+    PasswordEnterClickHandler() {
+      this.LoginHandle();
+    },
     Show(current_route = '/') {
       this.current_route = current_route;
 
@@ -119,10 +125,12 @@ export default {
 
       if (this.UserName == '') {
         this.message = '請輸入 Account'
+        this.FocusAccountInput();
         return;
       }
       if (this.Password == '') {
         this.message = '請輸入 Passowrd'
+        this.FocusPasswordInput();
         return;
       }
 
@@ -206,12 +214,14 @@ export default {
   position: relative;
   top: -50px;
   left: 10px;
-  .input {
-    padding-right: 20px;
-  }
   .login-message {
     color: red;
     text-align: left;
+  }
+
+  .btn,
+  input {
+    margin-right: 21px;
   }
 }
 </style>

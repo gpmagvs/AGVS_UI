@@ -1,26 +1,30 @@
 <template>
   <div
-    class="connection-state d-flex flex-row fixed-bottom bg-light text-dark border rounded text-start p-2"
+    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start p-2"
   >
-    <i class="bi bi-three-dots-vertical"></i>
-    <div
-      class="conn-block px-2 border-end"
-      v-for="connection in Connections"
-      :key="connection.name"
-    >
-      <label>{{ connection.name }}</label>
-      <el-tag
-        effect="dark"
-        :type="connection.connected?'success':'danger'"
-      >{{ connection.connected?'Connected':'Disconnect' }}</el-tag>
+    <div class="d-flex flex-row">
+      <i class="bi bi-three-dots-vertical"></i>
+      <div
+        class="conn-block px-1 border-end"
+        v-for="connection in Connections"
+        :key="connection.name"
+      >
+        <label>{{ connection.name }}</label>
+        <el-tag
+          effect="dark"
+          :type="connection.connected?'success':'danger'"
+        >{{ connection.connected?'Connected':'Disconnect' }}</el-tag>
+      </div>
     </div>
+
+    <div class="sys-time">{{sys_time}}</div>
   </div>
 </template>
 
 <script>
-import bus from '@/event-bus.js'
 import WebSocketHelp from '@/api/WebSocketHepler'
 import param from '@/gpm_param'
+import moment from 'moment'
 export default {
   data() {
     return {
@@ -41,10 +45,14 @@ export default {
         //   name: "UI",
         //   connected: false,
         // }
-      ]
+      ],
+      sys_time: ''
     }
   },
   mounted() {
+    setInterval(() => {
+      this.sys_time = moment(Date.now()).format('yyyy-MM-DD HH:mm:ss')
+    }, 1000);
     var vms_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck', param.vms_ws_host);
     vms_alive_check_ws.Connect();
     vms_alive_check_ws.onclose = (ev) => this.Connections[1].connected = false
@@ -68,11 +76,18 @@ export default {
 
 <style lang="scss" scoped>
 .connection-state {
+  background-color: #dfdfdf;
+  border-block: 3px solid rgb(187, 187, 187);
+  .sys-time {
+    font-weight: bold;
+    font-family: monospace;
+    color: #777777;
+  }
   .conn-block {
-    margin-right: 10px;
+    margin-right: 8px;
     padding: auto 5px;
     label {
-      color: grey;
+      color: rgb(43, 43, 43);
       margin: auto 5px;
     }
     label,

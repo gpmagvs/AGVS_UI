@@ -6,14 +6,6 @@
           <i class="bi bi-three-dots-vertical pt-2"></i>區域選擇
         </div>
         <RegionsSelector v-model="selected_region"></RegionsSelector>
-        <!-- <el-select v-model="selected_region" title="區域" @change="RegionSelectChanged">
-          <el-option
-            v-for="opt in valid_map_regions_options"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          ></el-option>
-        </el-select>-->
       </div>
       <div class="legend d-flex flex-row px-2">
         <div class="disconnect"></div>
@@ -24,8 +16,12 @@
         <span>訊號[OFF]</span>
       </div>
     </div>
+    <div v-if="IsDeveloperLogining" class="dev-debug-global d-flex">
+      <b-button variant="light" @click="EmuAllLoad">ALL Load</b-button>
+      <b-button class="mx-2" variant="light" @click="EmuAllBusy">ALL Busy</b-button>
+    </div>
     <el-table
-      style="width:890px"
+      style="width:890px;"
       height="600"
       border
       :header-cell-style="{color:'black',backgroundColor:'white'}"
@@ -194,6 +190,12 @@ export default {
     },
     LDULD_Emu_State_Switch(EQName = "", mode = 'busy|load|unlod') {
       EmuAPI.SetState(EQName, mode)
+    },
+    EmuAllLoad() {
+      EmuAPI.EQAllLoad()
+    },
+    EmuAllBusy() {
+      EmuAPI.EQAllBusy()
     }
   }
 }

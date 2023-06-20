@@ -37,5 +37,18 @@ export const EmuAPI ={
     var ret= await axios_entity.get(url)
     return ret.data;
   },
+  /**設定所有EQ為Load狀態 */
+  async EQAllLoad(){
+    var url = `/api/Equipment/Emu/AllLoad`;
+    var ret= await axios_entity.get(url)
+    return ret.data;
+  },
+  /**設定所有EQ為Busy狀態 */
+  async EQAllBusy(){
+    var url = `/api/Equipment/Emu/AllBusy`;
+    var ret= await axios_entity.get(url)
+    return ret.data;
+  },
+  
 
 }
