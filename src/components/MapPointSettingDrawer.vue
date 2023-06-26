@@ -4,7 +4,7 @@
       v-model="show"
       size="35%"
       :close-on-press-escape="true"
-      :close-on-click-modal="false"
+      :close-on-click-modal="true"
       :show-close="false"
     >
       <template #header>
@@ -194,7 +194,7 @@ export default {
         showConfirmButton: false,
         confirmButtonText: 'OK',
         customClass: 'my-sweetalert',
-        timer: 1000,
+        timer: 100,
       })
     },
     CancelBtnClickHandle() {

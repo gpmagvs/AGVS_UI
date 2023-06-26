@@ -62,6 +62,21 @@ export class clsChargeTaskData {
     this.Priority = Priority
   }
 }
+
+export class clsParkTaskData {
+  constructor(agv_name, to_tag, Priority = 50) {
+    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.Action = 12
+    this.DesignatedAGVName = agv_name
+    this.From_Station = '-1'
+    this.From_Slot = '-1'
+    this.To_Station = to_tag + ''
+    this.To_Slot = '-1'
+    this.Carrier_ID = '-1'
+    this.Priority = Priority
+  }
+}
+
 export class clsCarryTaskData {
   constructor(
     agv_name,
@@ -116,6 +131,9 @@ export var TaskAllocation = {
   },
   async ChargeTask(clsChargeTaskData) {
     return await  CallAPI('/api/Task/Charge', clsChargeTaskData)
+  },
+  async ParkTask(clsChargeTaskData) {
+    return await  CallAPI('/api/Task/Park', clsChargeTaskData)
   },
 }
 

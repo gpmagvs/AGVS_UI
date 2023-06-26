@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @mousemove="MapMouseMoveHandler">
     <b-alert class="map-notify py-1 px-2 text-start" v-if="!only_view" show variant="info">
       <div class="mode-text">{{Mode_Text}}</div>
       <div class="d-flex flex-row">
@@ -11,6 +11,16 @@
     </b-alert>
     <div class="map-show h-100 border py-2 px-2 d-flex flex-row bg-light">
       <div class="w-100">
+        <div
+          v-if="hoverPointData!=undefined"
+          id="point-tooltip"
+          class="rounded text-start p-2"
+          v-bind:style="TooltipStyle"
+        >
+          <div>名稱 :{{ hoverPointData.Name }}</div>
+          <div>Tag :{{ hoverPointData.TagNumber }} ({{ hoverPointData.X }},{{ hoverPointData.Y }},{{ hoverPointData.Direction }} )</div>
+          <div>Tag :{{ hoverPointData.TagNumber }}</div>
+        </div>
         <div class="header-div w-100 d-flex flex-row justify-content-between">
           <div class="options text-start d-flex flex-row">
             <div class="d-flex flex-row option-container">
@@ -115,6 +125,30 @@
         @OnPointSettingChanged="PointSettingChangedHandle"
       ></MapPointSettingDrawer>
     </div>
+    <b-modal
+      draggable
+      title="移除路徑"
+      v-model="selectPathVisible"
+      :hide-header-close="true"
+      hide-footer
+      no-close-on-esc
+      @cancel="()=>{selectPathVisible=false}"
+      header-bg-variant="primary"
+      header-text-variant="light"
+    >
+      <el-table height="150px" row-key="startPoint.Name" :data="PathesSelectedForDelete">
+        <el-table-column label="起點" prop="startPoint.Name"></el-table-column>
+        <el-table-column label="終點" prop="endPoint.Name"></el-table-column>
+        <el-table-column>
+          <template #default="scope">
+            <b-button
+              variant="danger"
+              @click="RemovePathByPointsIndex( scope.row.startStation_Index, scope.row.endStation_Index)"
+            >Remove</b-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </b-modal>
   </div>
 </template>
   
@@ -176,11 +210,18 @@ export default {
       map: new Map(),
       showTaskAllocationMenu: false,
       showAGVMenu: false,
+      selectPathVisible: false,
+      PathesSelectedForDelete: [],
       path_plan_tags: [],
       contextMenu: {},
       agv_color_set: [
         'lime', 'rgb(51, 194, 255)', 'yellow', 'rgb(64, 158, 255)', 'pink', 'gold', 'red', 'grey'
       ],
+      TooltipStyle: {
+        top: '0px',
+        left: '0px'
+      },
+      hoverPointData: undefined,
       map_contextmenu_style: {
         position: 'absolute',
         top: '112px',
@@ -251,32 +292,49 @@ export default {
           text_display = pointInfo.index;
           text_color = 'rgb(90, 213, 255)'
         }
+        var eq_station_icon = new Icon({
+          src: '/images/eq-icon.png', // 设置PNG图像的路径
+          scale: 0.45,
+          anchor: [0.5, 0.5],
+          size: [64, 64],
+          opacity: 1,
+          color: 'white'
 
-        var polygonImg = (points, rotation = 0, color = 'rgb(37, 172, 95)') => {
+        })
+        var charge_station_icon = new Icon({
+          src: '/images/charging-station.png', // 设置PNG图像的路径
+          scale: 0.5,
+          anchor: [0.5, 0.5],
+          size: [64, 64],
+          opacity: 1,
+          color: 'white'
+
+        })
+        var icon_stroke = (selected) => {
+          return new Stroke({
+            color: selected ? 'red' : 'black',
+            width: selected ? 2 : 1,
+          })
+        };
+        var polygonImg = (points, rotation = 0, color = 'rgb(37, 172, 95)', selected = false) => {
           return new RegularShape({
             radius: 7,
             fill: new Fill({
               color: color,
             }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 1,
-            }),
+            stroke: icon_stroke(selected),
             angle: rotation,
             points: points,
           })
         }
 
-        var circleImg = (color) => {
+        var circleImg = (color, selected = false) => {
           return new CircleStyle({
             radius: 6,
             fill: new Fill({
               color: color,
             }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 1,
-            }),
+            stroke: icon_stroke(selected),
           })
         }
         var EQ_Ints = [1, 11, 21, 32];
@@ -307,18 +365,31 @@ export default {
             color = 'pink';
         }
         var highlight = feature.get('highlight')
+        var selected = feature.get('selected');
+        var isEQ = feature.get('data').IsEquipment;
+        var isCharge = feature.get('data').IsCharge;
+
+        var GetImage = () => {
+          if (isEQ)
+            return eq_station_icon;
+          if (isCharge)
+            return charge_station_icon;
+          return pointRawData.StationType == 0 ? circleImg(color, selected) : polygonImg(polyPoint, polyRotation, color, selected)
+        }
+
         return new Style({
-          image: pointRawData.StationType == 0 ? circleImg(color) : polygonImg(polyPoint, polyRotation, color),
+          image: GetImage(),
+          //image: eq_station_icon,
           text: new Text({
             text: text_display,
             offsetX: 12,
-            offsetY: -15,
+            offsetY: isEQ | isCharge ? -25 : -15,
             font: 'bold 14px sans-serif',
             fill: new Fill({
               color: pointRawData.Enable ? text_color : 'rgb(255, 106, 138)'
             }),
             stroke: new Stroke({
-              color: highlight ? 'red' : 'black',
+              color: highlight | selected ? 'red' : 'black',
               width: highlight ? 4 : 3
             })
           }),
@@ -331,12 +402,15 @@ export default {
         })
       },
       pathStyle: (feature) => {
+        var isEQLink = feature.get('data').IsEQLink
+        var isPathClose = feature.get('data').IsPathClose
         const geometry = feature.getGeometry();
         const styles = [
           new Style({
             stroke: new Stroke({
-              color: 'rgb(176, 176, 178)',
-              width: 3,
+              color: isPathClose ? 'red' : (isEQLink ? 'rgb(115, 115, 115)' : 'rgb(176, 176, 178)'),
+              width: 2.7,
+              lineDash: isEQLink ? [4, 11] : null // 虛線模式（設定虛線段的長度和間隔）
             }),
           }),
         ];
@@ -345,6 +419,7 @@ export default {
           const dx = end[0] - start[0];
           const dy = end[1] - start[1];
           const rotation = Math.atan2(dy, dx);
+
           // arrows
           styles.push(
             new Style({
@@ -354,10 +429,30 @@ export default {
                 anchor: [1.2, 0.5],
                 rotateWithView: true,
                 rotation: -rotation,
-                scale: 0.15,
+                scale: 0.18,
+                color: isPathClose ? 'red' : 'white'
               }),
             })
           );
+          if (isPathClose) {
+            start = [(end[0] + start[0]) / 2, (end[1] + start[1]) / 2]
+            const dx = end[0] - start[0];
+            const dy = end[1] - start[1];
+            const rotation = Math.atan2(dy, dx);
+            // arrows
+            styles.push(
+              new Style({
+                geometry: new Point(start),
+                image: new Icon({
+                  src: 'close.png',
+                  anchor: [1.2, 0.5],
+                  rotateWithView: true,
+                  rotation: -rotation,
+                  scale: 0.5,
+                }),
+              })
+            );
+          }
         });
         return styles;
       },
@@ -476,6 +571,10 @@ export default {
     },
   },
   methods: {
+    MapMouseMoveHandler(ev) {
+      this.TooltipStyle.left = `${ev.x}px`
+      this.TooltipStyle.top = `${ev.y - 110}px`
+    },
     Reload() {
       //TODO RELOAD MAP
     },
@@ -493,9 +592,7 @@ export default {
           Notifier.Success('Success Fetch Map Data From Server.', 'bottom', 2000);
 
           this.MapDataInit(map);
-          setTimeout(() => {
-            this.MapInitializeRender();
-          }, 100);
+          this.MapInitializeRender();
 
         }
 
@@ -532,6 +629,12 @@ export default {
       var stations = Object.values(this.map_data.Points);
       return stations.filter(st => chargable_types.includes(st.StationType));
     },
+    GetParkStations() {
+      if (!this.map_data)
+        return [];
+      var stations = Object.values(this.map_data.Points);
+      return stations.filter(st => st.IsParking);
+    },
     MapDataInit(map) {
       this.map_data = map;
       this.map_name = map.Name;
@@ -551,7 +654,7 @@ export default {
         _feature.set('Tag', _tagID)
         this.AddStation(
           {
-            index: parseInt(index),
+            index: index,
             tag: _tagID,
             feature: _feature,
           }
@@ -568,11 +671,15 @@ export default {
     GetAllNormalPtFeature() {
       return this.station_features.filter(ft => ft.get('StationType') == 0);
     },
+
+    GetAllParkPtFeature() {
+      return this.station_features.filter(ft => ft.get('data').IsParking);
+    },
     GetAllEQPtFeature() {
-      return this.station_features.filter(ft => ft.get('StationType') == 1);
+      return this.station_features.filter(ft => ft.get('data').IsEQLink);
     },
     GetAllChargePtFeature() {
-      return this.station_features.filter(ft => ft.get('StationType') == 3);
+      return this.station_features.filter(ft => ft.get('data').IsCharge);
     },
     MapInitializeRender() {
       const lineFeatures = this.CreateLineFeaturesOfEachStaion();
@@ -628,9 +735,36 @@ export default {
             style: this.UnloadIconStyle,
             zIndex: 122
           }),
+          new VectorLayer({ //固定的圖標圖層
+            source: new VectorSource({
+              features: [
+                new Feature({
+                  geometry: new Point([0, 0]),
+                  name: "原點",
+                  id: "原點"
+                })
+              ]
+            }),
+            style: (feature) => new Style({
+              text: new Text({
+                text: feature.getId(),
+                offsetX: 12,
+                offsetY: -15,
+                font: 'bold 14px sans-serif',
+                fill: new Fill({
+                  color: 'black'
+                }),
+                stroke: new Stroke({
+                  color: 'black',
+                  width: 3
+                })
+              }),
+            }),
+            zIndex: 122
+          }),
         ],
         view: new View({
-          center: [800000, 2000],
+          center: [0, 0],
           zoom: this.zoom,
         }),
       });
@@ -665,6 +799,7 @@ export default {
         if (!that.selected_feature)
           return
 
+        this.hoverPointData = undefined;
         if (isEditMode() && isAddPointMode() && event.originalEvent.button === 2) {
           document.addEventListener('contextmenu', function (event) {
             event.preventDefault();
@@ -675,16 +810,29 @@ export default {
         that.$emit('onStationClick', that.selected_feature.get('data'))
       })
 
-
+      this.map.on('pointermove', (event) => {
+        var feature = this.map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
+          return feature;
+        });
+        if (feature && feature.get('data')) {
+          console.info(feature);
+          var data = feature.get('data');
+          this.hoverPointData = data;
+        } else {
+          this.hoverPointData = undefined;
+        }
+      })
       this.map.on('pointerdown', (event) => {
 
         that.mouse_click_coordinate = event.coordinate
-
-
+        if (this.selected_feature) {
+          this.selected_feature.set('selected', false);
+        }
         this.selected_feature = this.map.forEachFeatureAtPixel(event.pixel, (feature) => {
 
           if (feature) {
             that.selected_feature = feature;
+            that.selected_feature.set('selected', true);
             if (!isEditMode())
               return undefined;
 
@@ -812,8 +960,12 @@ export default {
         return;
       }
       if (start_.index != end_.index) {
-        if (this.map_data.Points[start_.index].Target[end_.index] == undefined)
-          this.map_data.Points[start_.index].Target[end_.index] = 1
+        var startPoint = this.map_data.Points[start_.index];
+        var endPoint = this.map_data.Points[end_.index];
+        if (startPoint.Target[end_.index] == undefined) {
+          startPoint.Target[end_.index] = 1
+          this.map_data.Pathes.push({ StartPoint: startPoint, EndPoint: endPoint });
+        }
         this.UpdateStationPathLayer();
       }
       this.path_start_end = { start: undefined, end: undefined }
@@ -1035,15 +1187,51 @@ export default {
       this.GetLayerOfFeature(feature).getSource().refresh();
     },
 
-    RemovePath() {
+    RemovePath(check_way = true) {
 
       var pathID = this.selected_feature.getId();
       var splited = pathID.split(':')
       var startStation_Index = parseInt(splited[1])
       var endStation_Index = parseInt(splited[2])
-      delete this.map_data.Points[startStation_Index].Target[endStation_Index]
+      var startPoint = this.map_data.Points[startStation_Index];
+      var endPoint = this.map_data.Points[endStation_Index];
+
+      //如果包含雙向
+      var revertPathIndex = this.GetPathIndex(endPoint, startPoint);
+      if (revertPathIndex != -1) {
+        this.PathesSelectedForDelete = [
+          {
+            startPoint: startPoint,
+            endPoint: endPoint,
+            startStation_Index: startStation_Index,
+            endStation_Index: endStation_Index
+          },
+          {
+            startPoint: endPoint,
+            endPoint: startPoint,
+            startStation_Index: endStation_Index,
+            endStation_Index: startStation_Index
+          }
+        ]
+        this.selectPathVisible = true;
+        return;
+      }
+      this.RemovePathByPointsIndex(startStation_Index, endStation_Index);
+    },
+
+    RemovePathByPointsIndex(startStation_Index, endStation_Index) {
+
+      var startPoint = this.map_data.Points[startStation_Index];
+      var endPoint = this.map_data.Points[endStation_Index];
+      delete startPoint.Target[endStation_Index]
+      var path_index = this.GetPathIndex(startPoint, endPoint)
+      this.map_data.Pathes.splice(path_index, 1)
       this.UpdateStationPathLayer()
       this.path_start_end = { start: undefined, end: undefined }
+      this.selectPathVisible = false;
+    },
+    GetPathIndex(startPt, endPt) {
+      return this.map_data.Pathes.findIndex(path => path.StartPoint.TagNumber == startPt.TagNumber && path.EndPoint.TagNumber == endPt.TagNumber)
     },
     /**從圖資資料中產生一個新的Point Index */
     GetNewPointIndex() {
@@ -1127,29 +1315,50 @@ export default {
       source.changed();
     },
     CreateLineFeaturesOfEachStaion() {
-      // 创建一条线要素，连接两个点要素
       var lineFeatures = [];
-      Object.keys(this.map_data.Points).forEach(index_str => {
-        var index = parseInt(index_str)
-        var current_station = this.stations.find(st => st.index == index);
-        var targets = this.map_data.Points[index_str].Target;
-        Object.keys(targets).forEach(index_str => {
-          var _index = parseInt(index_str)
 
-          var station_link = this.stations.find(st => st.index == _index);
-          if (station_link != undefined) {
-            let lineFeature = new Feature(
-              {
-                geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
-              },
-            );
+      this.map_data.Pathes.forEach(path => {
+        //tag
+        var start_tag = path.StartPoint.TagNumber;
+        var end_tag = path.EndPoint.TagNumber;
 
-            lineFeature.setId(`path:${index}:${_index}`);
-            lineFeatures.push(lineFeature);
-          }
-        })
+        var startStation = this.stations.find(st => st.tag == start_tag);
+        var endStation = this.stations.find(st => st.tag == end_tag);
+        var startFeature = startStation.feature;
+        var endFeature = endStation.feature;
 
+        let lineFeature = new Feature(
+          {
+            geometry: new LineString([startFeature.getGeometry().getCoordinates(), endFeature.getGeometry().getCoordinates()]),
+          },
+        );
+
+        lineFeature.setId(`path:${startStation.index}:${endStation.index}`);
+        lineFeature.set('data', path)
+        lineFeatures.push(lineFeature);
       })
+
+      // Object.keys(this.map_data.Points).forEach(index_str => {
+      //   var index = parseInt(index_str)
+      //   var current_station = this.stations.find(st => st.index == index);
+      //   var targets = this.map_data.Points[index_str].Target;
+      //   Object.keys(targets).forEach(index_str => {
+      //     var _index = parseInt(index_str)
+
+      //     var station_link = this.stations.find(st => st.index == _index);
+      //     if (station_link != undefined) {
+      //       let lineFeature = new Feature(
+      //         {
+      //           geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
+      //         },
+      //       );
+
+      //       lineFeature.setId(`path:${index}:${_index}`);
+      //       lineFeatures.push(lineFeature);
+      //     }
+      //   })
+
+      // })
 
       return lineFeatures;
     },
@@ -1209,7 +1418,7 @@ export default {
       feature.setId(featureID);
       feature.set('data', pointData)
     },
-    Highlight(layer = 'normal|eq|charge') {
+    Highlight(layer = 'normal|eq|charge|park') {
       this.AllUnHighlight()
       var features = []
       if (layer == 'normal') {
@@ -1220,6 +1429,9 @@ export default {
       }
       if (layer == 'charge') {
         features = this.GetAllChargePtFeature()
+      }
+      if (layer == 'park') {
+        features = this.GetAllParkPtFeature()
       }
       this.HighlightControl(features, true)
     },
@@ -1247,6 +1459,14 @@ export default {
   }
 }
 .map-show {
+  #point-tooltip {
+    position: fixed;
+    background-color: orange;
+    color: white;
+    opacity: 0.9;
+    z-index: 9200;
+    border: 2px dashed black;
+  }
   .header-div {
     height: 26px;
     margin-bottom: 9px;

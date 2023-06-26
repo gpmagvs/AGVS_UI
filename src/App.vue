@@ -4,6 +4,8 @@
       <Header @onMenuToggleClicked="ToggleMenu"></Header>
     </div>
 
+    <SideMenu></SideMenu>
+
     <div class="flex-fill" v-bind:style="router_view_style">
       <router-view v-slot="{ Component }">
         <keep-alive>
@@ -32,6 +34,7 @@
 
 <script>
 import SideMenuDrawer from '@/views/SideMenuDrawer.vue'
+import SideMenu from '@/views/SideMenu.vue'
 import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
 import ConnectionState from '@/components/App/ConnectionState.vue'
@@ -42,7 +45,7 @@ import { IsLoginLastTime } from '@/api/AuthHelper.js'
 import { userStore } from '@/store'
 export default {
   components: {
-    Header, AlarmDisplayVue, SideMenuDrawer, ConnectionState
+    Header, AlarmDisplayVue, SideMenuDrawer, SideMenu, ConnectionState
   },
   data() {
     return {
@@ -56,7 +59,7 @@ export default {
       router_view_style: {
         //style="height:100vh;padding-top:150px;"
         height: '100vh',
-        paddingTop: '150px'
+        paddingTop: '150px',
       }
     }
   },
@@ -66,7 +69,7 @@ export default {
       this.$vs.loading()
       setTimeout(() => {
         this.$vs.loading.close()
-      }, 800);
+      }, 400);
     },
     ToggleMenu() {
       this.showMenuToggleIcon = false;

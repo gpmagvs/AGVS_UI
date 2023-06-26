@@ -1,6 +1,6 @@
 <template>
   <div
-    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start p-2"
+    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start"
   >
     <div class="d-flex flex-row">
       <i class="bi bi-three-dots-vertical"></i>
@@ -78,6 +78,8 @@ export default {
 .connection-state {
   background-color: #dfdfdf;
   border-block: 3px solid rgb(187, 187, 187);
+  padding: 5px;
+  padding-left: 70px;
   .sys-time {
     font-weight: bold;
     font-family: monospace;

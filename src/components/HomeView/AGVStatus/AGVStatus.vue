@@ -10,10 +10,25 @@
       height="93%"
       empty-text="沒有AGV"
       :row-class-name="connected_class"
+      default-expand-all
     >
+      <!-- <el-table-column type="expand">
+        <template #default="scope">
+          <div>
+            <b-progress class="flex-fill" :max="100" :min="0" animated>
+              <b-progress-bar
+                :animated="true"
+                v-bind:class="BatteryClass(scope.row.BatteryLevel)"
+                :value="scope.row.BatteryLevel"
+                :label="`${((scope.row.BatteryLevel / 100) * 100).toFixed(2)}%`"
+              ></b-progress-bar>
+            </b-progress>
+          </div>
+        </template>
+      </el-table-column>-->
       <el-table-column label="車輛名稱" prop="AGV_Name" width="80px">
         <template #default="scope">
-          <b>{{scope.row.AGV_Name }}</b>
+          <b>{{scope.row.AGV_Name.toUpperCase() }}</b>
         </template>
       </el-table-column>
       <!-- <el-table-column label="AGV ID" prop="AGV_ID"></el-table-column> -->
