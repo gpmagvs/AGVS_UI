@@ -148,6 +148,6 @@ html {
   -ms-user-select: none; /* IE 10+ */
   user-select: none;
   overflow-x: hidden;
-  overflow-y: hidden;
+  // overflow-y: hidden;
 }
 </style>

@@ -23,9 +23,9 @@ export default {
     }
   },
   mounted() {
-    this.FetchTodayDataAndRender();
+    //this.FetchTodayDataAndRender();
     setInterval(() => {
-      this.FetchTodayDataAndRender();
+      //this.FetchTodayDataAndRender();
     }, 10000);
   },
   methods: {

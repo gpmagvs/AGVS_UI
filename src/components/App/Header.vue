@@ -221,7 +221,7 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        this.showAlarm = newValue != "/alarm" && newValue != "/map" && newValue != "/sys_settings";
+        this.showAlarm = newValue != "/alarm" && newValue != "/map" && newValue != "/sys_settings"&& newValue != "/data";
       }
     )
 
