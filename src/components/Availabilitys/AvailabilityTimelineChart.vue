@@ -65,6 +65,7 @@ export default {
         chart: {
           height: 550,
           type: 'rangeBar',
+
         },
         dynamicUpdate: false,
         plotOptions: {

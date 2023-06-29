@@ -12,8 +12,8 @@
       <template #header>
         <h3>Local任務派送-車輛:{{ clsAgvStatus.AGV_Name }}</h3>
       </template>
-      <div class="drawer-content my-1 p-1 border-top" v-loading="wait_task_confirm">
-        <div class="d-flex flex-row">
+      <div class="drawer-content border-top" v-loading="wait_task_confirm">
+        <div class="d-flex flex-row py-1 w-100 h-100">
           <el-form label-width="100px" label-position="left" size="large">
             <el-form-item label="AGV">
               <el-input :disabled="!IsDeveloper" v-model="clsAgvStatus.AGV_Name"></el-input>
@@ -73,7 +73,7 @@
           <MapShowVue
             ref="_map"
             class="flex-fill mx-2"
-            style="height:800px"
+            style="height:1200px"
             :task_allocatable="true"
             @loaded="OnMapLoaded"
             @onStationClick="MapStationClicked"
@@ -122,7 +122,7 @@ import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import MapShowVue from '../MapShow.vue';
-import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData } from '@/api/TaskAllocation'
+import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { GetPointTypeNameByTypeNum } from '@/api/MapAPI.js'
 import { userStore } from '@/store';
 export default {
@@ -196,6 +196,8 @@ export default {
         this.Map.Highlight('eq');
       if (action == 'charge')
         this.Map.Highlight('charge');
+      if (action == 'park')
+        this.Map.Highlight('park');
     },
     TagSelectClick() {
       this.TagsOptionsInit();
@@ -224,7 +226,6 @@ export default {
         this.stock_tags.sort((a, b) => a.tag - b.tag);
       }
 
-
       var ChargeStations = this.$refs["_map"].GetChargeStations()
       if (ChargeStations) {
         this.chargable_tags = ChargeStations.map(st => ({
@@ -233,6 +234,13 @@ export default {
         }))
         this.chargable_tags.sort((a, b) => a.tag - b.tag);
       }
+      var ParkStations = this.$refs["_map"].GetParkStations();
+      this.parkable_tags = ParkStations.map(st => ({
+        tag: st.TagNumber,
+        name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
+      }))
+      this.parkable_tags.sort((a, b) => a.tag - b.tag);
+
     },
     TaskDeliveryBtnClickHandle() {
       if (this.selectedTag == '' | this.selectedTag == undefined) {
@@ -267,14 +275,17 @@ export default {
       }
 
       if (this.selectedAction == 'unload') {
-        response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(agv_name, this.selectedTag, 69, this.Cst_ID_Input));
+        response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(agv_name, this.selectedTag, 1, this.Cst_ID_Input));
       }
 
       if (this.selectedAction == 'carry') {
-        response = await TaskAllocation.CarryTask(new clsCarryTaskData(agv_name, this.selectedTag, 69, this.selectedToTag, 6699, this.Cst_ID_Input));
+        response = await TaskAllocation.CarryTask(new clsCarryTaskData(agv_name, this.selectedTag, 1, this.selectedToTag, 1, this.Cst_ID_Input));
       }
       if (this.selectedAction == 'charge') {
         response = await TaskAllocation.ChargeTask(new clsChargeTaskData(agv_name, this.selectedTag));
+      }
+      if (this.selectedAction == 'park') {
+        response = await TaskAllocation.ParkTask(new clsParkTaskData(agv_name, this.selectedTag));
       }
       this.wait_task_confirm = false;
       if (!response.confirm) {
@@ -304,6 +315,8 @@ export default {
     },
     MapStationClicked(MapPoint) {
       // alert(MapPoint.TagNumber)
+      if (!MapPoint)
+        return;
       var _station_type = MapPoint.StationType
       if (_station_type == 0)
         this.selectedAction = 'move'
@@ -311,6 +324,7 @@ export default {
         this.selectedAction = 'unload'
       if (_station_type == 3)
         this.selectedAction = 'charge'
+
 
       var option = this.tags.findLast(tag => tag.tag == MapPoint.TagNumber);
       console.info(option)
@@ -350,6 +364,10 @@ export default {
   }
   .drawer-content {
     height: 100%;
+    width: 100%;
+    padding-left: 76px;
+    position: absolute;
+    top: 67px;
     .img {
       width: 200px;
       height: 200px;

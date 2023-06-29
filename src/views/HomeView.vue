@@ -16,6 +16,7 @@
         </div>
       </b-tab>
     </b-tabs>
+
     <TaskAllocationVue></TaskAllocationVue>
   </div>
 </template>

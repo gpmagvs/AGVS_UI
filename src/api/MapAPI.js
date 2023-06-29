@@ -158,6 +158,18 @@ export const pointTypes= [
     value: 100
   },
   {
+    label: 'Elevator',
+    value: 201
+  },
+  {
+    label: 'Elevator_LD',
+    value: 201
+  },
+  {
+    label: 'Elevator_ULD',
+    value: 221
+  },
+  {
     label: 'Repair',
     value: 110
   },

@@ -1,15 +1,16 @@
 <template>
-  <div class="app-header text-light border-bottom fixed-top">
-    <div class="bg-primary d-flex flex-row py-1">
-      <i @click="ToggleMenu" class="bi bi-list menu-toggle-icon text-light px-2"></i>
+  <div class="app-header bg-dark text-light border-bottom fixed-top">
+    <div class="d-flex flex-row py-1">
+      <!-- <i @click="ToggleMenu" class="bi bi-list menu-toggle-icon text-light px-2"></i>
       <h3 @click="LogoClickHandler">
         <b>GPM AGVS</b>
-      </h3>
+      </h3>-->
       <div
         v-if="!modes.system_operation_mode.actived"
         class="matain-mode-notify py-2 px-3"
       >維護模式:自動派車、充電功能已關閉。</div>
-      <div class="page-name-display mx-4">{{current_route_info.route_display_name}}</div>
+
+      <div class="page-name-display mx-2">{{current_route_info.route_display_name}}</div>
       <div class="flex-fill"></div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
@@ -33,7 +34,7 @@
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="md" variant="primary">
+              <b-button size="md" variant="dark">
                 中文
                 <i class="bi bi-caret-down-fill"></i>
               </b-button>
@@ -49,7 +50,7 @@
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="md" variant="primary">
+              <b-button size="md" variant="dark">
                 {{ UserName }}
                 <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
               </b-button>
@@ -427,7 +428,7 @@ export default {
 <style scoped lang="scss">
 .app-header {
   z-index: 2;
-
+  padding-left: 70px;
   h3 {
     margin-left: 40px;
   }
@@ -532,7 +533,7 @@ export default {
     font-size: 20px;
     animation: blink 1s linear infinite;
     position: absolute;
-    left: 350px;
+    left: 200px;
     border-radius: 3px;
     border: 1px solid white;
     height: 44px;
