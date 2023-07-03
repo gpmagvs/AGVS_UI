@@ -60,6 +60,7 @@ export default {
         //style="height:100vh;padding-top:150px;"
         height: '100vh',
         paddingTop: '150px',
+        paddingLeft: '70px'
       }
     }
   },

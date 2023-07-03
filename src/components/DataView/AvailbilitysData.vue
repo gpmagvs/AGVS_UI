@@ -29,12 +29,8 @@ export default {
   mounted() {
     //this.FetchTodayDataAndRender();
     setInterval(() => {
-<<<<<<< HEAD
-      //this.FetchTodayDataAndRender();
-=======
       if (!this.pause)
         this.FetchTodayDataAndRender();
->>>>>>> e5676bf22b84a9d84458541b6a8b3200a41a59c5
     }, 10000);
     const route = useRoute()
     watch(

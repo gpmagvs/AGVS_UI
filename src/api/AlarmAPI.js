@@ -23,8 +23,8 @@ export async function QueryALL() {
   return ret.data;
 }
 /**警報查詢 */
-export async function Query() {
-  return await axios_entity.get(`/api/Alarmquery/Query`)
+export async function Query(start_time,end_time,AGV_Name='ALL') {
+  return await axios_entity.get(`/api/Alarmquery/Query?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}`)
 }
 
 export class AlarmHelper {
