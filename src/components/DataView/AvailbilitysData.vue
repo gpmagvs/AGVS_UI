@@ -27,7 +27,7 @@ export default {
     }
   },
   mounted() {
-    this.FetchTodayDataAndRender();
+    //this.FetchTodayDataAndRender();
     setInterval(() => {
       if (!this.pause)
         this.FetchTodayDataAndRender();

@@ -4,7 +4,9 @@
       <b-tab title="機台稼動">
         <AvailbilitysData></AvailbilitysData>
       </b-tab>
-      <b-tab title="警報查詢">This is the content of Tab 2</b-tab>
+      <b-tab title="警報查詢">
+        <AlarmQuery></AlarmQuery>
+      </b-tab>
       <b-tab title="???"></b-tab>
     </b-tabs>
   </div>
@@ -12,15 +14,19 @@
 
 <script>
 import AvailbilitysData from '@/components/DataView/AvailbilitysData.vue';
+import AlarmQuery from '@/components/DataView/AlarmQuery.vue';
 export default {
   components: {
-    AvailbilitysData,
+    AvailbilitysData,AlarmQuery
   },
 }
 </script>
 
 <style lang="scss" >
 .data-view {
+  position: absolute;
+  width:100%;
+  top: 55px;
   .nav-item {
     button {
       font-size: 20px;

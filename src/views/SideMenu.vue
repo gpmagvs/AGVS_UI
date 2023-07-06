@@ -131,6 +131,9 @@ export default {
   background-color: black;
   color: white;
   padding: 0;
+  position: fixed;
+  left:0;
+  height: 100%;
 
   .side-item {
     padding: 10px 5px;

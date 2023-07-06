@@ -15,6 +15,17 @@ export async function ResetSystemAlarm() {
 export async function ResetEquipmentAlarm() {
   return await axios_entity.get(`/api/Alarm/EquipmentAlarmReset`)
 }
+/**警報履歷 */
+export async function QueryALL() {
+  //{data:~, status_code}
+  var ret= await axios_entity.get(`/api/Alarmquery/QueryALL`) 
+  console.info(ret)
+  return ret.data;
+}
+/**警報查詢 */
+export async function Query(start_time,end_time,AGV_Name='ALL') {
+  return await axios_entity.get(`/api/Alarmquery/Query?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}`)
+}
 
 export class AlarmHelper {
   constructor(onmessage = (evt) => {}) {

@@ -60,6 +60,7 @@ export default {
         //style="height:100vh;padding-top:150px;"
         height: '100vh',
         paddingTop: '150px',
+        paddingLeft: '70px'
       }
     }
   },
@@ -151,6 +152,6 @@ html {
   -ms-user-select: none; /* IE 10+ */
   user-select: none;
   overflow-x: hidden;
-  overflow-y: hidden;
+  // overflow-y: hidden;
 }
 </style>
