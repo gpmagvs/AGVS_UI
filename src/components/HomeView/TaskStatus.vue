@@ -1,7 +1,7 @@
 <template>
   <div class="task-status card-like">
     <div class="title">
-      <i class="bi bi-list-task"></i>TASK STATUS
+      <i class="bi bi-three-dots-vertical"></i>TASK STATUS
     </div>
 
     <b-tabs @activate-tab="TabActiveHandle" size>

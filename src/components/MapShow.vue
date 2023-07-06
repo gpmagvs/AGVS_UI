@@ -299,7 +299,14 @@ export default {
           size: [64, 64],
           opacity: 1,
           color: 'white'
-
+        })
+        var rack_station_icon = new Icon({
+          src: '/images/rack_station.png', // 设置PNG图像的路径
+          scale: 0.45,
+          anchor: [0.5, 0.5],
+          size: [64, 64],
+          opacity: 1,
+          color: 'white'
         })
         var charge_station_icon = new Icon({
           src: '/images/charging-station.png', // 设置PNG图像的路径
@@ -368,10 +375,13 @@ export default {
         var selected = feature.get('selected');
         var isEQ = feature.get('data').IsEquipment;
         var isCharge = feature.get('data').IsCharge;
+        var isSTK = feature.get('data').IsSTK;
 
         var GetImage = () => {
           if (isEQ)
             return eq_station_icon;
+          if (isSTK)
+            return rack_station_icon;
           if (isCharge)
             return charge_station_icon;
           return pointRawData.StationType == 0 ? circleImg(color, selected) : polygonImg(polyPoint, polyRotation, color, selected)
