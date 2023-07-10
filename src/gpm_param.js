@@ -9,22 +9,12 @@ var param = {
     }
   },
   get vms_host() {
-    return 'http://localhost:5036'
+    return this.backend_host.replace('5216', '5036')
   },
   get vms_ws_host() {
     return this.vms_host.replace('http', 'ws')
   },
 }
-class golbal_data {
-  test = 1
-  get test() {
-    return this.test
-  }
-  set test(val) {
-    this.test = val
-  }
-}
-export let my_data = new golbal_data()
 
 export const version = '1.0.0'
 export default param

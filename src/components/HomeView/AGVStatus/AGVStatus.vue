@@ -168,26 +168,14 @@ export default {
       var ws = new WebSocketHelp("ws/VMSStatus");
       ws.Connect();
       ws.onmessage = (event) => {
-        var data = JSON.parse(event.data);
-        this.AGVDatas = Object.values(data).map(d => new clsAGVStateDto(d));
-        bus.emit('/agv_name_list', this.CreateMapAGVData());
+        setTimeout(() => {
+          var data = JSON.parse(event.data);
+          this.AGVDatas = Object.values(data).map(d => new clsAGVStateDto(d));
+        }, 100);
       }
       ws.onclose = (ev) => {
         console.info('[AGVStatus]vue Websocket closed');
       }
-    },
-    CreateMapAGVData() {
-      var agv_data_for_map = [];
-      this.AGVDatas.forEach(agvData => {
-        agv_data_for_map.push({
-          AGV_Name: agvData.AGV_Name,
-          Current_Tag: agvData.CurrentLocation,
-          Rotation: Math.PI / 180 * (agvData.Theta - 90),
-          State: this.GetAGVStatusString(agvData.MainStatus),
-          IsOnline: agvData.OnlineStatus == 1
-        })
-      })
-      return agv_data_for_map;
     },
     ShowTaskAllocationView(clsAgvStatus) {
 
@@ -228,7 +216,7 @@ export default {
         response = res.data;
       }
       if (response.ReturnCode == 0)
-        Notifier.Success(`${this.OnlineStatusReq.AGV_Name} 已經 ${this.OnlineStatusReq.Online_Status}`, 'top', 3000);
+        Notifier.Success(`${this.OnlineStatusReq.AGV_Name} ${this.OnlineStatusReq.Online_Status} 請求已送出`, 'top', 3000);
       else
         Notifier.Danger(`${this.OnlineStatusReq.AGV_Name} ${this.OnlineStatusReq.Online_Status} 失敗:${response.Message}`, 'top', 3000);
     },
@@ -280,12 +268,6 @@ export default {
         return "Unknown"
     },
     GetAGVStatusString(status_code) {
-
-      //1. IDLE: active but no mission 
-      // 2. RUN: executing mission
-      // 3. DOWN: alarm or error
-      // 4. Charging: in chargin
-
       if (status_code == 1)
         return "IDLE"
       else if (status_code == 2)

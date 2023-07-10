@@ -59,7 +59,7 @@
             </div>
           </div>
           <div>
-            <b-form-input v-model="map_name" disabled size="sm" :state="map_data.Name!=undefined"></b-form-input>
+            <b-form-input v-model="map_name" disabled size="sm" :state="map_name!=undefined"></b-form-input>
           </div>
         </div>
         <div
@@ -166,6 +166,9 @@ import MapAPI from '@/api/MapAPI'
 import bus from '@/event-bus'
 import Notifier from '@/api/NotifyHelper';
 import MapPointSettingDrawer from '@/components/MapPointSettingDrawer.vue'
+import WebSocketHelp from '@/api/WebSocketHepler';
+import param from '@/gpm_param'
+import { MapStore } from '@/store'
 export default {
   name: 'MapComponent',
   components: {
@@ -204,7 +207,6 @@ export default {
       loading: false,
       selected_feature: undefined,
       mouse_click_coordinate: undefined,
-      map_name: 'Unknown',
       display_selected: "Name",
       agv_display_mode_selected: "show",
       map: new Map(),
@@ -212,6 +214,9 @@ export default {
       showAGVMenu: false,
       selectPathVisible: false,
       PathesSelectedForDelete: [],
+      dynamic_traffic_data: {
+        AGVTrafficStates: {}
+      },
       path_plan_tags: [],
       contextMenu: {},
       agv_color_set: [
@@ -241,7 +246,6 @@ export default {
         path_plan: 6,
         mesh: 7,
       },
-      map_data: {},
       stations: [],
       station_features: [],
       agvList: [],
@@ -376,6 +380,7 @@ export default {
         var isEQ = feature.get('data').IsEquipment;
         var isCharge = feature.get('data').IsCharge;
         var isSTK = feature.get('data').IsSTK;
+        var isRegisted = feature.get('IsRegisted');
 
         var GetImage = () => {
           if (isEQ)
@@ -391,7 +396,7 @@ export default {
           image: GetImage(),
           //image: eq_station_icon,
           text: new Text({
-            text: text_display,
+            text: text_display + (isRegisted ? '(已註冊)' : ''),
             offsetX: 12,
             offsetY: isEQ | isCharge ? -25 : -15,
             font: 'bold 14px sans-serif',
@@ -492,6 +497,9 @@ export default {
           image: unload_icon,
 
         })
+      },
+      path_store: {
+
       }
     }
   },
@@ -503,20 +511,21 @@ export default {
     }
     setTimeout(() => {
       this.FetchMap();
-      bus.on('/agv_name_list', (agv_data) => {
-        this.UpdateAGVLayer(agv_data);
-      });
-      bus.on('/nav_path_update', (dto) => {
-        this.UpdateNavPathRender(dto.name, dto.tags)
-      })
       bus.on('unload_eq_tags', (unload_tags) => {
         this.SetFeatureHasUnloadReq(unload_tags)
       })
-
-    }, 1000);
+      this.TrafficStateWsInit();
+    }, 300);
 
   },
   computed: {
+
+    map_data() {
+      return MapStore.getters.MapData;
+    },
+    map_name() {
+      return MapStore.getters.MapName;
+    },
     Mode_Text() {
       if (!this.edit_mode.enabled)
         return "檢視模式"
@@ -581,40 +590,253 @@ export default {
     },
   },
   methods: {
+    UpdatePathPlanRender(tags = []) {
+
+      this.path_plan_tags = tags;
+      let source = this.PathPlan_Layer.getSource();
+      source.clear();
+
+      if (tags.length == 0) {
+        return;
+      }
+      var features = this.CreateLineFeaturesOfPath(tags);
+      source.addFeatures(features);
+      source.changed();
+    },
+    CreateLineFeaturesOfEachStaion() {
+      var lineFeatures = [];
+
+      this.map_data.Pathes.forEach(path => {
+        //tag
+        var start_tag = path.StartPoint.TagNumber;
+        var end_tag = path.EndPoint.TagNumber;
+
+        var startStation = this.stations.find(st => st.tag == start_tag);
+        var endStation = this.stations.find(st => st.tag == end_tag);
+        var startFeature = startStation.feature;
+        var endFeature = endStation.feature;
+
+        let lineFeature = new Feature(
+          {
+            geometry: new LineString([startFeature.getGeometry().getCoordinates(), endFeature.getGeometry().getCoordinates()]),
+          },
+        );
+
+        lineFeature.setId(`path:${startStation.index}:${endStation.index}`);
+        lineFeature.set('data', path)
+        lineFeatures.push(lineFeature);
+      })
+
+      // Object.keys(this.map_data.Points).forEach(index_str => {
+      //   var index = parseInt(index_str)
+      //   var current_station = this.stations.find(st => st.index == index);
+      //   var targets = this.map_data.Points[index_str].Target;
+      //   Object.keys(targets).forEach(index_str => {
+      //     var _index = parseInt(index_str)
+
+      //     var station_link = this.stations.find(st => st.index == _index);
+      //     if (station_link != undefined) {
+      //       let lineFeature = new Feature(
+      //         {
+      //           geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
+      //         },
+      //       );
+
+      //       lineFeature.setId(`path:${index}:${_index}`);
+      //       lineFeatures.push(lineFeature);
+      //     }
+      //   })
+
+      // })
+
+      return lineFeatures;
+    },
+    CreateLineFeaturesOfPath(tags = [], color) {
+      // 创建一条线要素，连接两个点要素
+      var lineFeatures = [];
+
+      for (let index = 0; index < tags.length; index++) {
+        const tag = tags[index];
+        const next_tag = tags[index + 1];
+        //找出feature
+        if (next_tag != undefined) {
+
+          var current_station = this.stations.find(st => st.tag == tag);
+          var next_station = this.stations.find(st => st.tag == next_tag);
+          let lineFeature = new Feature({
+            geometry: new LineString(
+              [current_station.feature.getGeometry().getCoordinates(), next_station.feature.getGeometry().getCoordinates()],
+            ),
+          });
+          lineFeature.setStyle(new Style(
+            {
+              stroke: new Stroke({
+                color: color,
+                width: 6
+              }),
+            }
+          ));
+          lineFeatures.push(lineFeature);
+
+        }
+      }
+      return lineFeatures;
+    },
+    AGVDisplayControl(display) {
+      this.AGV_Layer.setVisible(display);
+      this.Nav_Path_Layer.setVisible(display);
+    },
+
+    UpdatePointDisplay() {
+      this.Station_Layer.getSource().changed();
+    },
+    PointSettingChangedHandle(dto) {
+      var index = dto.index;
+      var pointData = dto.pointData;
+
+      this.map_data.Points[index] = pointData;
+      var feature = this.stations.filter(pt => pt.index == index)[0].feature;
+      this.SetPointFeatureIDByPointData(feature, index, pointData);
+      this.stations.filter(pt => pt.index == index)[0].feature = feature;
+      //this.UpdatePointDisplay();
+
+    },
+    /**使用站點資料設定Point Feature ID */
+    SetPointFeatureIDByPointData(feature, pt_index, pointData) {
+      var featureID = `Point:${pt_index}:${pointData.TagNumber}:${pointData.StationType}:${pointData.Name}`;
+      feature.setId(featureID);
+      feature.set('data', pointData)
+    },
+    Highlight(layer = 'normal|eq|charge|park') {
+      this.AllUnHighlight()
+      var features = []
+      if (layer == 'normal') {
+        features = this.GetAllNormalPtFeature();
+      }
+      if (layer == 'eq') {
+        features = this.GetAllEQPtFeature()
+      }
+      if (layer == 'charge') {
+        features = this.GetAllChargePtFeature()
+      }
+      if (layer == 'park') {
+        features = this.GetAllParkPtFeature()
+      }
+      this.HighlightControl(features, true)
+    },
+    AllUnHighlight() {
+      this.HighlightControl(this.station_features, false);
+    },
+    HighlightControl(features = [], IsHighlight) {
+      features.forEach(feature => {
+        feature.set('highlight', IsHighlight)
+      })
+    },
+
+    TrafficStateWsInit() {
+      var ws = new WebSocketHelp('/ws/DynamicTrafficData', param.vms_ws_host);
+      ws.Connect();
+      ws.onmessage = (ev) => {
+        setTimeout(() => {
+
+          this.dynamic_traffic_data = JSON.parse(ev.data)
+          var GetAGVStatusString = (status_code) => {
+            if (status_code == 1)
+              return "IDLE"
+            else if (status_code == 2)
+              return "RUN"
+            else if (status_code == 3)
+              return "DOWN"
+            else if (status_code == 4)
+              return "充電"
+            else
+              return "Unknown"
+          }
+          this.UpdateRegistedPropery(this.dynamic_traffic_data.RegistedPoints);
+          var agv_data = []
+          Object.keys(this.dynamic_traffic_data.AGVTrafficStates).forEach(agvname => {
+            var agvTrafficInfo = this.dynamic_traffic_data.AGVTrafficStates[agvname];
+            agv_data.push({
+              AGV_Name: agvTrafficInfo.AGVName,
+              Current_Tag: agvTrafficInfo.CurrentPosition.TagNumber,
+              State: GetAGVStatusString(agvTrafficInfo.AGVStatus),
+              IsOnline: agvTrafficInfo.IsOnline
+            })
+          });
+
+          if (!this.show_agv)
+            return;
+
+          this.UpdateAGVLayer(agv_data);
+
+          Object.keys(this.dynamic_traffic_data.AGVTrafficStates).forEach(agvname => {
+            var agvTrafficInfo = this.dynamic_traffic_data.AGVTrafficStates[agvname];
+            var tags = agvTrafficInfo.RemainNavTrajectory.map(pt => pt.TagNumber)
+            this.UpdateNavPathRender(agvname, agvTrafficInfo.CurrentPosition.TagNumber, tags)
+          });
+        }, 100);
+      }
+    },
+    UpdateRegistedPropery(registed_point) {
+
+      var registedTags = registed_point.map(mapPoint => mapPoint.TagNumber);
+      this.station_features.forEach(ft => {
+        var tagNumber = ft.get('data').TagNumber;
+        var isRegisted = registedTags.includes(tagNumber)
+        ft.set('IsRegisted', isRegisted)
+      })
+    },
     MapMouseMoveHandler(ev) {
       this.TooltipStyle.left = `${ev.x}px`
       this.TooltipStyle.top = `${ev.y - 110}px`
     },
     Reload() {
       //TODO RELOAD MAP
+      this.FetchMap();
     },
     FetchMap() {
 
-      MapAPI.GetMapFromLocal().then((map) => {
-        this.loading = false;
-        if (map == undefined) {
-          Notifier.Danger('圖資取得失敗(後端伺服器異常)', 'bottom', 3000);
-        }
-        else if (map.Points == undefined) {
-          Notifier.Danger('圖資取得失敗(AGVS伺服器異常)', 'bottom', 3000);
-        }
-        else {
+      setTimeout(() => {
+        if (this.map_data) {
+          this.loading = false;
+          this.MapDataInit();
+          this.MapInitializeRender();
           Notifier.Success('Success Fetch Map Data From Server.', 'bottom', 2000);
 
-          this.MapDataInit(map);
-          this.MapInitializeRender();
-
+        } else {
+          Notifier.Danger('圖資取得失敗(後端伺服器異常)', 'bottom', 3000);
+          this.FetchMap();
         }
+      }, 300);
 
-      });
+      // MapAPI.GetMapFromLocal().then((map) => {
+      //   this.loading = false;
+      //   if (map == undefined) {
+      //     Notifier.Danger('圖資取得失敗(後端伺服器異常)', 'bottom', 3000);
+      //   }
+      //   else if (map.Points == undefined) {
+      //     Notifier.Danger('圖資取得失敗(AGVS伺服器異常)', 'bottom', 3000);
+      //   }
+      //   else {
+      //     Notifier.Success('Success Fetch Map Data From Server.', 'bottom', 2000);
+
+      //     this.MapDataInit(map);
+      //     this.MapInitializeRender();
+
+      //   }
+
+      // });
     },
     get_agv_position(name) {
       var agv = this.agvList.find(agv => agv.name == name);
-      var station = this.stations.find(st => st.tag == agv.current_tag);
-      if (station == undefined)
+      return this.get_agv_position_byTag(agv.current_tag)
+    },
+    get_agv_position_byTag(current_tag) {
+      var feature_ = this.station_features.find(sf => sf.get('data').TagNumber == current_tag)
+      if (feature_ == undefined)
         return [0, 0];
       else {
-        return station.feature.getGeometry().getCoordinates();
+        return feature_.getGeometry().getCoordinates();
       }
     },
     GetNormalStations() {
@@ -645,12 +867,11 @@ export default {
       var stations = Object.values(this.map_data.Points);
       return stations.filter(st => st.IsParking);
     },
-    MapDataInit(map) {
-      this.map_data = map;
-      this.map_name = map.Name;
+    MapDataInit() {
+      this.map_name = this.map_data.Name;
       this.stations = [];
-      Object.keys(map.Points).forEach(index => {
-        var pt_data = map.Points[index];
+      Object.keys(this.map_data.Points).forEach(index => {
+        var pt_data = this.map_data.Points[index];
         var Graph = pt_data.Graph
         var _tagID = pt_data.TagNumber;
         var _stationType = pt_data.StationType;
@@ -825,7 +1046,6 @@ export default {
           return feature;
         });
         if (feature && feature.get('data')) {
-          console.info(feature);
           var data = feature.get('data');
           this.hoverPointData = data;
         } else {
@@ -981,23 +1201,18 @@ export default {
       this.path_start_end = { start: undefined, end: undefined }
     },
     CreateMeshLayer() {
-      // 创建一个矢量图层和矢量数据源
       var mesh_vectorSource = new VectorSource();
       var mesh_vectorLayer = new VectorLayer({
         source: mesh_vectorSource,
         zIndex: -1
       });
 
-      // 创建一个网格样式
       var gridStyle = new Style({
         stroke: new Stroke({
           color: 'rgba(0, 0, 0, 0.1)',
           width: 1,
         })
       });
-
-
-      // 创建一个网格要素并添加到矢量数据源中
       var extent = this.map.getView().getProjection().getExtent(); // 获取地图范围
       var gridInterval = 80000; // 设置网格间距为10000米
       for (var x = extent[0]; x < extent[2]; x += gridInterval) {
@@ -1085,7 +1300,7 @@ export default {
 
         var agvIcon = new Icon({
           src: '/agv.png', // 设置PNG图像的路径
-          scale: .4, // 设置PNG图像的缩放比例
+          scale: .8, // 设置PNG图像的缩放比例
           anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
           size: [60, 60],// 设置PNG图像的大小
           opacity: 1,
@@ -1095,20 +1310,20 @@ export default {
         agv_feature.setStyle(new Style({
           image: agvIcon,
           text: new Text({
-            text: agv_name + `\r\n(${agv_state})`,
-            offsetX: 10,
-            offsetY: 30,
+            text: agv_name,
+            offsetX: 0,
+            offsetY: 20,
             font: 'bold 14px Arial',
             fill: new Fill({
               color: isOnline ? agv_prop_exist.color : 'rgb(192, 192, 192)'
             }),
             stroke: new Stroke({
-              color: agv_prop_exist.heighlight ? 'red' : 'black',
+              color: 'black',
               width: 3
             })
           }),
         }));
-        agv_feature.getStyle().getImage().setRotation(-agv_prop_exist.theta);//設定旋轉角度
+        //agv_feature.getStyle().getImage().setRotation(-agv_prop_exist.theta);//設定旋轉角度
 
         var nav_path_feature = new Feature({
           geometry: new Point(agv_position),
@@ -1286,172 +1501,45 @@ export default {
 
       this.AGVDisplayControl(this.agv_display_mode_selected == 'show');
     },
-    UpdateNavPathRender(agv_name, tags) {
+    UpdateNavPathRender(agv_name, currentTag, tags = []) {
       var layerName = `agv_path_layer_${agv_name}`
       var layer = this.map.getLayers().getArray().find(layer => layer.get('id') == layerName);
-      if (layer) {
-        this.map.removeLayer(layer);
+      let source = undefined
+      if (!layer) {
+        this.path_store[agv_name] = tags;
+        var path_vectorSource = new VectorSource();
+        var path_vectorLayer = new VectorLayer({
+          source: path_vectorSource,
+          zIndex: 666,
+          id: layerName
+        });
+        this.map.addLayer(path_vectorLayer)
+        source = path_vectorLayer.getSource();
       }
-
-      var path_vectorSource = new VectorSource();
-      var path_vectorLayer = new VectorLayer({
-        source: path_vectorSource,
-        zIndex: 666,
-        id: layerName
-      });
-      this.map.addLayer(path_vectorLayer)
-      let source = path_vectorLayer.getSource();
-      var agv_prop = this.agvList.find(agv => agv.name == agv_name);
-      if (agv_prop) {
-        var color = agv_prop.color;
-        if (color) {
-          var features = this.CreateLineFeaturesOfPath(tags, color);
+      else {
+        if (this.path_store[agv_name].length == tags.length) {
+          return;
         }
-        source.addFeatures(features)
-        source.changed();
+        this.path_store[agv_name] = tags;
+        source = layer.getSource();
       }
-    },
-    UpdatePathPlanRender(tags = []) {
-
-      this.path_plan_tags = tags;
-      let source = this.PathPlan_Layer.getSource();
       source.clear();
 
-      if (tags.length == 0) {
-        return;
-      }
-      var features = this.CreateLineFeaturesOfPath(tags);
-      source.addFeatures(features);
-      source.changed();
-    },
-    CreateLineFeaturesOfEachStaion() {
-      var lineFeatures = [];
-
-      this.map_data.Pathes.forEach(path => {
-        //tag
-        var start_tag = path.StartPoint.TagNumber;
-        var end_tag = path.EndPoint.TagNumber;
-
-        var startStation = this.stations.find(st => st.tag == start_tag);
-        var endStation = this.stations.find(st => st.tag == end_tag);
-        var startFeature = startStation.feature;
-        var endFeature = endStation.feature;
-
-        let lineFeature = new Feature(
-          {
-            geometry: new LineString([startFeature.getGeometry().getCoordinates(), endFeature.getGeometry().getCoordinates()]),
-          },
-        );
-
-        lineFeature.setId(`path:${startStation.index}:${endStation.index}`);
-        lineFeature.set('data', path)
-        lineFeatures.push(lineFeature);
-      })
-
-      // Object.keys(this.map_data.Points).forEach(index_str => {
-      //   var index = parseInt(index_str)
-      //   var current_station = this.stations.find(st => st.index == index);
-      //   var targets = this.map_data.Points[index_str].Target;
-      //   Object.keys(targets).forEach(index_str => {
-      //     var _index = parseInt(index_str)
-
-      //     var station_link = this.stations.find(st => st.index == _index);
-      //     if (station_link != undefined) {
-      //       let lineFeature = new Feature(
-      //         {
-      //           geometry: new LineString([current_station.feature.getGeometry().getCoordinates(), station_link.feature.getGeometry().getCoordinates()]),
-      //         },
-      //       );
-
-      //       lineFeature.setId(`path:${index}:${_index}`);
-      //       lineFeatures.push(lineFeature);
-      //     }
-      //   })
-
-      // })
-
-      return lineFeatures;
-    },
-    CreateLineFeaturesOfPath(tags = [], color) {
-      // 创建一条线要素，连接两个点要素
-      var lineFeatures = [];
-
-      for (let index = 0; index < tags.length; index++) {
-        const tag = tags[index];
-        const next_tag = tags[index + 1];
-        //找出feature
-        if (next_tag != undefined) {
-
-          var current_station = this.stations.find(st => st.tag == tag);
-          var next_station = this.stations.find(st => st.tag == next_tag);
-          let lineFeature = new Feature({
-            geometry: new LineString(
-              [current_station.feature.getGeometry().getCoordinates(), next_station.feature.getGeometry().getCoordinates()],
-            ),
-          });
-          lineFeature.setStyle(new Style(
-            {
-              stroke: new Stroke({
-                color: color,
-                width: 6
-              }),
-            }
-          ));
-          lineFeatures.push(lineFeature);
-
+      var GetColor = (agvName) => {
+        var agv_prop = this.agvList.find(agv => agv.name == agvName);
+        var color = 'blue'
+        if (agv_prop) {
+          color = agv_prop.color;
         }
+        return color;
       }
-      return lineFeatures;
-    },
-    AGVDisplayControl(display) {
-      this.AGV_Layer.setVisible(display);
-      this.Nav_Path_Layer.setVisible(display);
-    },
 
-    UpdatePointDisplay() {
-      this.Station_Layer.getSource().changed();
-    },
-    PointSettingChangedHandle(dto) {
-      var index = dto.index;
-      var pointData = dto.pointData;
-
-      this.map_data.Points[index] = pointData;
-      var feature = this.stations.filter(pt => pt.index == index)[0].feature;
-      this.SetPointFeatureIDByPointData(feature, index, pointData);
-      this.stations.filter(pt => pt.index == index)[0].feature = feature;
-      //this.UpdatePointDisplay();
-
-    },
-    /**使用站點資料設定Point Feature ID */
-    SetPointFeatureIDByPointData(feature, pt_index, pointData) {
-      var featureID = `Point:${pt_index}:${pointData.TagNumber}:${pointData.StationType}:${pointData.Name}`;
-      feature.setId(featureID);
-      feature.set('data', pointData)
-    },
-    Highlight(layer = 'normal|eq|charge|park') {
-      this.AllUnHighlight()
-      var features = []
-      if (layer == 'normal') {
-        features = this.GetAllNormalPtFeature();
+      var color = GetColor(agv_name);
+      if (tags.length != 0) {
+        var features = this.CreateLineFeaturesOfPath(tags, color);
+        source.addFeatures(features)
       }
-      if (layer == 'eq') {
-        features = this.GetAllEQPtFeature()
-      }
-      if (layer == 'charge') {
-        features = this.GetAllChargePtFeature()
-      }
-      if (layer == 'park') {
-        features = this.GetAllParkPtFeature()
-      }
-      this.HighlightControl(features, true)
-    },
-    AllUnHighlight() {
-      this.HighlightControl(this.station_features, false);
-    },
-    HighlightControl(features = [], IsHighlight) {
-      features.forEach(feature => {
-        feature.set('highlight', IsHighlight)
-      })
+      source.changed();
     }
   },
 };
