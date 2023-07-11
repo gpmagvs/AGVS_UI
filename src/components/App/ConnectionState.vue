@@ -1,6 +1,6 @@
 <template>
   <div
-    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start"
+    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start "
   >
     <div class="d-flex flex-row">
       <i class="bi bi-three-dots-vertical"></i>

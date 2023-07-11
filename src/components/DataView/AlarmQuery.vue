@@ -3,12 +3,12 @@
         <label>Start Time</label>
         <input type="datetime-local" v-model="start_time" prop="Start Time" >
         <label>End Time</label>
-        <input type="datetime-local"  v-model="end_time" prop="End Time">
+        <input type="datetime-local"  v-model="end_time" prop="End Time" >
         <label>EQ Name</label>
         <select prop="EQ Name" v-model="AGVSelected"> <option>ALL</option><option>AGV_1</option><option>AGV_2</option><option>AGV_3</option> ></select>
         <b-button @click="Query()" :Query="Query" class="Select-Query" variant="primary" size="sm" >搜尋</b-button>
-        <div class="table-responsive" >
-        <el-table :data="alarms" row-class-name="row_state_class_name"  size="small" >
+        <div class="table-responsive"  >
+        <el-table :data="alarms" row-class-name="row_state_class_name" size="small" :per-page="totalPage"  :currentPage="currentPage" >
             <el-table-column label="發生時間" prop="Time" width="160">
                 <!-- <template #default="scope">{{ formatTime(scope.row.Time) }}</template> -->
             </el-table-column>
@@ -29,19 +29,21 @@
             <el-table-column label="持續時間" prop="Duration" width="80"></el-table-column>
             <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" width="120"></el-table-column>
         </el-table>
-        <b-pagination href="#" tabindex="-1" aria-disabled="true" class="pagination justify-content-center" ></b-pagination>
+        <b-pagination @page-click="QueryAlarmPage()" v-model="currentPage" :per-page="totalPage" :total-rows="rows"  aria-controls="table-responsive" class="overflow-auto" first-text="First"  prev-text="Prev" next-text="Next" last-text="Last"></b-pagination>
         </div>
     </div>
 </template>
 
 <script>
-import { QueryALL, Query } from '@/api/AlarmAPI.js'
+import { QueryAlarm, Query,QueryAlarmPage } from '@/api/AlarmAPI.js'
 export default {
     data() {
         return {
             start_time:'2023-06-30 00:00:00',
             end_time:'2023-06-30 00:00:00',
             AGVSelected:'ALL',
+            totalPage:1,
+            currentPage: 1,
             alarms: [
                 {
                     Time: "2023-05-29T13:57:19.0723227",
@@ -61,8 +63,13 @@ export default {
             ]
         }
     },
+    computed:{rows(){return this.alarms.length}},
     mounted() {
-        QueryALL().then(alarms=> this.alarms=alarms);
+        QueryAlarm().then(alarms=>{
+            this.totalPage = alarms.totalPage
+            this.currentPage =alarms.currentpage
+            this.alarms=alarms.firstPage
+        });
     },
     methods: {
         onmessage(ev) {
@@ -74,7 +81,12 @@ export default {
         async Query(){
             var ret=await Query(this.start_time,this.end_time,this.AGVSelected)
             this.alarms = ret.data
+        },
+        async QueryAlarmPage()
+        {this.first-text,this.prev-text,this.next-text,this.last-text
+
         }
+        
     },
 }
 </script>
