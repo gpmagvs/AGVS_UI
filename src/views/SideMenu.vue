@@ -128,11 +128,11 @@ export default {
 .side-menu-fixed {
   z-index: 99999;
   width: 70px;
-  background-color: black;
+  background-color: rgb(31, 31, 31);
   color: white;
   padding: 0;
   position: fixed;
-  left:0;
+  left: 0;
   height: 100%;
 
   .side-item {

@@ -199,7 +199,11 @@ export const pointTypes = [
 ]
 
 export function GetPointTypeNameByTypeNum(num) {
-  return pointTypes.findLast(t => t.value == num).label
+  var ptType = pointTypes.findLast(t => t.value == num);
+  if (ptType)
+    return ptType.label
+  else
+    return num + '';
 }
 
 

@@ -19,7 +19,7 @@
         >
           <div>名稱 :{{ hoverPointData.Name }}</div>
           <div>Tag :{{ hoverPointData.TagNumber }} ({{ hoverPointData.X }},{{ hoverPointData.Y }},{{ hoverPointData.Direction }} )</div>
-          <div>Tag :{{ hoverPointData.TagNumber }}</div>
+          <div>站點類型 :{{GetPointTypeNameByTypeNum(hoverPointData.StationType)  }}</div>
         </div>
         <div class="header-div w-100 d-flex flex-row justify-content-between">
           <div class="options text-start d-flex flex-row">
@@ -163,6 +163,7 @@ import { Circle as CircleStyle, Fill, Stroke, Style, Text, RegularShape, Image, 
 import { Pointer, DragPan } from 'ol/interaction'
 import LineString from 'ol/geom/LineString';
 import MapAPI from '@/api/MapAPI'
+import {GetPointTypeNameByTypeNum} from  '@/api/MapAPI'
 import bus from '@/event-bus'
 import Notifier from '@/api/NotifyHelper';
 import MapPointSettingDrawer from '@/components/MapPointSettingDrawer.vue'
@@ -590,6 +591,9 @@ export default {
     },
   },
   methods: {
+    GetPointTypeNameByTypeNum(tnum){
+      return  GetPointTypeNameByTypeNum(tnum)
+    },
     UpdatePathPlanRender(tags = []) {
 
       this.path_plan_tags = tags;
@@ -756,7 +760,7 @@ export default {
           var agv_data = []
           Object.keys(this.dynamic_traffic_data.AGVTrafficStates).forEach(agvname => {
             var agvTrafficInfo = this.dynamic_traffic_data.AGVTrafficStates[agvname];
-            var agv_currentTag=agvTrafficInfo.CurrentPosition==null? 0:agvTrafficInfo.CurrentPosition.TagNumber;
+            var agv_currentTag = agvTrafficInfo.CurrentPosition == null ? 0 : agvTrafficInfo.CurrentPosition.TagNumber;
             agv_data.push({
               AGV_Name: agvTrafficInfo.AGVName,
               Current_Tag: agv_currentTag,
@@ -773,7 +777,7 @@ export default {
           Object.keys(this.dynamic_traffic_data.AGVTrafficStates).forEach(agvname => {
             var agvTrafficInfo = this.dynamic_traffic_data.AGVTrafficStates[agvname];
             var tags = agvTrafficInfo.RemainNavTrajectory.map(pt => pt.TagNumber)
-            var agv_currentTag=agvTrafficInfo.CurrentPosition==null? 0:agvTrafficInfo.CurrentPosition.TagNumber;
+            var agv_currentTag = agvTrafficInfo.CurrentPosition == null ? 0 : agvTrafficInfo.CurrentPosition.TagNumber;
             this.UpdateNavPathRender(agvname, agv_currentTag, tags)
           });
         }, 100);
@@ -1561,7 +1565,7 @@ export default {
 .map-show {
   #point-tooltip {
     position: fixed;
-    background-color: orange;
+    background-color: rgb(51, 51, 51);
     color: white;
     opacity: 0.9;
     z-index: 9200;
