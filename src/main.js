@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import { userStore } from './store'
+import { userStore, MapStore } from './store'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import BootstrapVue3 from 'bootstrap-vue-3'
@@ -27,7 +27,7 @@ const i18n = createI18n({
   },
 })
 
-store.commit('setConfig',{Test:'123_abc'})
+store.commit('setConfig', { Test: '123_abc' })
 
 
 const Sweetalert_options = {
@@ -40,6 +40,9 @@ app.config.globalProperties.$ = app.config.globalProperties
 
 Modal.install(app)
 
+setTimeout(() => {
+  MapStore.dispatch('DownloadMapData')
+}, 100);
 // 合併 store
 const mergedStore = { ...store, ...userStore };
 

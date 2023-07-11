@@ -17,7 +17,12 @@
           <b-button variant="danger" @click="CancelBtnClickHandle">離開</b-button>
           <b-button variant="primary" @click="SaveBtnClickHandle">儲存</b-button>
         </div>
+
         <div class="settings px-2">
+          <div class="text-start">
+            <b-button variant="primary" @click="Regist">註冊</b-button>
+            <b-button variant="danger" @click="Unregist">解註冊</b-button>
+          </div>
           <el-collapse v-model="activeNames">
             <el-collapse-item title="基本設定" name="1">
               <el-form label-width="120px" label-position="left">
@@ -112,6 +117,7 @@
 import { GetEQInfoByTag } from '@/api/EquipmentAPI.js';
 import { pointTypes } from '@/api/MapAPI.js'
 import RegionsSelector from '@/components/RegionsSelector.vue'
+import MapAPI from '@/api/MapAPI'
 
 export default {
   components: {
@@ -216,7 +222,12 @@ export default {
       } else
         this.show = false;
     },
-
+    async Regist() {
+      await MapAPI.Regist(this.pointData_editing.TagNumber)
+    },
+    async Unregist() {
+      await MapAPI.Unregist(this.pointData_editing.TagNumber)
+    }
   },
 }
 </script>

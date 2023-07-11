@@ -3,18 +3,21 @@ import param from '@/gpm_param'
 var axios_entity = axios.create({
   baseURL: param.backend_host,
 })
+var axios_entity_vms = axios.create({
+  baseURL: param.vms_host,
+})
 
 
 /**從服務器取得區域選項 */
-export async function GetValidRegionOptions(){
+export async function GetValidRegionOptions() {
   return await axios_entity
-  .get('api/Map/RegionOptions')
-  .then((ret) => {
-    return ret.data
-  })
-  .catch((err) => {
-    return undefined
-  })
+    .get('api/Map/RegionOptions')
+    .then((ret) => {
+      return ret.data
+    })
+    .catch((err) => {
+      return undefined
+    })
 }
 
 
@@ -79,20 +82,40 @@ const MapAPI = {
         return undefined
       })
   },
-  GetMapStationTemplate(){
+  GetMapStationTemplate() {
     return axios_entity
-    .get('api/Map/MapPointTemplate')
-    .then((ret) => {
-      return ret.data
-    })
-    .catch((err) => {
-      return undefined
-    })
+      .get('api/Map/MapPointTemplate')
+      .then((ret) => {
+        return ret.data
+      })
+      .catch((err) => {
+        return undefined
+      })
+  },
+  Regist(tag_number) {
+    return axios_entity_vms
+      .get(`api/Map/Regist?Tag_Number=${tag_number}`)
+      .then((ret) => {
+        return ret.data
+      })
+      .catch((err) => {
+        return undefined
+      })
+  },
+  Unregist(tag_number) {
+    return axios_entity_vms
+      .get(`api/Map/Unregist?Tag_Number=${tag_number}`)
+      .then((ret) => {
+        return ret.data
+      })
+      .catch((err) => {
+        return undefined
+      })
   }
 }
 
 /**站點 */
-export const pointTypes= [
+export const pointTypes = [
   {
     label: 'Normal',
     value: 0
@@ -175,8 +198,12 @@ export const pointTypes= [
   },
 ]
 
-export function GetPointTypeNameByTypeNum(num){
-  return pointTypes.findLast(t=>t.value==num).label
+export function GetPointTypeNameByTypeNum(num) {
+  var ptType = pointTypes.findLast(t => t.value == num);
+  if (ptType)
+    return ptType.label
+  else
+    return num + '';
 }
 
 

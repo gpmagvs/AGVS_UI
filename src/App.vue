@@ -59,7 +59,7 @@ export default {
       router_view_style: {
         //style="height:100vh;padding-top:150px;"
         height: '100vh',
-        paddingTop: '150px',
+        paddingTop: '140px',
         paddingLeft: '70px'
       }
     }

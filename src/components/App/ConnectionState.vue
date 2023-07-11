@@ -37,14 +37,10 @@ export default {
           name: "VMS",
           connected: false,
         },
-        {
-          name: "DB",
-          connected: false,
-        },
         // {
-        //   name: "UI",
+        //   name: "DB",
         //   connected: false,
-        // }
+        // },
       ],
       sys_time: ''
     }

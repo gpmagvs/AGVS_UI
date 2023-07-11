@@ -8,14 +8,14 @@ var axios_entity_vms = axios.create({
   baseURL: param.vms_host,
 })
 
-export async function OnlineRequest(AGV_Name) {
+export async function OnlineRequest(AGV_Name,Model=0) {
   return await axios_entity_vms.get(
-    `/api/VmsManager/OnlineRequet?agv_name=${AGV_Name}`,
+    `/api/VmsManager/OnlineRequet?agv_name=${AGV_Name}&model=${Model}`,
   )
 }
 
-export async function OfflineRequest(AGV_Name) {
+export async function OfflineRequest(AGV_Name,Model=0) {
   return await axios_entity_vms.get(
-    `/api/VmsManager/OfflineRequet?agv_name=${AGV_Name}`,
+    `/api/VmsManager/OfflineRequet?agv_name=${AGV_Name}&model=${Model}`,
   )
 }
