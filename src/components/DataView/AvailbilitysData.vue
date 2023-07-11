@@ -40,22 +40,19 @@ export default {
       }
     )
   },
+  computed: {
+    todayTimelineChart() {
+      return this.$refs['rt-availbility-chart'];
+    }
+  },
   methods: {
     async FetchTodayDataAndRender() {
-      console.info(moment(Date.now()).format("HH:mm:ss"));
       this.todayData = await GetTodayAvailability();
-      console.info(moment(Date.now()).format("HH:mm:ss"));
-      this.$refs['rt-availbility-chart'].RenderChart(this.todayData);
-      console.info(moment(Date.now()).format("HH:mm:ss"));
+      if (this.todayTimelineChart) {
+        this.todayTimelineChart.RenderChart(this.todayData);
+      }
     },
-    updateChart() {
-      var test = 12;
-      setInterval(() => {
-        this.data[0] = test
-        test += 1;
-      }, 1000);
 
-    }
   },
 }
 </script>

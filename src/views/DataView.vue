@@ -1,5 +1,5 @@
 <template>
-  <div class="data-view">
+  <div class="data-view custom-tabs-head-large">
     <b-tabs size>
       <b-tab title="機台稼動">
         <AvailbilitysData></AvailbilitysData>
@@ -17,7 +17,7 @@ import AvailbilitysData from '@/components/DataView/AvailbilitysData.vue';
 import AlarmQuery from '@/components/DataView/AlarmQuery.vue';
 export default {
   components: {
-    AvailbilitysData,AlarmQuery
+    AvailbilitysData, AlarmQuery
   },
 }
 </script>
@@ -25,7 +25,7 @@ export default {
 <style lang="scss" >
 .data-view {
   position: absolute;
-  width:100%;
+  width: 100%;
   top: 55px;
   .nav-item {
     button {

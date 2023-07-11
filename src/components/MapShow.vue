@@ -756,9 +756,10 @@ export default {
           var agv_data = []
           Object.keys(this.dynamic_traffic_data.AGVTrafficStates).forEach(agvname => {
             var agvTrafficInfo = this.dynamic_traffic_data.AGVTrafficStates[agvname];
+            var agv_currentTag=agvTrafficInfo.CurrentPosition==null? 0:agvTrafficInfo.CurrentPosition.TagNumber;
             agv_data.push({
               AGV_Name: agvTrafficInfo.AGVName,
-              Current_Tag: agvTrafficInfo.CurrentPosition.TagNumber,
+              Current_Tag: agv_currentTag,
               State: GetAGVStatusString(agvTrafficInfo.AGVStatus),
               IsOnline: agvTrafficInfo.IsOnline
             })
@@ -772,7 +773,8 @@ export default {
           Object.keys(this.dynamic_traffic_data.AGVTrafficStates).forEach(agvname => {
             var agvTrafficInfo = this.dynamic_traffic_data.AGVTrafficStates[agvname];
             var tags = agvTrafficInfo.RemainNavTrajectory.map(pt => pt.TagNumber)
-            this.UpdateNavPathRender(agvname, agvTrafficInfo.CurrentPosition.TagNumber, tags)
+            var agv_currentTag=agvTrafficInfo.CurrentPosition==null? 0:agvTrafficInfo.CurrentPosition.TagNumber;
+            this.UpdateNavPathRender(agvname, agv_currentTag, tags)
           });
         }, 100);
       }
