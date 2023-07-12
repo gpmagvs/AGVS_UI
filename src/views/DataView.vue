@@ -5,9 +5,15 @@
         <AvailbilitysData></AvailbilitysData>
       </b-tab>
       <b-tab title="警報查詢">
-        <AlarmQuery></AlarmQuery>
+        <div class="w-100">
+          <AlarmQuery></AlarmQuery>
+        </div>
       </b-tab>
-      <b-tab title="???"></b-tab>
+      <b-tab title="???">
+        <div class="w-100">
+          ???
+        </div>
+      </b-tab>
     </b-tabs>
   </div>
 </template>

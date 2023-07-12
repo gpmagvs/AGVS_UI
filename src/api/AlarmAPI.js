@@ -16,21 +16,16 @@ export async function ResetEquipmentAlarm() {
   return await axios_entity.get(`/api/Alarm/EquipmentAlarmReset`)
 }
 /**警報履歷 */
-export async function QueryAlarm() {
+export async function QueryAlarm(currentpage) {
   //{data:~, status_code}
-  var ret= await axios_entity.get(`/api/Alarmquery/QueryAlarm`) 
+  var ret= await axios_entity.get(`/api/Alarmquery/QueryAlarm?currentpage=${currentpage}`) 
   console.info(ret)
   return ret.data;
 }
-export async function QueryAlarmPage(first,prev,next,last){
-  var ret= await axios_entity.get(`/api/Alarmquery/QueryAlarmPage?first=${first}||prev=${prev}||next=${next}||last${last}`) 
-  console.info(ret)
-  return ret.data;
-}
-
 /**警報查詢 */
-export async function Query(start_time,end_time,AGV_Name='ALL') {
-  return await axios_entity.get(`/api/Alarmquery/Query?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}`)
+export async function Query(currentpage,start_time,end_time,AGV_Name='ALL') {
+  var retquery= await axios_entity.get(`/api/Alarmquery/Query?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}`)
+  return retquery.data;
 }
 
 export class AlarmHelper {
