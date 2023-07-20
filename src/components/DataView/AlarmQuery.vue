@@ -58,7 +58,8 @@ export default {
       per_page_num: 10,
       rows: 1,
       currentpage: 1,
-      loading: false
+      loading: false,
+      payload:2
     }
   },
   mounted() {
@@ -66,6 +67,7 @@ export default {
       this.alarms = ret.firstPage;
       this.rows = ret.count;
       this.currentpage = ret.currentpage;
+      this.payload=1;
     }
     ).catch(er => {
       Notifier.Danger('警報查詢失敗後端服務異常')
@@ -86,6 +88,7 @@ export default {
       this.alarms = [];
       this.rows = 1;
       this.currentpage = 1;
+      this.payload=2;
       setTimeout(() => {
         Query(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
           this.alarms = retquery.alarms
@@ -100,19 +103,22 @@ export default {
 
     },
     PageChnageHandle(payload) {
-      console.log(this.currentpage)
+      if(payload=1)
+      {
       QueryAlarm(this.currentpage).then(ret => {
         this.alarms = ret.firstPage;
       }
       ).catch(er => {
         Notifier.Danger('警報查詢失敗後端服務異常')
-      })
+      })}
+      else if(payload=2)
+      {
       Query(this.currentpage).then(retquery => {
         this.alarms = retquery.alarms;
       }
       ).catch(er => {
         Notifier.Danger('警報查詢失敗後端服務異常')
-      });
+      })};
     }
   },
 }
