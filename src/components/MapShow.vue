@@ -19,7 +19,7 @@
         >
           <div>名稱 :{{ hoverPointData.Name }}</div>
           <div>Tag :{{ hoverPointData.TagNumber }} ({{ hoverPointData.X }},{{ hoverPointData.Y }},{{ hoverPointData.Direction }} )</div>
-          <div>站點類型 :{{GetPointTypeNameByTypeNum(hoverPointData.StationType)  }}</div>
+          <div>站點類型 :{{GetPointTypeNameByTypeNum(hoverPointData.StationType) }}</div>
         </div>
         <div class="header-div w-100 d-flex flex-row justify-content-between">
           <div class="options text-start d-flex flex-row">
@@ -163,7 +163,7 @@ import { Circle as CircleStyle, Fill, Stroke, Style, Text, RegularShape, Image, 
 import { Pointer, DragPan } from 'ol/interaction'
 import LineString from 'ol/geom/LineString';
 import MapAPI from '@/api/MapAPI'
-import {GetPointTypeNameByTypeNum} from  '@/api/MapAPI'
+import { GetPointTypeNameByTypeNum } from '@/api/MapAPI'
 import bus from '@/event-bus'
 import Notifier from '@/api/NotifyHelper';
 import MapPointSettingDrawer from '@/components/MapPointSettingDrawer.vue'
@@ -591,8 +591,8 @@ export default {
     },
   },
   methods: {
-    GetPointTypeNameByTypeNum(tnum){
-      return  GetPointTypeNameByTypeNum(tnum)
+    GetPointTypeNameByTypeNum(tnum) {
+      return GetPointTypeNameByTypeNum(tnum)
     },
     UpdatePathPlanRender(tags = []) {
 
@@ -738,12 +738,11 @@ export default {
     },
 
     TrafficStateWsInit() {
-      var ws = new WebSocketHelp('/ws/DynamicTrafficData', param.vms_ws_host);
-      ws.Connect();
-      ws.onmessage = (ev) => {
-        setTimeout(() => {
 
-          this.dynamic_traffic_data = JSON.parse(ev.data)
+      const worker = new Worker('websocket_worker.js')
+      worker.onmessage = (event) => {
+        this.dynamic_traffic_data = event.data;
+        setTimeout(() => {
           var GetAGVStatusString = (status_code) => {
             if (status_code == 1)
               return "IDLE"
@@ -781,7 +780,10 @@ export default {
             this.UpdateNavPathRender(agvname, agv_currentTag, tags)
           });
         }, 100);
+
       }
+      worker.postMessage({ command: 'connect', ws_url: param.vms_ws_host + '/ws/DynamicTrafficData' });
+
     },
     UpdateRegistedPropery(registed_point) {
 
@@ -1047,17 +1049,19 @@ export default {
         that.$emit('onStationClick', that.selected_feature.get('data'))
       })
 
-      this.map.on('pointermove', (event) => {
-        var feature = this.map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-          return feature;
-        });
-        if (feature && feature.get('data')) {
-          var data = feature.get('data');
-          this.hoverPointData = data;
-        } else {
-          this.hoverPointData = undefined;
-        }
-      })
+      // this.map.on('pointermove', (event) => {
+      //   var feature = this.map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
+      //     return feature;
+      //   });
+      //   if (feature && feature.get('data')) {
+      //     var data = feature.get('data');
+      //     this.hoverPointData = data;
+      //   } else {
+      //     this.hoverPointData = undefined;
+      //   }
+      // })
+
+
       this.map.on('pointerdown', (event) => {
 
         that.mouse_click_coordinate = event.coordinate

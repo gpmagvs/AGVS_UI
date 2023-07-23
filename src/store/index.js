@@ -62,7 +62,8 @@ export const agvs_settings_store = createStore({
 
 export const MapStore = createStore({
   state: {
-    MapData: null
+    MapData: null,
+    MapGeoJson: null
   },
   getters: {
     MapData: state => {
@@ -70,12 +71,18 @@ export const MapStore = createStore({
     },
     MapName: state => {
       return state.MapData == null ? "Unkown" : state.MapData.Name
+    },
+    GeoMapData: state => {
+      return state.MapGeoJson
     }
   },
   mutations: {
     setMapData(state, mapdata) {
       state.MapData = mapdata;
       localStorage.setItem('mapData', JSON.stringify(mapdata))
+    },
+    setGeoMapData(state, mapdata) {
+      state.MapGeoJson = mapdata;
     }
   },
   actions: {
@@ -89,6 +96,13 @@ export const MapStore = createStore({
         console.log('[MapStore] get map data', mapdata);
         commit('setMapData', mapdata)
       });
+
+    },
+    async DownloadGeoMapData({ commit }) {
+      var data = await MapAPI.GetGeoMap();
+      commit('setGeoMapData', data)
+
+      return data
     }
   }
 }

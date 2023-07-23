@@ -165,17 +165,13 @@ export default {
   },
   methods: {
     WebSocketInit() {
-      var ws = new WebSocketHelp("ws/VMSStatus");
-      ws.Connect();
-      ws.onmessage = (event) => {
-        setTimeout(() => {
-          var data = JSON.parse(event.data);
-          this.AGVDatas = Object.values(data).map(d => new clsAGVStateDto(d));
-        }, 100);
+      const worker = new Worker('websocket_worker.js')
+      worker.onmessage = (event) => {
+
+        const data = event.data;
+        this.AGVDatas = Object.values(data).map(d => new clsAGVStateDto(d));
       }
-      ws.onclose = (ev) => {
-        console.info('[AGVStatus]vue Websocket closed');
-      }
+      worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/VMSStatus' });
     },
     ShowTaskAllocationView(clsAgvStatus) {
 

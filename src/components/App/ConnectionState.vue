@@ -1,6 +1,6 @@
 <template>
   <div
-    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start "
+    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start"
   >
     <div class="d-flex flex-row">
       <i class="bi bi-three-dots-vertical"></i>
@@ -49,6 +49,9 @@ export default {
     setInterval(() => {
       this.sys_time = moment(Date.now()).format('yyyy-MM-DD HH:mm:ss')
     }, 1000);
+
+
+
     var vms_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck', param.vms_ws_host);
     vms_alive_check_ws.Connect();
     vms_alive_check_ws.onclose = (ev) => this.Connections[1].connected = false
@@ -57,7 +60,6 @@ export default {
       this.Connections[1].connected = true;
 
     }
-
     var agvs_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck');
     agvs_alive_check_ws.Connect();
     agvs_alive_check_ws.onclose = (ev) => this.Connections[0].connected = false
