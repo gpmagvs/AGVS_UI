@@ -51,25 +51,24 @@ import Notifier from '@/api/NotifyHelper'
 export default {
   data() {
     return {
-      start_time: '2023-06-30 00:00:00',
-      end_time: '2023-06-30 00:00:00',
+      start_time: '2023-06-01 00:00:00',
+      end_time: '2023-06-03 00:00:00',
       AGVSelected: 'ALL',
       alarms: [],
       per_page_num: 10,
       rows: 1,
       currentpage: 1,
-      loading: false
+      loading: false,
     }
   },
   mounted() {
-    QueryAlarm(this.currentpage).then(ret => {
-      this.alarms = ret.firstPage;
-      this.rows = ret.count;
-      this.currentpage = ret.currentpage;
-    }
-    ).catch(er => {
-      Notifier.Danger('警報查詢失敗後端服務異常')
-    });
+    Query(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+          this.alarms = retquery.alarms
+          this.rows = retquery.count;
+          this.currentpage = retquery.currentpage;
+        }).catch(er => {
+          Notifier.Danger('警報查詢失敗後端服務異常')
+        });
   },
   methods: {
     formatTime(_time) {
@@ -86,12 +85,12 @@ export default {
       this.alarms = [];
       this.rows = 1;
       this.currentpage = 1;
+      this.payload=2;
       setTimeout(() => {
         Query(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
           this.alarms = retquery.alarms
           this.rows = retquery.count;
           this.currentpage = retquery.currentpage;
-
         }).catch(er => {
           this.loading = false;
           Notifier.Danger('警報查詢失敗後端服務異常')
@@ -100,14 +99,7 @@ export default {
 
     },
     PageChnageHandle(payload) {
-      console.log(this.currentpage)
-      QueryAlarm(this.currentpage).then(ret => {
-        this.alarms = ret.firstPage;
-      }
-      ).catch(er => {
-        Notifier.Danger('警報查詢失敗後端服務異常')
-      })
-      Query(this.currentpage).then(retquery => {
+      Query(this.currentpage,this.start_time, this.end_time, this.AGVSelected).then(retquery => {
         this.alarms = retquery.alarms;
       }
       ).catch(er => {
