@@ -12,7 +12,7 @@
         <option>AGV_2</option>
         <option>AGV_3</option>>
       </select>
-      <b-button @click="Query()" :Query="Query" class="Select-Query" variant="primary" size="sm"
+      <b-button @click="QueryAlarm()" :QueryAlarm="QueryAlarm" class="Select-Query" variant="primary" size="sm"
         style="float:right">搜尋</b-button>
     </div>
     <div>
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { QueryAlarm, Query } from '@/api/AlarmAPI.js'
+import { QueryAlarm } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 import Notifier from '@/api/NotifyHelper'
 export default {
@@ -62,7 +62,7 @@ export default {
     }
   },
   mounted() {
-    Query(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+    QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
           this.alarms = retquery.alarms
           this.rows = retquery.count;
           this.currentpage = retquery.currentpage;
@@ -80,14 +80,14 @@ export default {
     row_state_class_name({ row, rowIndex }) {
       return row.Level == 1 ? 'ALARM' : 'WARNING';
     },
-    async Query() {
+    async QueryAlarm() {
       this.loading = true;
       this.alarms = [];
       this.rows = 1;
       this.currentpage = 1;
       this.payload=2;
       setTimeout(() => {
-        Query(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+        QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
           this.alarms = retquery.alarms
           this.rows = retquery.count;
           this.currentpage = retquery.currentpage;
@@ -99,7 +99,7 @@ export default {
 
     },
     PageChnageHandle(payload) {
-      Query(this.currentpage,this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+      QueryAlarm(this.currentpage,this.start_time, this.end_time, this.AGVSelected).then(retquery => {
         this.alarms = retquery.alarms;
       }
       ).catch(er => {
