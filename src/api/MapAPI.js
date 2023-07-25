@@ -32,6 +32,16 @@ const MapAPI = {
         return undefined
       })
   },
+  GetGeoMap() {
+    return axios_entity
+      .get('api/Map/GeoMapJson')
+      .then((ret) => {
+        return ret.data
+      })
+      .catch((err) => {
+        return undefined
+      })
+  },
   GetMapTags() {
     return axios_entity
       .get('api/Map/Tags')

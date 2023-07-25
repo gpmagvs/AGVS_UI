@@ -8,6 +8,7 @@
       <b-tab title="地圖">
         <div style="height:800px">
           <Map></Map>
+          <!-- <LMap></LMap> -->
         </div>
       </b-tab>
       <b-tab title="設備狀態">
@@ -24,6 +25,7 @@
 <script>
 import AGVStatusVue from '@/components/HomeView/AGVStatus/AGVStatus.vue'
 import Map from '@/components/HomeView/Map.vue';
+import LMap from '@/components/NavMap/AGVMap.vue'
 import EQStatus from '@/components/HomeView/EQStatus.vue'
 import TaskStatusVue from '@/components/HomeView/TaskStatus.vue';
 import TaskAllocationVue from '@/components/HomeView/TaskAllocation.vue';
@@ -31,7 +33,7 @@ import bus from '@/event-bus.js'
 import store from '@/store';
 export default {
   components: {
-    AGVStatusVue, TaskStatusVue, Map, TaskAllocationVue, EQStatus
+    AGVStatusVue, TaskStatusVue, Map, TaskAllocationVue, EQStatus, LMap
   },
   methods: {
     TabActiveHandle(tab) {

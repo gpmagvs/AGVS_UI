@@ -36,7 +36,7 @@
             <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column>
           </el-table-column>
           <el-table-column fixed="right" label="派工人員" prop="DispatcherName"></el-table-column>
-          <el-table-column fixed="right" width="100">
+          <el-table-column v-if="taskCancelable" fixed="right" width="100">
             <template #default="scope">
               <div>
                 <b-button
@@ -100,8 +100,9 @@
 
 <script>
 import clsTaskState from '@/ViewModels/TaskState.js'
-import WebSocketHelp from '@/api/WebSocketHepler'
 import { TaskAllocation } from '@/api/TaskAllocation'
+import param from '@/gpm_param'
+import { userStore } from '@/store'
 export default {
   data() {
     return {
@@ -109,13 +110,17 @@ export default {
       ],
       CompletedTaskList: [
       ],
-      wsHelper: new WebSocketHelp(''),
       showCancelTaskConfirm: false,
       cancelTaskName: ''
     }
   },
   mounted() {
     this.WsInit();
+  },
+  computed: {
+    taskCancelable() {
+      return userStore.getters.IsLogin;
+    }
   },
   methods: {
     GetTaskStateType(state_code) {
@@ -130,17 +135,14 @@ export default {
         return 'info'         //Failure
     },
     WsInit() {
-      this.wsHelper = new WebSocketHelp('/ws/TaskData');
-      this.wsHelper.Connect();
-      this.wsHelper.onclose = (ev) => {
-        console.info('task status vue : ws closed!');
-      }
-      this.wsHelper.onmessage = (ev) => {
-        var parsedArray = JSON.parse(ev.data);
+      const worker = new Worker('websocket_worker.js')
+      worker.onmessage = (event) => {
+        var parsedArray = event.data;
+
         this.IncompletedTaskList = parsedArray.incompleteds.map(task => new clsTaskState(task));
         this.CompletedTaskList = parsedArray.completeds.map(task => new clsTaskState(task));
-
       }
+      worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/TaskData' });
     },
     CancelTaskHandler(task_name) {
       this.cancelTaskName = task_name;

@@ -94,6 +94,7 @@ import { EmuAPI } from '@/api/EquipmentAPI.js'
 import bus from '@/event-bus'
 import store from '@/store';
 import { userStore } from '@/store';
+import param from '@/gpm_param.js'
 export default {
   components: {
     RegionsSelector,
@@ -140,14 +141,14 @@ export default {
     },
     WsConnect() {
 
-      var ws = new WebSocketHelp('/ws/EQStatus');
-      ws.Connect();
-      ws.onmessage = (ev) => {
-        this.eq_data = JSON.parse(ev.data)
-        var unload_req_EQS = this.eq_data.filter(eq => eq.Unload_Request).map(eq => eq.Tag)
-        bus.emit('unload_eq_tags', unload_req_EQS)
-      }
+      const worker = new Worker('websocket_worker.js')
 
+      worker.onmessage = (event) => {
+        this.eq_data = event.data
+        //var unload_req_EQS = this.eq_data.filter(eq => eq.Unload_Request).map(eq => eq.Tag)
+        //bus.emit('unload_eq_tags', unload_req_EQS)
+      }
+      worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/EQStatus' });
     },
     eq_connection_status(row, rowIndex) {
       var isConnected = row.row.IsConnected;

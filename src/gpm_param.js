@@ -8,6 +8,9 @@ var param = {
       return `${window.location.protocol}//${window.location.host}`
     }
   },
+  get backend_ws_host() {
+    return this.backend_host.replace('http', 'ws')
+  },
   get vms_host() {
     return this.backend_host.replace('5216', '5036')
   },

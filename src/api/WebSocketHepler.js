@@ -30,6 +30,7 @@ class WebSocketHelp {
       console.info(`Try Connect to : ${this.ws_url} ON ＥＲＲＯＲ FAIL`)
     }
     this.wssocket = socket
+
   }
   /**重新連線 */
   ReconnectWorker() {
@@ -75,17 +76,14 @@ class WebSocketHelp {
   SendAliveCheck() {
     this.alive_check_timer = setInterval(() => {
       if (this.wssocket) {
-        if (this.wssocket.readyState == WebSocket.CONNECTING) 
-        {
+        if (this.wssocket.readyState == WebSocket.CONNECTING) {
           return;
-        } 
-        if (this.wssocket.readyState == WebSocket.OPEN) 
-        {
+        }
+        if (this.wssocket.readyState == WebSocket.OPEN) {
           this.wssocket.send('alive')
         }
-        
-        if (this.wssocket.readyState != this.previousWsState &&this.wssocket.readyState == WebSocket.CLOSED) 
-        {
+
+        if (this.wssocket.readyState != this.previousWsState && this.wssocket.readyState == WebSocket.CLOSED) {
           this.ReconnectWorker()
         }
         this.previousWsState = this.wssocket.readyState
