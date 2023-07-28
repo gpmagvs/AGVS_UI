@@ -14,11 +14,6 @@
           <TaskQuery></TaskQuery>
         </div>
       </b-tab>
-      <b-tab title="???">
-        <div class="w-100">
-          ???
-        </div>
-      </b-tab>
     </b-tabs>
   </div>
 </template>

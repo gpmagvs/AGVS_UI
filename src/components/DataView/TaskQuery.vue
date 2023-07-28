@@ -18,20 +18,20 @@
       <div>
         <el-table :data="tasks" empty-text="No Tasks" row-class-name="row_state_class_name" size="small"
           style="width: 100%" aria-current="currentpage" id="Tasktable">
-          <el-table-column label="接收時間" prop="RecieveTime" width="140">
+          <el-table-column label="接收時間" prop="RecieveTime" width="160">
             <template #default="scope">{{ formatTime(scope.row.RecieveTime) }}</template>
           </el-table-column>
-          <el-table-column label="結束時間" prop="FinishTime" width="140">
+          <el-table-column label="結束時間" prop="FinishTime" width="160">
             <template #default="scope">{{ formatTime(scope.row.FinishTime) }}</template>
           </el-table-column>
           <el-table-column label="任務名稱" prop="TaskName" width="210"></el-table-column>
           <el-table-column label="任務情況" prop="StateName" width="100"></el-table-column>
-          <el-table-column label="執行人員" prop="DispatcherName" width="80"></el-table-column>
-          <el-table-column label="AGV名稱" prop="DesignatedAGVName" width="80"></el-table-column>          
-          <el-table-column label="任務描述" prop="ActionName" min-width="420"></el-table-column>  
-          <el-table-column label="起始地點" prop="From_Station" width="80"></el-table-column>
-          <el-table-column label="結束地點" prop="To_Station" width="80"></el-table-column>
-          <el-table-column label="料號名稱" prop="Carrier_ID" min-width="120"></el-table-column>
+          <el-table-column label="執行人員" prop="DispatcherName" width="100"></el-table-column>
+          <el-table-column label="AGV名稱" prop="DesignatedAGVName" width="100"></el-table-column>          
+          <el-table-column label="任務描述" prop="ActionName" min-width="100"></el-table-column>  
+          <el-table-column label="起始地點" prop="From_Station" width="180"></el-table-column>
+          <el-table-column label="結束地點" prop="To_Station" width="180"></el-table-column>
+          <el-table-column label="料號名稱" prop="Carrier_ID" min-width="160"></el-table-column>
         </el-table>
         <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="Tasktable"
           class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
