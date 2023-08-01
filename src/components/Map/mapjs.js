@@ -150,6 +150,33 @@ export function CreateStationPathStyles(feature) {
     });
     return styles;
 }
+
+export function AGVPointStyle(agv_name, color) {
+    return new Style({
+        image: new Icon({
+            src: '/agv.png', // 设置PNG图像的路径
+            scale: .8, // 设置PNG图像的缩放比例
+            anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
+            size: [60, 60],// 设置PNG图像的大小
+            opacity: 1,
+
+        }),
+        text: new Text({
+            text: agv_name,
+            offsetX: 0,
+            offsetY: 20,
+            font: 'bold 14px Arial',
+            fill: new Fill({
+                color: color
+            }),
+            stroke: new Stroke({
+                color: 'black',
+                width: 3
+            })
+        }),
+    })
+}
+
 function PointColorSelect(station_type) {
     if (station_type == 0)
         return station_colors.normal
