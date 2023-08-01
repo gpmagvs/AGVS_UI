@@ -812,10 +812,10 @@ export default {
           Notifier.Success('Success Fetch Map Data From Server.', 'bottom', 2000);
 
         } else {
-          Notifier.Danger('圖資取得失敗(後端伺服器異常)', 'bottom', 3000);
+          Notifier.Warning('嘗試下載圖資...', 'bottom', 3000);
           this.FetchMap();
         }
-      }, 300);
+      }, 1000);
 
       // MapAPI.GetMapFromLocal().then((map) => {
       //   this.loading = false;
