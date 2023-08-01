@@ -154,7 +154,6 @@ export default {
         handleUpEvent: function (ev) {
           this.feature_ = null;
           this.coordinate_ = null;
-          this_vue.InitStationPathLayer();
         },
         handleMoveEvent: function (event) {
           debugger
