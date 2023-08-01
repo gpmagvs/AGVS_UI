@@ -129,7 +129,7 @@ export default {
         return 'warning'
       else if (state_code == 4) //等待
         return 'success'
-      else if (state_code == 6) //FAILURE
+      else if (state_code == 6 | state_code == 7) //FAILURE
         return 'danger'
       else
         return 'info'         //Failure
@@ -138,10 +138,10 @@ export default {
       const worker = new Worker('websocket_worker.js')
       worker.onmessage = (event) => {
         var parsedArray = event.data;
-
         this.IncompletedTaskList = parsedArray.incompleteds.map(task => new clsTaskState(task));
         this.CompletedTaskList = parsedArray.completeds.map(task => new clsTaskState(task));
       }
+      debugger
       worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/TaskData' });
     },
     CancelTaskHandler(task_name) {
