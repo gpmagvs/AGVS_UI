@@ -26,6 +26,7 @@
       <!--  -->
       <el-tooltip placement="right" content="帳籍管理">
         <div
+          v-if="false"
           v-bind:style="Selected('/racks_status')"
           class="side-item"
           @click="PageSwitch('/racks_status','帳籍管理')"

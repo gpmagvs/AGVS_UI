@@ -222,7 +222,7 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        this.showAlarm = newValue != "/alarm" && newValue != "/map" && newValue != "/sys_settings"&& newValue != "/data";
+        this.showAlarm = newValue != "/alarm" && newValue != "/map" && newValue != "/sys_settings" && newValue != "/data";
       }
     )
 
@@ -482,7 +482,7 @@ export default {
       }
     }
     .alarm {
-      animation: alarm_blink 1s infinite;
+      animation: alarm_blink 2s infinite;
     }
     .warning {
       animation: warning_blink 1s infinite;
@@ -531,7 +531,7 @@ export default {
   .matain-mode-notify {
     font-weight: bold;
     font-size: 20px;
-    animation: blink 1s linear infinite;
+    animation: blink 3s linear infinite;
     position: absolute;
     left: 200px;
     border-radius: 3px;

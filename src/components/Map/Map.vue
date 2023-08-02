@@ -137,7 +137,8 @@ export default {
       FeatureKeys: {
         Station: 'station',
         path: 'path',
-        nav_path: 'nav_path'
+        nav_path: 'nav_path',
+        agv: 'agv'
       },
       IsDragging: false,
       IsAddPathMode: true,
@@ -160,16 +161,7 @@ export default {
       var stationPointFeatures = []
       for (let index = 0; index < this.map_stations.length; index++) {
         var station = this.map_stations[index];
-        const iconFeature = new Feature({
-          geometry: new Point(station.coordination)
-          // geometry: new Point(station.graph)
-        });
-        iconFeature.set('index', station.index)
-        iconFeature.set('station_type', station.station_type)
-        iconFeature.set('targets', station.targets)
-        iconFeature.set('feature_type', this.FeatureKeys.Station)
-        var name = station.name
-        iconFeature.setStyle([StationPointStyle(station.station_type), StationTextStyle(name, station.station_type)]);
+        var iconFeature = this.CreateStationFeature(station)
         stationPointFeatures.push(iconFeature)
       }
 
@@ -222,6 +214,7 @@ export default {
           geometry: new Point(agv_opt.InitCoordination)
         })
         agvFeature.setStyle(AGVPointStyle(agv_opt.AgvName, agv_opt.TextColor))
+        agvFeature.set("feature_type", this.FeatureKeys.agv)
         this.AGVFeatures.push(agvFeature)
       });
       const source = new VectorSource({
@@ -231,6 +224,7 @@ export default {
         source: source
       })
     },
+    /**事件處理 */
     InitMapEventHandler() {
       var this_vue = this;
       var dragInteraction = new Pointer({
@@ -238,24 +232,28 @@ export default {
         handleDownEvent: function (event) {
 
           this.coordinate_ = event.coordinate;
-          if (this_vue.EditorOption.EditMode == 'view')
-            return;
+          if (this_vue.EditorOption.EditMode == 'view') {
+            return false;
+          }
 
           var currentAction = this_vue.EditorOption.EditAction;
           var map = event.map;
           var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) {
             return feature;
           });
+
           if (!feature) {
             this_vue.IsDragging = false;
             if (currentAction == 'add-station') {
-              feature = new Feature({
-                geometry: new Point(this.coordinate_)
-              })
-              var index = this_vue.GenNewIndexOfStation();
-              feature.set('index', index)
-              feature.set('feature_type', this_vue.FeatureKeys.Station)
-              feature.setStyle(StationPointStyle(0))
+
+              var station = new clsMapStation()
+              station.coordination = event.coordinate;
+              station.index = this_vue.GenNewIndexOfStation();
+              station.station_type = 0;
+              station.name = station.index + ''
+              station.tag = station.index
+              feature = this_vue.CreateStationFeature(station)
+              //this_vue.map_stations.push(station)
             } else
               return false;
           }
@@ -263,6 +261,9 @@ export default {
           var featureType = feature.get('feature_type');
           this.feature_ = feature;
           this_vue.IsDragging = true;
+
+          if (currentAction == "none" && featureType != this_vue.FeatureKeys.Station)
+            return false;
 
           //左鍵
           if (event.originalEvent.button == 0) {
@@ -279,8 +280,9 @@ export default {
         },
         /**滑鼠拖曳事件 */
         handleDragEvent: function (event) {
-          if (this_vue.EditorOption.EditMode == 'view')
+          if (this_vue.EditorOption.EditMode == 'view') {
             return;
+          }
           var deltaX = event.coordinate[0] - this.coordinate_[0];
           var deltaY = event.coordinate[1] - this.coordinate_[1];
           var geometry = this.feature_.getGeometry();
@@ -290,7 +292,6 @@ export default {
 
         /**滑鼠點擊後放開事件 */
         handleUpEvent: function (ev) {
-
           if (this_vue.EditorOption.EditMode == 'view')
             return;
           var currentAction = this_vue.EditorOption.EditAction;
@@ -313,24 +314,67 @@ export default {
 
         /**滑鼠移動事件 */
         handleMoveEvent: function (event) {
+          var currentAction = this_vue.EditorOption.EditAction;
           if (this_vue.EditorOption.EditMode == 'view')
             return;
-
           this_vue.MouseCoordination = event.coordinate
           var map = event.map;
           var feature = map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
             return feature;
           });
+          var cursor = ''
           if (feature) {
-            map.getTargetElement().style.cursor = 'pointer';
-          } else {
-            this.feature_ = undefined;
-            map.getTargetElement().style.cursor = '';
+            var featureType = feature.get('feature_type');
+            if (currentAction == "add-path" && featureType != this_vue.FeatureKeys.Station) {
+              cursor = 'not-allowed'
+            }
+            else if (currentAction == "remove-station" && featureType != this_vue.FeatureKeys.Station)
+              cursor = 'not-allowed'
+
+            else if (currentAction == "remove-path" && featureType != this_vue.FeatureKeys.path)
+              cursor = 'not-allowed'
+            else
+              cursor = 'pointer'
+
           }
+          else {
+            if (currentAction == "add-station") {
+              cursor = 'crosshair';
+            }
+            this.feature_ = undefined;
+          }
+          map.getTargetElement().style.cursor = cursor;
+
         }
       });
       this.map.addInteraction(dragInteraction);
 
+      this.map.on('pointerup', (e) => {
+
+        if (this.EditorOption.EditAction == 'add-station')
+          this.map.getTargetElement().style.cursor = 'crosshair';
+        else
+          this.map.getTargetElement().style.cursor = 'default';
+      })
+
+      this.map.on('pointerdown', (e) => {
+        this.map.getTargetElement().style.cursor = 'grabbing';
+      })
+
+    },
+    CreateStationFeature(station = new clsMapStation()) {
+      const iconFeature = new Feature({
+        geometry: new Point(station.coordination)
+        // geometry: new Point(station.graph)
+      });
+      iconFeature.set('index', station.index)
+      iconFeature.set('station_type', station.station_type)
+      iconFeature.set('targets', station.targets)
+      iconFeature.set('feature_type', this.FeatureKeys.Station)
+      iconFeature.set('data', station)
+      var name = station.name
+      iconFeature.setStyle([StationPointStyle(station.station_type), StationTextStyle(name, station.station_type)]);
+      return iconFeature;
     },
     AddPoint(coordinate) {
       this.PointLayer.getSource().addFeature(new Feature({
@@ -402,6 +446,9 @@ export default {
 
     },
     PushPathData(feature = new Feature()) {
+      if (feature.get("feature_type") != this.FeatureKeys.Station)
+        return;
+
       if (this.PathEditTempStore.length == 2) {
         this.PathEditTempStore = []
       }
@@ -451,6 +498,7 @@ export default {
       this.ImageLayer.setVisible(this.map_image_display == 'visible')
     },
     StationNameDisplayOptHandler() {
+      debugger
       var features = this.PointLayer.getSource().getFeatures();
 
       features.forEach(ft => {
