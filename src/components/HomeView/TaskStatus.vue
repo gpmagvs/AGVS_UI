@@ -141,7 +141,6 @@ export default {
         this.IncompletedTaskList = parsedArray.incompleteds.map(task => new clsTaskState(task));
         this.CompletedTaskList = parsedArray.completeds.map(task => new clsTaskState(task));
       }
-      debugger
       worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/TaskData' });
     },
     CancelTaskHandler(task_name) {

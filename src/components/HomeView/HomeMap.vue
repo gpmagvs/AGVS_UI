@@ -3,24 +3,27 @@
     <!-- <div class="title">
       <i class="bi bi-map"></i>MAP SHOW
     </div>-->
-    <MapShow class="h-100" ref="home-map" :task_allocatable="true" :zoom="5.5"></MapShow>
+    <Map class="w-100" :key="map_station_data" :map_stations="map_station_data"></Map>
   </div>
 </template>
 
 <script>
-import MapShow from '../MapShow.vue';
+import Map from '@/components/Map/Map.vue'
 import bus from '@/event-bus.js'
 import WebSocketHelp from '@/api/WebSocketHepler.js'
 import param from '@/gpm_param';
+import { MapStore } from '@/store'
 export default {
   components: {
-    MapShow
+    Map
   },
   data() {
     return {
-      navPathDisplayData: {}
+      navPathDisplayData: {},
+      map_station_data: []
     }
   },
+
   mounted() {
     // bus.emit('on_map_save_success', '');
     bus.on('on_map_save_success', () => {
@@ -47,6 +50,13 @@ export default {
       });
       this.navPathDisplayData = navPathDisplayData;
     }
+    var timer = setInterval(() => {
+      var mapStations = MapStore.getters.MapStations
+      if (mapStations) {
+        clearInterval(timer);
+        this.map_station_data = mapStations;
+      }
+    }, 1000);
   },
 }
 </script>

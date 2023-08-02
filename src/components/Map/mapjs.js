@@ -3,12 +3,23 @@ import { Circle, Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import Point from 'ol/geom/Point.js';
 
 const station_colors = {
-    normal: 'blue',
-    eq: 'red',
-    charge: 'green',
-    stk: 'orange'
+    normal: 'orange',
+    eq: 'lightblue',
+    charge: 'yellow',
+    stk: 'lime'
 }
 
+/**一般點位 */
+var normal_station_icon = new Circle({
+    radius: 6,
+    fill: new Fill({
+        color: station_colors.normal,
+    }),
+    stroke: new Stroke({
+        color: 'black',
+        width: 2,
+    }),
+})
 
 const eq_station_icon = new Icon({
     src: '/images/eq-icon.png', // 设置PNG图像的路径
@@ -38,16 +49,6 @@ var rack_station_icon = new Icon({
     color: 'white'
 })
 
-var normal_station_icon = new Circle({
-    radius: 7,
-    fill: new Fill({
-        color: station_colors.normal,
-    }),
-    stroke: new Stroke({
-        color: 'black',
-        width: 3,
-    }),
-})
 
 export function StationPointStyle(station_type = 2) {
     if (station_type == 0) {
@@ -76,19 +77,18 @@ export function StationPointStyle(station_type = 2) {
         })
     }
 }
-export function StationTextStyle(text = '') {
-
+export function StationTextStyle(text = '', station_type = 0) {
     var textStyle = new Style({
         text: new Text({
             text: text,
-            font: 'bold 14px Calibri,sans-serif',
-            offsetX: 7,
-            offsetY: -19,
+            font: 'bold 16px Calibri,sans-serif',
+            offsetX: 14,
+            offsetY: -22,
             fill: new Fill({
-                color: 'black',
+                color: PointColorSelect(station_type),
             }),
             stroke: new Stroke({
-                color: 'white',
+                color: 'black',
                 width: 2,
             }),
         }),
@@ -183,9 +183,39 @@ function PointColorSelect(station_type) {
     else if (station_type == 1)
         return station_colors.eq
     else if (station_type == 2)
-        return station_colors.charge
-    else if (station_type == 3)
         return station_colors.stk
+    else if (station_type == 3)
+        return station_colors.charge
     else
         return 'black'
+}
+
+/**AGV地圖顯示參數 */
+export class AGVOption {
+    constructor(AGVNum = 1, AGVDisplayOptions = [new clsAGVDisplay()]) {
+        this.AGVNum = AGVNum
+        this.AGVDisplays = AGVDisplayOptions
+
+    }
+}
+
+export class clsAGVDisplay {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0]) {
+        this.AgvName = AgvName
+        this.TextColor = TextColor
+        this.InitCoordination = initCoordination;
+
+    }
+}
+
+export class clsMapStation {
+    constructor() {
+        this.index = 0
+        this.name = 'name'
+        this.tag = 0
+        this.station_type = 1
+        this.targets = []
+        this.coordination = [0, 0]
+        this.graph = [0, 0]
+    }
 }

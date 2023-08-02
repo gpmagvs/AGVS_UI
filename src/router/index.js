@@ -10,12 +10,12 @@ import DataVue from '../views/DataView.vue'
 import AlarmView from '@/views/AlarmView.vue'
 const routes = [
   {
-    path: '/home',
+    path: '/',
     name: 'home',
     component: HomeView,
   },
   {
-    path: '/',
+    path: '/maptest',
     name: 'maptest',
     component: () => import('../components/Map/Map.vue'),
   },

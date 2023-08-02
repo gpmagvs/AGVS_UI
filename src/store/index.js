@@ -1,6 +1,7 @@
 import { createStore } from 'vuex'
 import { Login, StoreToLocalStorage } from '@/api/UserAPI';
 import MapAPI from '@/api/MapAPI'
+import { clsMapStation } from '@/components/Map/mapjs';
 
 export default createStore({
 
@@ -74,6 +75,33 @@ export const MapStore = createStore({
     },
     GeoMapData: state => {
       return state.MapGeoJson
+    },
+    MapStations: state => {
+
+      var mapDataSource = state.MapData
+      if (!mapDataSource)
+        return undefined
+
+      var points = mapDataSource.Points
+      var indexes = Object.keys(points)
+      var map_stations = []
+      indexes.forEach(index => {
+
+        var pt = points[index]
+        var mapStationData = new clsMapStation()
+        mapStationData.index = parseInt(index);
+        mapStationData.name = pt.Name;
+        mapStationData.station_type = pt.StationType;
+        mapStationData.tag = pt.TagNumber;
+        mapStationData.coordination = [pt.X, pt.Y];
+        mapStationData.targets = [];
+        mapStationData.graph = [pt.Graph.X / 100, pt.Graph.Y / 100];
+        Object.keys(pt.Target).forEach(targetIndex => {
+          mapStationData.targets.push(parseInt(targetIndex))
+        })
+        map_stations.push(mapStationData)
+      })
+      return map_stations
     }
   },
   mutations: {
