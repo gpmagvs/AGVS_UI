@@ -343,8 +343,6 @@ export default {
 
 <style lang="scss" >
 .agv-status {
-  height: 50%;
-
   .online-status-div:hover {
     cursor: pointer;
   }

@@ -2,6 +2,11 @@
   <div>
     <div class="d-flex">
       <div v-if="editable" class="editor-option">
+        <div class="edit-block action-buttons">
+          <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
+          <b-button variant="danger">重新載入</b-button>
+        </div>
+        <el-divider></el-divider>
         <div class="edit-block">
           <span>模式</span>
           <el-radio-group v-model="EditorOption.EditMode" size="large">
@@ -21,7 +26,6 @@
             <el-radio-button size="small" label="remove-station">移除點位</el-radio-button>
           </el-radio-group>
         </div>
-
         <div class="edit-block">
           <span></span>
           <el-radio-group
@@ -39,7 +43,7 @@
       </div>
       <div class="flex-fill d-flex flex-column">
         <div class="border-bottom text-start w-100 p-1 d-flex">
-          <div class="bg-light px-1 rounded">
+          <div v-if="station_show" class="bg-light px-1 rounded">
             <span class="mx-1">顯示名稱</span>
             <el-radio-group
               v-model="station_name_display_mode"
@@ -51,7 +55,7 @@
               <el-radio label="tag" size="large">Tag</el-radio>
             </el-radio-group>
           </div>
-          <div class="mx-1 bg-light px-1 rounded">
+          <div v-if="agv_show" class="mx-1 bg-light px-1 rounded">
             <span class="mx-1">AGV 顯示</span>
             <el-radio-group v-model="agv_display" class="ml-4" @change="AgvDisplayOptHandler">
               <el-radio label="visible" size="large">顯示</el-radio>
@@ -96,7 +100,7 @@ import { defaults as defaultControls } from 'ol/control.js';
 import MousePosition from 'ol/control/MousePosition.js';
 
 import { AGVOption, clsAGVDisplay, clsMapStation } from './mapjs';
-import { StationPointStyle, StationTextStyle, CreateStationPathStyles, AGVPointStyle } from './mapjs'
+import { StationPointStyle, StationTextStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle } from './mapjs'
 
 export default {
   props: {
@@ -119,7 +123,15 @@ export default {
     editable: {
       type: Boolean,
       default: false
-    }
+    },
+    agv_show: {
+      type: Boolean,
+      default: true
+    },
+    station_show: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {
@@ -128,6 +140,7 @@ export default {
       PointLayer: new VectorLayer(),
       PointLinksLayer: new VectorLayer(),//路網(路線)
       AGVLocLayer: new VectorLayer(),
+      AGVLocusLayer: new VectorLayer(), //軌跡圖顯示圖層
       AGVFeatures: [
         new Feature({
           geometry: new Point([330, 330]),
@@ -288,6 +301,10 @@ export default {
           var geometry = this.feature_.getGeometry();
           geometry.translate(deltaX, deltaY);
           this_vue.MouseCoordination = this.coordinate_ = event.coordinate;
+          var oriData = this.feature_.get('data')
+          oriData.X = event.coordinate[0];
+          oriData.Y = event.coordinate[1];
+          this.feature_.set('data', oriData)
         },
 
         /**滑鼠點擊後放開事件 */
@@ -304,6 +321,7 @@ export default {
               this_vue.IsDragging = false;
               try {
                 this_vue.ResetPathLink(this.feature_)
+                debugger
               } catch (error) {
               }
             }
@@ -356,7 +374,6 @@ export default {
         else
           this.map.getTargetElement().style.cursor = 'default';
       })
-
       this.map.on('pointerdown', (e) => {
         this.map.getTargetElement().style.cursor = 'grabbing';
       })
@@ -371,7 +388,7 @@ export default {
       iconFeature.set('station_type', station.station_type)
       iconFeature.set('targets', station.targets)
       iconFeature.set('feature_type', this.FeatureKeys.Station)
-      iconFeature.set('data', station)
+      iconFeature.set('data', station.data)
       var name = station.name
       iconFeature.setStyle([StationPointStyle(station.station_type), StationTextStyle(name, station.station_type)]);
       return iconFeature;
@@ -516,6 +533,36 @@ export default {
         ft.setStyle([StationPointStyle(station_type), StationTextStyle(displayName, station_type)]);
       })
 
+    },
+    /**顯示軌跡 */
+    ShowLocus(coordinate_list = [], color = 'red', width = 1) {
+      debugger
+      var source = this.AGVLocusLayer.getSource()
+      if (source) {
+        var features = []
+        source.clear()
+        //創建軌跡 LineString
+        let lineFeature = new Feature(
+          {
+            geometry: new LineString(coordinate_list),
+          },
+        );
+        lineFeature.setStyle(CreateLocusPathStyles(color, width))
+        features.push(lineFeature)
+        source.addFeatures(features)
+      }
+    },
+    /**儲存按鈕處理 */
+    HandlerSaveBtnClick() {
+      //把feature中的 'data' 物件資料取出
+      var mapData = {}
+      this.PointLayer.getSource().getFeatures().forEach(ft => {
+        var index = ft.get('index')
+        var data = ft.get('data')
+        mapData[index] = data;
+      })
+      console.info(mapData)
+      this.$emit('save', mapData)
     }
   },
   mounted() {
@@ -544,8 +591,15 @@ export default {
       }),
     })
 
+    const vectorSource = new VectorSource({
+      features: [],
+    });
+    this.AGVLocusLayer = new VectorLayer({
+      source: vectorSource,
+    })
+
     this.map = new Map({
-      layers: [this.ImageLayer, this.PointLinksLayer, this.PointLayer, this.AGVLocLayer],
+      layers: [this.ImageLayer, this.PointLinksLayer, this.PointLayer, this.AGVLocLayer, this.AGVLocusLayer],
       target: 'agv_map',
       view: new View({
         projection: projection,
@@ -554,6 +608,12 @@ export default {
         maxZoom: 20
       })
     })
+
+
+    this.AGVLocLayer.setVisible(this.agv_show)
+    this.PointLinksLayer.setVisible(this.station_show)
+    this.PointLayer.setVisible(this.station_show)
+
     this.InitMapEventHandler();
   },
 }
@@ -568,6 +628,12 @@ export default {
   border: 1px solid grey;
   padding: 3px;
   margin-inline: 2px;
+  .action-buttons {
+    button {
+      width: 120px;
+      margin-right: 5px;
+    }
+  }
   .edit-block {
     font-size: 15px;
     font-weight: bold;

@@ -1,17 +1,17 @@
 <template>
   <div class="data-view custom-tabs-head-large">
     <b-tabs size>
+      <b-tab title="AGV Locus">
+        <div class="w-100">
+          <AGVLocusDisplay></AGVLocusDisplay>
+        </div>
+      </b-tab>
       <b-tab title="機台稼動">
         <AvailbilitysData></AvailbilitysData>
       </b-tab>
       <b-tab title="警報查詢">
         <div class="w-100">
           <AlarmQuery></AlarmQuery>
-        </div>
-      </b-tab>
-      <b-tab title="???">
-        <div class="w-100">
-          ???
         </div>
       </b-tab>
     </b-tabs>
@@ -21,9 +21,11 @@
 <script>
 import AvailbilitysData from '@/components/DataView/AvailbilitysData.vue';
 import AlarmQuery from '@/components/DataView/AlarmQuery.vue';
+import AGVLocusDisplay from '@/components/DataView/AGVLocus.vue';
+
 export default {
   components: {
-    AvailbilitysData, AlarmQuery
+    AvailbilitysData, AlarmQuery, AGVLocusDisplay
   },
 }
 </script>

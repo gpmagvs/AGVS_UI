@@ -95,6 +95,18 @@ export function StationTextStyle(text = '', station_type = 0) {
     })
     return textStyle
 }
+/**軌跡顯示Style */
+export function CreateLocusPathStyles(color = 'red', width = 1) {
+    const styles = [
+        new Style({
+            stroke: new Stroke({
+                color: color,
+                width: width,
+            }),
+        }),
+    ];
+    return styles;
+}
 export function CreateStationPathStyles(feature) {
     var isEQLink = feature.get('isEqLink')
     var isPathClose = feature.get('isPathClose')
@@ -217,5 +229,6 @@ export class clsMapStation {
         this.targets = []
         this.coordination = [0, 0]
         this.graph = [0, 0]
+        this.data = {}
     }
 }

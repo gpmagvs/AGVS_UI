@@ -4,6 +4,7 @@
       class="w-100"
       :key="map_station_data"
       :map_stations="map_station_data"
+      @save="SaveMapClickHandle"
       :editable="true"
     ></MapShow>
   </div>
@@ -56,10 +57,12 @@ export default {
       if (action == '移除路徑')
         this.edit_mode_opts.mode_selected = 'remove_path';
     },
-    async SaveMapClickHandle() {
-      var data = this.$refs["map"].map_data
-      console.log(data);
-      var success = await MapAPI.SaveMap(data);
+    async SaveMapClickHandle(points_data) {
+      debugger
+      console.log(points_data);
+      var mapData = MapStore.getters.MapData
+      mapData.Points = points_data;
+      var success = await MapAPI.SaveMap(mapData);
       if (success) {
         //Notifier.Success('圖資儲存成功');
         this.$swal.fire({
@@ -98,6 +101,7 @@ export default {
   },
   mounted() {
     var timer = setInterval(() => {
+      debugger
       var mapStations = MapStore.getters.MapStations
       if (mapStations) {
         clearInterval(timer);

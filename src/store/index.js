@@ -96,12 +96,20 @@ export const MapStore = createStore({
         mapStationData.coordination = [pt.X, pt.Y];
         mapStationData.targets = [];
         mapStationData.graph = [pt.Graph.X / 100, pt.Graph.Y / 100];
+        mapStationData.data = pt
         Object.keys(pt.Target).forEach(targetIndex => {
           mapStationData.targets.push(parseInt(targetIndex))
         })
         map_stations.push(mapStationData)
       })
       return map_stations
+    },
+    BaysData: state => {
+      debugger
+      if (state.MapData)
+        return state.MapData.Bays
+      else
+        return {}
     }
   },
   mutations: {
@@ -124,6 +132,9 @@ export const MapStore = createStore({
         console.log('[MapStore] get map data', mapdata);
         commit('setMapData', mapdata)
       });
+
+    },
+    Save({ commit }) {
 
     },
     async DownloadGeoMapData({ commit }) {
@@ -193,6 +204,13 @@ export const userStore = createStore({
   },
   // modules: {
   // }
+})
+
+export const UIStore = createStore({
+  state: {
+    locus: {
+    }
+  }
 })
 
 

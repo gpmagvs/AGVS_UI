@@ -46,9 +46,52 @@ const routes = [
   },
 ]
 
+export const tsmc_routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: () => import('@/views/TSMC/TSMC_Home.vue'),
+    children: [
+      {
+        path: '/',
+        name: '/',
+        component: () => import('@/views/TSMC/Components/TaskDispatch.vue'),
+        meta: {
+          Display: "Task Dispatch"
+        }
+      },
+      {
+        path: 'BirdView',
+        name: 'BirdView',
+        component: () => import('@/views/TSMC/Components/BirdView.vue'),
+        meta: {
+          Display: "Bird View"
+        }
+      }, {
+        path: 'AGVLocus',
+        name: 'AGVLocus',
+        component: () => import('@/components/DataView/AGVLocus.vue'),
+        meta: {
+          Display: "AGV Locus"
+        }
+      }
+    ]
+  },
+  {
+    path: '/map',
+    name: 'map',
+    component: () => import('../views/MapView.vue'),
+  },
+  {
+    path: '/alarm',
+    name: 'alarm',
+    component: AlarmView,
+  },
+]
+
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes: tsmc_routes,
 })
 
 export default router
