@@ -2,6 +2,7 @@ import { createStore } from 'vuex'
 import { Login, StoreToLocalStorage } from '@/api/UserAPI';
 import MapAPI from '@/api/MapAPI'
 import { clsMapStation } from '@/components/Map/mapjs';
+import { createStringXY } from 'ol/coordinate';
 
 export default createStore({
 
@@ -213,6 +214,28 @@ export const UIStore = createStore({
   }
 })
 
+export const EqStore = createStore({
+  state: {
+    EQ: [],
+    ChargeStation: {}
+  },
+  getters: {
+    EQData: state => {
+      return state.EQ;
+    },
+    ChargeStationData: state => {
+      return state.ChargeStation;
+    }
 
+  },
+  mutations: {
+    setData(state, data) {
+      state.EQ = data.EQPData
+      state.ChargeStation = data.ChargeStationData
+    }
+  },
+  actions: {
+  }
+})
 
 

@@ -1,5 +1,6 @@
 <template>
   <div class="map-view h-100 d-flex flex-row my-1">
+    <div></div>
     <MapShow
       class="w-100"
       :key="map_station_data"

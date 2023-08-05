@@ -17,6 +17,11 @@ import 'vuesax3/dist/vuesax.css'
 import VueApexCharts from 'vue3-apexcharts'
 import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
+
+import 'vuefinder/dist/style.css'
+import VueFinder from 'vuefinder/dist/vuefinder'
+import './BackendDataFetchWorker.js'
+
 const i18n = createI18n({
   legacy: false,
   locale: 'zh-TW',
@@ -56,5 +61,5 @@ app.use(BootstrapVue3)
 app.use(ElementPlus)
 app.use(i18n)
 app.use(VueSweetalert2, Sweetalert_options)
-
+app.use(VueFinder)
 app.mount('#app')

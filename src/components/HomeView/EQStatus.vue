@@ -91,10 +91,9 @@ import RegionsSelector from '@/components/RegionsSelector.vue'
 import Clipboard from 'clipboard'
 import { ElNotification } from 'element-plus'
 import { EmuAPI } from '@/api/EquipmentAPI.js'
-import bus from '@/event-bus'
-import store from '@/store';
 import { userStore } from '@/store';
 import param from '@/gpm_param.js'
+import { EqStore } from '@/store'
 export default {
   components: {
     RegionsSelector,
@@ -102,19 +101,19 @@ export default {
   data() {
     return {
       column_width: 120,
-      eq_data: [
-        {
-          IsConnected: true,
-          EQName: 'GB123#1',
-          Load_Reuest: false,
-          Unload_Request: true,
-          Port_Exist: true,
-          Up_Pose: false,
-          Down_Pose: true,
-          Eqp_Status_Down: true,
-          Region: '',
-        }
-      ],
+      // eq_data: [
+      //   {
+      //     IsConnected: true,
+      //     EQName: 'GB123#1',
+      //     Load_Reuest: false,
+      //     Unload_Request: true,
+      //     Port_Exist: true,
+      //     Up_Pose: false,
+      //     Down_Pose: true,
+      //     Eqp_Status_Down: true,
+      //     Region: '',
+      //   }
+      // ],
       selected_region: "all",
     }
   },
@@ -128,10 +127,13 @@ export default {
       else {
         return this.eq_data.filter(eq => eq.Region == this.selected_region)
       }
+    },
+    eq_data() {
+      return EqStore.getters.EQData
     }
   },
   mounted() {
-    this.WsConnect();
+    //this.WsConnect();
     var signal_divs = document.getElementsByClassName('di-status');
 
   },
@@ -139,17 +141,17 @@ export default {
     userStoreTest() {
       alert(userStore.getters.IsDeveloperLogining)
     },
-    WsConnect() {
+    // WsConnect() {
 
-      const worker = new Worker('websocket_worker.js')
+    //   const worker = new Worker('websocket_worker.js')
 
-      worker.onmessage = (event) => {
-        this.eq_data = event.data
-        //var unload_req_EQS = this.eq_data.filter(eq => eq.Unload_Request).map(eq => eq.Tag)
-        //bus.emit('unload_eq_tags', unload_req_EQS)
-      }
-      worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/EQStatus' });
-    },
+    //   worker.onmessage = (event) => {
+    //     this.eq_data = event.data
+    //     //var unload_req_EQS = this.eq_data.filter(eq => eq.Unload_Request).map(eq => eq.Tag)
+    //     //bus.emit('unload_eq_tags', unload_req_EQS)
+    //   }
+    //   worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/EQStatus' });
+    // },
     eq_connection_status(row, rowIndex) {
       var isConnected = row.row.IsConnected;
       return isConnected ? 'success-row' : 'error-row';

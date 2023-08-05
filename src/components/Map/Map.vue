@@ -8,14 +8,18 @@
         </div>
         <el-divider></el-divider>
         <div class="edit-block">
-          <span>模式</span>
+          <span>
+            <i class="bi bi-three-dots-vertical"></i>模式
+          </span>
           <el-radio-group v-model="EditorOption.EditMode" size="large">
             <el-radio-button size="small" label="view">檢視</el-radio-button>
             <el-radio-button size="small" label="edit">編輯</el-radio-button>
           </el-radio-group>
         </div>
         <div class="edit-block">
-          <span>編輯動作</span>
+          <span>
+            <i class="bi bi-three-dots-vertical"></i>編輯動作
+          </span>
           <el-radio-group
             :disabled="EditorOption.EditMode!='edit'"
             v-model="EditorOption.EditAction"
@@ -44,7 +48,9 @@
       <div class="flex-fill d-flex flex-column">
         <div class="border-bottom text-start w-100 p-1 d-flex">
           <div v-if="station_show" class="bg-light px-1 rounded">
-            <span class="mx-1">顯示名稱</span>
+            <span class="mx-1">
+              <i class="bi bi-three-dots-vertical"></i>顯示名稱
+            </span>
             <el-radio-group
               v-model="station_name_display_mode"
               class="ml-4"
@@ -56,14 +62,18 @@
             </el-radio-group>
           </div>
           <div v-if="agv_show" class="mx-1 bg-light px-1 rounded">
-            <span class="mx-1">AGV 顯示</span>
+            <span class="mx-1">
+              <i class="bi bi-three-dots-vertical"></i>AGV 顯示
+            </span>
             <el-radio-group v-model="agv_display" class="ml-4" @change="AgvDisplayOptHandler">
               <el-radio label="visible" size="large">顯示</el-radio>
               <el-radio label="none" size="large">隱藏</el-radio>
             </el-radio-group>
           </div>
           <div class="mx-1 bg-light px-1 rounded">
-            <span class="mx-1">Slam底圖顯示</span>
+            <span class="mx-1">
+              <i class="bi bi-three-dots-vertical"></i>Slam底圖顯示
+            </span>
             <el-radio-group
               v-model="map_image_display"
               class="ml-4"
@@ -136,6 +146,8 @@ export default {
   data() {
     return {
       map: new Map(),
+      map_img_extent: [-37.5, -37.5, 37.5, 37.5],
+      map_img_size: [1500, 1500],
       ImageLayer: new VectorLayer(),
       PointLayer: new VectorLayer(),
       PointLinksLayer: new VectorLayer(),//路網(路線)
@@ -575,7 +587,7 @@ export default {
     // Map views always need a projection.  Here we just want to map image
     // coordinates directly to map coordinates, so we create a projection that uses
     // the image extent in pixels.
-    const extent = [-37.5, -37.5, 37.5, 37.5];
+    const extent = this.map_img_extent;
     const projection = new Projection({
       code: 'xkcd-image',
       units: 'pixels',
@@ -586,7 +598,7 @@ export default {
         url: 'Map.png',
         projection: projection,
         imageExtent: extent,
-        imageSize: [1500, 1500],
+        imageSize: this.map_img_size,
 
       }),
     })
