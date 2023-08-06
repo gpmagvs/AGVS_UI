@@ -89,6 +89,7 @@
             <button @click="HandleSettingBtnClick">
               <i class="bi bi-sliders"></i>
             </button>
+            <button @click="HandleSettingBtnClick">?</button>
             <!-- <button>2</button> -->
           </div>
           <div class="ol-control cursour-coordination-show">
@@ -122,7 +123,7 @@ import MousePosition from 'ol/control/MousePosition.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { StationPointStyle, StationTextStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle } from './mapjs'
+import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle } from './mapjs'
 import MapSettingsDialog from './MapSettingsDialog.vue';
 export default {
   components: {
@@ -168,22 +169,26 @@ export default {
       PointLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
-        })
+        }),
+        zIndex: 2
       }),
       PointLinksLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
-        })
+        }),
+        zIndex: 0
       }),//路網(路線)
       AGVLocLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
-        })
+        }),
+        zIndex: 4
       }),
       AGVLocusLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
-        })
+        }),
+        zIndex: 3
       }), //軌跡圖顯示圖層
       AGVFeatures: {},
       MouseCoordination: undefined,
@@ -204,7 +209,8 @@ export default {
       map_display_mode: 'coordination',
       station_name_display_mode: 'name',
       agv_display: 'visible',
-      map_image_display: 'visible',
+      map_image_display: 'none',
+      previousSelectedFeature: undefined
     }
   },
   computed: {
@@ -242,7 +248,7 @@ export default {
                 geometry: new LineString([feature.getGeometry().getCoordinates(), target_feature.getGeometry().getCoordinates()]),
               },
             );
-            var isEqLink = feature.get('station_type') == 1 | target_feature.get('station_type') == 1;
+            var isEqLink = feature.get('station_type') != 0 | target_feature.get('station_type') != 0;
             var path_id = `${feature.get('index')}_${pt_index}`
             lineFeature.set('path_id', path_id)
             lineFeature.set('isEqLink', isEqLink)
@@ -298,17 +304,20 @@ export default {
       var dragInteraction = new Pointer({
         /**滑鼠點下事件 */
         handleDownEvent: function (event) {
-
-          this.coordinate_ = event.coordinate;
-          if (this_vue.EditorOption.EditMode == 'view') {
-            return false;
-          }
-
-          var currentAction = this_vue.EditorOption.EditAction;
           var map = event.map;
           var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) {
             return feature;
           });
+          this.coordinate_ = event.coordinate;
+          if (this_vue.EditorOption.EditMode == 'view') {
+            if (feature) {
+              this_vue.HighLightFeatureSelected(feature)
+            }
+            return false;
+          }
+
+          var currentAction = this_vue.EditorOption.EditAction;
+
 
           if (!feature) {
             this_vue.IsDragging = false;
@@ -434,9 +443,17 @@ export default {
       this.map.on('pointermove', (event) => {
         this.MouseCoordination = event.coordinate
 
+        var feature = this.map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
+          return feature;
+        });
+
+        if (feature) {
+          this.map.getTargetElement().style.cursor = 'pointer';
+        } else
+          this.map.getTargetElement().style.cursor = '';
+
       })
       this.map.on('pointerup', (e) => {
-
         if (this.EditorOption.EditAction == 'add-station')
           this.map.getTargetElement().style.cursor = 'crosshair';
         else
@@ -458,7 +475,7 @@ export default {
       iconFeature.set('feature_type', this.FeatureKeys.Station)
       iconFeature.set('data', station.data)
       var name = station.name
-      iconFeature.setStyle([StationPointStyle(station.station_type, station.data), StationTextStyle(name, station.station_type)]);
+      iconFeature.setStyle(GetStationStyle(name, station.station_type, station.data));
       return iconFeature;
     },
     AddPoint(coordinate) {
@@ -563,7 +580,7 @@ export default {
             geometry: new LineString([startPoint.getGeometry().getCoordinates(), endPoint.getGeometry().getCoordinates()]),
           },
         );
-        var isEqLink = endPoint.get('station_type') == 1;
+        var isEqLink = endPoint.get('station_type') != 0;
         var endPointIndex = endPoint.get('index');
         var path_id = `${startPoint.get('index')}_${endPointIndex}`
 
@@ -611,7 +628,7 @@ export default {
         if (this.station_name_display_mode == 'tag')
           displayName = mapStationData.tag + '';
         var station_type = mapStationData.station_type;
-        ft.setStyle([StationPointStyle(station_type, mapdata), StationTextStyle(displayName, station_type)]);
+        ft.setStyle(GetStationStyle(displayName, station_type, mapdata));
       })
 
     },
@@ -658,6 +675,7 @@ export default {
           imageSize: this.map_img_size,
 
         }),
+        visible: false
       })
 
       const vectorSource = new VectorSource({
@@ -693,6 +711,34 @@ export default {
     },
     HandleSettingBtnClick() {
       this.$refs.settings.show = true;
+    },
+    HighLightFeatureSelected(feature = new Feature()) {
+      debugger
+      try {
+
+        if (this.previousSelectedFeature) {
+          var oriStyle = this.previousSelectedFeature.get('oristyle')
+          this.previousSelectedFeature.setStyle(oriStyle);
+        }
+        var style = feature.getStyle()
+        if (!style)
+          return;
+        feature.set("oristyle", style.clone())
+        var newStyle = style.clone()
+        var text = newStyle.getText();
+        if (text) {
+          var stroke = text.getStroke()
+          if (stroke) {
+            var newStroke = stroke.clone();
+            newStroke.setColor('red')
+            text.setStroke(newStroke)
+            feature.setStyle(newStyle)
+            this.previousSelectedFeature = feature
+          }
+        }
+      } catch (error) {
+
+      }
     }
   },
 

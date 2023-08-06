@@ -23,9 +23,9 @@ export default {
     return {
       navPathDisplayData: {},
       agv_colors: [
-        'blue',
+        '#42c2f5',
+        'limegreen',
         'orange',
-        'green',
         'pink',
         'red',
         'purple',

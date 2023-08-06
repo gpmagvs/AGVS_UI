@@ -17,7 +17,8 @@ const eq_station_icon = new Icon({
     anchor: [0.5, 0.5],
     size: [64, 64],
     opacity: 1,
-    color: 'white'
+    color: 'transparent',
+
 })
 
 const charge_station_icon = new Icon({
@@ -26,7 +27,7 @@ const charge_station_icon = new Icon({
     anchor: [0.5, 0.5],
     size: [64, 64],
     opacity: 1,
-    color: 'white'
+    color: 'transparent'
 
 })
 
@@ -38,35 +39,6 @@ var rack_station_icon = new Icon({
     opacity: 1,
     color: 'white'
 })
-
-
-export function StationPointStyle(station_type = 2, map_data = {}) {
-    if (station_type == 0) {
-        return new Style({
-            image: normal_station_icon(map_data),
-        })
-    }
-    else if (station_type == 1) {
-        return new Style({
-            image: eq_station_icon,
-        })
-    }
-    else if (station_type == 2) {
-        return new Style({
-            image: rack_station_icon,
-        })
-    }
-    else if (station_type == 3) {
-        return new Style({
-            image: charge_station_icon,
-        })
-    }
-    else {
-        return new Style({
-            image: normal_station_icon(map_data),
-        })
-    }
-}
 
 /**一般點位 */
 function normal_station_icon(map_data = {}) {
@@ -93,19 +65,35 @@ function normal_station_icon(map_data = {}) {
 }
 
 
-export function StationTextStyle(text = '', station_type = 0) {
+export function GetStationStyle(text = '', station_type = 0, map_data = {}) {
+    var image = normal_station_icon(map_data)
+    if (station_type == 0) {
+        image = normal_station_icon(map_data)
+    }
+    else if (station_type == 1) {
+        image = eq_station_icon
+    }
+    else if (station_type == 2) {
+        image = rack_station_icon
+    }
+    else if (station_type == 3) {
+        image = charge_station_icon
+    }
+
+
     var textStyle = new Style({
+        image: image,
         text: new Text({
             text: text,
             font: 'bold 16px Calibri,sans-serif',
             offsetX: 14,
             offsetY: -22,
             fill: new Fill({
-                color: PointColorSelect(station_type),
+                color: 'gold',//PointColorSelect(station_type)
             }),
             stroke: new Stroke({
                 color: 'black',
-                width: 2,
+                width: 3,
             }),
         }),
     })
@@ -136,7 +124,6 @@ export function CreateStationPathStyles(feature) {
             }),
         }),
     ];
-
     geometry.forEachSegment(function (start, end) {
         const dx = end[0] - start[0];
         const dy = end[1] - start[1];
@@ -148,10 +135,10 @@ export function CreateStationPathStyles(feature) {
                 geometry: new Point(end),
                 image: new Icon({
                     src: 'arrow.png',
-                    anchor: [1.2, 0.5],
+                    anchor: [1.6, 0.5],
                     rotateWithView: true,
                     rotation: -rotation,
-                    scale: 0.18,
+                    scale: 0.22,
                     color: isPathClose ? 'red' : 'white'
                 }),
             })
@@ -170,7 +157,7 @@ export function CreateStationPathStyles(feature) {
                         anchor: [1.2, 0.5],
                         rotateWithView: true,
                         rotation: -rotation,
-                        scale: 0.5,
+                        scale: 0.6,
                     }),
                 })
             );
@@ -183,7 +170,7 @@ export function AGVPointStyle(agv_name, color) {
     return new Style({
         image: new Icon({
             src: '/agv.png', // 设置PNG图像的路径
-            scale: .8, // 设置PNG图像的缩放比例
+            scale: .9, // 设置PNG图像的缩放比例
             anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
             size: [60, 60],// 设置PNG图像的大小
             opacity: 1,
@@ -192,15 +179,20 @@ export function AGVPointStyle(agv_name, color) {
         text: new Text({
             text: agv_name,
             offsetX: 0,
-            offsetY: 20,
-            font: 'bold 14px Arial',
+            offsetY: 22,
+            font: 'bold 16px Arial',
             fill: new Fill({
-                color: color
+                color: 'white'
             }),
-            stroke: new Stroke({
+
+            backgroundFill: new Fill({
+                color: color,
+            }),
+            backgroundStroke: new Stroke({
                 color: 'black',
-                width: 3
-            })
+            }),
+            textAlign: 'center',
+            padding: [4, 4, 4, 4]
         }),
     })
 }

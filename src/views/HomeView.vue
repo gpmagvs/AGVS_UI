@@ -2,7 +2,7 @@
   <div class="home-view h-100 w-100 d-flex flex-row custom-tabs-head">
     <div class="left-col border-right flex-fill">
       <AGVStatusVue></AGVStatusVue>
-      <TaskStatusVue></TaskStatusVue>
+      <TaskStatusVue height="400px"></TaskStatusVue>
     </div>
     <b-tabs v-bind:style="{width:'60%'}" @activate-tab="TabActiveHandle">
       <b-tab title="地圖">

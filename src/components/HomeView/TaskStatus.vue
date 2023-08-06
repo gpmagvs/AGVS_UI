@@ -6,18 +6,18 @@
     <div v-if="display_mode=='tabs'">
       <b-tabs @activate-tab="TabActiveHandle" size>
         <b-tab title="未完成任務">
-          <RunningTaskTable :IncompletedTaskList="IncompletedTaskList"></RunningTaskTable>
+          <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskList"></RunningTaskTable>
         </b-tab>
         <b-tab title="已結束任務">
-          <CompletedTaskTable :CompletedTaskList="CompletedTaskList"></CompletedTaskTable>
+          <CompletedTaskTable :height="height" :CompletedTaskList="CompletedTaskList"></CompletedTaskTable>
         </b-tab>
       </b-tabs>
     </div>
     <div v-else class="column-display-mode">
       <div class="title-display">等待/執行中任務</div>
-      <RunningTaskTable :height="'310px'" :IncompletedTaskList="IncompletedTaskList"></RunningTaskTable>
+      <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskList"></RunningTaskTable>
       <div class="title-display">已結束任務</div>
-      <CompletedTaskTable :height="'310px'" :CompletedTaskList="CompletedTaskList"></CompletedTaskTable>
+      <CompletedTaskTable :height="height" :CompletedTaskList="CompletedTaskList"></CompletedTaskTable>
     </div>
   </div>
 </template>
@@ -41,6 +41,10 @@ export default {
       type: Boolean,
       default: true
     },
+    height: {
+      type: String,
+      defualt: '310px'
+    }
   },
   data() {
     return {
