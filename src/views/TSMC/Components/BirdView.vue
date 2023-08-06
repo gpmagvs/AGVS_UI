@@ -29,7 +29,6 @@ export default {
   },
   mounted() {
     var timer = setInterval(() => {
-      debugger
       var mapStations = MapStore.getters.MapStations
       if (mapStations) {
         clearInterval(timer);

@@ -3,10 +3,10 @@
     <div></div>
     <MapShow
       class="w-100"
-      :key="map_station_data"
       :map_stations="map_station_data"
       @save="SaveMapClickHandle"
       :editable="true"
+      :agv_show="false"
     ></MapShow>
   </div>
 </template>
@@ -31,35 +31,19 @@ export default {
       path_plan_point_from: 1,
       path_plan_point_to: 2,
       tags: [1, 2, 3, 59, 11],
-
-      map_station_data: []
     }
   },
   computed: {
     IsEditable() {
       return this.mode_selected == '編輯'
+    },
+    map_station_data() {
+      return MapStore.getters.MapStations
     }
   },
   methods: {
-    EditModeEnableChanged(e) {
-      this.edit_mode_opts.enabled = e == '編輯'
-    },
-    EditActionChanged(action) {
-      if (action == '無')
-        this.edit_mode_opts.mode_selected = 'none';
-      if (action == '編輯點位')
-        this.edit_mode_opts.mode_selected = 'edit_point';
-      if (action == '新增點位')
-        this.edit_mode_opts.mode_selected = 'add_point';
-      if (action == '移除點位')
-        this.edit_mode_opts.mode_selected = 'remove_point';
-      if (action == '新增路徑')
-        this.edit_mode_opts.mode_selected = 'add_path';
-      if (action == '移除路徑')
-        this.edit_mode_opts.mode_selected = 'remove_path';
-    },
+
     async SaveMapClickHandle(points_data) {
-      debugger
       console.log(points_data);
       var mapData = MapStore.getters.MapData
       mapData.Points = points_data;
@@ -101,14 +85,6 @@ export default {
     }
   },
   mounted() {
-    var timer = setInterval(() => {
-      debugger
-      var mapStations = MapStore.getters.MapStations
-      if (mapStations) {
-        clearInterval(timer);
-        this.map_station_data = mapStations;
-      }
-    }, 1000);
   },
 }
 </script>

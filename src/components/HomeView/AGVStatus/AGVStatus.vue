@@ -17,6 +17,7 @@
           height="93%"
           empty-text="沒有AGV"
           :row-class-name="connected_class"
+          highlight-current-row
           default-expand-all
         >
           <el-table-column label="車輛名稱" prop="AGV_Name" width="90px">
@@ -53,9 +54,11 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="位置" prop="StationName" align="center">
+
+          <el-table-column label="位置" prop="StationName" align="left">
             <template #default="scope">
               <div>
+                <i class="bi bi-geo-alt-fill" style="font-size:20px;cursor:pointer" @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
                 <b>{{ scope.row.StationName }}</b>
               </div>
             </template>
@@ -172,6 +175,9 @@ export default {
         this.AGVDatas = Object.values(data).map(d => new clsAGVStateDto(d));
       }
       worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/VMSStatus' });
+    },
+    HandleShowAGVInMapCenter(agv_name) {
+      bus.emit('/show_agv_at_center', agv_name)
     },
     ShowTaskAllocationView(clsAgvStatus) {
 
@@ -343,6 +349,7 @@ export default {
 
 <style lang="scss" >
 .agv-status {
+
   .online-status-div:hover {
     cursor: pointer;
   }

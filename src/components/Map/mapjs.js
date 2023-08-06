@@ -9,17 +9,7 @@ const station_colors = {
     stk: 'lime'
 }
 
-/**一般點位 */
-var normal_station_icon = new Circle({
-    radius: 6,
-    fill: new Fill({
-        color: station_colors.normal,
-    }),
-    stroke: new Stroke({
-        color: 'black',
-        width: 2,
-    }),
-})
+
 
 const eq_station_icon = new Icon({
     src: '/images/eq-icon.png', // 设置PNG图像的路径
@@ -50,10 +40,10 @@ var rack_station_icon = new Icon({
 })
 
 
-export function StationPointStyle(station_type = 2) {
+export function StationPointStyle(station_type = 2, map_data = {}) {
     if (station_type == 0) {
         return new Style({
-            image: normal_station_icon,
+            image: normal_station_icon(map_data),
         })
     }
     else if (station_type == 1) {
@@ -63,20 +53,46 @@ export function StationPointStyle(station_type = 2) {
     }
     else if (station_type == 2) {
         return new Style({
-            image: charge_station_icon,
+            image: rack_station_icon,
         })
     }
     else if (station_type == 3) {
         return new Style({
-            image: rack_station_icon,
+            image: charge_station_icon,
         })
     }
     else {
         return new Style({
-            image: normal_station_icon,
+            image: normal_station_icon(map_data),
         })
     }
 }
+
+/**一般點位 */
+function normal_station_icon(map_data = {}) {
+    var fillColor = 'orange'
+    if (map_data) {
+        if (map_data.IsVirtualPoint) {
+            fillColor = 'pink'
+        }
+        if (map_data.IsAvoid) {
+            fillColor = 'blue'
+        }
+
+    }
+    return new Circle({
+        radius: 6,
+        fill: new Fill({
+            color: fillColor,
+        }),
+        stroke: new Stroke({
+            color: 'black',
+            width: 2,
+        }),
+    })
+}
+
+
 export function StationTextStyle(text = '', station_type = 0) {
     var textStyle = new Style({
         text: new Text({
@@ -212,10 +228,11 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0]) {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = []) {
         this.AgvName = AgvName
         this.TextColor = TextColor
-        this.InitCoordination = initCoordination;
+        this.Coordination = initCoordination;
+        this.NavPathCoordinationList = navCoorList
 
     }
 }
@@ -230,5 +247,62 @@ export class clsMapStation {
         this.coordination = [0, 0]
         this.graph = [0, 0]
         this.data = {}
+    }
+}
+
+/**後端圖資模型 */
+export class MapPointModel {
+    constructor() {
+        this.X = 0;
+        this.Y = 0;
+        this.Name = ""
+        this.TagNumber = 0
+        this.Direction = 0
+        this.AGV_Alarm = false;
+        this.Enable = true;
+        this.IsStandbyPoint = false;
+        this.IsSegment = false
+        this.IsOverlap = false
+        this.IsParking = false
+        this.IsAvoid = false;
+        this.IsVirtualPoint = false;
+        this.IsAutoDoor = false
+        this.IsExtinguishing = false
+        this.InvolvePoint = ""
+        this.StationType = 0
+        this.LsrMode = 0
+        this.Speed = 1
+        this.Bay = ""
+        this.Graph = {
+            Display: "",
+            X: 0,
+            Y: 0
+        }
+        this.Target = {
+
+        }
+        this.DodgeMode = ""
+        this.SpinMode = ""
+        this.SubMap = ""
+        this.AutoDoor = {
+            KeyName: "",
+            KeyPassword: ""
+        }
+        this.MotionInfo = {
+            ControlBypass: {
+                GroundHoleCCD: "",
+                GroundHoleSensor: "",
+                UltrasonicSensor: ""
+
+            }
+        }
+        this.Region = ""
+        this.IsCharge = false
+        this.IsEquipment = false
+        this.IsSTK = false
+        this.IsEQLink = false
+        this.IsCross = false
+        this.IsRegisted = false
+        this.RegistInfo = null
     }
 }

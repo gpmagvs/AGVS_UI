@@ -1,0 +1,8 @@
+{
+  "import_my_param": {
+    "scope": "javascript,typescript",
+    "prefix": "gpmparam",
+    "body": ["import param from '@/gpm_param.js'"],
+    "description": "Log output to console"
+  }
+}

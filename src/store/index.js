@@ -65,7 +65,8 @@ export const agvs_settings_store = createStore({
 export const MapStore = createStore({
   state: {
     MapData: null,
-    MapGeoJson: null
+    MapGeoJson: null,
+    AGVDynamicPathInfo: undefined
   },
   getters: {
     MapData: state => {
@@ -97,7 +98,7 @@ export const MapStore = createStore({
         mapStationData.coordination = [pt.X, pt.Y];
         mapStationData.targets = [];
         mapStationData.graph = [pt.Graph.X / 100, pt.Graph.Y / 100];
-        mapStationData.data = pt
+        mapStationData.data = pt;
         Object.keys(pt.Target).forEach(targetIndex => {
           mapStationData.targets.push(parseInt(targetIndex))
         })
@@ -106,11 +107,14 @@ export const MapStore = createStore({
       return map_stations
     },
     BaysData: state => {
-      debugger
       if (state.MapData)
         return state.MapData.Bays
       else
         return {}
+    },
+    AGVDynamicPathInfo: state => {
+
+      return state.AGVDynamicPathInfo
     }
   },
   mutations: {
@@ -120,6 +124,9 @@ export const MapStore = createStore({
     },
     setGeoMapData(state, mapdata) {
       state.MapGeoJson = mapdata;
+    },
+    setAGVDynamicPathInfo(state, info) {
+      state.AGVDynamicPathInfo = info
     }
   },
   actions: {

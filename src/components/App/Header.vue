@@ -1,5 +1,5 @@
 <template>
-  <div class="app-header bg-dark text-light border-bottom fixed-top">
+  <div class="app-header bg-primary text-light border-bottom border-left fixed-top">
     <div class="d-flex flex-row py-1">
       <!-- <i @click="ToggleMenu" class="bi bi-list menu-toggle-icon text-light px-2"></i>
       <h3 @click="LogoClickHandler">
@@ -34,7 +34,7 @@
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="md" variant="dark">
+              <b-button size="sm" class="mx-1" variant="light">
                 中文
                 <i class="bi bi-caret-down-fill"></i>
               </b-button>
@@ -50,7 +50,7 @@
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="md" variant="dark">
+              <b-button size="sm" variant="light">
                 {{ UserName }}
                 <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
               </b-button>
@@ -61,9 +61,8 @@
                 <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">登出</b-button>
                 <b-button
                   v-if="IsLogin"
-                  class="my-1 text-light"
+                  class="my-1 bg-light text-dark"
                   @click="LoginClickHandler('switch')"
-                  variant="info"
                 >切換使用者</b-button>
               </div>
             </template>

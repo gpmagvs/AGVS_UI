@@ -135,6 +135,7 @@ export default {
   position: fixed;
   left: 0;
   height: 100%;
+  border-right: 2px solid rgb(192, 191, 191);
 
   .side-item {
     padding: 10px 5px;

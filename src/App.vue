@@ -99,7 +99,6 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        console.info(newValue);
         this.OpenLoading();
         if (newValue == "/alarm") {
           this.router_view_style.paddingTop = '50px';

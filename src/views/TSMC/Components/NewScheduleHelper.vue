@@ -102,7 +102,6 @@ export default {
   },
   methods: {
     EditorMode(data) {
-      debugger
       this.time = data.time;
       this.selectedBays = data.bays;
       this.ShowDialog = true;
