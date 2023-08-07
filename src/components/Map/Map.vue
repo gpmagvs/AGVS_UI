@@ -43,10 +43,14 @@
           </el-radio-group>
         </div>
       </div>
-
+      <div
+        v-show="ShowWarningNotify"
+        class="bg-warning text-light border rounded p-2"
+        style="position:absolute;right:133px;top:52px"
+      >目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作</div>
       <div class="flex-fill d-flex flex-column">
-        <div class="border-bottom text-start w-100 p-1 d-flex">
-          <div v-if="station_show" class="bg-light px-1 rounded">
+        <div class="border-bottom bg-light text-start w-100 p-1 d-flex">
+          <div v-if="station_show" class="px-1 rounded">
             <span class="mx-1">
               <i class="bi bi-three-dots-vertical"></i>顯示名稱
             </span>
@@ -60,7 +64,7 @@
               <el-radio label="tag" size="large">Tag</el-radio>
             </el-radio-group>
           </div>
-          <div v-if="agv_show" class="mx-1 bg-light px-1 rounded">
+          <div v-if="agv_show" class="mx-1 px-1 rounded">
             <span class="mx-1">
               <i class="bi bi-three-dots-vertical"></i>AGV 顯示
             </span>
@@ -69,7 +73,7 @@
               <el-radio label="none" size="large">隱藏</el-radio>
             </el-radio-group>
           </div>
-          <div class="mx-1 bg-light px-1 rounded">
+          <div class="mx-1 px-1 rounded">
             <span class="mx-1">
               <i class="bi bi-three-dots-vertical"></i>Slam底圖顯示
             </span>
@@ -80,6 +84,21 @@
             >
               <el-radio label="visible" size="large">顯示</el-radio>
               <el-radio label="none" size="large">隱藏</el-radio>
+            </el-radio-group>
+          </div>
+        </div>
+        <div class="text-start w-100 p-1 bg-light d-flex">
+          <div class="px-1 rounded">
+            <span class="mx-1">
+              <i class="bi bi-three-dots-vertical"></i>地圖模式
+            </span>
+            <el-radio-group
+              v-model="map_display_mode"
+              class="ml-4"
+              @change="MapDisplayModeOptHandler"
+            >
+              <el-radio label="coordination" size="large">Slam座標</el-radio>
+              <el-radio label="router" size="large">路網</el-radio>
             </el-radio-group>
           </div>
         </div>
@@ -166,7 +185,15 @@ export default {
       map_img_size: [1500, 1500],
       _map_stations: [],
       ImageLayer: new ImageLayer(),
+      /**Slam座標圖層 */
       PointLayer: new VectorLayer({
+        source: new VectorSource({
+          features: [],
+        }),
+        zIndex: 2
+      }),
+      /**路網圖層 */
+      PointRouteLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
         }),
@@ -219,25 +246,47 @@ export default {
         return '(-1,-1)'
       }
       return `(${this.MouseCoordination[0].toFixed(2)},${this.MouseCoordination[1].toFixed(2)})`
+    },
+    /**點位Feature集合 */
+    StationPointsFeatures() {
+      if (this.map_display_mode == "coordination") {
+        return this.PointLayer.getSource().getFeatures();
+      } else {
+        return this.PointRouteLayer.getSource().getFeatures();
+      }
+    },
+    ShowWarningNotify() {
+      return this.EditorOption.EditMode != "view" && this.map_display_mode == "coordination";
     }
   },
   methods: {
     UpdateStationPointLayer() {
       var stationPointFeatures = []
+      var stationPointFeatures_ForRouteShow = []//路網顯示用
       for (let index = 0; index < this._map_stations.length; index++) {
         var station = this._map_stations[index];
         var iconFeature = this.CreateStationFeature(station)
         stationPointFeatures.push(iconFeature)
+
+        var routeUseFeature = iconFeature.get('routeModeFeature')
+        if (routeUseFeature) {
+          stationPointFeatures_ForRouteShow.push(routeUseFeature)
+        }
       }
-      var source = this.PointLayer.getSource();
-      source.clear();
-      source.addFeatures(stationPointFeatures);
+      var ptlayerSource = this.PointLayer.getSource();
+      ptlayerSource.clear();
+      ptlayerSource.addFeatures(stationPointFeatures);
+
+
+      var ptRouteLayerSource = this.PointRouteLayer.getSource();
+      ptRouteLayerSource.clear();
+      ptRouteLayerSource.addFeatures(stationPointFeatures_ForRouteShow);
 
     },
     UpdateStationPathLayer() {
-      var stationFeatures = this.PointLayer.getSource().getFeatures()
+      var stationFeatures = this.StationPointsFeatures
       var stationLinkPathes = [];
-      this.PointLayer.getSource().forEachFeature(feature => {
+      stationFeatures.forEach(feature => {
         var target_indexes = feature.get('targets')
         for (let index = 0; index < target_indexes.length; index++) {
           const pt_index = target_indexes[index];
@@ -374,11 +423,20 @@ export default {
           var geometry = this.feature_.getGeometry();
           geometry.translate(deltaX, deltaY);
           this_vue.MouseCoordination = this.coordinate_ = event.coordinate;
+
           geometry = this.feature_.getGeometry();
           var oriData = this.feature_.get('data')
           var newCoordinates = geometry.getCoordinates();
-          oriData.X = newCoordinates[0];
-          oriData.Y = newCoordinates[1];
+
+          if (this_vue.map_display_mode == "coordination") {
+            oriData.X = newCoordinates[0];
+            oriData.Y = newCoordinates[1];
+          }
+          else {
+            oriData.Graph.X = parseInt(Math.round(newCoordinates[0]));
+            oriData.Graph.Y = parseInt(Math.round(newCoordinates[1]));
+          }
+
           this.feature_.set('data', oriData)
         },
 
@@ -465,6 +523,7 @@ export default {
 
     },
     CreateStationFeature(station = new clsMapStation()) {
+      debugger
       const iconFeature = new Feature({
         geometry: new Point(station.coordination)
         // geometry: new Point(station.graph)
@@ -476,6 +535,11 @@ export default {
       iconFeature.set('data', station.data)
       var name = station.name
       iconFeature.setStyle(GetStationStyle(name, station.station_type, station.data));
+      var routeFeature = iconFeature.clone();
+      if (station.data.Graph) {
+        routeFeature.setGeometry(new Point([station.data.Graph.X, station.data.Graph.Y]))
+      }
+      iconFeature.set('routeModeFeature', routeFeature)
       return iconFeature;
     },
     AddPoint(coordinate) {
@@ -613,10 +677,16 @@ export default {
     SlamImageDisplayOptHandler() {
       this.ImageLayer.setVisible(this.map_image_display == 'visible')
     },
+    MapDisplayModeOptHandler() {
+      var isShowSlamCoordi = this.map_display_mode == "coordination";
+      this.UpdateStationPathLayer()
+      this.StationNameDisplayOptHandler();
+      this.PointLayer.setVisible(isShowSlamCoordi);
+      this.PointRouteLayer.setVisible(!isShowSlamCoordi);
+    },
     StationNameDisplayOptHandler() {
-      var features = this.PointLayer.getSource().getFeatures();
 
-      features.forEach(ft => {
+      this.StationPointsFeatures.forEach(ft => {
         var index = ft.get('index');
         var mapdata = ft.get('data')
         var mapStationData = this._map_stations.find(st => st.index == index)
@@ -686,7 +756,7 @@ export default {
       })
 
       this.map = new Map({
-        layers: [this.ImageLayer, this.PointLinksLayer, this.PointLayer, this.AGVLocLayer, this.AGVLocusLayer],
+        layers: [this.ImageLayer, this.PointLinksLayer, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
         target: 'agv_map',
         view: new View({
           projection: projection,
@@ -699,6 +769,7 @@ export default {
       this.AGVLocLayer.setVisible(this.agv_show)
       this.PointLinksLayer.setVisible(this.station_show)
       this.PointLayer.setVisible(this.station_show)
+      this.PointRouteLayer.setVisible(false)
       this.InitMapEventHandler();
     },
     ResetMapCenterViaAGVLoc(agv_name) {
