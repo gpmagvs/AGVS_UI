@@ -1,123 +1,59 @@
 <template>
-  <div>
+  <div class="map-component">
     <div class="d-flex">
-      <div v-if="editable" class="editor-option">
-        <div class="edit-block action-buttons">
-          <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
-          <b-button variant="danger">重新載入</b-button>
-        </div>
-        <el-divider></el-divider>
-        <div class="edit-block">
-          <span>
-            <i class="bi bi-three-dots-vertical"></i>模式
-          </span>
-          <el-radio-group v-model="EditorOption.EditMode" size="large">
-            <el-radio-button size="small" label="view">檢視</el-radio-button>
-            <el-radio-button size="small" label="edit">編輯</el-radio-button>
-          </el-radio-group>
-        </div>
-        <div class="edit-block">
-          <span>
-            <i class="bi bi-three-dots-vertical"></i>編輯動作
-          </span>
-          <el-radio-group
-            :disabled="EditorOption.EditMode!='edit'"
-            v-model="EditorOption.EditAction"
-            size="large"
-          >
-            <el-radio-button size="small" label="none">無</el-radio-button>
-            <el-radio-button size="small" label="add-station">新增點位</el-radio-button>
-            <el-radio-button size="small" label="remove-station">移除點位</el-radio-button>
-          </el-radio-group>
-        </div>
-        <div class="edit-block">
-          <span></span>
-          <el-radio-group
-            :disabled="EditorOption.EditMode!='edit'"
-            v-model="EditorOption.EditAction"
-            @change="()=>{PathEditTempStore=[]}"
-            size="large"
-          >
-            <el-radio-button size="small" label="add-path">新增路徑</el-radio-button>
-            <el-radio-button size="small" label="remove-path">移除路徑</el-radio-button>
-          </el-radio-group>
-        </div>
-      </div>
-      <div
-        v-show="ShowWarningNotify"
-        class="bg-warning text-light border rounded p-2"
-        style="position:absolute;right:133px;top:52px"
-      >目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作</div>
       <div class="flex-fill d-flex flex-column">
-        <div class="border-bottom bg-light text-start w-100 p-1 d-flex">
-          <div v-if="station_show" class="px-1 rounded">
-            <span class="mx-1">
-              <i class="bi bi-three-dots-vertical"></i>顯示名稱
-            </span>
-            <el-radio-group
-              v-model="station_name_display_mode"
-              class="ml-4"
-              @change="StationNameDisplayOptHandler"
-            >
-              <el-radio label="index" size="large">Index</el-radio>
-              <el-radio label="name" size="large">Name</el-radio>
-              <el-radio label="tag" size="large">Tag</el-radio>
-            </el-radio-group>
+        <!-- 編輯選項 -->
+        <div v-if="editable" class="editor-option">
+          <div class="edit-block action-buttons">
+            <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
+            <b-button variant="danger">重新載入</b-button>
           </div>
-          <div v-if="agv_show" class="mx-1 px-1 rounded">
-            <span class="mx-1">
-              <i class="bi bi-three-dots-vertical"></i>AGV 顯示
-            </span>
-            <el-radio-group v-model="agv_display" class="ml-4" @change="AgvDisplayOptHandler">
-              <el-radio label="visible" size="large">顯示</el-radio>
-              <el-radio label="none" size="large">隱藏</el-radio>
-            </el-radio-group>
+          <div class="d-flex">
+            <div class="edit-block">
+              <span>
+                <i class="bi bi-three-dots-vertical"></i>模式
+              </span>
+              <el-radio-group v-model="EditorOption.EditMode" size="large">
+                <el-radio-button size="small" label="view">檢視</el-radio-button>
+                <el-radio-button size="small" label="edit">編輯</el-radio-button>
+              </el-radio-group>
+            </div>
+            <div class="edit-block d-flex">
+              <span>
+                <i class="bi bi-three-dots-vertical"></i>編輯動作
+              </span>
+              <el-radio-group
+                :disabled="EditorOption.EditMode!='edit'"
+                v-model="EditorOption.EditAction"
+                size="large"
+              >
+                <el-radio-button size="small" label="none">無</el-radio-button>
+                <el-radio-button size="small" label="add-station">新增點位</el-radio-button>
+                <el-radio-button size="small" label="remove-station">移除點位</el-radio-button>
+              </el-radio-group>
+              <el-radio-group
+                class="mx-1"
+                :disabled="EditorOption.EditMode!='edit'"
+                v-model="EditorOption.EditAction"
+                @change="()=>{PathEditTempStore=[]}"
+                size="large"
+              >
+                <el-radio-button size="small" label="add-path">新增路徑</el-radio-button>
+                <el-radio-button size="small" label="remove-path">移除路徑</el-radio-button>
+              </el-radio-group>
+            </div>
           </div>
-          <div class="mx-1 px-1 rounded">
-            <span class="mx-1">
-              <i class="bi bi-three-dots-vertical"></i>Slam底圖顯示
-            </span>
-            <el-radio-group
-              v-model="map_image_display"
-              class="ml-4"
-              @change="SlamImageDisplayOptHandler"
-            >
-              <el-radio label="visible" size="large">顯示</el-radio>
-              <el-radio label="none" size="large">隱藏</el-radio>
-            </el-radio-group>
-          </div>
+          <div
+            v-show="ShowWarningNotify"
+            class="bg-warning text-light border rounded p-1"
+          >目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作</div>
         </div>
-        <div class="text-start w-100 p-1 bg-light d-flex">
-          <div class="px-1 rounded">
-            <span class="mx-1">
-              <i class="bi bi-three-dots-vertical"></i>地圖模式
-            </span>
-            <el-radio-group
-              v-model="map_display_mode"
-              class="ml-4"
-              @change="MapDisplayModeOptHandler"
-            >
-              <el-radio label="coordination" size="large">Slam座標</el-radio>
-              <el-radio label="router" size="large">路網</el-radio>
-            </el-radio-group>
-          </div>
-          <div v-if="editable" class="px-1 rounded">
-            <span class="mx-1">
-              <i class="bi bi-three-dots-vertical"></i>AGV上報點位模式
-            </span>
-            <el-switch
-              inactive-text="OFF"
-              active-text="ON"
-              inline-prompt
-              v-model="agv_upload_coordination_mode"
-            ></el-switch>
-          </div>
-        </div>
-
+        <!-- map render -->
         <div
           id="agv_map"
           class="agv_map flex-fll"
           v-bind:class="map_display_mode == 'coordination' ?'bg-light':'bg-dark'"
+          @contextmenu="showContextMenu($event)"
         >
           <div v-if="true" class="ol-control custom-buttons">
             <button @click="HandleSettingBtnClick">
@@ -132,7 +68,69 @@
         </div>
         <MapSettingsDialog ref="settings"></MapSettingsDialog>
       </div>
+      <!-- 設定 -->
+      <div class="options bg-light border-start text-start px-1 py-3">
+        <div v-if="station_show" class="rounded d-flex flex-column">
+          <span class="border-bottom">顯示名稱</span>
+          <el-radio-group
+            v-model="station_name_display_mode"
+            @change="StationNameDisplayOptHandler"
+          >
+            <el-radio label="index" size="large">Index</el-radio>
+            <el-radio label="name" size="large">Name</el-radio>
+            <el-radio label="tag" size="large">Tag</el-radio>
+          </el-radio-group>
+        </div>
+        <div v-if="agv_show" class="rounded">
+          <span class="mx-1">
+            <i class="bi bi-three-dots-vertical"></i>AGV 顯示
+          </span>
+          <el-radio-group v-model="agv_display" class="ml-4" @change="AgvDisplayOptHandler">
+            <el-radio label="visible" size="large">顯示</el-radio>
+            <el-radio label="none" size="large">隱藏</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="rounded">
+          <span class="mx-1">Slam底圖顯示</span>
+          <el-radio-group
+            v-model="map_image_display"
+            class="ml-4"
+            @change="SlamImageDisplayOptHandler"
+          >
+            <el-radio label="visible" size="large">顯示</el-radio>
+            <el-radio label="none" size="large">隱藏</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="rounded">
+          <span class="mx-1">地圖模式</span>
+          <el-radio-group
+            v-model="map_display_mode"
+            class="ml-4"
+            @change="MapDisplayModeOptHandler"
+          >
+            <el-radio label="coordination" size="large">Slam座標</el-radio>
+            <el-radio label="router" size="large">路網</el-radio>
+          </el-radio-group>
+        </div>
+        <div v-if="editable" class="rounded">
+          <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
+            <span class="mx-1">AGV上報點位模式</span>
+          </el-tooltip>
+          <el-switch
+            class="my-2"
+            inactive-text="OFF"
+            active-text="ON"
+            inline-prompt
+            v-model="agv_upload_coordination_mode"
+          ></el-switch>
+        </div>
+      </div>
     </div>
+    <PointContextMenu
+      v-show="contextMenuVisible"
+      :mouse_click_position="[contextMenuTop,contextMenuLeft]"
+      :options="contextMenuOptions"
+    ></PointContextMenu>
   </div>
 </template>
 
@@ -157,11 +155,12 @@ import MousePosition from 'ol/control/MousePosition.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, SetPathColor } from './mapjs'
+import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, SetPathColor, MapContextMenuOptions } from './mapjs'
 import MapSettingsDialog from './MapSettingsDialog.vue';
+import PointContextMenu from './MapContextMenu.vue'
 export default {
   components: {
-    MapSettingsDialog,
+    MapSettingsDialog, PointContextMenu
   },
   props: {
     map_stations: {
@@ -259,7 +258,11 @@ export default {
       agv_display: 'visible',
       map_image_display: 'none',
       previousSelectedFeature: undefined,
-      agv_upload_coordination_mode: false
+      agv_upload_coordination_mode: false,
+      contextMenuVisible: false,
+      contextMenuTop: 0,
+      contextMenuLeft: 0,
+      contextMenuOptions: new MapContextMenuOptions()
     }
   },
   computed: {
@@ -375,22 +378,17 @@ export default {
       var dragInteraction = new Pointer({
         /**滑鼠點下事件 */
         handleDownEvent: function (event) {
+          this_vue.contextMenuVisible = false;
+
+          this_vue.ClearSelectedFeature();
           var map = event.map;
           var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) {
             return feature;
           });
           this.coordinate_ = event.coordinate;
-          if (this_vue.EditorOption.EditMode == 'view') {
-            if (feature) {
-              this_vue.HighLightFeatureSelected(feature)
-            }
-            return false;
-          }
-
           var currentAction = this_vue.EditorOption.EditAction;
-
-
           if (!feature) {
+
             this_vue.IsDragging = false;
             if (currentAction == 'add-station' && event.originalEvent.button == 2) {
 
@@ -415,6 +413,11 @@ export default {
               //this_vue.map_stations.push(station)
             } else
               return false;
+          }
+
+          this_vue.HighLightFeatureSelected(feature)
+          if (this_vue.EditorOption.EditMode == 'view') {
+            return false;
           }
 
           var featureType = feature.get('feature_type');
@@ -811,13 +814,20 @@ export default {
     HandleSettingBtnClick() {
       this.$refs.settings.show = true;
     },
+    ClearSelectedFeature() {
+      try {
+
+        var oriStyle = this.previousSelectedFeature.get('oristyle')
+        this.previousSelectedFeature.setStyle(oriStyle);
+      } catch {
+
+      }
+      this.previousSelectedFeature = undefined
+    },
     HighLightFeatureSelected(feature = new Feature()) {
       try {
 
-        if (this.previousSelectedFeature) {
-          var oriStyle = this.previousSelectedFeature.get('oristyle')
-          this.previousSelectedFeature.setStyle(oriStyle);
-        }
+        this.ClearSelectedFeature();
         var style = feature.getStyle()
         if (!style)
           return;
@@ -872,6 +882,22 @@ export default {
           this.PointLayer.getSource().addFeature(feature)
         }
       })
+    },
+    showContextMenu(event) {
+
+      debugger
+      event.preventDefault();
+      if (this.EditorOption.EditAction == 'add-station')
+        return;
+      if (this.previousSelectedFeature) {
+        this.contextMenuTop = event.clientY;
+        this.contextMenuLeft = event.clientX;
+        var data = this.previousSelectedFeature.get('data');
+
+        this.contextMenuOptions.title = data.Name
+        this.contextMenuOptions.point_data = data
+        this.contextMenuVisible = true;
+      }
     }
   },
 
@@ -888,15 +914,14 @@ export default {
     )
 
     watch(() => this.agv_option, (newval, oldval) => {
-
       this.UpdateAGVLayer()
     }, { deep: true, immediate: true })
 
     bus.on('/show_agv_at_center', agv_name => {
       // alert(agv_name)
       this.ResetMapCenterViaAGVLoc(agv_name)
-
     })
+
     watch(
       () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
         if (this.agv_upload_coordination_mode) {
@@ -914,10 +939,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.map-component {
+  width: 100%;
+}
 .custom-buttons {
   // top: 133px;
   text-align: right;
-
+  z-index: 1;
   flex-direction: column;
   margin-top: 55px;
   padding-left: 7px;
@@ -934,6 +962,7 @@ export default {
   }
 }
 .cursour-coordination-show {
+  z-index: 0;
   padding-left: 37px;
   margin-top: 10px;
   width: 120px;
@@ -944,17 +973,34 @@ export default {
 
 .cursour-coordination-show,
 .custom-buttons {
-  z-index: 2;
   position: absolute;
   background-color: transparent;
   display: flex;
 }
+
+.options {
+  text-align: left;
+  label {
+    width: 100%;
+    margin-right: auto;
+    height: 25px;
+  }
+  div {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 6px;
+    padding: 3px;
+    span {
+      border-bottom: 1px solid gainsboro;
+      font-weight: bold;
+    }
+  }
+}
+
 .editor-option {
-  width: 280px;
-  background-color: rgb(51, 51, 51);
-  color: white;
+  width: 100%;
   border-radius: 3px;
-  border: 1px solid grey;
+  border: 1px solid rgb(218, 218, 218);
   padding: 3px;
   margin-inline: 2px;
 
@@ -971,8 +1017,8 @@ export default {
     flex-direction: row;
     padding: 5px;
     span {
-      width: 80px;
       text-align: left;
+      margin-right: 10px;
     }
   }
 }

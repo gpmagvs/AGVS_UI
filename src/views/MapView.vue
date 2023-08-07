@@ -2,7 +2,6 @@
   <div class="map-view h-100 d-flex flex-row my-1">
     <div></div>
     <MapShow
-      class="w-100"
       :map_stations="map_station_data"
       :agv_upload_coordi_data="agv_upload_data"
       @save="SaveMapClickHandle"
@@ -32,6 +31,7 @@ export default {
       path_plan_point_from: 1,
       path_plan_point_to: 2,
       tags: [1, 2, 3, 59, 11],
+      map_saving: false
     }
   },
   computed: {
@@ -43,6 +43,9 @@ export default {
     },
     agv_upload_data() {
       return MapStore.getters.AGVLocUpload
+    },
+    loadingText() {
+      return "圖資儲存中..."
     }
   },
   methods: {
@@ -51,7 +54,18 @@ export default {
       console.log(points_data);
       var mapData = MapStore.getters.MapData
       mapData.Points = points_data;
+      this.map_saving = true;
+      this.$swal.fire(
+        {
+          text: '',
+          title: '圖資儲存中...',
+          icon: 'warning',
+          showCancelButton: false,
+          showConfirmButton: false,
+          customClass: 'my-sweetalert',
+        })
       var success = await MapAPI.SaveMap(mapData);
+      this.map_saving = false;
       if (success) {
         //Notifier.Success('圖資儲存成功');
         this.$swal.fire({
@@ -97,9 +111,6 @@ export default {
 .map-view {
   position: absolute;
   top: 50px;
-  width: 100%;
-  .opts-container {
-    width: 30%;
-  }
+  width: 96%;
 }
 </style>

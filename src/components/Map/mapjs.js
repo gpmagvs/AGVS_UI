@@ -303,3 +303,11 @@ export class MapPointModel {
         this.RegistInfo = null
     }
 }
+
+export class MapContextMenuOptions {
+    constructor() {
+        this.title = 'title'
+        this.backgroundColor = 'white'
+        this.point_data = new MapPointModel()
+    }
+}
