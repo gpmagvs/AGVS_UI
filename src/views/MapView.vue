@@ -4,6 +4,7 @@
     <MapShow
       class="w-100"
       :map_stations="map_station_data"
+      :agv_upload_coordi_data="agv_upload_data"
       @save="SaveMapClickHandle"
       :editable="true"
       :agv_show="false"
@@ -39,6 +40,9 @@ export default {
     },
     map_station_data() {
       return MapStore.getters.MapStations
+    },
+    agv_upload_data() {
+      return MapStore.getters.AGVLocUpload
     }
   },
   methods: {

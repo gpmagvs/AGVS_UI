@@ -18,3 +18,12 @@ worker2.onmessage = (event) => {
 }
 
 worker2.postMessage({ command: 'connect', ws_url: param.vms_ws_host + '/ws/AGVNaviPathsInfo' });
+
+const worker3 = new Worker('websocket_worker.js')
+
+worker3.onmessage = (event) => {
+    if (event.data != 'error' && event.data != 'closed')
+        MapStore.commit('setAGVLocUpload', event.data)
+}
+
+worker3.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/AGVLocationUpload' });

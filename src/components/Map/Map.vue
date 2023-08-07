@@ -101,6 +101,17 @@
               <el-radio label="router" size="large">路網</el-radio>
             </el-radio-group>
           </div>
+          <div v-if="editable" class="px-1 rounded">
+            <span class="mx-1">
+              <i class="bi bi-three-dots-vertical"></i>AGV上報點位模式
+            </span>
+            <el-switch
+              inactive-text="OFF"
+              active-text="ON"
+              inline-prompt
+              v-model="agv_upload_coordination_mode"
+            ></el-switch>
+          </div>
         </div>
 
         <div
@@ -181,6 +192,12 @@ export default {
       type: Boolean,
       default: true
     },
+    agv_upload_coordi_data: {
+      type: Object,
+      default() {
+        return {}
+      }
+    }
   },
   data() {
     return {
@@ -241,7 +258,8 @@ export default {
       station_name_display_mode: 'name',
       agv_display: 'visible',
       map_image_display: 'none',
-      previousSelectedFeature: undefined
+      previousSelectedFeature: undefined,
+      agv_upload_coordination_mode: false
     }
   },
   computed: {
@@ -387,6 +405,8 @@ export default {
               mapPtModel.StationType = 0
               mapPtModel.X = event.coordinate[0]
               mapPtModel.Y = event.coordinate[1]
+              mapPtModel.Graph.X = parseInt(Math.round(event.coordinate[0]));
+              mapPtModel.Graph.Y = parseInt(Math.round(event.coordinate[1]));
               mapPtModel.Name = station.index + ''
               mapPtModel.TagNumber = station.index
 
@@ -527,7 +547,6 @@ export default {
 
     },
     CreateStationFeature(station = new clsMapStation()) {
-      debugger
       const iconFeature = new Feature({
         geometry: new Point(station.coordination)
         // geometry: new Point(station.graph)
@@ -687,7 +706,7 @@ export default {
     },
     MapDisplayModeOptHandler() {
       var isShowSlamCoordi = this.map_display_mode == "coordination";
-      SetPathColor(isShowSlamCoordi ? 'rgb(166, 166, 166)' : this.map_image_display == 'visible' ?'rgb(166, 166, 166)':'white')
+      SetPathColor(isShowSlamCoordi ? 'rgb(166, 166, 166)' : this.map_image_display == 'visible' ? 'rgb(166, 166, 166)' : 'white')
       this.UpdateStationPathLayer()
       this.StationNameDisplayOptHandler();
       this.PointLayer.setVisible(isShowSlamCoordi);
@@ -793,7 +812,6 @@ export default {
       this.$refs.settings.show = true;
     },
     HighLightFeatureSelected(feature = new Feature()) {
-      debugger
       try {
 
         if (this.previousSelectedFeature) {
@@ -819,6 +837,41 @@ export default {
       } catch (error) {
 
       }
+    },
+    HandleAGVUploadData(coordinates = [{ TagNumber: 0, X: 0, Y: 0, Theta: 0 }]) {
+
+      var currentPtFeatures = this.PointLayer.getSource().getFeatures();
+
+      Object.values(coordinates).forEach(coorInfo => {
+        var existFeature = currentPtFeatures.find(pt => pt.get('data').TagNumber == coorInfo.TagNumber)
+        if (existFeature) {
+          existFeature.setGeometry(new Point([coorInfo.X, coorInfo.Y]))
+          var oriData = existFeature.get('data');
+          oriData.Direction = parseInt(Math.round(coorInfo.Theta));
+          existFeature.set('data', oriData)
+        } else {
+          debugger
+          var station = new clsMapStation()
+          station.coordination = [coorInfo.X, coorInfo.Y];
+          station.index = this.GenNewIndexOfStation();
+          station.station_type = 0;
+          station.name = coorInfo.TagNumber + ''
+          station.tag = coorInfo.TagNumber
+
+          var mapPtModel = new MapPointModel()
+          mapPtModel.StationType = 0
+          mapPtModel.X = coorInfo.X
+          mapPtModel.Y = coorInfo.Y
+          mapPtModel.Graph.X = parseInt(Math.round(coorInfo.X));
+          mapPtModel.Graph.Y = parseInt(Math.round(coorInfo.Y));
+          mapPtModel.Name = coorInfo.TagNumber + ''
+          mapPtModel.TagNumber = coorInfo.TagNumber
+          mapPtModel.Direction = parseInt(Math.round(coorInfo.Theta));
+          station.data = mapPtModel
+          var feature = this.CreateStationFeature(station)
+          this.PointLayer.getSource().addFeature(feature)
+        }
+      })
     }
   },
 
@@ -844,6 +897,14 @@ export default {
       this.ResetMapCenterViaAGVLoc(agv_name)
 
     })
+    watch(
+      () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
+        if (this.agv_upload_coordination_mode) {
+          this.HandleAGVUploadData(newval)
+        }
+
+      }, { deep: true, immediate: true }
+    )
 
     document.getElementById('agv_map').addEventListener('contextmenu', (ev) => {
       ev.preventDefault()

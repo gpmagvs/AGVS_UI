@@ -66,7 +66,8 @@ export const MapStore = createStore({
   state: {
     MapData: null,
     MapGeoJson: null,
-    AGVDynamicPathInfo: undefined
+    AGVDynamicPathInfo: undefined,
+    AGVLocUpload: {}
   },
   getters: {
     MapData: state => {
@@ -115,6 +116,9 @@ export const MapStore = createStore({
     AGVDynamicPathInfo: state => {
 
       return state.AGVDynamicPathInfo
+    },
+    AGVLocUpload: state => {
+      return state.AGVLocUpload;
     }
   },
   mutations: {
@@ -127,6 +131,9 @@ export const MapStore = createStore({
     },
     setAGVDynamicPathInfo(state, info) {
       state.AGVDynamicPathInfo = info
+    },
+    setAGVLocUpload(state, data) {
+      state.AGVLocUpload = data
     }
   },
   actions: {

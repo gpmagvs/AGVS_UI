@@ -9,11 +9,17 @@
               <el-form-item label="充電站名稱">
                 <el-tag>{{ name }}</el-tag>
               </el-form-item>
+              <el-form-item label="連線狀態">
+                <el-tag
+                  effect="dark"
+                  :type="data.Connected?'primary':'danger'"
+                >{{ data.Connected?'Connected':'Disconnect' }}</el-tag>
+              </el-form-item>
               <el-form-item label="狀態">
                 <el-tag
                   effect="dark"
-                  :type="GetTagType(data.ErrorCodes)"
-                >{{data.ErrorCodes.length==0?'Normal':'Warning' }}</el-tag>
+                  :type="GetTagType(data)"
+                >{{!data.Connected?'Disconnect': data.ErrorCodes.length==0?'Normal':'Warning' }}</el-tag>
               </el-form-item>
               <el-form-item label="異常碼">
                 <div class="row" style="width:390px;padding-left:12px">
@@ -85,8 +91,11 @@ export default {
     }
   },
   methods: {
-    GetTagType(errorCodes) {
-      if (errorCodes.length == 0)
+    GetTagType(data) {
+      if (!data.Connected) {
+        return 'danger'
+      }
+      if (data.ErrorCodes.length == 0)
         return 'success'
       else {
         return 'warning'
