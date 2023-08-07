@@ -103,7 +103,11 @@
           </div>
         </div>
 
-        <div id="agv_map" class="agv_map flex-fll">
+        <div
+          id="agv_map"
+          class="agv_map flex-fll"
+          v-bind:class="map_display_mode == 'coordination' ?'bg-light':'bg-dark'"
+        >
           <div v-if="true" class="ol-control custom-buttons">
             <button @click="HandleSettingBtnClick">
               <i class="bi bi-sliders"></i>
@@ -142,7 +146,7 @@ import MousePosition from 'ol/control/MousePosition.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle } from './mapjs'
+import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, SetPathColor } from './mapjs'
 import MapSettingsDialog from './MapSettingsDialog.vue';
 export default {
   components: {
@@ -675,10 +679,15 @@ export default {
       this.AGVLocLayer.setVisible(this.agv_display == 'visible')
     },
     SlamImageDisplayOptHandler() {
+      if (this.map_display_mode != 'coordination') {
+        SetPathColor(this.map_image_display == 'visible' ? 'rgb(166, 166, 166)' : 'white')
+        this.UpdateStationPathLayer()
+      }
       this.ImageLayer.setVisible(this.map_image_display == 'visible')
     },
     MapDisplayModeOptHandler() {
       var isShowSlamCoordi = this.map_display_mode == "coordination";
+      SetPathColor(isShowSlamCoordi ? 'rgb(166, 166, 166)' : this.map_image_display == 'visible' ?'rgb(166, 166, 166)':'white')
       this.UpdateStationPathLayer()
       this.StationNameDisplayOptHandler();
       this.PointLayer.setVisible(isShowSlamCoordi);
@@ -909,6 +918,5 @@ export default {
 .agv_map {
   width: 100%;
   height: 786px;
-  background-color: rgb(255, 255, 255);
 }
 </style>

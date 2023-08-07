@@ -9,7 +9,12 @@ const station_colors = {
     stk: 'lime'
 }
 
+/**路徑顏色 */
+var pathColor = 'rgb(166, 166, 166)'
 
+export function SetPathColor(color) {
+    pathColor = color;
+}
 
 const eq_station_icon = new Icon({
     src: '/images/eq-icon.png', // 设置PNG图像的路径
@@ -118,7 +123,7 @@ export function CreateStationPathStyles(feature) {
     const styles = [
         new Style({
             stroke: new Stroke({
-                color: isPathClose ? 'red' : (isEQLink ? 'rgb(115, 115, 115)' : 'rgb(176, 176, 178)'),
+                color: isPathClose ? 'red' : pathColor,
                 width: 2.7,
                 lineDash: isEQLink ? [4, 11] : null // 虛線模式（設定虛線段的長度和間隔）
             }),
@@ -139,7 +144,7 @@ export function CreateStationPathStyles(feature) {
                     rotateWithView: true,
                     rotation: -rotation,
                     scale: 0.22,
-                    color: isPathClose ? 'red' : 'white'
+                    color: isPathClose ? 'red' : pathColor
                 }),
             })
         );
