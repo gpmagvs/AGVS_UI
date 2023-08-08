@@ -1,8 +1,9 @@
 import { createStore } from 'vuex'
 import { Login, StoreToLocalStorage } from '@/api/UserAPI';
 import MapAPI from '@/api/MapAPI'
-import { clsMapStation } from '@/components/Map/mapjs';
-import { createStringXY } from 'ol/coordinate';
+import { AGVOption, clsAGVDisplay, clsMapStation, StationSelectOptions } from '@/components/Map/mapjs';
+import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
+
 
 export default createStore({
 
@@ -23,6 +24,22 @@ export default createStore({
   }
 })
 
+export const agv_states_store = createStore({
+  state: {
+    agv_states: [new clsAGVStateDto()]
+  },
+  getters: {
+    AGVStatesData: state => state.agv_states,
+    AGVNameList: state => {
+      return state.agv_states.map(agv => agv.AGV_Name)
+    }
+  },
+  mutations: {
+    storeAgvStates(state, data) {
+      state.agv_states = data
+    }
+  }
+})
 
 /**系統參數設定狀態管理 */
 export const agvs_settings_store = createStore({
@@ -67,7 +84,15 @@ export const MapStore = createStore({
     MapData: null,
     MapGeoJson: null,
     AGVDynamicPathInfo: undefined,
-    AGVLocUpload: {}
+    AGVLocUpload: {},
+    agv_colors: [
+      '#42c2f5',
+      'limegreen',
+      'orange',
+      'pink',
+      'red',
+      'purple',
+    ]
   },
   getters: {
     MapData: state => {
@@ -119,6 +144,55 @@ export const MapStore = createStore({
     },
     AGVLocUpload: state => {
       return state.AGVLocUpload;
+    },
+    AGVNavInfo: (state, getters) => {
+      var agv_nav_info = state.AGVDynamicPathInfo;
+      if (agv_nav_info == undefined) {
+        return new AGVOption(0, [])
+      }
+      var agv_num = Object.keys(agv_nav_info).length;
+      var agvDataLs = [];
+      var index = 0;
+      console.info(agv_nav_info)
+      Object.keys(agv_nav_info).forEach(name => {
+        var data = agv_nav_info[name]
+        var pathtags = data.nav_path
+        var pathCoordinations = []
+
+        if (pathtags) {
+
+          pathtags.forEach(tag => {
+            var pt = getters.MapStations.find(st => st.tag == tag)
+            pathCoordinations.push(pt.coordination)
+          })
+        }
+
+        agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], [data.currentCoordication.X, data.currentCoordication.Y], pathCoordinations))
+        index += 1;
+      })
+      var _AGVOption = new AGVOption(agv_num, agvDataLs)
+      return _AGVOption;
+    },
+    AllNormalStationOptions: state => {
+      //[{tag:1,name:'' }]
+      var points = Object.values(state.MapData.Points)
+      var points = points.filter(pt => pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `[Normal] ${pt.Name}(Tag=${pt.TagNumber})`))
+      return points;
+    },
+    AllEqStation: state => {
+      var points = Object.values(state.MapData.Points)
+      var options = points.filter(pt => pt.StationType == 1).map(pt => new StationSelectOptions(pt.TagNumber, `[EQ] ${pt.Name}(Tag=${pt.TagNumber})`))
+      return options;
+    },
+    AllChargeStation: state => {
+      var points = Object.values(state.MapData.Points)
+      var options = points.filter(pt => pt.StationType == 3).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
+      return options;
+    },
+    AllParkingStationOptions: state => {
+      var points = Object.values(state.MapData.Points)
+      var options = points.filter(pt => pt.IsParking == true).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
+      return options;
     }
   },
   mutations: {

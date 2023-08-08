@@ -1,5 +1,20 @@
-import { EqStore, MapStore } from "./store";
+import { EqStore, MapStore, agv_states_store } from "./store";
 import param from "./gpm_param";
+import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
+
+
+
+
+const agv_states_data_fetch_worker = new Worker('websocket_worker.js')
+agv_states_data_fetch_worker.onmessage = (event) => {
+    if (event.data != 'error' && event.data != 'closed') {
+
+        var data = Object.values(event.data).map(d => new clsAGVStateDto(d));
+        agv_states_store.commit('storeAgvStates', data)
+    }
+}
+agv_states_data_fetch_worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/VMSStatus' });
+
 
 const worker = new Worker('websocket_worker.js')
 

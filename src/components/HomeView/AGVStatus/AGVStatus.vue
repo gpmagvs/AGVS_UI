@@ -58,7 +58,11 @@
           <el-table-column label="位置" prop="StationName" align="left">
             <template #default="scope">
               <div>
-                <i class="bi bi-geo-alt-fill" style="font-size:20px;cursor:pointer" @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
+                <i
+                  class="bi bi-geo-alt-fill"
+                  style="font-size:20px;cursor:pointer"
+                  @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"
+                ></i>
                 <b>{{ scope.row.StationName }}</b>
               </div>
             </template>
@@ -146,17 +150,14 @@ import WebSocketHelp from '@/api/WebSocketHepler';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
-import { userStore, agvs_settings_store } from '@/store'
+import { userStore, agvs_settings_store, agv_states_store } from '@/store'
 import param from '@/gpm_param';
 export default {
   mounted() {
-    this.WebSocketInit();
   },
   data() {
     return {
-      AGVDatas: [
-        new clsAGVStateDto()
-      ],
+
       ShowOnlineStateChange: false,
       ShowChargeConfirmDialog: false,
       OnlineStatusReq: {
@@ -167,15 +168,7 @@ export default {
     }
   },
   methods: {
-    WebSocketInit() {
-      const worker = new Worker('websocket_worker.js')
-      worker.onmessage = (event) => {
 
-        const data = event.data;
-        this.AGVDatas = Object.values(data).map(d => new clsAGVStateDto(d));
-      }
-      worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/VMSStatus' });
-    },
     HandleShowAGVInMapCenter(agv_name) {
       bus.emit('/show_agv_at_center', agv_name)
     },
@@ -195,7 +188,7 @@ export default {
         return;
       }
 
-      bus.emit('bus-show-task-allocation', clsAgvStatus);
+      bus.emit('bus-show-task-allocation', { agv_name: clsAgvStatus.AGV_Name, action: '', station_data: undefined });
     },
     ShowOnlineStateChangeModal(agv_name, current_online_status, Model) {
 
@@ -306,6 +299,9 @@ export default {
     }
   },
   computed: {
+    AGVDatas() {
+      return agv_states_store.getters.AGVStatesData;
+    },
     Groups() {
 
       function GetGroupName(group_enum) {
@@ -349,7 +345,6 @@ export default {
 
 <style lang="scss" >
 .agv-status {
-
   .online-status-div:hover {
     cursor: pointer;
   }

@@ -1,20 +1,55 @@
 <template>
   <div class="map-menu border" v-bind:style="menu_style">
     <div class="title border-bottom">{{ options.title }}</div>
-    <div class="menu edit">
-      <button @click="()=>{point_setting_visible=true}">設定點位</button>
-    </div>
 
-    <el-dialog
-      :title="options.point_data.Name+`(Tag${options.point_data.TagNumber})`"
-      v-model="point_setting_visible"
-    ></el-dialog>
+    <div v-if="options.show_task_dispatch" class="menu task">
+      <span>站點類型{{ options.task_options.StationType }}</span>
+      <div v-if="station_type==0">
+        <!-- 一般點位可指派之任務 -->
+        <b-button
+          variant="primary"
+          @click="()=>{$emit('OnTaskBtnClick',{action:'move',station_data:station_data})}"
+        >移動</b-button>
+      </div>
+      <div v-if="station_type==1|station_type==2" class="d-flex flex-column">
+        <!-- EQ可指派之任務 -->
+        <b-button
+          variant="primary"
+          @click="()=>{$emit('OnTaskBtnClick',{action:'unload',station_data:station_data})}"
+        >取貨</b-button>
+        <b-button
+          variant="primary"
+          @click="()=>{$emit('OnTaskBtnClick',{action:'load',station_data:station_data})}"
+        >放貨</b-button>
+        <b-button
+          variant="primary"
+          @click="()=>{$emit('OnTaskBtnClick',{action:'carry',station_data:station_data})}"
+        >搬運</b-button>
+      </div>
+      <div v-if="station_type==3">
+        <b-button
+          variant="primary"
+          @click="()=>{$emit('OnTaskBtnClick',{action:'charge',station_data:station_data})}"
+        >充電</b-button>
+      </div>
+      <div v-if="station_data.IsParking">
+        <b-button
+          variant="primary"
+          @click="()=>{$emit('OnTaskBtnClick',{action:'park',station_data:station_data})}"
+        >停車</b-button>
+      </div>
+    </div>
+    <div v-else class="menu edit">
+      <b-button variant="primary" @click="()=>{$emit('OnPtSettingBtnClick','')}">設定點位</b-button>
+    </div>
   </div>
 </template>
 
 <script>
-import { MapContextMenuOptions } from './mapjs'
+import { MapContextMenuOptions, MenuUseTaskOption } from './mapjs'
 export default {
+  components: {
+  },
   props: {
     mouse_click_position: {
       type: Array,
@@ -36,11 +71,16 @@ export default {
         left: this.mouse_click_position[1] + 'px',
         backgroundColor: this.options.backgroundColor
       }
+    },
+    station_type() {
+      return this.options.task_options.StationType;
+    },
+    station_data() {
+      return this.options.point_data;
     }
   },
   data() {
     return {
-      point_setting_visible: false
     }
   },
 }
@@ -68,12 +108,17 @@ export default {
       border: 1px solid rgb(168, 168, 168);
       border-radius: 5px;
       margin: 2px auto;
-      background-color: white;
       width: 130px;
     }
     button:hover {
       background-color: limegreen;
       color: white;
+    }
+  }
+  .task {
+    span {
+      font-size: 10px;
+      color: grey;
     }
   }
 }

@@ -6,7 +6,7 @@
         <div v-if="editable" class="editor-option">
           <div class="edit-block action-buttons">
             <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
-            <b-button variant="danger">重新載入</b-button>
+            <b-button variant="danger" @click="ReloadMap">重新載入</b-button>
           </div>
           <div class="d-flex">
             <div class="edit-block">
@@ -49,12 +49,7 @@
           >目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作</div>
         </div>
         <!-- map render -->
-        <div
-          id="agv_map"
-          class="agv_map flex-fll"
-          v-bind:class="map_display_mode == 'coordination' ?'bg-light':'bg-dark'"
-          @contextmenu="showContextMenu($event)"
-        >
+        <div :id="id" class="agv_map flex-fll" @contextmenu="showContextMenu($event)">
           <div v-if="true" class="ol-control custom-buttons">
             <button @click="HandleSettingBtnClick">
               <i class="bi bi-sliders"></i>
@@ -70,6 +65,17 @@
       </div>
       <!-- 設定 -->
       <div class="options bg-light border-start text-start px-1 py-3">
+        <div class="rounded">
+          <span class="mx-1">地圖模式</span>
+          <el-radio-group
+            v-model="map_display_mode"
+            class="ml-4"
+            @change="MapDisplayModeOptHandler"
+          >
+            <el-radio label="coordination" size="large">Slam座標</el-radio>
+            <el-radio label="router" size="large">路網</el-radio>
+          </el-radio-group>
+        </div>
         <div v-if="station_show" class="rounded d-flex flex-column">
           <span class="border-bottom">顯示名稱</span>
           <el-radio-group
@@ -101,17 +107,7 @@
             <el-radio label="none" size="large">隱藏</el-radio>
           </el-radio-group>
         </div>
-        <div class="rounded">
-          <span class="mx-1">地圖模式</span>
-          <el-radio-group
-            v-model="map_display_mode"
-            class="ml-4"
-            @change="MapDisplayModeOptHandler"
-          >
-            <el-radio label="coordination" size="large">Slam座標</el-radio>
-            <el-radio label="router" size="large">路網</el-radio>
-          </el-radio-group>
-        </div>
+
         <div v-if="editable" class="rounded">
           <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
             <span class="mx-1">AGV上報點位模式</span>
@@ -126,12 +122,22 @@
         </div>
       </div>
     </div>
+
     <PointContextMenu
-      v-show="contextMenuVisible"
+      ref="EditModeContextMenu"
+      v-show="editModeContextMenuVisible"
       :mouse_click_position="[contextMenuTop,contextMenuLeft]"
       :options="contextMenuOptions"
-    ></PointContextMenu>
+      @OnTaskBtnClick="HandleMenuTaskBtnClick"
+      @OnPtSettingBtnClick="()=>{
 
+        editModeContextMenuVisible=false;
+        $refs.ptsetting.Show({
+          index:previousSelectedFeature.get('index'),
+          point:previousSelectedFeature.get('data')
+        })
+      }"
+    ></PointContextMenu>
     <MapPointSettingDrawer ref="ptsetting" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
   </div>
 </template>
@@ -151,16 +157,14 @@ import { getCenter } from 'ol/extent.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
-import { createStringXY } from 'ol/coordinate.js';
-import { defaults as defaultControls } from 'ol/control.js';
-import MousePosition from 'ol/control/MousePosition.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, SetPathColor, MapContextMenuOptions } from './mapjs'
+import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, MapContextMenuOptions, MenuUseTaskOption } from './mapjs';
 import MapSettingsDialog from './MapSettingsDialog.vue';
-import PointContextMenu from './MapContextMenu.vue'
+import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
+
 export default {
   components: {
     MapSettingsDialog, PointContextMenu, MapPointSettingDrawer
@@ -177,10 +181,12 @@ export default {
       default() {
         return new AGVOption(1, [
           new clsAGVDisplay("AGV_1", "blue", [0, 0]),
-          new clsAGVDisplay("AGV_2", "red", [12.30, 12.30]),
-          new clsAGVDisplay("AGV_3", "orange", [-12.3, 12.30])
         ])
       }
+    },
+    id: {
+      type: String,
+      default: 'agv_map'
     },
     editable: {
       type: Boolean,
@@ -199,6 +205,10 @@ export default {
       default() {
         return {}
       }
+    },
+    task_dispatch_menu_show: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -262,7 +272,8 @@ export default {
       map_image_display: 'none',
       previousSelectedFeature: undefined,
       agv_upload_coordination_mode: false,
-      contextMenuVisible: false,
+      editModeContextMenuVisible: false,
+      taskDispatchContextMenuVisible: false,
       contextMenuTop: 0,
       contextMenuLeft: 0,
       contextMenuOptions: new MapContextMenuOptions()
@@ -381,7 +392,7 @@ export default {
       var dragInteraction = new Pointer({
         /**滑鼠點下事件 */
         handleDownEvent: function (event) {
-          this_vue.contextMenuVisible = false;
+          this_vue.editModeContextMenuVisible = false;
 
           this_vue.ClearSelectedFeature();
           var map = event.map;
@@ -696,23 +707,24 @@ export default {
       }
     },
     GenNewIndexOfStation() {
+
       var currentIndexes = this.PointLayer.getSource().getFeatures().map(fea => fea.get('index'))
-      var sorted = currentIndexes.sort((a, b) => a - b)
-      return sorted.length == 0 ? 0 : sorted[sorted.length - 1] + 1;
+      var sorted = currentIndexes.filter(a => a != undefined).sort((a, b) => a - b)
+      var index = sorted.length == 0 ? 0 : sorted[sorted.length - 1] + 1;
+
+      return index;
     },
     AgvDisplayOptHandler() {
       this.AGVLocLayer.setVisible(this.agv_display == 'visible')
     },
     SlamImageDisplayOptHandler() {
       if (this.map_display_mode != 'coordination') {
-        SetPathColor(this.map_image_display == 'visible' ? 'rgb(166, 166, 166)' : 'white')
         this.UpdateStationPathLayer()
       }
       this.ImageLayer.setVisible(this.map_image_display == 'visible')
     },
     MapDisplayModeOptHandler() {
       var isShowSlamCoordi = this.map_display_mode == "coordination";
-      SetPathColor(isShowSlamCoordi ? 'rgb(166, 166, 166)' : this.map_image_display == 'visible' ? 'rgb(166, 166, 166)' : 'white')
       this.UpdateStationPathLayer()
       this.StationNameDisplayOptHandler();
       this.PointLayer.setVisible(isShowSlamCoordi);
@@ -764,6 +776,26 @@ export default {
       })
       this.$emit('save', mapData)
     },
+    ReloadMap() {
+      this.$swal.fire(
+        {
+          text: '確定要重新載入圖資?',
+          title: '',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          customClass: 'my-sweetalert'
+        }).then((res) => {
+          if (res.isConfirmed) {
+
+            this._map_stations = JSON.parse(JSON.stringify(this.map_stations))
+            console.log('update map ')
+            this.UpdateStationPointLayer();
+            this.UpdateStationPathLayer();
+          }
+        })
+    },
     InitMap() {
       const extent = this.map_img_extent;
       const projection = new Projection({
@@ -791,7 +823,7 @@ export default {
 
       this.map = new Map({
         layers: [this.ImageLayer, this.PointLinksLayer, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
-        target: 'agv_map',
+        target: this.id,
         view: new View({
           projection: projection,
           center: getCenter(extent),
@@ -863,7 +895,7 @@ export default {
           oriData.Direction = parseInt(Math.round(coorInfo.Theta));
           existFeature.set('data', oriData)
         } else {
-          debugger
+
           var station = new clsMapStation()
           station.coordination = [coorInfo.X, coorInfo.Y];
           station.index = this.GenNewIndexOfStation();
@@ -887,11 +919,10 @@ export default {
       })
     },
     showContextMenu(event) {
-
-      debugger
       event.preventDefault();
       if (this.EditorOption.EditAction == 'add-station')
         return;
+
       if (this.previousSelectedFeature) {
         this.contextMenuTop = event.clientY;
         this.contextMenuLeft = event.clientX;
@@ -899,14 +930,46 @@ export default {
 
         this.contextMenuOptions.title = data.Name
         this.contextMenuOptions.point_data = data
-        this.contextMenuVisible = true;
+
+        this.contextMenuOptions.task_options = new MenuUseTaskOption(data.StationType)
+        this.contextMenuOptions.show_task_dispatch = this.task_dispatch_menu_show
+
+
+
+        this.editModeContextMenuVisible = true;
       }
     },
-    PointSettingChangedHandle(index, data) {
-      this.$refs.ptsetting.Show({
-        index: index,
-        pointdata: data
-      })
+    PointSettingChangedHandle(data_dto) {
+
+      var index = data_dto.index;
+      var ptdata = data_dto.pointData;
+
+      //reset ptinformation
+      var feature = this.PointLayer.getSource().getFeatures().find(ft => ft.get('index') == index);
+      feature.set('data', ptdata)
+      feature.set('station_type', ptdata.StationType)
+      feature.setStyle(GetStationStyle(ptdata.Name, ptdata.StationType, ptdata));
+
+      //rename display
+      var style = feature.getStyle()
+      var newStyle = style.clone()
+      var text = newStyle.getText();
+      text.setText(ptdata.Name);
+
+      var stroke = text.getStroke()
+      if (stroke) {
+        var newStroke = stroke.clone();
+        newStroke.setColor('blue')
+        text.setStroke(newStroke)
+      }
+
+      feature.setStyle(newStyle)
+      this.previousSelectedFeature = undefined
+
+    },
+    HandleMenuTaskBtnClick(data = { action: '', station_data: {} }) {
+      this.editModeContextMenuVisible = false;
+      bus.emit('bus-show-task-allocation', data);
     }
   },
 

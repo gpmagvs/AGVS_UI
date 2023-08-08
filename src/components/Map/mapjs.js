@@ -49,11 +49,16 @@ var rack_station_icon = new Icon({
 function normal_station_icon(map_data = {}) {
     var fillColor = 'orange'
     if (map_data) {
-        if (map_data.IsVirtualPoint) {
-            fillColor = 'pink'
-        }
-        if (map_data.IsAvoid) {
-            fillColor = 'blue'
+        if (!map_data.Enable) {
+            fillColor = 'red'
+        } else {
+
+            if (map_data.IsVirtualPoint) {
+                fillColor = 'pink'
+            }
+            if (map_data.IsAvoid) {
+                fillColor = 'blue'
+            }
         }
 
     }
@@ -117,8 +122,12 @@ export function CreateLocusPathStyles(color = 'red', width = 1) {
     return styles;
 }
 export function CreateStationPathStyles(feature) {
+    var data = feature.get('data');
     var isEQLink = feature.get('isEqLink')
-    var isPathClose = feature.get('isPathClose')
+    var isPathClose = false;
+    if (data) {
+        isPathClose = data.IsPathClose
+    }
     const geometry = feature.getGeometry();
     const styles = [
         new Style({
@@ -309,5 +318,22 @@ export class MapContextMenuOptions {
         this.title = 'title'
         this.backgroundColor = 'white'
         this.point_data = new MapPointModel()
+        this.show_task_dispatch = false
+        this.task_options = new MenuUseTaskOption()
+    }
+}
+
+export class MenuUseTaskOption {
+    constructor(StationType) {
+        this.StationType = StationType
+
+    }
+}
+
+/**Select點位選項 */
+export class StationSelectOptions {
+    constructor(tag = 0, name = '') {
+        this.tag = tag
+        this.name = name
     }
 }
