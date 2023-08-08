@@ -15,9 +15,7 @@
   "Show swal confirm dialog_question": {
     "scope": "javascript,typescript",
     "prefix": "swalquestion",
-    "body": [
-      "this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'question',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"
-    ],
+    "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'question',\r\nshowCancelButton:true,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
     "description": "Log output to console"
   },
   "Show swal confirm dialog_error": {

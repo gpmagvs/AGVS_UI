@@ -131,14 +131,7 @@
     >
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
-    <b-modal
-      v-model="ShowChargeConfirmDialog"
-      :centered="true"
-      title="AGV Charge"
-      @ok="AGVChargeTask"
-    >
-      <p ref="charge_confirm_noti_text"></p>
-    </b-modal>
+   
   </div>
 </template>
 
@@ -199,6 +192,7 @@ export default {
       var online_text = this.OnlineStatusReq.Online_Status == 'Online' ? '上線' : '下線';
       var text_class = current_online_status == 0 ? 'text-success' : 'text-danger';
       this.$refs['online_status_change_noti_txt'].innerHTML = `<h4>確定要將 <span > ${this.OnlineStatusReq.AGV_Name}</span><b> <span class='${text_class}'>${online_text}</span></b>  ?</h4>`;
+
       this.ShowOnlineStateChange = true;
     },
     async SendOnlineStateChangeRequest() {
@@ -231,9 +225,22 @@ export default {
         return;
       }
 
+
       this.Agv_Selected = agv_status.AGV_Name;
-      this.$refs["charge_confirm_noti_text"].innerHTML = `確定要將 <b>${agv_status.AGV_Name}</b> 派送至充電站充電?`;
-      this.ShowChargeConfirmDialog = true;
+
+
+      this.$swal.fire(
+        {
+          title: `確定要將${agv_status.AGV_Name}派送至充電站充電?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (res.isConfirmed) {
+            this.AGVChargeTask()
+          }
+        })
     },
     AGVChargeTask() {
       TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))

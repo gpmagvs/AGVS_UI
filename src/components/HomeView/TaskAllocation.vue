@@ -14,7 +14,13 @@
       </template>
       <div class="drawer-content border-top" v-loading="wait_task_confirm">
         <div class="d-flex flex-row py-1 w-100 h-100">
-          <el-form class="bg-dark" label-width="100px" label-position="left" size="large" style="width:500px">
+          <el-form
+            class="bg-dark"
+            label-width="100px"
+            label-position="left"
+            size="large"
+            style="width:500px"
+          >
             <el-form-item label="AGV車輛選擇">
               <el-select class="w-100" v-model="selectedAGVName">
                 <el-option
@@ -83,37 +89,6 @@
         <div v-else class="img delivery"></div>
       </div>
     </el-drawer>
-
-    <!--Modals-->
-    <div class="modals">
-      <b-modal
-        @ok="TaskDeliveryHandle"
-        v-model="confirm_dialog_show"
-        :centered="true"
-        title="Task Delivery"
-        header-bg-variant="primary"
-        header-text-variant="light"
-        :z-index="9999"
-      >
-        <p>
-          <span>Action:{{ selectedAction }}</span>
-        </p>
-        <p>確定要派送此任務?</p>
-      </b-modal>
-
-      <b-modal
-        v-model="notify_dialog_show"
-        :centered="true"
-        title="Warning"
-        :ok-only="true"
-        header-bg-variant="warning"
-        header-text-variant="light"
-      >
-        <p>
-          <span>{{ notify_text }}</span>
-        </p>
-      </b-modal>
-    </div>
   </div>
 </template>
 
@@ -267,7 +242,21 @@ export default {
           })
         return;
       }
-      this.confirm_dialog_show = true;
+      var destinName= this.destinTag
+      this.$swal.fire(
+        {
+          title: '確定要派送此任務?',
+          text: `${this.selectedAGVName} 執行 ${this.selectedAction.toUpperCase()} 任務,終點:${destinName}`,//TODO 完整的名稱
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (res.isConfirmed) {
+            this.TaskDeliveryHandle()
+          }
+        })
     },
     async TaskDeliveryHandle() {
       // TaskAllocation.Task();

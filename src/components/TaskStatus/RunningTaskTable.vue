@@ -35,17 +35,6 @@
         </template>
       </el-table-column>
     </el-table>
-
-    <!--Modal-->
-    <b-modal
-      title="任務取消"
-      :centered="true"
-      header-bg-variant="warning"
-      v-model="showCancelTaskConfirm"
-      @ok="SendCancelTaskRequest"
-    >
-      <p ref="cancel-task-diaglog-text">確定要取消該任務?({{ cancelTaskName}})</p>
-    </b-modal>
   </div>
 </template>
 
@@ -83,7 +72,19 @@ export default {
   methods: {
     CancelTaskHandler(task_name) {
       this.cancelTaskName = task_name;
-      this.showCancelTaskConfirm = true;
+      this.$swal.fire(
+        {
+          title: '確定要取消任務?',
+          text: '任務ID ' + task_name,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (res.isConfirmed) {
+            this.SendCancelTaskRequest()
+          }
+        })
     },
     async SendCancelTaskRequest() {
       await TaskAllocation.Cancel(this.cancelTaskName);
