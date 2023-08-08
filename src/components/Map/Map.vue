@@ -131,6 +131,8 @@
       :mouse_click_position="[contextMenuTop,contextMenuLeft]"
       :options="contextMenuOptions"
     ></PointContextMenu>
+
+    <MapPointSettingDrawer ref="ptsetting" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
   </div>
 </template>
 
@@ -158,9 +160,10 @@ import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs'
 import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, SetPathColor, MapContextMenuOptions } from './mapjs'
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue'
+import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 export default {
   components: {
-    MapSettingsDialog, PointContextMenu
+    MapSettingsDialog, PointContextMenu, MapPointSettingDrawer
   },
   props: {
     map_stations: {
@@ -898,6 +901,12 @@ export default {
         this.contextMenuOptions.point_data = data
         this.contextMenuVisible = true;
       }
+    },
+    PointSettingChangedHandle(index, data) {
+      this.$refs.ptsetting.Show({
+        index: index,
+        pointdata: data
+      })
     }
   },
 
