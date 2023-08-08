@@ -14,13 +14,7 @@
       </template>
       <div class="drawer-content border-top" v-loading="wait_task_confirm">
         <div class="d-flex flex-row py-1 w-100 h-100">
-          <el-form
-            class="bg-dark"
-            label-width="100px"
-            label-position="left"
-            size="large"
-            style="width:500px"
-          >
+          <el-form label-width="100px" label-position="left" size="large" style="width:500px">
             <el-form-item label="AGV車輛選擇">
               <el-select class="w-100" v-model="selectedAGVName">
                 <el-option
@@ -242,7 +236,7 @@ export default {
           })
         return;
       }
-      var destinName= this.destinTag
+      var destinName = this.destinTag
       this.$swal.fire(
         {
           title: '確定要派送此任務?',
