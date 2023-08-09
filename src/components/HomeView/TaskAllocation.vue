@@ -163,6 +163,7 @@ export default {
     ActionChangeHandler(action) {
 
       this.sourceTag = undefined;
+      this.destinTag = undefined;
       // if (action == 'move')
       //   this.Map.Highlight('normal');
       // if (action == 'carry' | action == 'load' | action == 'unload')
@@ -324,6 +325,8 @@ export default {
   mounted() {
     bus.on('bus-show-task-allocation', (data = { agv_name: undefined, action: '', station_data: new MapPointModel() }) => {
       debugger
+      this.sourceTag = undefined;
+      this.destinTag = undefined;
       this.selectedAGVName = undefined;
       this.moveable_tags = MapStore.getters.AllNormalStationOptions
       this.stock_tags = MapStore.getters.AllEqStation

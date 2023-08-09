@@ -406,24 +406,7 @@ export default {
             this_vue.IsDragging = false;
             if (currentAction == 'add-station' && event.originalEvent.button == 2) {
 
-              var station = new clsMapStation()
-              station.coordination = event.coordinate;
-              station.index = this_vue.GenNewIndexOfStation();
-              station.station_type = 0;
-              station.name = station.index + ''
-              station.tag = station.index
-
-              var mapPtModel = new MapPointModel()
-              mapPtModel.StationType = 0
-              mapPtModel.X = event.coordinate[0]
-              mapPtModel.Y = event.coordinate[1]
-              mapPtModel.Graph.X = parseInt(Math.round(event.coordinate[0]));
-              mapPtModel.Graph.Y = parseInt(Math.round(event.coordinate[1]));
-              mapPtModel.Name = station.index + ''
-              mapPtModel.TagNumber = station.index
-
-              station.data = mapPtModel
-              feature = this_vue.CreateStationFeature(station)
+              feature = CreateNewFeature(event.coordinate, feature);
               //this_vue.map_stations.push(station)
             } else
               return false;
@@ -562,6 +545,28 @@ export default {
         this.map.getTargetElement().style.cursor = 'grabbing';
       })
 
+
+      function CreateNewFeature(coordinate) {
+        var station = new clsMapStation();
+        station.coordination = coordinate;
+        station.index = this_vue.GenNewIndexOfStation();
+        station.station_type = 0;
+        station.name = station.index + '';
+        station.tag = station.index;
+
+        var mapPtModel = new MapPointModel();
+        mapPtModel.StationType = 0;
+        mapPtModel.X = coordinate[0];
+        mapPtModel.Y = coordinate[1];
+        mapPtModel.Graph.X = parseInt(Math.round(coordinate[0]));
+        mapPtModel.Graph.Y = parseInt(Math.round(coordinate[1]));
+        mapPtModel.Name = station.index + '';
+        mapPtModel.TagNumber = station.index;
+
+        station.data = mapPtModel;
+        var feature = this_vue.CreateStationFeature(station);
+        return feature;
+      }
     },
     CreateStationFeature(station = new clsMapStation()) {
       const iconFeature = new Feature({
@@ -980,8 +985,15 @@ export default {
       () => this.map_stations, (newval, oldval) => {
         this._map_stations = JSON.parse(JSON.stringify(newval))
         console.log('update map ')
+        this.map_display_mode = 'coordination'
         this.UpdateStationPointLayer();
         this.UpdateStationPathLayer();
+
+        setTimeout(() => {
+          this.map_display_mode = 'router'
+          this.MapDisplayModeOptHandler();
+        }, 500);
+
       }, { deep: true, immediate: true }
     )
 

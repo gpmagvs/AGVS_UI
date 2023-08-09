@@ -6,25 +6,43 @@
           <div class="time-pick text-start d-flex">
             <div>
               <div class="label">車輛選擇</div>
-              <el-select></el-select>
+              <el-select v-model="agvname">
+                <el-option v-for="name in agvNameList" :key="name" :label="name" :value="name"></el-option>
+              </el-select>
             </div>
             <div>
               <div class="label">開始時間</div>
-              <el-date-picker v-model="timePick.start_time" type="datetime" placeholder="選擇開始時間" />
+              <el-date-picker
+                v-model="timePick.start_time"
+                type="datetime"
+                placeholder="選擇開始時間"
+                format="YYYY/MM/DD HH:mm:ss"
+              />
             </div>
             <div>
               <div class="label">結束時間</div>
-              <el-date-picker v-model="timePick.end_time" type="datetime" placeholder="選擇結束時間" />
+              <el-date-picker
+                v-model="timePick.end_time"
+                type="datetime"
+                placeholder="選擇結束時間"
+                format="YYYY/MM/DD HH:mm:ss"
+              />
             </div>
           </div>
-          <el-button style="height:50px;font-size: large;" class="w-100 my-2" type="primary">搜尋</el-button>
+          <el-button
+            @click="HandleSearchBtnClicked"
+            style="height:50px;font-size: large;"
+            class="w-100 my-2"
+            type="primary"
+          >搜尋</el-button>
         </div>
-        <el-table :data="tableData" style="width:560px" height="600" highlight-current-row>
+        <el-table :data="tableData" style="width:660px" height="600" highlight-current-row>
           <el-table-column align="center" label="No" width="50">
             <template #default="scope">
               <div>{{GetNo(scope.row)}}</div>
             </template>
           </el-table-column>
+          <el-table-column label="Task ID" prop="task_id"></el-table-column>
           <el-table-column label="開始時間" prop="start_time"></el-table-column>
           <el-table-column label="結束時間" prop="end_time"></el-table-column>
           <el-table-column align="center" label="巡檢時間(秒)" prop="duration" min-width="60">
@@ -64,7 +82,8 @@
           ref="map"
           :editable="false"
           :agv_show="false"
-          :station_show="false"
+          :station_show="true"
+          :map_stations="map_station_data"
         ></Map>
       </div>
     </div>
@@ -73,32 +92,34 @@
 
 <script>
 import Map from '@/components/Map/Map.vue'
+import { GetTasks, GetTrajectory } from '@/api/TaskAPI.js'
+import { agv_states_store, MapStore } from '@/store'
+import moment from 'moment'
 export default {
   components: {
     Map,
+  },
+  computed: {
+    agvNameList() {
+      return agv_states_store.getters.AGVNameList;
+    },
+    map_station_data() {
+      return MapStore.getters.MapStations
+    },
   },
   data() {
     return {
       tableData: [
         {
+          task_id: '',
           start_time: '2022-08-03 12:00:00',
           end_time: '2022-08-03 12:10:00',
           duration: 600,
           corrdinations: [[0, 0], [-1.2, 2.2], [-1.3, 2.3], [-1.4, 3]]
         },
-        {
-          start_time: '2022-08-03 12:00:00',
-          end_time: '2022-08-03 12:10:00',
-          duration: 600,
-          corrdinations: [[0, 0], [5.2, 2.2], [5, 15.3], [-21.4, -2.3]]
-        },
-        {
-          start_time: '2022-08-03 12:00:00',
-          end_time: '2022-08-03 12:10:00',
-          duration: 600,
-          corrdinations: [[0, 0], [-4.2, 2.2], [-3.3, 5.3], [31.4, 1]]
-        }
+
       ],
+      agvname: '',
       timePick: {
         start_time: '2022-08-03 12:00:00',
         end_time: '2022-08-04 12:00:00'
@@ -115,13 +136,30 @@ export default {
     GetNo(row) {
       return this.tableData.indexOf(row) + 1;
     },
-    ShowLocusHandler(row_data) {
+    async ShowLocusHandler(row_data) {
+      if (row_data.corrdinations == undefined) {
+        var trajData = await GetTrajectory(row_data.task_id)
+        row_data.corrdinations = trajData.coordinations.map(data => ([data.X, data.Y]))
+      }
       this.showing_row_data = row_data;
       this.$refs.map.ShowLocus(row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
     },
     HandleLocusSettingChange() {
       this.SaveLocusSettingsToLocalStroage();
       this.$refs.map.ShowLocus(this.showing_row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
+    },
+    async HandleSearchBtnClicked() {
+      var startTime = moment(this.timePick.start_time).format('YYYY/MM/DD HH:mm:ss')
+      var endTime = moment(this.timePick.end_time).format('YYYY/MM/DD HH:mm:ss')
+      var tasklist = []
+      tasklist = await GetTasks(startTime, endTime, this.agvname)
+      this.tableData = tasklist.map(obj => ({
+        task_id: obj.TaskName,
+        start_time: obj.RecieveTime,
+        end_time: obj.FinishTime,
+        duration: 0,
+        corrdinations: undefined
+      }))
     },
     SaveLocusSettingsToLocalStroage() {
       localStorage.setItem('locus', JSON.stringify(this.locus_settings))
@@ -138,19 +176,19 @@ export default {
     this.ReloadLocusSettingsFromLocalStorage();
     //假資料 
     this.tableData = []
-    for (let index = 1; index < 51; index++) {
-      var coordinates = []
-      for (let n = 1; n < 100; n++) {
-        coordinates.push([(n / 50.0) + (n % index * (n % 2 == 0 ? 0.1 : -1)), n / 10])
-      }
-      this.tableData.push({
-        start_time: `2022-08-03 12:${index}:00`,
-        end_time: '2022-08-03 12:10:00',
-        duration: 600,
-        corrdinations: coordinates
-      })
+    // for (let index = 1; index < 51; index++) {
+    //   var coordinates = []
+    //   for (let n = 1; n < 100; n++) {
+    //     coordinates.push([(n / 50.0) + (n % index * (n % 2 == 0 ? 0.1 : -1)), n / 10])
+    //   }
+    //   this.tableData.push({
+    //     start_time: `2022-08-03 12:${index}:00`,
+    //     end_time: '2022-08-03 12:10:00',
+    //     duration: 600,
+    //     corrdinations: coordinates
+    //   })
 
-    }
+    // }
   },
 }
 </script>
