@@ -985,8 +985,15 @@ export default {
       () => this.map_stations, (newval, oldval) => {
         this._map_stations = JSON.parse(JSON.stringify(newval))
         console.log('update map ')
+        this.map_display_mode = 'coordination'
         this.UpdateStationPointLayer();
         this.UpdateStationPathLayer();
+
+        setTimeout(() => {
+          this.map_display_mode = 'router'
+          this.MapDisplayModeOptHandler();
+        }, 500);
+
       }, { deep: true, immediate: true }
     )
 

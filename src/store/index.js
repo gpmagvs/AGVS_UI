@@ -153,7 +153,6 @@ export const MapStore = createStore({
       var agv_num = Object.keys(agv_nav_info).length;
       var agvDataLs = [];
       var index = 0;
-      console.info(agv_nav_info)
       Object.keys(agv_nav_info).forEach(name => {
         var data = agv_nav_info[name]
         var pathtags = data.nav_path
