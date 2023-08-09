@@ -23,7 +23,7 @@
         </div>
 
         <div class="settings px-2">
-          <div v-show="false" class="text-start">
+          <div v-show="true" class="text-start">
             <b-button variant="primary" @click="Regist">註冊</b-button>
             <b-button variant="danger" @click="Unregist">解註冊</b-button>
           </div>
