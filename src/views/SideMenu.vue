@@ -24,7 +24,7 @@
         </div>
       </el-tooltip>
       <!--  -->
-      <el-tooltip placement="right" content="帳籍管理">
+      <!-- <el-tooltip placement="right" content="帳籍管理">
         <div
           v-if="false"
           v-bind:style="Selected('/racks_status')"
@@ -35,7 +35,7 @@
             <img src="images/rack.png" :height="icon_size" alt />
           </div>
         </div>
-      </el-tooltip>
+      </el-tooltip> -->
       <!--  -->
       <el-tooltip placement="right" content="圖資管理">
         <div

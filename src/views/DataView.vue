@@ -14,6 +14,11 @@
           <AlarmQuery></AlarmQuery>
         </div>
       </b-tab>
+      <b-tab title="任務歷史查詢">
+        <div class="w-100">
+          <TaskQuery></TaskQuery>
+        </div>
+      </b-tab>
     </b-tabs>
   </div>
 </template>
@@ -21,6 +26,7 @@
 <script>
 import AvailbilitysData from '@/components/DataView/AvailbilitysData.vue';
 import AlarmQuery from '@/components/DataView/AlarmQuery.vue';
+import TaskQuery from '@/components/DataView/TaskQuery.vue';
 import AGVLocusDisplay from '@/components/DataView/AGVLocus.vue';
 
 export default {
