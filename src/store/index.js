@@ -96,6 +96,10 @@ export const MapStore = createStore({
   },
   getters: {
     MapData: state => {
+      var localStore = localStorage.getItem('mapData')
+      if (state.MapData == null && localStore) {
+        return JSON.parse(localStore)
+      }
       return state.MapData;
     },
     MapName: state => {

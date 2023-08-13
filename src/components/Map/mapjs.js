@@ -180,6 +180,34 @@ export function CreateStationPathStyles(feature) {
     return styles;
 }
 
+export function AGVCargoIconStyle(cargo_type = 'tray', cargo_id = '') {
+    return new Style({
+        image: new Icon({
+            src: 'images/tray.png',
+            scale: cargo_type == 'rack' ? .5 : .8, // 设置PNG图像的缩放比例
+            anchor: cargo_type == 'rack' ? [1.3, 0.95] : [0.98, 0.65], // 设置PNG图像的锚点，即图片的中心点位置
+            size: [60, 60],// 设置PNG图像的大小
+            opacity: 1,
+        }),
+        text: new Text({
+            // text: `${cargo_type.toUpperCase()}\r\n${cargo_id}`,
+            text: null,
+            offsetX: 8,
+            offsetY: -30,
+            textAlign: 'left',
+            font: 'bold 9px Arial',
+            fill: new Fill({
+                color: 'white'
+            }),
+            backgroundFill: new Fill({
+                color: 'grey',
+            }),
+
+
+        })
+    })
+}
+
 export function AGVPointStyle(agv_name, color) {
     return new Style({
         image: new Icon({

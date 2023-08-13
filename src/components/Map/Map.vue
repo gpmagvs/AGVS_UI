@@ -160,7 +160,7 @@ import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, MapContextMenuOptions, MenuUseTaskOption } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption } from './mapjs';
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
@@ -276,7 +276,8 @@ export default {
       taskDispatchContextMenuVisible: false,
       contextMenuTop: 0,
       contextMenuLeft: 0,
-      contextMenuOptions: new MapContextMenuOptions()
+      contextMenuOptions: new MapContextMenuOptions(),
+      firstUseFlag: true
     }
   },
   computed: {
@@ -358,6 +359,7 @@ export default {
         if (agvfeatures) {
           //以新增
           agvfeatures.agv_feature.setGeometry(new Point(agv_opt.Coordination))
+          agvfeatures.cargo_icon_feature.setGeometry(new Point(agv_opt.Coordination))
           agvfeatures.path_feature.setGeometry(new LineString(agv_opt.NavPathCoordinationList))
         } else {
 
@@ -373,13 +375,20 @@ export default {
             geometry: new LineString([])
           })
           nav_path_feature.setStyle(CreateLocusPathStyles(agv_opt.TextColor, 5))
+
+
+          var _cargo_icon_feature = _agvfeature.clone()
+          _cargo_icon_feature.setStyle(AGVCargoIconStyle())
+
           this.AGVFeatures[agv_opt.AgvName] = {
             agv_feature: _agvfeature,
-            path_feature: nav_path_feature
+            path_feature: nav_path_feature,
+            cargo_icon_feature: _cargo_icon_feature
           };
 
           var source = this.AGVLocLayer.getSource();
 
+          source.addFeature(_cargo_icon_feature);
           source.addFeature(_agvfeature);
           source.addFeature(nav_path_feature);
 
@@ -990,8 +999,11 @@ export default {
         this.UpdateStationPathLayer();
 
         setTimeout(() => {
-          this.map_display_mode = 'router'
-          this.MapDisplayModeOptHandler();
+          if (this.firstUseFlag) {
+            this.map_display_mode = 'router'
+            this.MapDisplayModeOptHandler();
+            this.firstUseFlag = false
+          }
         }, 500);
 
       }, { deep: true, immediate: true }
