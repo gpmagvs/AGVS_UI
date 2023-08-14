@@ -160,7 +160,7 @@ import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon } from './mapjs';
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
@@ -361,6 +361,8 @@ export default {
           agvfeatures.agv_feature.setGeometry(new Point(agv_opt.Coordination))
           agvfeatures.cargo_icon_feature.setGeometry(new Point(agv_opt.Coordination))
           agvfeatures.path_feature.setGeometry(new LineString(agv_opt.NavPathCoordinationList))
+          ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_opt.CargoStatus)
+
         } else {
 
           var _agvfeature = new Feature({

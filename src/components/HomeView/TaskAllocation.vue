@@ -259,7 +259,6 @@ export default {
       var response = { confirm: true, message: '' }
 
       if (this.selectedAction == 'move') {
-        debugger
         response = await TaskAllocation.MoveTask(new clsMoveTaskData(this.selectedAGVName, this.destinTag));
       }
 
@@ -324,7 +323,6 @@ export default {
   },
   mounted() {
     bus.on('bus-show-task-allocation', (data = { agv_name: undefined, action: '', station_data: new MapPointModel() }) => {
-      debugger
       this.sourceTag = undefined;
       this.destinTag = undefined;
       this.selectedAGVName = undefined;

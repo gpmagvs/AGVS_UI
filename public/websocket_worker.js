@@ -24,7 +24,6 @@ function TryReConnect() {
     console.info(`${_ws_url} websocket diconnect , retry to restore connection...`)
     var _socket = new WebSocket(_ws_url)
     _socket.onopen = (ev) => {
-        debugger
         socket = _socket
         socket.onmessage = (ev) => {
             self.postMessage(JSON.parse(ev.data))
