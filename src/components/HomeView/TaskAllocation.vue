@@ -77,6 +77,7 @@
             class="w-100 border rounded mx-2"
             :agv_option="agvs_info"
             :map_stations="map_station_data"
+            ref="map"
           ></Map>
         </div>
         <div v-if="selectedAction=='charge'" class="img charge"></div>
@@ -133,7 +134,9 @@ export default {
     }
   },
   computed: {
-
+    Map() {
+      return this.$refs['map']
+    },
     map_station_data() {
       return MapStore.getters.MapStations
     },
@@ -164,14 +167,13 @@ export default {
 
       this.sourceTag = undefined;
       this.destinTag = undefined;
-      // if (action == 'move')
-      //   this.Map.Highlight('normal');
-      // if (action == 'carry' | action == 'load' | action == 'unload')
-      //   this.Map.Highlight('eq');
-      // if (action == 'charge')
-      //   this.Map.Highlight('charge');
-      // if (action == 'park')
-      //   this.Map.Highlight('park');
+      var highlight_color='blue'
+      if (action == 'move')
+        this.Map.HighLightFeaturesByStationType(0,highlight_color);
+      if (action == 'carry' | action == 'load' | action == 'unload')
+        this.Map.HighLightFeaturesByStationType(1,highlight_color);
+      if (action == 'charge')
+        this.Map.HighLightFeaturesByStationType(3,highlight_color);
     },
 
     TaskDeliveryBtnClickHandle() {
