@@ -183,7 +183,6 @@ export function CreateStationPathStyles(feature) {
 function GetCargoIcon(cargo_type, exist = false) {
     if (!exist)
         return null
-    debugger
     return new Icon({
         src: cargo_type == 1 ? 'images/rack2.png' : 'images/tray.png',
         scale: cargo_type == 1 ? .6 : .8, // 设置PNG图像的缩放比例
@@ -214,7 +213,6 @@ export function AGVCargoIconStyle(cargo_type = 0, cargo_id = '', cst_exist = fal
     })
 }
 export function ChangeCargoIcon(feature = new Feature(), cargoStates = new clsCargoStates()) {
-    debugger
     var style = AGVCargoIconStyle(cargoStates.cargo_type, cargoStates.cst_id, cargoStates.exist);
     feature.setStyle(style);
 }

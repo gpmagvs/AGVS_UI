@@ -169,7 +169,6 @@ export const MapStore = createStore({
             pathCoordinations.push(pt.coordination)
           })
         }
-        debugger
         agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], [data.currentCoordication.X, data.currentCoordication.Y], pathCoordinations, data.cargo_status))
         index += 1;
       })

@@ -214,6 +214,8 @@ export default {
   data() {
     return {
       map: new Map(),
+      zoom: 2,
+      center: [0, 0],
       map_img_extent: [-37.5, -37.5, 37.5, 37.5],
       map_img_size: [1500, 1500],
       _map_stations: [],
@@ -555,7 +557,10 @@ export default {
       this.map.on('pointerdown', (e) => {
         this.map.getTargetElement().style.cursor = 'grabbing';
       })
+      this.map.on('moveend', event => {
+        this.SaveSettingsToLocalStorage();
 
+      })
 
       function CreateNewFeature(coordinate) {
         var station = new clsMapStation();
@@ -577,6 +582,28 @@ export default {
         station.data = mapPtModel;
         var feature = this_vue.CreateStationFeature(station);
         return feature;
+      }
+    },
+    SaveSettingsToLocalStorage() {
+      var zoom = this.map.getView().getZoom()
+      var center = this.map.getView().getCenter()
+      //儲存目前的地圖設定
+      localStorage.setItem(`map-${this.$route.name}`, JSON.stringify({
+        zoom: zoom,
+        mode: this.map_display_mode,
+        center: center,
+        station_name_display_mode: this.station_name_display_mode
+      }))
+
+    },
+    RestoreSettingsFromLocalStorage() {
+      var settings_json = localStorage.getItem(`map-${this.$route.name}`)
+      if (settings_json) {
+        var settings = JSON.parse(settings_json)
+        this.station_name_display_mode = settings.station_name_display_mode
+        this.map_display_mode = settings.mode
+        this.zoom = settings.zoom;
+        this.center = settings.center
       }
     },
     CreateStationFeature(station = new clsMapStation()) {
@@ -745,24 +772,24 @@ export default {
       this.StationNameDisplayOptHandler();
       this.PointLayer.setVisible(isShowSlamCoordi);
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
+      this.SaveSettingsToLocalStorage();
     },
     StationNameDisplayOptHandler() {
 
       this.StationPointsFeatures.forEach(ft => {
         var index = ft.get('index');
         var mapdata = ft.get('data')
-        var mapStationData = this._map_stations.find(st => st.index == index)
-        var displayName = mapStationData.name;
+        var displayName = ''
         if (this.station_name_display_mode == 'index')
-          displayName = mapStationData.index + '';
+          displayName = index + '';
         if (this.station_name_display_mode == 'name')
-          displayName = mapStationData.name;
+          displayName = mapdata.Name;
         if (this.station_name_display_mode == 'tag')
-          displayName = mapStationData.tag + '';
-        var station_type = mapStationData.station_type;
+          displayName = mapdata.TagNumber + '';
+        var station_type = mapdata.StationType;
         ft.setStyle(GetStationStyle(displayName, station_type, mapdata));
       })
-
+      this.SaveSettingsToLocalStorage();
     },
     /**顯示軌跡 */
     ShowLocus(coordinate_list = [], color = 'red', width = 1) {
@@ -842,8 +869,8 @@ export default {
         target: this.id,
         view: new View({
           projection: projection,
-          center: getCenter(extent),
-          zoom: 2,
+          center: this.center,
+          zoom: this.zoom,
           maxZoom: 20
         })
       })
@@ -991,6 +1018,7 @@ export default {
 
   mounted() {
 
+    this.RestoreSettingsFromLocalStorage();
     this.InitMap();
     watch(
       () => this.map_stations, (newval, oldval) => {
@@ -1002,7 +1030,6 @@ export default {
 
         setTimeout(() => {
           if (this.firstUseFlag) {
-            this.map_display_mode = 'router'
             this.MapDisplayModeOptHandler();
             this.firstUseFlag = false
           }
