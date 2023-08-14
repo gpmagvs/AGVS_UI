@@ -268,11 +268,12 @@ export default {
         EditAction: 'none'
       },
       /**顯示模式 : coordination 實際座標 ; router 整齊的路網*/
-      map_display_mode: 'coordination',
+      map_display_mode: 'router',
       station_name_display_mode: 'name',
       agv_display: 'visible',
       map_image_display: 'none',
-      previousSelectedFeature: undefined,
+
+      previousSelectedFeatures: [],
       agv_upload_coordination_mode: false,
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
@@ -283,6 +284,9 @@ export default {
     }
   },
   computed: {
+    previousSelectedFeature() {
+      return this.previousSelectedFeatures[0]
+    },
     MouseCoordinationDisplay() {
       if (!this.MouseCoordination) {
         return '(-1,-1)'
@@ -371,7 +375,6 @@ export default {
             }
             var pts = this.PointLayer.getSource().getFeatures();
             for (let index = 0; index < agv_opt.NavPathCoordinationList.length; index++) {
-              debugger
               const coor = agv_opt.NavPathCoordinationList[index];
               var ft = pts.find(feature => feature.getGeometry().getCoordinates()[0] == coor[0] &&
                 feature.getGeometry().getCoordinates()[1] == coor[1])
@@ -446,7 +449,7 @@ export default {
               return false;
           }
 
-          this_vue.HighLightFeatureSelected(feature)
+          this_vue.HighLightFeatureSelected([feature])
           if (this_vue.EditorOption.EditMode == 'view') {
             return false;
           }
@@ -915,37 +918,50 @@ export default {
     },
     ClearSelectedFeature() {
       try {
-
+        this.previousSelectedFeatures.forEach(feature => {
+          var oriStyle = feature.get('oristyle')
+          feature.setStyle(oriStyle);
+        })
         var oriStyle = this.previousSelectedFeature.get('oristyle')
         this.previousSelectedFeature.setStyle(oriStyle);
       } catch {
 
       }
-      this.previousSelectedFeature = undefined
+      this.previousSelectedFeatures = []
     },
-    HighLightFeatureSelected(feature = new Feature()) {
+    HighLightFeatureSelected(features = [new Feature()], color = 'red') {
       try {
 
         this.ClearSelectedFeature();
-        var style = feature.getStyle()
-        if (!style)
-          return;
-        feature.set("oristyle", style.clone())
-        var newStyle = style.clone()
-        var text = newStyle.getText();
-        if (text) {
-          var stroke = text.getStroke()
-          if (stroke) {
-            var newStroke = stroke.clone();
-            newStroke.setColor('red')
-            text.setStroke(newStroke)
-            feature.setStyle(newStyle)
-            this.previousSelectedFeature = feature
+        features.forEach(feature => {
+
+          var style = feature.getStyle()
+          if (!style)
+            return;
+          feature.set("oristyle", style.clone())
+          var newStyle = style.clone()
+          var text = newStyle.getText();
+          if (text) {
+            var stroke = text.getStroke()
+            if (stroke) {
+              var newStroke = stroke.clone();
+              newStroke.setColor(color)
+              text.setStroke(newStroke)
+              feature.setStyle(newStyle)
+              this.previousSelectedFeatures.push(feature)
+            }
           }
-        }
+        })
       } catch (error) {
 
       }
+    },
+    HighLightFeaturesByStationType(station_type = 0, color = 'red') {
+      debugger
+      // feature.set('station_type', ptdata.StationType)
+      var features = this.StationPointsFeatures.filter(ft => ft.get('station_type') == station_type)
+      this.HighLightFeatureSelected(features, color)
+
     },
     HandleAGVUploadData(coordinates = [{ TagNumber: 0, X: 0, Y: 0, Theta: 0 }]) {
 
@@ -1028,11 +1044,22 @@ export default {
       }
 
       feature.setStyle(newStyle)
-      this.previousSelectedFeature = undefined
 
     },
     HandleMenuTaskBtnClick(data = { action: '', station_data: {} }) {
+      debugger
       this.editModeContextMenuVisible = false;
+      var highlight_station_type = 0;
+      if (data.action == 'move') {
+        highlight_station_type = 0;
+      }
+      else if (data.action == 'load' | data.action == 'unload' | data.action == 'carry') {
+        highlight_station_type = 1;
+      }
+      else if (data.action == 'charge') {
+        highlight_station_type = 3;
+      }
+      this.HighLightFeaturesByStationType(highlight_station_type, 'blue')
       bus.emit('bus-show-task-allocation', data);
     }
   },
@@ -1046,13 +1073,14 @@ export default {
         this._map_stations = JSON.parse(JSON.stringify(newval))
         this.UpdateStationPointLayer();
         this.UpdateStationPathLayer();
+        this.MapDisplayModeOptHandler();
 
-        setTimeout(() => {
-          if (this.firstUseFlag) {
-            this.MapDisplayModeOptHandler();
-            this.firstUseFlag = false
-          }
-        }, 500);
+        // setTimeout(() => {
+        //   if (this.firstUseFlag) {
+        //     this.MapDisplayModeOptHandler();
+        //     this.firstUseFlag = false
+        //   }
+        // }, 500);
 
       }, { deep: true, immediate: true }
     )
