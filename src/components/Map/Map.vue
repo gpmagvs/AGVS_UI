@@ -360,9 +360,30 @@ export default {
         var agvfeatures = this.AGVFeatures[agv_opt.AgvName]
         if (agvfeatures) {
           //以新增
-          agvfeatures.agv_feature.setGeometry(new Point(agv_opt.Coordination))
-          agvfeatures.cargo_icon_feature.setGeometry(new Point(agv_opt.Coordination))
-          agvfeatures.path_feature.setGeometry(new LineString(agv_opt.NavPathCoordinationList))
+          var coordination = agv_opt.Coordination;
+          var path_coordinations = agv_opt.NavPathCoordinationList
+          if (this.map_display_mode == 'router') {
+            path_coordinations = [];
+
+            var ft = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == agv_opt.Tag)
+            if (ft) {
+              coordination = ft.getGeometry().getCoordinates()
+            }
+            var pts = this.PointLayer.getSource().getFeatures();
+            for (let index = 0; index < agv_opt.NavPathCoordinationList.length; index++) {
+              debugger
+              const coor = agv_opt.NavPathCoordinationList[index];
+              var ft = pts.find(feature => feature.getGeometry().getCoordinates()[0] == coor[0] &&
+                feature.getGeometry().getCoordinates()[1] == coor[1])
+
+              var feature_ = this.StationPointsFeatures.find(feature => feature.get('index') == ft.get('index'))
+              path_coordinations.push(feature_.getGeometry().getCoordinates())
+            }
+
+          }
+          agvfeatures.agv_feature.setGeometry(new Point(coordination))
+          agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
+          agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_opt.CargoStatus)
 
         } else {
@@ -1023,8 +1044,6 @@ export default {
     watch(
       () => this.map_stations, (newval, oldval) => {
         this._map_stations = JSON.parse(JSON.stringify(newval))
-        console.log('update map ')
-        this.map_display_mode = 'coordination'
         this.UpdateStationPointLayer();
         this.UpdateStationPathLayer();
 

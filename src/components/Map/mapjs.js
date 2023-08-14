@@ -270,12 +270,13 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates()) {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0) {
         this.AgvName = AgvName
         this.TextColor = TextColor
         this.Coordination = initCoordination;
         this.NavPathCoordinationList = navCoorList
         this.CargoStatus = CargoStatus
+        this.Tag = Tag
     }
 }
 
