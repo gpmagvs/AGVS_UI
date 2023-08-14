@@ -99,7 +99,6 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        console.info(newValue);
         this.OpenLoading();
         if (newValue == "/alarm") {
           this.router_view_style.paddingTop = '50px';
@@ -151,7 +150,7 @@ html {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE 10+ */
   user-select: none;
-  overflow-x: hidden;
+  //overflow-x: hidden;
   // overflow-y: hidden;
 }
 </style>

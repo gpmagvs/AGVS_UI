@@ -49,6 +49,8 @@
           <el-select v-model="scope.row.ConnOptions.ConnMethod" :size="cell_item_size">
             <el-option label="Modbus TCP" :value="0"></el-option>
             <el-option label="Modbus RTU" :value="1"></el-option>
+            <el-option label="TCP/IP" :value="2"></el-option>
+            <el-option label="Serial Port" :value="3"></el-option>
           </el-select>
         </template>
       </el-table-column>

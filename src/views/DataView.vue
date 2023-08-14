@@ -1,6 +1,11 @@
 <template>
   <div class="data-view custom-tabs-head-large">
     <b-tabs size>
+      <b-tab title="AGV Locus">
+        <div class="w-100">
+          <AGVLocusDisplay></AGVLocusDisplay>
+        </div>
+      </b-tab>
       <b-tab title="機台稼動">
         <AvailbilitysData></AvailbilitysData>
       </b-tab>
@@ -22,9 +27,11 @@
 import AvailbilitysData from '@/components/DataView/AvailbilitysData.vue';
 import AlarmQuery from '@/components/DataView/AlarmQuery.vue';
 import TaskQuery from '@/components/DataView/TaskQuery.vue';
+import AGVLocusDisplay from '@/components/DataView/AGVLocus.vue';
+
 export default {
   components: {
-    AvailbilitysData, AlarmQuery,TaskQuery
+    AvailbilitysData, AlarmQuery, AGVLocusDisplay
   },
 }
 </script>

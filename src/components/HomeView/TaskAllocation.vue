@@ -10,15 +10,23 @@
       @closed="HandleDrawerClosed"
     >
       <template #header>
-        <h3>Local任務派送-車輛:{{ clsAgvStatus.AGV_Name }}</h3>
+        <h3>Local任務派送-車輛:{{selectedAGVName }}</h3>
       </template>
       <div class="drawer-content border-top" v-loading="wait_task_confirm">
         <div class="d-flex flex-row py-1 w-100 h-100">
-          <el-form label-width="100px" label-position="left" size="large">
-            <el-form-item label="AGV">
-              <el-input :disabled="!IsDeveloper" v-model="clsAgvStatus.AGV_Name"></el-input>
+          <el-form label-width="100px" label-position="left" size="large" style="width:500px">
+            <el-form-item label="AGV車輛選擇">
+              <el-select class="w-100" v-model="selectedAGVName">
+                <el-option
+                  v-for="agv_name in AgvNameList"
+                  :key="agv_name"
+                  :label="agv_name"
+                  :value="agv_name"
+                ></el-option>
+              </el-select>
             </el-form-item>
-            <el-form-item label="Action">
+
+            <el-form-item label="AGV任務動作">
               <el-select
                 class="w-100"
                 v-model="selectedAction"
@@ -33,27 +41,21 @@
                 <el-option label="充電" value="charge"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item :label="From_Lable_display">
-              <el-select
-                class="w-100"
-                v-model="selectedTag"
-                placeholder="選擇站點"
-                @click="TagsOptionsInit"
-              >
-                <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
-              </el-select>
-            </el-form-item>
 
-            <el-form-item v-if="selectedAction === 'carry'" :label="To">
-              <el-select
-                class="w-100"
-                v-model="selectedToTag"
-                placeholder="選擇站點"
-                @click="TagsOptionsInit"
-              >
+            <!--  -->
+            <el-form-item label="起點" v-if="selectedAction=='carry'">
+              <div>
+                <el-select class="w-100" v-model="sourceTag" placeholder="選擇站點">
+                  <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
+                </el-select>
+              </div>
+            </el-form-item>
+            <el-form-item label="目的地">
+              <el-select class="w-100" v-model="destinTag" placeholder="選擇站點">
                 <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
               </el-select>
             </el-form-item>
+            <!--  -->
 
             <el-form-item
               v-if="selectedAction === 'carry'|selectedAction === 'load'|selectedAction === 'unload'"
@@ -70,50 +72,17 @@
               <b-button class="w-100" @click="TaskDeliveryBtnClickHandle" variant="default">預覽路徑</b-button>
             </el-form-item>
           </el-form>
-          <MapShowVue
-            ref="_map"
-            class="flex-fill mx-2"
-            style="height:1200px"
-            :task_allocatable="true"
-            @loaded="OnMapLoaded"
-            @onStationClick="MapStationClicked"
-          ></MapShowVue>
+          <Map
+            id="tmap"
+            class="w-100 border rounded mx-2"
+            :agv_option="agvs_info"
+            :map_stations="map_station_data"
+          ></Map>
         </div>
         <div v-if="selectedAction=='charge'" class="img charge"></div>
         <div v-else class="img delivery"></div>
       </div>
     </el-drawer>
-
-    <!--Modals-->
-    <div class="modals">
-      <b-modal
-        @ok="TaskDeliveryHandle"
-        v-model="confirm_dialog_show"
-        :centered="true"
-        title="Task Delivery"
-        header-bg-variant="primary"
-        header-text-variant="light"
-        :z-index="9999"
-      >
-        <p>
-          <span>Action:{{ selectedAction }}</span>
-        </p>
-        <p>確定要派送此任務?</p>
-      </b-modal>
-
-      <b-modal
-        v-model="notify_dialog_show"
-        :centered="true"
-        title="Warning"
-        :ok-only="true"
-        header-bg-variant="warning"
-        header-text-variant="light"
-      >
-        <p>
-          <span>{{ notify_text }}</span>
-        </p>
-      </b-modal>
-    </div>
   </div>
 </template>
 
@@ -122,12 +91,15 @@ import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import MapShowVue from '../MapShow.vue';
+import Map from '@/components/Map/Map.vue'
 import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { GetPointTypeNameByTypeNum } from '@/api/MapAPI.js'
-import { userStore } from '@/store';
+import { userStore, MapStore, agv_states_store } from '@/store';
+import { MapPointModel } from '@/components/Map/mapjs';
+
 export default {
   components: {
-    MapShowVue
+    MapShowVue, Map
   },
   data() {
     return {
@@ -137,10 +109,11 @@ export default {
       notify_dialog_show: false,
       wait_task_confirm: false,
       notify_text: '',
+      selectedAGVName: '',
       selectedAction: 'move', // 選擇的Action
-      selectedTag: '', // 選擇的tag_id
+      sourceTag: '', // 選擇的tag_id
+      destinTag: '', // 選擇的to_tag
       Cst_ID_Input: '123', // 選擇的cst_id
-      selectedToTag: '', // 選擇的to_tag
       moveable_tags: [ // tag_id選項
         { tag: 1, name: '標籤1' },
       ],
@@ -160,10 +133,15 @@ export default {
     }
   },
   computed: {
-    From_Lable_display() {
-      if (this.selectedAction === 'move' | this.selectedAction === 'park')
-        return "目的地"
-      else return 'From'
+
+    map_station_data() {
+      return MapStore.getters.MapStations
+    },
+    agvs_info() {
+      return MapStore.getters.AGVNavInfo;
+    },
+    AgvNameList() {
+      return agv_states_store.getters.AGVNameList
     },
     tags() {
       if (this.selectedAction == 'move')
@@ -176,12 +154,7 @@ export default {
       else
         return this.parkable_tags;
     },
-    NormalStations() {
-      return this.Map.GetNormalStations()
-    },
-    Map() {
-      return this.$refs['_map'];
-    },
+
     IsDeveloper() {
       return userStore.getters.IsDeveloperLogining;
     }
@@ -189,103 +162,123 @@ export default {
   methods: {
     ActionChangeHandler(action) {
 
-      this.selectedTag = undefined;
-      if (action == 'move')
-        this.Map.Highlight('normal');
-      if (action == 'carry' | action == 'load' | action == 'unload')
-        this.Map.Highlight('eq');
-      if (action == 'charge')
-        this.Map.Highlight('charge');
-      if (action == 'park')
-        this.Map.Highlight('park');
+      this.sourceTag = undefined;
+      this.destinTag = undefined;
+      // if (action == 'move')
+      //   this.Map.Highlight('normal');
+      // if (action == 'carry' | action == 'load' | action == 'unload')
+      //   this.Map.Highlight('eq');
+      // if (action == 'charge')
+      //   this.Map.Highlight('charge');
+      // if (action == 'park')
+      //   this.Map.Highlight('park');
     },
-    TagSelectClick() {
-      this.TagsOptionsInit();
-    },
-    TagsOptionsInit() {
-      this.moveable_tags = [];
-      this.stock_tags = [];
-      this.chargable_tags = [];
 
-      var NormalStations = this.Map.GetNormalStations()
-      var StockStations = this.Map.GetLDULDableStations()
-
-
-      if (NormalStations) {
-        this.moveable_tags = NormalStations.map(st => ({
-          tag: st.TagNumber,
-          name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
-        }))
-        this.moveable_tags.sort((a, b) => a.tag - b.tag);
-      }
-      if (StockStations) {
-        this.stock_tags = StockStations.map(st => ({
-          tag: st.TagNumber,
-          name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
-        }))
-        this.stock_tags.sort((a, b) => a.tag - b.tag);
-      }
-
-      var ChargeStations = this.$refs["_map"].GetChargeStations()
-      if (ChargeStations) {
-        this.chargable_tags = ChargeStations.map(st => ({
-          tag: st.TagNumber,
-          name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
-        }))
-        this.chargable_tags.sort((a, b) => a.tag - b.tag);
-      }
-      var ParkStations = this.$refs["_map"].GetParkStations();
-      this.parkable_tags = ParkStations.map(st => ({
-        tag: st.TagNumber,
-        name: `(${GetPointTypeNameByTypeNum(st.StationType)})${st.Name}[Tag=${st.TagNumber}]`
-      }))
-      this.parkable_tags.sort((a, b) => a.tag - b.tag);
-
-    },
     TaskDeliveryBtnClickHandle() {
-      if (this.selectedTag == '' | this.selectedTag == undefined) {
-        this.notify_text = '尚未選擇目的地';
-        this.notify_dialog_show = true;
+      if (!this.selectedAGVName) {
+        this.$swal.fire(
+          {
+            text: '',
+            title: '尚未選擇車輛',
+            icon: 'warning',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
         return;
       }
-      if (this.selectedAction == 'carry' && (this.selectedToTag == '' | this.selectedToTag == undefined)) {
-        this.notify_text = '尚未選擇目的地';
-        this.notify_dialog_show = true;
+      if (!this.selectedAction) {
+        this.$swal.fire(
+          {
+            text: '',
+            title: '尚未選擇動作',
+            icon: 'warning',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+        return;
+      }
+      if (this.destinTag == '' | this.destinTag == undefined) {
+        this.$swal.fire(
+          {
+            text: '',
+            title: '尚未選擇目的地',
+            icon: 'warning',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+
+        return;
+      }
+
+      if (this.selectedAction == 'carry' && (this.sourceTag == '' | this.sourceTag == undefined)) {
+        this.$swal.fire(
+          {
+            text: '',
+            title: '尚未選擇起點',
+            icon: 'warning',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
         return;
       }
       if ((this.selectedAction == 'carry' | this.selectedAction == 'load' | this.selectedAction == 'unload') && (this.Cst_ID_Input == '' | this.Cst_ID_Input == undefined)) {
-        this.notify_text = '尚未選擇CST ID';
-        this.notify_dialog_show = true;
+        this.$swal.fire(
+          {
+            text: '',
+            title: '尚未填寫/選擇CST ID',
+            icon: 'warning',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
         return;
       }
-      this.confirm_dialog_show = true;
+      var destinName = this.destinTag
+      this.$swal.fire(
+        {
+          title: '確定要派送此任務?',
+          text: `${this.selectedAGVName} 執行 ${this.selectedAction.toUpperCase()} 任務,終點:${destinName}`,//TODO 完整的名稱
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (res.isConfirmed) {
+            this.TaskDeliveryHandle()
+          }
+        })
     },
     async TaskDeliveryHandle() {
       // TaskAllocation.Task();
       this.wait_task_confirm = true
-      var agv_name = this.clsAgvStatus.AGV_Name;
       var response = { confirm: true, message: '' }
 
       if (this.selectedAction == 'move') {
-        response = await TaskAllocation.MoveTask(new clsMoveTaskData(agv_name, this.selectedTag));
+        debugger
+        response = await TaskAllocation.MoveTask(new clsMoveTaskData(this.selectedAGVName, this.destinTag));
       }
 
       if (this.selectedAction == 'load') {
-        response = await TaskAllocation.LoadTask(new clsLoadTaskData(agv_name, this.selectedTag, 1, this.Cst_ID_Input));
+        response = await TaskAllocation.LoadTask(new clsLoadTaskData(this.selectedAGVName, this.destinTag, 1, this.Cst_ID_Input));
       }
 
       if (this.selectedAction == 'unload') {
-        response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(agv_name, this.selectedTag, 1, this.Cst_ID_Input));
+        response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(this.selectedAGVName, this.destinTag, 1, this.Cst_ID_Input));
       }
 
       if (this.selectedAction == 'carry') {
-        response = await TaskAllocation.CarryTask(new clsCarryTaskData(agv_name, this.selectedTag, 1, this.selectedToTag, 1, this.Cst_ID_Input));
+        response = await TaskAllocation.CarryTask(new clsCarryTaskData(this.selectedAGVName, this.sourceTag, 1, this.destinTag, 1, this.Cst_ID_Input));
       }
       if (this.selectedAction == 'charge') {
-        response = await TaskAllocation.ChargeTask(new clsChargeTaskData(agv_name, this.selectedTag));
+        response = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.selectedAGVName, this.destinTag));
       }
       if (this.selectedAction == 'park') {
-        response = await TaskAllocation.ParkTask(new clsParkTaskData(agv_name, this.selectedTag));
+        response = await TaskAllocation.ParkTask(new clsParkTaskData(this.selectedAGVName, this.destinTag));
       }
       this.wait_task_confirm = false;
       if (!response.confirm) {
@@ -309,10 +302,7 @@ export default {
     },
     HandleDrawerClosed() {
     },
-    OnMapLoaded() {
-      this.Map.Highlight('normal')
-      this.TagsOptionsInit();
-    },
+
     MapStationClicked(MapPoint) {
       // alert(MapPoint.TagNumber)
       if (!MapPoint)
@@ -329,24 +319,35 @@ export default {
       var option = this.tags.findLast(tag => tag.tag == MapPoint.TagNumber);
       console.info(option)
       if (option)
-        this.selectedTag = MapPoint.TagNumber
+        this.sourceTag = MapPoint.TagNumber
     }
   },
   mounted() {
-    // var timer_ = setInterval(() => {
-    //   if (this.Map) {
-    //     this.Map.HightlightAGV(this.clsAgvStatus.AGV_Name)
-    //     this.Map.Highlight('normal');
-    //     clearInterval(timer_)
-    //   }
-    // }, 100);
-    bus.on('bus-show-task-allocation', (clsAgvStatus) => {
-      this.clsAgvStatus = clsAgvStatus;
-      this.show = true;
-      setTimeout(() => {
-        this.Map.HightlightAGV(this.clsAgvStatus.AGV_Name)
-      }, 1000);
+    bus.on('bus-show-task-allocation', (data = { agv_name: undefined, action: '', station_data: new MapPointModel() }) => {
+      debugger
+      this.sourceTag = undefined;
+      this.destinTag = undefined;
+      this.selectedAGVName = undefined;
+      this.moveable_tags = MapStore.getters.AllNormalStationOptions
+      this.stock_tags = MapStore.getters.AllEqStation
+      this.chargable_tags = MapStore.getters.AllChargeStation
+      this.parkable_tags = MapStore.getters.AllParkingStationOptions
 
+      this.selectedAction = data.action
+      if (data.agv_name) {
+        this.selectedAGVName = data.agv_name;
+      }
+
+      if (data.station_data) {
+
+        if (this.selectedAction == 'carry') {
+          this.sourceTag = data.station_data.TagNumber
+        }
+        else {
+          this.destinTag = data.station_data.TagNumber
+        }
+      }
+      this.show = true;
     })
   },
 }
@@ -372,7 +373,7 @@ export default {
       width: 200px;
       height: 200px;
       position: absolute;
-      bottom: 30px;
+      bottom: 86px;
       opacity: 0.2;
       background-repeat: no-repeat;
       background-size: cover;

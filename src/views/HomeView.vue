@@ -2,12 +2,12 @@
   <div class="home-view h-100 w-100 d-flex flex-row custom-tabs-head">
     <div class="left-col border-right flex-fill">
       <AGVStatusVue></AGVStatusVue>
-      <TaskStatusVue></TaskStatusVue>
+      <TaskStatusVue height="400px"></TaskStatusVue>
     </div>
     <b-tabs v-bind:style="{width:'60%'}" @activate-tab="TabActiveHandle">
       <b-tab title="地圖">
         <div style="height:800px">
-          <Map></Map>
+          <HomeMap></HomeMap>
           <!-- <LMap></LMap> -->
         </div>
       </b-tab>
@@ -24,7 +24,7 @@
 
 <script>
 import AGVStatusVue from '@/components/HomeView/AGVStatus/AGVStatus.vue'
-import Map from '@/components/HomeView/Map.vue';
+import HomeMap from '@/components/HomeView/HomeMap.vue';
 import LMap from '@/components/NavMap/AGVMap.vue'
 import EQStatus from '@/components/HomeView/EQStatus.vue'
 import TaskStatusVue from '@/components/HomeView/TaskStatus.vue';
@@ -33,7 +33,7 @@ import bus from '@/event-bus.js'
 import store from '@/store';
 export default {
   components: {
-    AGVStatusVue, TaskStatusVue, Map, TaskAllocationVue, EQStatus, LMap
+    AGVStatusVue, TaskStatusVue, HomeMap, TaskAllocationVue, EQStatus, LMap
   },
   methods: {
     TabActiveHandle(tab) {

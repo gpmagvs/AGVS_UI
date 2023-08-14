@@ -1,0 +1,14 @@
+{
+  "eqstore": {
+    "scope": "javascript,typescript",
+    "prefix": "eqstore",
+    "body": ["import {EqStore} from '@/store'"],
+    "description": "Log output to console"
+  },
+  "allstore": {
+    "scope": "javascript,typescript",
+    "prefix": "storeall",
+    "body": ["import {EqStore,agvs_settings_store,MapStore,userStore,UIStore} from '@/store'"],
+    "description": "Log output to console"
+  }
+}

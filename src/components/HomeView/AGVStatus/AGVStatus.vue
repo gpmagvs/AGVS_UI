@@ -17,6 +17,7 @@
           height="93%"
           empty-text="沒有AGV"
           :row-class-name="connected_class"
+          highlight-current-row
           default-expand-all
         >
           <el-table-column label="車輛名稱" prop="AGV_Name" width="90px">
@@ -53,9 +54,15 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="位置" prop="StationName" align="center">
+
+          <el-table-column label="位置" prop="StationName" align="left">
             <template #default="scope">
               <div>
+                <i
+                  class="bi bi-geo-alt-fill"
+                  style="font-size:20px;cursor:pointer"
+                  @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"
+                ></i>
                 <b>{{ scope.row.StationName }}</b>
               </div>
             </template>
@@ -124,14 +131,7 @@
     >
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
-    <b-modal
-      v-model="ShowChargeConfirmDialog"
-      :centered="true"
-      title="AGV Charge"
-      @ok="AGVChargeTask"
-    >
-      <p ref="charge_confirm_noti_text"></p>
-    </b-modal>
+   
   </div>
 </template>
 
@@ -143,17 +143,14 @@ import WebSocketHelp from '@/api/WebSocketHepler';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
-import { userStore, agvs_settings_store } from '@/store'
+import { userStore, agvs_settings_store, agv_states_store } from '@/store'
 import param from '@/gpm_param';
 export default {
   mounted() {
-    this.WebSocketInit();
   },
   data() {
     return {
-      AGVDatas: [
-        new clsAGVStateDto()
-      ],
+
       ShowOnlineStateChange: false,
       ShowChargeConfirmDialog: false,
       OnlineStatusReq: {
@@ -164,14 +161,9 @@ export default {
     }
   },
   methods: {
-    WebSocketInit() {
-      const worker = new Worker('websocket_worker.js')
-      worker.onmessage = (event) => {
 
-        const data = event.data;
-        this.AGVDatas = Object.values(data).map(d => new clsAGVStateDto(d));
-      }
-      worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/VMSStatus' });
+    HandleShowAGVInMapCenter(agv_name) {
+      bus.emit('/show_agv_at_center', agv_name)
     },
     ShowTaskAllocationView(clsAgvStatus) {
 
@@ -189,7 +181,7 @@ export default {
         return;
       }
 
-      bus.emit('bus-show-task-allocation', clsAgvStatus);
+      bus.emit('bus-show-task-allocation', { agv_name: clsAgvStatus.AGV_Name, action: '', station_data: undefined });
     },
     ShowOnlineStateChangeModal(agv_name, current_online_status, Model) {
 
@@ -200,6 +192,7 @@ export default {
       var online_text = this.OnlineStatusReq.Online_Status == 'Online' ? '上線' : '下線';
       var text_class = current_online_status == 0 ? 'text-success' : 'text-danger';
       this.$refs['online_status_change_noti_txt'].innerHTML = `<h4>確定要將 <span > ${this.OnlineStatusReq.AGV_Name}</span><b> <span class='${text_class}'>${online_text}</span></b>  ?</h4>`;
+
       this.ShowOnlineStateChange = true;
     },
     async SendOnlineStateChangeRequest() {
@@ -232,9 +225,22 @@ export default {
         return;
       }
 
+
       this.Agv_Selected = agv_status.AGV_Name;
-      this.$refs["charge_confirm_noti_text"].innerHTML = `確定要將 <b>${agv_status.AGV_Name}</b> 派送至充電站充電?`;
-      this.ShowChargeConfirmDialog = true;
+
+
+      this.$swal.fire(
+        {
+          title: `確定要將${agv_status.AGV_Name}派送至充電站充電?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (res.isConfirmed) {
+            this.AGVChargeTask()
+          }
+        })
     },
     AGVChargeTask() {
       TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))
@@ -300,6 +306,9 @@ export default {
     }
   },
   computed: {
+    AGVDatas() {
+      return agv_states_store.getters.AGVStatesData;
+    },
     Groups() {
 
       function GetGroupName(group_enum) {
@@ -343,8 +352,6 @@ export default {
 
 <style lang="scss" >
 .agv-status {
-  height: 50%;
-
   .online-status-div:hover {
     cursor: pointer;
   }

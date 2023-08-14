@@ -6,6 +6,9 @@
       :close-on-press-escape="true"
       :close-on-click-modal="true"
       :show-close="false"
+      :modal="true"
+      modal-class="modal-style"
+      :before-close="CancelBtnClickHandle"
     >
       <template #header>
         <div class="header border-bottom">
@@ -14,12 +17,13 @@
       </template>
       <div class="draw-content w-100 px-2">
         <div class="text-start py-2">
+          <!-- <b-button variant="danger" @click="CancelBtnClickHandle">離開</b-button> -->
           <b-button variant="danger" @click="CancelBtnClickHandle">離開</b-button>
           <b-button variant="primary" @click="SaveBtnClickHandle">儲存</b-button>
         </div>
 
         <div class="settings px-2">
-          <div class="text-start">
+          <div v-show="true" class="text-start">
             <b-button variant="primary" @click="Regist">註冊</b-button>
             <b-button variant="danger" @click="Unregist">解註冊</b-button>
           </div>
@@ -70,13 +74,13 @@
                   </div>
                 </el-form-item>
                 <el-form-item label="角度">
-                  <el-input v-model="pointData_editing.Direction"></el-input>
+                  <el-input-number v-model="pointData_editing.Direction"></el-input-number>
                 </el-form-item>
                 <el-form-item label="雷射模式">
-                  <el-input v-model="pointData_editing.LsrMode"></el-input>
+                  <el-input-number v-model="pointData_editing.LsrMode" :step="1"></el-input-number>
                 </el-form-item>
                 <el-form-item label="速度">
-                  <el-input v-model="pointData_editing.Speed"></el-input>
+                  <el-input-number v-model="pointData_editing.Speed" :step="0.1" :precision="1"></el-input-number>
                 </el-form-item>
               </el-form>
             </el-collapse-item>
@@ -118,6 +122,8 @@ import { GetEQInfoByTag } from '@/api/EquipmentAPI.js';
 import { pointTypes } from '@/api/MapAPI.js'
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import MapAPI from '@/api/MapAPI'
+import { ElNotification } from 'element-plus'
+
 
 export default {
   components: {
@@ -155,6 +161,9 @@ export default {
     },
     stationTypes() {
       return pointTypes;
+    },
+    potinFullName() {
+      return `[${this.index}] ${this.pointData.Name}`
     }
   },
   methods: {
@@ -189,34 +198,26 @@ export default {
     },
 
     SaveBtnClickHandle() {
-      this.pointData = this.pointData_editing;
-      this.$emit('OnPointSettingChanged', { index: this.index, pointData: this.pointData })
-
-      this.$swal.fire({
-        title: 'SAVE!',
-        text: '站點設定已暫存，請記得儲存圖資。',
-        icon: 'success',
-        showCancelButton: false,
-        showConfirmButton: false,
-        confirmButtonText: 'OK',
-        customClass: 'my-sweetalert',
-        timer: 100,
+      this.$emit('OnPointSettingChanged', { index: this.index, pointData: this.pointData_editing })
+      ElNotification({
+        title: 'Success',
+        message: `${this.potinFullName} 站點設定已暫存，請記得儲存圖資`,
+        duration: 1000
       })
+      this.pointData = this.pointData_editing;
     },
     CancelBtnClickHandle() {
       if (this.hasAnyChange) {
-
+        this.show = false;
         this.$swal.fire({
-          title: '尚未儲存',
-          text: '設定值變更但尚未儲存，確定要關閉?',
+          title: '點位尚未儲存',
+          text: `點位-${this.potinFullName} 設定值變更但尚未儲存，確定要離開?`,
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: '確定',
           customClass: 'my-sweetalert'
         }).then((result) => {
-          if (result.isConfirmed) {
-            this.show = false;
-          }
+          this.show = !result.isConfirmed;
         })
 
       } else
@@ -234,6 +235,9 @@ export default {
 
 <style lang="scss" scoped >
 .map-point-setting-drawer {
+  .modal-style {
+    opacity: 0.3;
+  }
   z-index: 2;
   .draw-content {
     top: 67px;

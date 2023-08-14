@@ -26,6 +26,7 @@
       <!--  -->
       <!-- <el-tooltip placement="right" content="帳籍管理">
         <div
+          v-if="false"
           v-bind:style="Selected('/racks_status')"
           class="side-item"
           @click="PageSwitch('/racks_status','帳籍管理')"
@@ -134,6 +135,7 @@ export default {
   position: fixed;
   left: 0;
   height: 100%;
+  border-right: 2px solid rgb(192, 191, 191);
 
   .side-item {
     padding: 10px 5px;

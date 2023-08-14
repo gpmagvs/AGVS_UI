@@ -16,8 +16,10 @@
           <AGVBatterySetting></AGVBatterySetting>
         </div>
       </b-tab>
-      <b-tab title="電池管理">
-        <div class="setting-tab">bat</div>
+      <b-tab title="充電站設置">
+        <div class="setting-tab">
+          <ChargeStationView></ChargeStationView>
+        </div>
       </b-tab>
     </b-tabs>
   </div>
@@ -28,10 +30,11 @@
 import UserManager from '@/components/SystemSettings/UserManager.vue';
 import EQManager from '@/components/SystemSettings/EquipmentManager.vue';
 import AGVBatterySetting from '@/components/SystemSettings/AGVBatterySetting.vue';
+import ChargeStationView from '@/views/ChargeStation/ChargeStationHomeView.vue'
 
 export default {
   components: {
-    UserManager, EQManager, AGVBatterySetting
+    UserManager, EQManager, AGVBatterySetting, ChargeStationView
   },
   data() {
     return {

@@ -1,0 +1,33 @@
+{
+  // Place your global snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+  // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+  // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+  // used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+  // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+  // Placeholders with the same ids are connected.
+  // Example:
+  "Show swal confirm dialog_warning": {
+    "scope": "javascript,typescript",
+    "prefix": "swalwarning",
+    "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'warning',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+    "description": "Log output to console"
+  },
+  "Show swal confirm dialog_question": {
+    "scope": "javascript,typescript",
+    "prefix": "swalquestion",
+    "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'question',\r\nshowCancelButton:true,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+    "description": "Log output to console"
+  },
+  "Show swal confirm dialog_error": {
+    "scope": "javascript,typescript",
+    "prefix": "swalerror",
+    "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'error',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+    "description": "Log output to console"
+  },
+  "Show swal confirm dialog_success": {
+    "scope": "javascript,typescript",
+    "prefix": "swalsuccess",
+    "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'success',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+    "description": "Log output to console"
+  }
+}
