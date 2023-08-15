@@ -129,14 +129,7 @@
       :mouse_click_position="[contextMenuTop,contextMenuLeft]"
       :options="contextMenuOptions"
       @OnTaskBtnClick="HandleMenuTaskBtnClick"
-      @OnPtSettingBtnClick="()=>{
-
-        editModeContextMenuVisible=false;
-        $refs.ptsetting.Show({
-          index:previousSelectedFeature.get('index'),
-          point:previousSelectedFeature.get('data')
-        })
-      }"
+      @OnPtSettingBtnClick="HandlePtSettingBtnClick"
     ></PointContextMenu>
     <MapPointSettingDrawer ref="ptsetting" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
   </div>
@@ -842,6 +835,13 @@ export default {
         mapData[index] = data;
       })
       this.$emit('save', mapData)
+    },
+    HandlePtSettingBtnClick() {
+      this.editModeContextMenuVisible = false;
+      this.$refs.ptsetting.Show({
+        index: previousSelectedFeature.get('index'),
+        point: previousSelectedFeature.get('data')
+      })
     },
     ReloadMap() {
       this.$swal.fire(
