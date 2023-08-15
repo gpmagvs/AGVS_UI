@@ -1,6 +1,7 @@
 
 import { Circle, Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import Point from 'ol/geom/Point.js';
+import Feature from 'ol/Feature';
 
 const station_colors = {
     normal: 'orange',
@@ -179,7 +180,42 @@ export function CreateStationPathStyles(feature) {
     });
     return styles;
 }
+function GetCargoIcon(cargo_type, exist = false) {
+    if (!exist)
+        return null
+    return new Icon({
+        src: cargo_type == 1 ? 'images/rack2.png' : 'images/tray.png',
+        scale: cargo_type == 1 ? .6 : .8, // 设置PNG图像的缩放比例
+        anchor: cargo_type == 1 ? [1.3, 0.95] : [1.05, 0.65], // 设置PNG图像的锚点，即图片的中心点位置
+        size: [60, 60],// 设置PNG图像的大小
+        opacity: 1,
+    })
+}
+export function AGVCargoIconStyle(cargo_type = 0, cargo_id = '', cst_exist = false) {
+    return new Style({
+        image: GetCargoIcon(cargo_type, cst_exist),
+        text: new Text({
+            // text: `${cargo_type.toUpperCase()}\r\n${cargo_id}`,
+            text: cargo_id,
+            offsetX: -45,
+            offsetY: -35,
+            textAlign: 'left',
+            font: 'bold 9px Arial',
+            fill: new Fill({
+                color: 'white'
+            }),
+            backgroundFill: new Fill({
+                color: 'grey',
+            }),
 
+
+        })
+    })
+}
+export function ChangeCargoIcon(feature = new Feature(), cargoStates = new clsCargoStates()) {
+    var style = AGVCargoIconStyle(cargoStates.cargo_type, cargoStates.cst_id, cargoStates.exist);
+    feature.setStyle(style);
+}
 export function AGVPointStyle(agv_name, color) {
     return new Style({
         image: new Icon({
@@ -234,12 +270,21 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = []) {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0) {
         this.AgvName = AgvName
         this.TextColor = TextColor
         this.Coordination = initCoordination;
         this.NavPathCoordinationList = navCoorList
+        this.CargoStatus = CargoStatus
+        this.Tag = Tag
+    }
+}
 
+export class clsCargoStates {
+    constructor(exist = false, type = 0, cst_id = '') {
+        this.exist = exist;
+        this.cargo_type = type; //0:tray,1:rack
+        this.cst_id = cst_id
     }
 }
 

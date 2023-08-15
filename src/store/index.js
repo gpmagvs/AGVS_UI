@@ -96,6 +96,10 @@ export const MapStore = createStore({
   },
   getters: {
     MapData: state => {
+      var localStore = localStorage.getItem('mapData')
+      if (state.MapData == null && localStore) {
+        return JSON.parse(localStore)
+      }
       return state.MapData;
     },
     MapName: state => {
@@ -165,8 +169,7 @@ export const MapStore = createStore({
             pathCoordinations.push(pt.coordination)
           })
         }
-
-        agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], [data.currentCoordication.X, data.currentCoordication.Y], pathCoordinations))
+        agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], [data.currentCoordication.X, data.currentCoordication.Y], pathCoordinations, data.cargo_status, data.currentLocation))
         index += 1;
       })
       var _AGVOption = new AGVOption(agv_num, agvDataLs)

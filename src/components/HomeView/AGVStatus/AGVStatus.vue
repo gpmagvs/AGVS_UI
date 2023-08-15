@@ -27,7 +27,7 @@
           </el-table-column>
           <!-- <el-table-column label="AGV ID" prop="AGV_ID"></el-table-column> -->
           <!-- <el-table-column label="通訊狀態"></el-table-column> -->
-          <el-table-column label="上線狀態" prop="OnlineStatus" align="center">
+          <el-table-column label="上線狀態" prop="OnlineStatus" align="center" width="80">
             <template #default="scope">
               <div class="online-status-div">
                 <el-tag
@@ -67,7 +67,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="任務">
+          <!-- <el-table-column label="任務">
             <el-table-column prop="TaskName" label="名稱" />
             <el-table-column prop="TaskRunStatus" label="狀態">
               <template #default="scope">
@@ -77,7 +77,7 @@
               </template>
             </el-table-column>
           </el-table-column>
-          <el-table-column label="載物ID" prop="CurrentCarrierID"></el-table-column>
+          <el-table-column label="載物ID" prop="CurrentCarrierID"></el-table-column>-->
           <el-table-column label="電量" prop="BatteryLevel">
             <template #default="scope">
               <div>
@@ -92,24 +92,24 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column v-if="!IsRunMode" label="操作" fixed="right">
+          <el-table-column v-if="!IsRunMode" label="操作" fixed="right" min-width="120">
             <template #default="scope">
-              <div>
+              <div class="d-flex">
                 <b-button
-                  class="w-100 my-1"
-                  @click="ShowTaskAllocationView(scope.row)"
-                  size="sm"
-                  variant="primary"
-                >
-                  <i class="bi bi-bus-front"></i>任務
-                </b-button>
-                <b-button
-                  class="w-100"
+                  class="w-100 m-1"
                   @click="ShowAGVChargeConfirmDialog(scope.row)"
                   size="sm"
                   variant="info"
                 >
                   <i class="bi bi-lightning-charge-fill"></i>充電
+                </b-button>
+                <b-button
+                  class="w-100 m-1"
+                  @click="ShowTaskAllocationView(scope.row)"
+                  size="sm"
+                  variant="primary"
+                >
+                  <i class="bi bi-bus-front"></i>任務
                 </b-button>
               </div>
             </template>
@@ -131,7 +131,6 @@
     >
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
-   
   </div>
 </template>
 
@@ -271,13 +270,13 @@ export default {
     },
     GetAGVStatusString(status_code) {
       if (status_code == 1)
-        return "IDLE"
+        return "待命中/IDLE"
       else if (status_code == 2)
-        return "RUN"
+        return "執行中/RUN"
       else if (status_code == 3)
-        return "DOWN"
+        return "當機/DOWN"
       else if (status_code == 4)
-        return "充電"
+        return "充電中/Charging"
       else
         return "Unknown"
     },

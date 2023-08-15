@@ -47,22 +47,22 @@
             <el-form label-width="70" label-position="left">
               <el-form-item label="CC">
                 <div class="d-flex">
-                  <el-input :disabled="!IsLogin" v-model="data.Iout"></el-input>
+                  <el-input :disabled="!IsLogin" v-model="data.CC"></el-input>
                 </div>
               </el-form-item>
               <el-form-item label="CV">
                 <div class="d-flex">
-                  <el-input :disabled="!IsLogin" v-model="data.Iout"></el-input>
+                  <el-input :disabled="!IsLogin" v-model="data.CV"></el-input>
                 </div>
               </el-form-item>
               <el-form-item label="FV">
                 <div class="d-flex">
-                  <el-input :disabled="!IsLogin" v-model="data.Iout"></el-input>
+                  <el-input :disabled="!IsLogin" v-model="data.FV"></el-input>
                 </div>
               </el-form-item>
               <el-form-item label="TC">
                 <div class="d-flex">
-                  <el-input :disabled="!IsLogin" v-model="data.Iout"></el-input>
+                  <el-input :disabled="!IsLogin" v-model="data.TC"></el-input>
                 </div>
               </el-form-item>
             </el-form>

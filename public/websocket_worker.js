@@ -22,7 +22,16 @@ function handleMessage(message) {
 }
 function TryReConnect() {
     console.info(`${_ws_url} websocket diconnect , retry to restore connection...`)
-    initWebsocket(_ws_url)
+    var _socket = new WebSocket(_ws_url)
+    _socket.onopen = (ev) => {
+        socket = _socket
+        socket.onmessage = (ev) => {
+            self.postMessage(JSON.parse(ev.data))
+        }
+    }
+    _socket.onclose = (ev) => {
+        TryReConnect()
+    }
 }
 self.onmessage = function (event) {
     console.log('worker ', event)

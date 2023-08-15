@@ -129,14 +129,7 @@
       :mouse_click_position="[contextMenuTop,contextMenuLeft]"
       :options="contextMenuOptions"
       @OnTaskBtnClick="HandleMenuTaskBtnClick"
-      @OnPtSettingBtnClick="()=>{
-
-        editModeContextMenuVisible=false;
-        $refs.ptsetting.Show({
-          index:previousSelectedFeature.get('index'),
-          point:previousSelectedFeature.get('data')
-        })
-      }"
+      @OnPtSettingBtnClick="HandlePtSettingBtnClick"
     ></PointContextMenu>
     <MapPointSettingDrawer ref="ptsetting" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
   </div>
@@ -160,7 +153,7 @@ import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, MapContextMenuOptions, MenuUseTaskOption } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon } from './mapjs';
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
@@ -214,6 +207,10 @@ export default {
   data() {
     return {
       map: new Map(),
+      zoom: 2,
+      zoom_route: 2,
+      center: [0, 0],
+      center_route: [0, 0],
       map_img_extent: [-37.5, -37.5, 37.5, 37.5],
       map_img_size: [1500, 1500],
       _map_stations: [],
@@ -266,20 +263,25 @@ export default {
         EditAction: 'none'
       },
       /**顯示模式 : coordination 實際座標 ; router 整齊的路網*/
-      map_display_mode: 'coordination',
+      map_display_mode: 'router',
       station_name_display_mode: 'name',
       agv_display: 'visible',
       map_image_display: 'none',
-      previousSelectedFeature: undefined,
+
+      previousSelectedFeatures: [],
       agv_upload_coordination_mode: false,
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
       contextMenuTop: 0,
       contextMenuLeft: 0,
-      contextMenuOptions: new MapContextMenuOptions()
+      contextMenuOptions: new MapContextMenuOptions(),
+      firstUseFlag: true
     }
   },
   computed: {
+    previousSelectedFeature() {
+      return this.previousSelectedFeatures[0]
+    },
     MouseCoordinationDisplay() {
       if (!this.MouseCoordination) {
         return '(-1,-1)'
@@ -357,8 +359,31 @@ export default {
         var agvfeatures = this.AGVFeatures[agv_opt.AgvName]
         if (agvfeatures) {
           //以新增
-          agvfeatures.agv_feature.setGeometry(new Point(agv_opt.Coordination))
-          agvfeatures.path_feature.setGeometry(new LineString(agv_opt.NavPathCoordinationList))
+          var coordination = agv_opt.Coordination;
+          var path_coordinations = agv_opt.NavPathCoordinationList
+          if (this.map_display_mode == 'router') {
+            path_coordinations = [];
+
+            var ft = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == agv_opt.Tag)
+            if (ft) {
+              coordination = ft.getGeometry().getCoordinates()
+            }
+            var pts = this.PointLayer.getSource().getFeatures();
+            for (let index = 0; index < agv_opt.NavPathCoordinationList.length; index++) {
+              const coor = agv_opt.NavPathCoordinationList[index];
+              var ft = pts.find(feature => feature.getGeometry().getCoordinates()[0] == coor[0] &&
+                feature.getGeometry().getCoordinates()[1] == coor[1])
+
+              var feature_ = this.StationPointsFeatures.find(feature => feature.get('index') == ft.get('index'))
+              path_coordinations.push(feature_.getGeometry().getCoordinates())
+            }
+
+          }
+          agvfeatures.agv_feature.setGeometry(new Point(coordination))
+          agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
+          agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
+          ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_opt.CargoStatus)
+
         } else {
 
           var _agvfeature = new Feature({
@@ -373,13 +398,20 @@ export default {
             geometry: new LineString([])
           })
           nav_path_feature.setStyle(CreateLocusPathStyles(agv_opt.TextColor, 5))
+
+
+          var _cargo_icon_feature = _agvfeature.clone()
+          _cargo_icon_feature.setStyle(AGVCargoIconStyle())
+
           this.AGVFeatures[agv_opt.AgvName] = {
             agv_feature: _agvfeature,
-            path_feature: nav_path_feature
+            path_feature: nav_path_feature,
+            cargo_icon_feature: _cargo_icon_feature
           };
 
           var source = this.AGVLocLayer.getSource();
 
+          source.addFeature(_cargo_icon_feature);
           source.addFeature(_agvfeature);
           source.addFeature(nav_path_feature);
 
@@ -412,7 +444,7 @@ export default {
               return false;
           }
 
-          this_vue.HighLightFeatureSelected(feature)
+          this_vue.HighLightFeatureSelected([feature])
           if (this_vue.EditorOption.EditMode == 'view') {
             return false;
           }
@@ -544,7 +576,10 @@ export default {
       this.map.on('pointerdown', (e) => {
         this.map.getTargetElement().style.cursor = 'grabbing';
       })
+      this.map.on('moveend', event => {
+        this.SaveSettingsToLocalStorage();
 
+      })
 
       function CreateNewFeature(coordinate) {
         var station = new clsMapStation();
@@ -566,6 +601,40 @@ export default {
         station.data = mapPtModel;
         var feature = this_vue.CreateStationFeature(station);
         return feature;
+      }
+    },
+    SaveSettingsToLocalStorage() {
+      var zoom = this.map.getView().getZoom()
+      var center = this.map.getView().getCenter()
+
+      if (this.map_display_mode == 'coordination') {
+        this.zoom = zoom;
+        this.center = center
+      } else {
+        this.zoom_route = zoom;
+        this.center_route = center
+      }
+      //儲存目前的地圖設定
+      localStorage.setItem(`map-${this.$route.name}`, JSON.stringify({
+        zoom: this.zoom,
+        zoom_route: this.zoom_route,
+        mode: this.map_display_mode,
+        center: this.center,
+        center_route: this.center_route,
+        station_name_display_mode: this.station_name_display_mode
+      }))
+
+    },
+    RestoreSettingsFromLocalStorage() {
+      var settings_json = localStorage.getItem(`map-${this.$route.name}`)
+      if (settings_json) {
+        var settings = JSON.parse(settings_json)
+        this.station_name_display_mode = settings.station_name_display_mode
+        this.map_display_mode = settings.mode
+        this.zoom = settings.zoom;
+        this.center = settings.center
+        this.zoom_route = settings.zoom_route;
+        this.center_route = settings.center_route
       }
     },
     CreateStationFeature(station = new clsMapStation()) {
@@ -734,24 +803,27 @@ export default {
       this.StationNameDisplayOptHandler();
       this.PointLayer.setVisible(isShowSlamCoordi);
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
+      debugger
+      this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
+      this.map.getView().setCenter(isShowSlamCoordi ? [2, 2] : [0, 0]);
+      //this.SaveSettingsToLocalStorage();
     },
     StationNameDisplayOptHandler() {
 
       this.StationPointsFeatures.forEach(ft => {
         var index = ft.get('index');
         var mapdata = ft.get('data')
-        var mapStationData = this._map_stations.find(st => st.index == index)
-        var displayName = mapStationData.name;
+        var displayName = ''
         if (this.station_name_display_mode == 'index')
-          displayName = mapStationData.index + '';
+          displayName = index + '';
         if (this.station_name_display_mode == 'name')
-          displayName = mapStationData.name;
+          displayName = mapdata.Name;
         if (this.station_name_display_mode == 'tag')
-          displayName = mapStationData.tag + '';
-        var station_type = mapStationData.station_type;
+          displayName = mapdata.TagNumber + '';
+        var station_type = mapdata.StationType;
         ft.setStyle(GetStationStyle(displayName, station_type, mapdata));
       })
-
+      this.SaveSettingsToLocalStorage();
     },
     /**顯示軌跡 */
     ShowLocus(coordinate_list = [], color = 'red', width = 1) {
@@ -780,6 +852,13 @@ export default {
         mapData[index] = data;
       })
       this.$emit('save', mapData)
+    },
+    HandlePtSettingBtnClick() {
+      this.editModeContextMenuVisible = false;
+      this.$refs.ptsetting.Show({
+        index: previousSelectedFeature.get('index'),
+        point: previousSelectedFeature.get('data')
+      })
     },
     ReloadMap() {
       this.$swal.fire(
@@ -831,8 +910,8 @@ export default {
         target: this.id,
         view: new View({
           projection: projection,
-          center: getCenter(extent),
-          zoom: 2,
+          center: this.map_display_mode == 'coordination' ? this.center : this.center_route,
+          zoom: this.map_display_mode == 'coordination' ? this.zoom : this.zoom_route,
           maxZoom: 20
         })
       })
@@ -856,37 +935,50 @@ export default {
     },
     ClearSelectedFeature() {
       try {
-
+        this.previousSelectedFeatures.forEach(feature => {
+          var oriStyle = feature.get('oristyle')
+          feature.setStyle(oriStyle);
+        })
         var oriStyle = this.previousSelectedFeature.get('oristyle')
         this.previousSelectedFeature.setStyle(oriStyle);
       } catch {
 
       }
-      this.previousSelectedFeature = undefined
+      this.previousSelectedFeatures = []
     },
-    HighLightFeatureSelected(feature = new Feature()) {
+    HighLightFeatureSelected(features = [new Feature()], color = 'red') {
       try {
 
         this.ClearSelectedFeature();
-        var style = feature.getStyle()
-        if (!style)
-          return;
-        feature.set("oristyle", style.clone())
-        var newStyle = style.clone()
-        var text = newStyle.getText();
-        if (text) {
-          var stroke = text.getStroke()
-          if (stroke) {
-            var newStroke = stroke.clone();
-            newStroke.setColor('red')
-            text.setStroke(newStroke)
-            feature.setStyle(newStyle)
-            this.previousSelectedFeature = feature
+        features.forEach(feature => {
+
+          var style = feature.getStyle()
+          if (!style)
+            return;
+          feature.set("oristyle", style.clone())
+          var newStyle = style.clone()
+          var text = newStyle.getText();
+          if (text) {
+            var stroke = text.getStroke()
+            if (stroke) {
+              var newStroke = stroke.clone();
+              newStroke.setColor(color)
+              text.setStroke(newStroke)
+              feature.setStyle(newStyle)
+              this.previousSelectedFeatures.push(feature)
+            }
           }
-        }
+        })
       } catch (error) {
 
       }
+    },
+    HighLightFeaturesByStationType(station_type = 0, color = 'red') {
+      debugger
+      // feature.set('station_type', ptdata.StationType)
+      var features = this.StationPointsFeatures.filter(ft => ft.get('station_type') == station_type)
+      this.HighLightFeatureSelected(features, color)
+
     },
     HandleAGVUploadData(coordinates = [{ TagNumber: 0, X: 0, Y: 0, Theta: 0 }]) {
 
@@ -969,30 +1061,42 @@ export default {
       }
 
       feature.setStyle(newStyle)
-      this.previousSelectedFeature = undefined
 
     },
     HandleMenuTaskBtnClick(data = { action: '', station_data: {} }) {
       this.editModeContextMenuVisible = false;
+      var highlight_station_type = 0;
+      if (data.action == 'move') {
+        highlight_station_type = 0;
+      }
+      else if (data.action == 'load' | data.action == 'unload' | data.action == 'carry') {
+        highlight_station_type = 1;
+      }
+      else if (data.action == 'charge') {
+        highlight_station_type = 3;
+      }
+      this.HighLightFeaturesByStationType(highlight_station_type, 'blue')
       bus.emit('bus-show-task-allocation', data);
     }
   },
 
   mounted() {
 
+    this.RestoreSettingsFromLocalStorage();
     this.InitMap();
     watch(
       () => this.map_stations, (newval, oldval) => {
         this._map_stations = JSON.parse(JSON.stringify(newval))
-        console.log('update map ')
-        this.map_display_mode = 'coordination'
         this.UpdateStationPointLayer();
         this.UpdateStationPathLayer();
+        this.MapDisplayModeOptHandler();
 
-        setTimeout(() => {
-          this.map_display_mode = 'router'
-          this.MapDisplayModeOptHandler();
-        }, 500);
+        // setTimeout(() => {
+        //   if (this.firstUseFlag) {
+        //     this.MapDisplayModeOptHandler();
+        //     this.firstUseFlag = false
+        //   }
+        // }, 500);
 
       }, { deep: true, immediate: true }
     )
