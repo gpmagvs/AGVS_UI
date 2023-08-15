@@ -856,8 +856,8 @@ export default {
     HandlePtSettingBtnClick() {
       this.editModeContextMenuVisible = false;
       this.$refs.ptsetting.Show({
-        index: previousSelectedFeature.get('index'),
-        point: previousSelectedFeature.get('data')
+        index: this.previousSelectedFeature.get('index'),
+        point: this.previousSelectedFeature.get('data')
       })
     },
     ReloadMap() {
