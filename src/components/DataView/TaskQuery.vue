@@ -58,7 +58,7 @@
     },
     mounted() {
         TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
-            this.tasks = retquery.Task
+            this.tasks = retquery.tasks
             this.rows = retquery.count;
             this.currentpage = retquery.currentpage;
           }).catch(er => {
@@ -81,7 +81,7 @@
         this.payload=2;
         setTimeout(() => {
             TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
-            this.tasks = retquery.Task
+            this.tasks = retquery.tasks
             this.rows = retquery.count;
             this.currentpage = retquery.currentpage;
           }).catch(er => {
@@ -93,7 +93,7 @@
       },
       PageChnageHandle(payload) {
         TaskQuery(this.currentpage,this.start_time, this.end_time, this.AGVSelected).then(retquery => {
-          this.tasks = retquery.Task;
+          this.tasks = retquery.tasks;
         }
         ).catch(er => {
           Notifier.Danger('警報查詢失敗後端服務異常')
