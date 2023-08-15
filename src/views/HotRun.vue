@@ -56,7 +56,7 @@
                 size="small"
                 @click="HandleStartBtnClick(scope.row)"
               >{{ scope.row.state=='Running'?'中止':'執行' }}</el-button>
-              <el-button type="danger" size="small">刪除</el-button>
+              <el-button @click="HandleDeleteScript(scope.row)" type="danger" size="small">刪除</el-button>
             </div>
           </template>
         </el-table-column>
@@ -111,7 +111,13 @@
             })
           }"
           >新增動作</el-button>
-          <el-table style="width:800px" border class="m-2" :data="selected_script_actions">
+          <el-table
+            row-key="no"
+            style="width:800px"
+            border
+            class="m-2"
+            :data="selected_script_actions"
+          >
             <el-table-column width="50">
               <template #default="scope">
                 <div class="text-start w-100">
@@ -162,6 +168,16 @@
                 </el-select>
               </template>
             </el-table-column>
+
+            <el-table-column>
+              <template #default="scope">
+                <el-button
+                  @click="HandleDeleteHotRunAction(scope.row)"
+                  size="small"
+                  type="danger"
+                >Delete</el-button>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </el-drawer>
@@ -172,7 +188,7 @@
 <script>
 import { watch } from 'vue'
 import { userStore, MapStore, agv_states_store } from '@/store';
-import { SaveHotRunSettings, GetHotRunSettings, StartHotRun } from '@/api/TaskAllocation'
+import { SaveHotRunSettings, GetHotRunSettings, StartHotRun, StopHotRun } from '@/api/TaskAllocation'
 export default {
   data() {
     return {
@@ -263,6 +279,8 @@ export default {
     async HandleStartBtnClick(script) {
       if (script.state == 'IDLE') {
         StartHotRun(script.no)
+      } else {
+        StopHotRun(script.no)
       }
     },
     async HandleSaveBtnClick() {
@@ -278,6 +296,17 @@ export default {
           customClass: 'my-sweetalert',
           timer: response.result ? 1000 : undefined
         })
+    },
+    HandleDeleteHotRunAction(action) {
+      debugger
+      var index = this.selected_script_actions.indexOf(action)
+      this.selected_script_actions.splice(index, 1)
+    },
+    HandleDeleteScript(row) {
+      this.hotRunScripts.splice(this.hotRunScripts.indexOf(row), 1);
+      for (let index = 0; index < this.hotRunScripts.length; index++) {
+        this.hotRunScripts[index].no = index + 1
+      }
     }
   },
   computed: {
@@ -303,8 +332,10 @@ export default {
         for (let index = 0; index < newValue.length; index++) {
           const _script = newValue[index];
           var script_exist = this.hotRunScripts.find(scr => scr.no == _script.no);
-          script_exist.state = _script.state;
-          script_exist.finish_num = _script.finish_num;
+          if (script_exist) {
+            script_exist.state = _script.state;
+            script_exist.finish_num = _script.finish_num;
+          }
         }
 
       }, { deep: true, immediate: true })

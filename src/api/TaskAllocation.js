@@ -149,6 +149,9 @@ export async function StartHotRun(no) {
   var response = await axios_entity.get(`/api/Task/HotRun/Start?no=${no}`)
 }
 
+export async function StopHotRun(no) {
+  var response = await axios_entity.get(`/api/Task/HotRun/Stop?no=${no}`)
+}
 async function CallAPI(path, data) {
   return axios_entity
     .post(path, data, { headers: getAuthHeaders() })

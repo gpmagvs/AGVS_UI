@@ -803,7 +803,6 @@ export default {
       this.StationNameDisplayOptHandler();
       this.PointLayer.setVisible(isShowSlamCoordi);
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
-      debugger
       this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
       this.map.getView().setCenter(isShowSlamCoordi ? [2, 2] : [0, 0]);
       //this.SaveSettingsToLocalStorage();
@@ -974,7 +973,6 @@ export default {
       }
     },
     HighLightFeaturesByStationType(station_type = 0, color = 'red') {
-      debugger
       // feature.set('station_type', ptdata.StationType)
       var features = this.StationPointsFeatures.filter(ft => ft.get('station_type') == station_type)
       this.HighLightFeatureSelected(features, color)
