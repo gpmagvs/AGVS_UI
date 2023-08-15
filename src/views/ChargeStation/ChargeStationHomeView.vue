@@ -1,6 +1,6 @@
 <template>
   <div class="charge-station-setup" style="height:100%">
-    <el-tabs type="border-card" tab-position="top">
+    <el-tabs tab-position="top">
       <el-tab-pane v-for="(data,name) in charge_station_data" :key="name" :label="name">
         <div class="charger-states d-flex border rounded">
           <!-- {{data}} -->

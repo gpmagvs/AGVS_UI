@@ -19,15 +19,22 @@
         >新增動作</el-button>
         <el-button @click="HandleSaveBtnClick" type="primary">儲存設定</el-button>
       </div>
-      <el-table
-        style="width:800px"
-        row-key="no"
-        :data="hotRunScripts"
-        :default-expand-all="false"
-        border
-      >
+      <el-table row-key="no" :data="hotRunScripts" :default-expand-all="false" border>
         <el-table-column label="NO." prop="no" width="60" align="center"></el-table-column>
-        <el-table-column label="執行AGV" prop="agv_name" width="100"></el-table-column>
+        <el-table-column label="執行AGV" prop="agv_name" width="150">
+          <template #default="scope">
+            <div>
+              <el-select v-model="scope.row.agv_name">
+                <el-option
+                  v-for="agv_name in AgvNameList"
+                  :key="agv_name"
+                  :label="agv_name"
+                  :value="agv_name"
+                ></el-option>
+              </el-select>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="狀態" prop="state" width="120" align="center">
           <template #default="scope">
             <div>
@@ -43,12 +50,38 @@
             <div>{{ scope.row.finish_num }}/{{ scope.row.loop_num }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="動作數" width="80" align="center">
+
+        <el-table-column label="Loop次數" prop="finish_num" width="120" align="center">
           <template #default="scope">
-            <div>{{ scope.row.actions.length }}</div>
+            <el-input-number
+              size="small"
+              style="width:80px"
+              :step="1"
+              :precision="0"
+              v-model="scope.row.loop_num"
+            ></el-input-number>
           </template>
         </el-table-column>
-        <el-table-column label>
+        <el-table-column label="動作數" width="140">
+          <template #default="scope">
+            <div>
+              <span class="mx-2">{{ scope.row.actions.length }}</span>
+              <el-button
+                size="small"
+                @click="()=>{action_drawer_visible=true;
+                    selected_script_name =scope.row.agv_name;
+                    selected_script_actions = scope.row.actions;
+                    }"
+              >動作設定</el-button>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Comment" width="180">
+          <template #default="scope">
+            <el-input v-model="scope.row.comment"></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column>
           <template #default="scope">
             <div>
               <el-button
@@ -56,37 +89,8 @@
                 size="small"
                 @click="HandleStartBtnClick(scope.row)"
               >{{ scope.row.state=='Running'?'中止':'執行' }}</el-button>
-              <el-button @click="HandleDeleteScript(scope.row)" type="danger" size="small">刪除</el-button>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column type="expand">
-          <template #default="scope">
-            <div class="settings-content px-2 d-flex bg-light">
-              <div>
-                <div>AGV</div>
-                <el-select v-model="scope.row.agv_name">
-                  <el-option
-                    v-for="agv_name in AgvNameList"
-                    :key="agv_name"
-                    :label="agv_name"
-                    :value="agv_name"
-                  ></el-option>
-                </el-select>
-              </div>
-              <div>
-                <div>次數</div>
-                <el-input-number :step="1" :precision="0" v-model="scope.row.loop_num"></el-input-number>
-              </div>
-              <div>
-                <div>Action</div>
-                <el-button
-                  @click="()=>{action_drawer_visible=true;
-                    selected_script_name =scope.row.agv_name;
-                    selected_script_actions = scope.row.actions;
-                    }"
-                >動作設定</el-button>
-              </div>
+
+              <el-button size="small" @click="HandleDeleteScript(scope.row)" type="danger">刪除</el-button>
             </div>
           </template>
         </el-table-column>
@@ -99,13 +103,14 @@
             :class="titleClass"
           >HOT RUN Actions Setting : {{ selected_script_name }}</h4>
         </template>
-        <div class="px-5 text-start">
+        <div class="px-2 text-start">
           <el-button
             class="mx-2"
             type="danger"
             @click="()=>{
             selected_script_actions.push({
-                action: 'move',
+              no :selected_script_actions.length+1,
+              action: 'move',
               source_tag: undefined,
               destine_tag: undefined
             })
@@ -278,9 +283,34 @@ export default {
     },
     async HandleStartBtnClick(script) {
       if (script.state == 'IDLE') {
-        StartHotRun(script.no)
+
+        this.$swal.fire(
+          {
+            text: '',
+            title: '執行Hot Run ?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          }).then(res => {
+            if (res.isConfirmed) {
+              StartHotRun(script.no)
+            }
+          })
       } else {
-        StopHotRun(script.no)
+        this.$swal.fire(
+          {
+            text: '',
+            title: '確定要終止?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          }).then(res => {
+            if (res.isConfirmed) {
+              StopHotRun(script.no)
+            }
+          })
       }
     },
     async HandleSaveBtnClick() {
@@ -303,10 +333,25 @@ export default {
       this.selected_script_actions.splice(index, 1)
     },
     HandleDeleteScript(row) {
-      this.hotRunScripts.splice(this.hotRunScripts.indexOf(row), 1);
-      for (let index = 0; index < this.hotRunScripts.length; index++) {
-        this.hotRunScripts[index].no = index + 1
-      }
+      this.$swal.fire(
+        {
+          text: '',
+          title: '確定要刪除此腳本?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (res.isConfirmed) {
+            if (row.state == 'Running') {
+              StopHotRun(row.no)
+            }
+            this.hotRunScripts.splice(this.hotRunScripts.indexOf(row), 1);
+            for (let index = 0; index < this.hotRunScripts.length; index++) {
+              this.hotRunScripts[index].no = index + 1
+            }
+          }
+        })
     }
   },
   computed: {

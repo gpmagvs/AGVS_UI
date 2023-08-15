@@ -1,17 +1,17 @@
 <template>
   <div class="task-status card-like">
     <div v-show="show_card_title" class="title">
-      <i class="bi bi-three-dots-vertical"></i>TASK STATUS
+      <i class="bi bi-three-dots-vertical"></i>任務狀態 TASK STATUS
     </div>
     <div v-if="display_mode=='tabs'">
-      <b-tabs @activate-tab="TabActiveHandle" size>
-        <b-tab title="未完成任務">
+      <el-tabs @activate-tab="TabActiveHandle" size>
+        <el-tab-pane label="未完成任務">
           <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskList"></RunningTaskTable>
-        </b-tab>
-        <b-tab title="已結束任務">
+        </el-tab-pane>
+        <el-tab-pane label="已結束任務">
           <CompletedTaskTable :height="height" :CompletedTaskList="CompletedTaskList"></CompletedTaskTable>
-        </b-tab>
-      </b-tabs>
+        </el-tab-pane>
+      </el-tabs>
     </div>
     <div v-else class="column-display-mode">
       <div class="title-display">等待/執行中任務</div>

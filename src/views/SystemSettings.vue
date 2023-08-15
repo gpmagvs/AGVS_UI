@@ -21,6 +21,11 @@
           <ChargeStationView></ChargeStationView>
         </div>
       </b-tab>
+      <b-tab title="HOT RUN">
+        <div class="setting-tab">
+          <HotRUniew></HotRUniew>
+        </div>
+      </b-tab>
     </b-tabs>
   </div>
 </template>
@@ -31,10 +36,11 @@ import UserManager from '@/components/SystemSettings/UserManager.vue';
 import EQManager from '@/components/SystemSettings/EquipmentManager.vue';
 import AGVBatterySetting from '@/components/SystemSettings/AGVBatterySetting.vue';
 import ChargeStationView from '@/views/ChargeStation/ChargeStationHomeView.vue'
+import HotRUniew from '@/views/HotRun.vue'
 
 export default {
   components: {
-    UserManager, EQManager, AGVBatterySetting, ChargeStationView
+    UserManager, EQManager, AGVBatterySetting, ChargeStationView, HotRUniew
   },
   data() {
     return {

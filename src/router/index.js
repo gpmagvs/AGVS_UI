@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView,
+    component: HomeView
   },
   {
     path: '/OP',
@@ -20,19 +20,20 @@ const routes = [
     component: () => import('../views/SimpleOpUsePage.vue'),
   },
   {
-    path: '/HotRun',
-    name: 'HotRun',
-    component: () => import('../views/HotRun.vue'),
-  },
-  {
     path: '/maptest',
     name: 'maptest',
     component: () => import('../components/Map/Map.vue'),
+    meta: {
+      isAdminUse: true
+    }
   },
   {
     path: '/map',
     name: 'map',
     component: () => import('../views/MapView.vue'),
+    meta: {
+      isAdminUse: true
+    }
   },
   {
     path: '/racks_status',
@@ -43,6 +44,9 @@ const routes = [
     path: '/sys_settings',
     name: 'sys_settings',
     component: SystemSettings,
+    meta: {
+      isAdminUse: true
+    }
   },
   {
     path: '/data',

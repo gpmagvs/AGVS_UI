@@ -267,6 +267,10 @@ export default {
       }).then(ret => {
         if (ret.isConfirmed) {
           userStore.commit('setUser', null)
+
+          if (this.$route.meta.isAdminUse) {
+            this.$router.push('/')
+          }
           this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 3000 })
 
         }

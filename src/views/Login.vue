@@ -168,8 +168,8 @@ export default {
         this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 3000 })
         setTimeout(() => {
           //this.dialogVisible = this.isLogin = false;
-          if (this.current_route == '/sys_settings') {
-            this.$router.push('/');
+          if (this.$route.meta.isAdminUse) {
+            this.$router.push('/')
           }
         }, 1000);
 

@@ -50,19 +50,6 @@
         </div>
       </el-tooltip>
       <!--  -->
-      <el-tooltip placement="right" content="HOT RUN">
-        <div
-          v-bind:style="Selected('/HotRun')"
-          v-show="IsUserLogin"
-          class="side-item"
-          @click="PageSwitch('/HotRun','HotRun')"
-        >
-          <div class="menu-icon round">
-            <img src="images/map.png" :height="icon_size" alt />
-          </div>
-        </div>
-      </el-tooltip>
-      <!--  -->
       <el-tooltip placement="right" content="資料">
         <div v-bind:style="Selected('/data')" class="side-item" @click="PageSwitch('/data','資料')">
           <div class="menu-icon round">

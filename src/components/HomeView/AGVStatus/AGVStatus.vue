@@ -1,14 +1,14 @@
 <template>
   <div class="agv-status card-like">
     <div class="title">
-      <i class="bi bi-three-dots-vertical"></i>AGV STATUS
+      <i class="bi bi-three-dots-vertical"></i>車輛狀態 STATUS
     </div>
 
-    <b-tabs class="custom-tabs-head" dir="vertical">
-      <b-tab
+    <el-tabs tab-position="top">
+      <el-tab-pane
         v-for="group in Groups"
         :key="group.group"
-        :title="`${group.group_name}(${group.agv_states.length})`"
+        :label=" `${group.group_name}(${group.agv_states.length})`"
       >
         <el-table
           :header-cell-style="{color:'black',backgroundColor:'rgb(241, 241, 241)'}"
@@ -18,9 +18,10 @@
           empty-text="沒有AGV"
           :row-class-name="connected_class"
           highlight-current-row
-          default-expand-all
+          style="width:100%"
+          @row-click="HandleRowClick"
         >
-          <el-table-column label="車輛名稱" prop="AGV_Name" width="90px">
+          <el-table-column label="車輛名稱" prop="AGV_Name" width="90px" type="index">
             <template #default="scope">
               <b>{{scope.row.AGV_Name.toUpperCase() }}</b>
             </template>
@@ -67,6 +68,7 @@
               </div>
             </template>
           </el-table-column>
+          <el-table-column prop="TaskName" label="任務名稱" />
           <!-- <el-table-column label="任務">
             <el-table-column prop="TaskName" label="名稱" />
             <el-table-column prop="TaskRunStatus" label="狀態">
@@ -77,8 +79,9 @@
               </template>
             </el-table-column>
           </el-table-column>
-          <el-table-column label="載物ID" prop="CurrentCarrierID"></el-table-column>-->
-          <el-table-column label="電量" prop="BatteryLevel">
+          -->
+          <el-table-column label="載物ID" prop="CurrentCarrierID"></el-table-column>
+          <el-table-column label="電量" prop="BatteryLevel" width="120">
             <template #default="scope">
               <div>
                 <b-progress class="flex-fill" :max="100" :min="0" animated>
@@ -92,17 +95,9 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column v-if="!IsRunMode" label="操作" fixed="right" min-width="120">
+          <el-table-column v-if="!IsRunMode" label="操作" fixed="right" width="110">
             <template #default="scope">
-              <div class="d-flex">
-                <b-button
-                  class="w-100 m-1"
-                  @click="ShowAGVChargeConfirmDialog(scope.row)"
-                  size="sm"
-                  variant="info"
-                >
-                  <i class="bi bi-lightning-charge-fill"></i>充電
-                </b-button>
+              <div class="d-flex flex-column">
                 <b-button
                   class="w-100 m-1"
                   @click="ShowTaskAllocationView(scope.row)"
@@ -111,12 +106,20 @@
                 >
                   <i class="bi bi-bus-front"></i>任務
                 </b-button>
+                <b-button
+                  class="w-100 m-1"
+                  @click="ShowAGVChargeConfirmDialog(scope.row)"
+                  size="sm"
+                  variant="success"
+                >
+                  <i class="bi bi-lightning-charge-fill"></i>充電
+                </b-button>
               </div>
             </template>
           </el-table-column>
         </el-table>
-      </b-tab>
-    </b-tabs>
+      </el-tab-pane>
+    </el-tabs>
   </div>
   <!--Modals-->
   <div class="modals">
@@ -160,7 +163,9 @@ export default {
     }
   },
   methods: {
-
+    HandleRowClick(row, row_) {
+      this.HandleShowAGVInMapCenter(row.AGV_Name)
+    },
     HandleShowAGVInMapCenter(agv_name) {
       bus.emit('/show_agv_at_center', agv_name)
     },
