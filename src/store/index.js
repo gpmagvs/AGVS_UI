@@ -26,17 +26,22 @@ export default createStore({
 
 export const agv_states_store = createStore({
   state: {
-    agv_states: [new clsAGVStateDto()]
+    agv_states: [new clsAGVStateDto()],
+    hotrun_states: []
   },
   getters: {
     AGVStatesData: state => state.agv_states,
     AGVNameList: state => {
       return state.agv_states.map(agv => agv.AGV_Name)
-    }
+    },
+    HotRunStates: state => state.hotrun_states
   },
   mutations: {
     storeAgvStates(state, data) {
       state.agv_states = data
+    },
+    setHotRunStates(state, data) {
+      state.hotrun_states = data
     }
   }
 })

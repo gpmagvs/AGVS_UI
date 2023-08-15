@@ -119,22 +119,34 @@ export var TaskAllocation = {
     return await CallAPI('/api/Task/Move', clsMoveTaskData)
   },
   async LoadTask(clsLoadTaskData = new clsLoadTaskData('agv', 1, 1, 'CST_ID')) {
-    return await  CallAPI('/api/Task/Load', clsLoadTaskData)
+    return await CallAPI('/api/Task/Load', clsLoadTaskData)
   },
   async UnloadTask(
     clsUnloadTaskData = new clsUnloadTaskData('agv', 1, 1, 'CST_ID'),
   ) {
-    return await  CallAPI('/api/Task/Unload', clsUnloadTaskData)
+    return await CallAPI('/api/Task/Unload', clsUnloadTaskData)
   },
   async CarryTask(clsCarryTaskData) {
     return await CallAPI('/api/Task/Carry', clsCarryTaskData)
   },
   async ChargeTask(clsChargeTaskData) {
-    return await  CallAPI('/api/Task/Charge', clsChargeTaskData)
+    return await CallAPI('/api/Task/Charge', clsChargeTaskData)
   },
   async ParkTask(clsChargeTaskData) {
-    return await  CallAPI('/api/Task/Park', clsChargeTaskData)
+    return await CallAPI('/api/Task/Park', clsChargeTaskData)
   },
+}
+export async function SaveHotRunSettings(data) {
+  var response = await axios_entity.post('/api/Task/HotRun', data)
+  return response.data;
+}
+export async function GetHotRunSettings() {
+  var response = await axios_entity.get('/api/Task/HotRun')
+  return response.data;
+}
+
+export async function StartHotRun(no) {
+  var response = await axios_entity.get(`/api/Task/HotRun/Start?no=${no}`)
 }
 
 async function CallAPI(path, data) {

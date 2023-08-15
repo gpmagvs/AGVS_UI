@@ -42,3 +42,12 @@ worker3.onmessage = (event) => {
 }
 
 worker3.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/AGVLocationUpload' });
+
+
+
+const worker_hotrun_data = new Worker('websocket_worker.js')
+worker_hotrun_data.onmessage = (event) => {
+    if (event.data != 'error' && event.data != 'closed')
+        agv_states_store.commit('setHotRunStates', event.data)
+}
+worker_hotrun_data.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/HotRun' });

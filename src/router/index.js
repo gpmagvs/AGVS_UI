@@ -20,6 +20,11 @@ const routes = [
     component: () => import('../views/SimpleOpUsePage.vue'),
   },
   {
+    path: '/HotRun',
+    name: 'HotRun',
+    component: () => import('../views/HotRun.vue'),
+  },
+  {
     path: '/maptest',
     name: 'maptest',
     component: () => import('../components/Map/Map.vue'),
