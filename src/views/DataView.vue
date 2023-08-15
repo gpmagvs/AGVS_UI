@@ -31,7 +31,7 @@ import AGVLocusDisplay from '@/components/DataView/AGVLocus.vue';
 
 export default {
   components: {
-    AvailbilitysData, AlarmQuery, AGVLocusDisplay
+    AvailbilitysData, AlarmQuery, AGVLocusDisplay, TaskQuery
   },
 }
 </script>
