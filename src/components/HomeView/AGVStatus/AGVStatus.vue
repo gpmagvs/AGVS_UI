@@ -92,7 +92,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column v-if="!IsRunMode" label="操作" fixed="right">
+          <el-table-column v-if="!IsRunMode" label="操作" fixed="right" min-width="120">
             <template #default="scope">
               <div class="d-flex">
                 <b-button

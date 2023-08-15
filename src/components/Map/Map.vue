@@ -208,7 +208,9 @@ export default {
     return {
       map: new Map(),
       zoom: 2,
+      zoom_route: 2,
       center: [0, 0],
+      center_route: [0, 0],
       map_img_extent: [-37.5, -37.5, 37.5, 37.5],
       map_img_size: [1500, 1500],
       _map_stations: [],
@@ -604,11 +606,21 @@ export default {
     SaveSettingsToLocalStorage() {
       var zoom = this.map.getView().getZoom()
       var center = this.map.getView().getCenter()
+
+      if (this.map_display_mode == 'coordination') {
+        this.zoom = zoom;
+        this.center = center
+      } else {
+        this.zoom_route = zoom;
+        this.center_route = center
+      }
       //儲存目前的地圖設定
       localStorage.setItem(`map-${this.$route.name}`, JSON.stringify({
-        zoom: zoom,
+        zoom: this.zoom,
+        zoom_route: this.zoom_route,
         mode: this.map_display_mode,
-        center: center,
+        center: this.center,
+        center_route: this.center_route,
         station_name_display_mode: this.station_name_display_mode
       }))
 
@@ -621,6 +633,8 @@ export default {
         this.map_display_mode = settings.mode
         this.zoom = settings.zoom;
         this.center = settings.center
+        this.zoom_route = settings.zoom_route;
+        this.center_route = settings.center_route
       }
     },
     CreateStationFeature(station = new clsMapStation()) {
@@ -789,7 +803,10 @@ export default {
       this.StationNameDisplayOptHandler();
       this.PointLayer.setVisible(isShowSlamCoordi);
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
-      this.SaveSettingsToLocalStorage();
+      debugger
+      this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
+      this.map.getView().setCenter(isShowSlamCoordi ? [2, 2] : [0, 0]);
+      //this.SaveSettingsToLocalStorage();
     },
     StationNameDisplayOptHandler() {
 
@@ -893,8 +910,8 @@ export default {
         target: this.id,
         view: new View({
           projection: projection,
-          center: this.center,
-          zoom: this.zoom,
+          center: this.map_display_mode == 'coordination' ? this.center : this.center_route,
+          zoom: this.map_display_mode == 'coordination' ? this.zoom : this.zoom_route,
           maxZoom: 20
         })
       })
@@ -1047,7 +1064,6 @@ export default {
 
     },
     HandleMenuTaskBtnClick(data = { action: '', station_data: {} }) {
-      debugger
       this.editModeContextMenuVisible = false;
       var highlight_station_type = 0;
       if (data.action == 'move') {

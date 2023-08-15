@@ -160,6 +160,9 @@ export default {
 
     IsDeveloper() {
       return userStore.getters.IsDeveloperLogining;
+    },
+    IsUserLogin() {
+      return userStore.getters.level != 0
     }
   },
   methods: {
@@ -167,13 +170,13 @@ export default {
 
       this.sourceTag = undefined;
       this.destinTag = undefined;
-      var highlight_color='blue'
+      var highlight_color = 'blue'
       if (action == 'move')
-        this.Map.HighLightFeaturesByStationType(0,highlight_color);
+        this.Map.HighLightFeaturesByStationType(0, highlight_color);
       if (action == 'carry' | action == 'load' | action == 'unload')
-        this.Map.HighLightFeaturesByStationType(1,highlight_color);
+        this.Map.HighLightFeaturesByStationType(1, highlight_color);
       if (action == 'charge')
-        this.Map.HighLightFeaturesByStationType(3,highlight_color);
+        this.Map.HighLightFeaturesByStationType(3, highlight_color);
     },
 
     TaskDeliveryBtnClickHandle() {
@@ -325,6 +328,24 @@ export default {
   },
   mounted() {
     bus.on('bus-show-task-allocation', (data = { agv_name: undefined, action: '', station_data: new MapPointModel() }) => {
+      if (!this.IsUserLogin) {
+        setTimeout(() => {
+
+          this.$swal.fire(
+            {
+              text: '',
+              title: '請先進行登入',
+              icon: 'warning',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            }).then(() => {
+              bus.emit('/show-login-view-invoke')
+            })
+
+        }, 200);
+        return;
+      }
       this.sourceTag = undefined;
       this.destinTag = undefined;
       this.selectedAGVName = undefined;
