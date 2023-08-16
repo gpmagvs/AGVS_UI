@@ -12,6 +12,8 @@
         <option>AGV_2</option>
         <option>AGV_3</option>>
       </select>
+      <label>任務名稱</label>
+      <input type="text"  v-model="TaskName" placeholder="ALL"  size="20" >
       <b-button @click="QueryAlarm()" :QueryAlarm="QueryAlarm" class="Select-Query" variant="primary" size="sm"
         style="float:right">搜尋</b-button>
     </div>
@@ -54,15 +56,16 @@ export default {
       start_time: '2023-06-01 00:00:00',
       end_time: '2023-06-03 00:00:00',
       AGVSelected: 'ALL',
+      TaskName: '',
       alarms: [],
-      per_page_num: 10,
+      per_page_num: 15,
       rows: 1,
       currentpage: 1,
       loading: false,
     }
   },
   mounted() {
-    QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+    QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected,this.TaskName).then(retquery => {
           this.alarms = retquery.alarms
           this.rows = retquery.count;
           this.currentpage = retquery.currentpage;
@@ -87,10 +90,13 @@ export default {
       this.currentpage = 1;
       this.payload=2;
       setTimeout(() => {
-        QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+        QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected,this.TaskName).then(retquery => {
           this.alarms = retquery.alarms
           this.rows = retquery.count;
           this.currentpage = retquery.currentpage;
+        }).then(dat=>{
+          //window.open('http://localhost:5216/MapFiles/test.csv')
+
         }).catch(er => {
           this.loading = false;
           Notifier.Danger('警報查詢失敗後端服務異常')
@@ -99,7 +105,7 @@ export default {
 
     },
     PageChnageHandle(payload) {
-      QueryAlarm(this.currentpage,this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+      QueryAlarm(this.currentpage,this.start_time, this.end_time, this.AGVSelected,this.TaskName).then(retquery => {
         this.alarms = retquery.alarms;
       }
       ).catch(er => {

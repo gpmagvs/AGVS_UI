@@ -17,8 +17,8 @@ export async function ResetEquipmentAlarm() {
 }
 
 /**警報查詢 */
-export async function QueryAlarm(currentpage,start_time,end_time,AGV_Name='ALL') {
-  var retquery= await axios_entity.get(`/api/Alarmquery/QueryAlarm?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}`)
+export async function QueryAlarm(currentpage,start_time,end_time,AGV_Name='ALL',TaskName='ALL') {
+  var retquery= await axios_entity.get(`/api/Alarmquery/QueryAlarm?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`)
   return retquery.data;
 }
 
