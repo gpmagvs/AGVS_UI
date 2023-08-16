@@ -381,7 +381,6 @@ export default {
           }
           agvfeatures.agv_feature.setGeometry(new Point(coordination))
           agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
-          debugger
 
           var style = agvfeatures.agv_feature.getStyle();
           var image = style.getImage()

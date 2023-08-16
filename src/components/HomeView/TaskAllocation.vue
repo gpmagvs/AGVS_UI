@@ -69,7 +69,7 @@
                 @click="TaskDeliveryBtnClickHandle"
                 variant="primary"
               >派送任務</b-button>
-              <b-button class="w-100" @click="TaskDeliveryBtnClickHandle" variant="default">預覽路徑</b-button>
+              <b-button class="w-100" @click="HandleNavPathPreviewBtnClick" variant="default">預覽路徑</b-button>
             </el-form-item>
           </el-form>
           <Map
@@ -178,7 +178,8 @@ export default {
       if (action == 'charge')
         this.Map.HighLightFeaturesByStationType(3, highlight_color);
     },
-
+    HandleNavPathPreviewBtnClick() {
+    },
     TaskDeliveryBtnClickHandle() {
       if (!this.selectedAGVName) {
         this.$swal.fire(
@@ -260,6 +261,7 @@ export default {
     },
     async TaskDeliveryHandle() {
       // TaskAllocation.Task();
+
       this.wait_task_confirm = true
       var response = { confirm: true, message: '' }
 
@@ -285,16 +287,27 @@ export default {
         response = await TaskAllocation.ParkTask(new clsParkTaskData(this.selectedAGVName, this.destinTag));
       }
       this.wait_task_confirm = false;
-      if (!response.confirm) {
+      debugger
+      if (response.status != 200) {
+        const is_Unauthorized = response.status == 401;
         this.$swal.fire({
-          title: '任務派送失敗!',
-          text: response.message,
+          title: is_Unauthorized ? '須重新進行登入' : '任務派送失敗!',
+          text: is_Unauthorized ? '' : response.mesage,
           icon: 'error',
           showCancelButton: false,
           showConfirmButton: true,
           confirmButtonText: 'OK',
           customClass: 'my-sweetalert',
+        }).then(res => {
+          if (is_Unauthorized) {
+            this.show = false;
+            userStore.dispatch('logout', '')
+            bus.emit('/show-login-view-invoke')
+
+          }
         })
+
+
       }
       else {
         Notifier.Success('任務已派送', 'top', 3000);
@@ -340,6 +353,7 @@ export default {
               confirmButtonText: 'OK',
               customClass: 'my-sweetalert'
             }).then(() => {
+
               bus.emit('/show-login-view-invoke')
             })
 

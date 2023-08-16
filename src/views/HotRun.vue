@@ -328,7 +328,6 @@ export default {
         })
     },
     HandleDeleteHotRunAction(action) {
-      debugger
       var index = this.selected_script_actions.indexOf(action)
       this.selected_script_actions.splice(index, 1)
     },

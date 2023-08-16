@@ -157,10 +157,17 @@ async function CallAPI(path, data) {
     .post(path, data, { headers: getAuthHeaders() })
     .then((response) => {
       console.log('Response:', response.data)
-      return response.data
+      return {
+        status: response.status,
+        data: response.data,
+      }
     })
     .catch((error) => {
       console.error('Error:', error)
-      return error.response.data
+      return {
+        status: error.response.status,
+        data: error.response.data,
+        message: error.message
+      }
     })
 }

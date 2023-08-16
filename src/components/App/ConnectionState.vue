@@ -30,7 +30,7 @@ export default {
     return {
       Connections: [
         {
-          name: "HOST",
+          name: "後端SERVER",
           connected: false,
         },
         {

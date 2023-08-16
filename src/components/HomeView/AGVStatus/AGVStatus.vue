@@ -193,26 +193,58 @@ export default {
       this.OnlineStatusReq.AGV_Name = agv_name;
       this.OnlineStatusReq.Online_Status = current_online_status == 0 ? 'Online' : 'Offline';
       this.OnlineStatusReq.Model = Model;
-
       var online_text = this.OnlineStatusReq.Online_Status == 'Online' ? '上線' : '下線';
-      var text_class = current_online_status == 0 ? 'text-success' : 'text-danger';
-      this.$refs['online_status_change_noti_txt'].innerHTML = `<h4>確定要將 <span > ${this.OnlineStatusReq.AGV_Name}</span><b> <span class='${text_class}'>${online_text}</span></b>  ?</h4>`;
+      this.$swal.fire(
+        {
+          text: `確定要將 ${this.OnlineStatusReq.AGV_Name} ${online_text}?`,
+          title: `${this.OnlineStatusReq.AGV_Name} - ${online_text}`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (res.isConfirmed) {
+            this.SendOnlineStateChangeRequest()
+          }
+        })
 
-      this.ShowOnlineStateChange = true;
     },
     async SendOnlineStateChangeRequest() {
+      Notifier.Primary(`${this.OnlineStatusReq.AGV_Name} ${this.OnlineStatusReq.Online_Status} 請求已送出`, 'top', 2000);
       var response = null
-      if (this.OnlineStatusReq.Online_Status == 'Online') {
-        var res = await OnlineRequest(this.OnlineStatusReq.AGV_Name, this.OnlineStatusReq.Model);
-        response = res.data;
-      } else {
-        var res = await OfflineRequest(this.OnlineStatusReq.AGV_Name, this.OnlineStatusReq.Model);
-        response = res.data;
+      try {
+
+
+        if (this.OnlineStatusReq.Online_Status == 'Online') {
+          var res = await OnlineRequest(this.OnlineStatusReq.AGV_Name, this.OnlineStatusReq.Model);
+          response = res.data;
+        } else {
+          var res = await OfflineRequest(this.OnlineStatusReq.AGV_Name, this.OnlineStatusReq.Model);
+          response = res.data;
+        }
+        if (response.ReturnCode != 0) {
+          this.$swal.fire(
+            {
+              text: `${this.OnlineStatusReq.AGV_Name} ${this.OnlineStatusReq.Online_Status} 失敗:${response.Message}`,
+              title: '',
+              icon: 'error',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            })
+        }
+      } catch (error) {
+        this.$swal.fire(
+          {
+            title: 'VMS系統通訊異常',
+            text: `${error.message} , Please confirm that the VMS is currently in service.`,
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
       }
-      if (response.ReturnCode == 0)
-        Notifier.Success(`${this.OnlineStatusReq.AGV_Name} ${this.OnlineStatusReq.Online_Status} 請求已送出`, 'top', 3000);
-      else
-        Notifier.Danger(`${this.OnlineStatusReq.AGV_Name} ${this.OnlineStatusReq.Online_Status} 失敗:${response.Message}`, 'top', 3000);
+
     },
     ShowAGVChargeConfirmDialog(agv_status) {
 
