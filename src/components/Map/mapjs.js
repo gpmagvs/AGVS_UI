@@ -186,7 +186,7 @@ function GetCargoIcon(cargo_type, exist = false) {
     return new Icon({
         src: cargo_type == 1 ? 'images/rack2.png' : 'images/tray.png',
         scale: cargo_type == 1 ? .6 : .8, // 设置PNG图像的缩放比例
-        anchor: cargo_type == 1 ? [1.3, 0.95] : [1.05, 0.65], // 设置PNG图像的锚点，即图片的中心点位置
+        anchor: cargo_type == 1 ? [1.3, 0.95] : [.8, 0.65], // 设置PNG图像的锚点，即图片的中心点位置
         size: [60, 60],// 设置PNG图像的大小
         opacity: 1,
     })
@@ -220,16 +220,18 @@ export function AGVPointStyle(agv_name, color) {
     return new Style({
         image: new Icon({
             src: '/agv.png', // 设置PNG图像的路径
-            scale: .9, // 设置PNG图像的缩放比例
+            scale: .5, // 设置PNG图像的缩放比例
             anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
-            size: [60, 60],// 设置PNG图像的大小
+            size: [64, 64],// 设置PNG图像的大小
             opacity: 1,
+            rotateWithView: true,
+            rotation: 0 * Math.PI / 180.0 //3.14 180
 
         }),
         text: new Text({
             text: agv_name,
             offsetX: 0,
-            offsetY: 22,
+            offsetY: 32,
             font: 'bold 16px Arial',
             fill: new Fill({
                 color: 'white'
@@ -270,13 +272,14 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0) {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0) {
         this.AgvName = AgvName
         this.TextColor = TextColor
         this.Coordination = initCoordination;
         this.NavPathCoordinationList = navCoorList
         this.CargoStatus = CargoStatus
         this.Tag = Tag
+        this.Theta = Theta
     }
 }
 

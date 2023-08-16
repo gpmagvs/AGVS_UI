@@ -381,6 +381,13 @@ export default {
           }
           agvfeatures.agv_feature.setGeometry(new Point(coordination))
           agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
+          debugger
+
+          var style = agvfeatures.agv_feature.getStyle();
+          var image = style.getImage()
+          image.setRotation((agv_opt.Theta - 90) * -1 * Math.PI / 180.0)
+          style.setImage(image)
+          agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_opt.CargoStatus)
 

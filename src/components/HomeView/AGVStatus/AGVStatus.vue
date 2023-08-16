@@ -46,6 +46,7 @@
             prop="MainStatus"
             :formatter="AGVStatusFormatter"
             align="center"
+            width="130"
           >
             <template #default="scope">
               <div>

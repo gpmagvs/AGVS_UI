@@ -73,11 +73,35 @@
       </el-table-column>
       <el-table-column type="expand" width="30">
         <template #default="scope">
-          <div v-if="IsDeveloperLogining" class="d-flex mx-5">
+          <div v-if="IsDeveloperLogining" class="d-flex">
             <div class="mx-3">模擬器:</div>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'busy')">切換為Busy</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'load')">切換為Load</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'unload')">切換為Unload</el-button>
+          </div>
+          <div class="hs-signals d-flex">
+            <div class="mx-3">交握訊號:</div>
+
+            <div
+              class="di-status"
+              @dblclick="HandleHSsignaleChange(scope.row.EQName,'L_REQ',!scope.row.HS_EQ_L_REQ)"
+              v-bind:style="signalOn(scope.row.HS_EQ_L_REQ)"
+            >L_REQ</div>
+            <div
+              class="di-status"
+              @dblclick="HandleHSsignaleChange(scope.row.EQName,'U_REQ',!scope.row.HS_EQ_U_REQ)"
+              v-bind:style="signalOn(scope.row.HS_EQ_U_REQ)"
+            >U_REQ</div>
+            <div
+              class="di-status"
+              @dblclick="HandleHSsignaleChange(scope.row.EQName,'READY',!scope.row.HS_EQ_READY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_READY)"
+            >READY</div>
+            <div
+              class="di-status"
+              @dblclick="HandleHSsignaleChange(scope.row.EQName,'BUSY',!scope.row.HS_EQ_BUSY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_BUSY)"
+            >BUSY</div>
           </div>
         </template>
       </el-table-column>
@@ -199,6 +223,12 @@ export default {
     },
     EmuAllBusy() {
       EmuAPI.EQAllBusy()
+    },
+    HandleHSsignaleChange(eqname, signal_name, state) {
+      // alert(eqname + ',' + signal_name)
+      if (!this.IsDeveloperLogining)
+        return;
+      EmuAPI.SetEQHsSignal(eqname, signal_name, state)
     }
   }
 }
@@ -244,6 +274,12 @@ export default {
     font-size: 9px;
     border-radius: 4px;
     cursor: pointer;
+  }
+  .hs-signals {
+    div {
+      margin: 3px;
+      padding: 3px;
+    }
   }
 
   .el-table .success-row {
