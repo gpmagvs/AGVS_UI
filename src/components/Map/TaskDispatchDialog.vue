@@ -18,7 +18,7 @@
 
 <script>
 import Map from './Map.vue'
-import { MapStore } from '@/store'
+import { MapStore } from './store'
 import { MapPointModel } from './mapjs.js'
 
 export default {

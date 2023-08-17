@@ -70,7 +70,7 @@
 
 <script>
 import Map from '@/components/Map/Map.vue'
-import { MapStore } from '@/store'
+import { MapStore } from '@/components/Map/store'
 
 export default {
   components: {

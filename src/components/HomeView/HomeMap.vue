@@ -14,7 +14,8 @@
 
 <script>
 import Map from '@/components/Map/Map.vue'
-import { MapStore } from '@/store'
+import { MapStore } from '@/components/Map/store'
+
 import { AGVOption, clsAGVDisplay, clsMapStation } from '@/components/Map/mapjs';
 
 export default {
