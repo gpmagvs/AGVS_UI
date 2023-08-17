@@ -4,7 +4,7 @@
       <i class="bi bi-three-dots-vertical"></i>車輛狀態 STATUS
     </div>
 
-    <el-tabs tab-position="top">
+    <el-tabs class="px-1" tab-position="top">
       <el-tab-pane
         v-for="group in Groups"
         :key="group.group"

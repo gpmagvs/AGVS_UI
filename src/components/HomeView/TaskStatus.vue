@@ -3,7 +3,7 @@
     <div v-show="show_card_title" class="title">
       <i class="bi bi-three-dots-vertical"></i>任務狀態 TASK STATUS
     </div>
-    <div v-if="display_mode=='tabs'">
+    <div class="px-1" v-if="display_mode=='tabs'">
       <el-tabs @activate-tab="TabActiveHandle" size>
         <el-tab-pane label="未完成任務">
           <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskList"></RunningTaskTable>
