@@ -162,7 +162,7 @@ export default {
   },
   methods: {
     HandleRowClick(row, row_) {
-      this.HandleShowAGVInMapCenter(row.AGV_Name)
+      //this.HandleShowAGVInMapCenter(row.AGV_Name)
     },
     HandleShowAGVInMapCenter(agv_name) {
       bus.emit('/show_agv_at_center', agv_name)

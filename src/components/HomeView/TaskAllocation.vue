@@ -1,16 +1,25 @@
 <template>
   <div class="task-allocation">
     <el-drawer
+      :show-close="false"
       v-model="show"
       :header="false"
-      size="100%"
-      direction="ltr"
-      :modal="true"
+      size="95%"
+      direction="btt"
+      :modal="false"
       :z-index="123"
       @closed="HandleDrawerClosed"
     >
       <template #header>
-        <h3>Local任務派送-車輛:{{selectedAGVName }}</h3>
+        <div class="d-flex">
+          <el-button
+            @click="()=>{show=false}"
+            size="large"
+            style="margin-left:53px;font-size:larger;"
+            type="primary"
+          >←返回(ESC)</el-button>
+          <h3 class="flex-fill text-center">Local任務派送-車輛:{{selectedAGVName }}</h3>
+        </div>
       </template>
       <div class="drawer-content border-top" v-loading="wait_task_confirm">
         <div class="d-flex flex-row py-1 w-100 h-100">

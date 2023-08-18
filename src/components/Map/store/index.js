@@ -16,7 +16,8 @@ export const MapStore = createStore({
             'pink',
             'red',
             'purple',
-        ]
+        ],
+        mapBackendServer: 'http://192.168.10.100:5216'
     },
     getters: {
         MapData: state => {
@@ -137,11 +138,11 @@ export const MapStore = createStore({
         }
     },
     actions: {
-        DownloadMapData({ commit }) {
+        DownloadMapData({ commit, state }) {
             console.log('[MapStore] try get map data');
 
             var axio = axios.create({
-                baseURL: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' :
+                baseURL: process.env.NODE_ENV == 'development' ? state.mapBackendServer :
                     `${window.location.protocol}//${window.location.host}`
             })
 

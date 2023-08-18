@@ -394,9 +394,9 @@ export default {
             }
 
           }
-          var newCoordinates = [coordination[0].toFixed(2), coordination[1].toFixed(2)]
-          agvfeatures.agv_feature.setGeometry(new Point(newCoordinates))
-          agvfeatures.cargo_icon_feature.setGeometry(new Point(newCoordinates))
+
+          agvfeatures.agv_feature.setGeometry(new Point(coordination))
+          agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
 
           var style = agvfeatures.agv_feature.getStyle();
           var image = style.getImage()
@@ -911,7 +911,7 @@ export default {
       this.ImageLayer = new ImageLayer({
         source: new Static({
           // url: 'Map.png',
-          url: 'http://192.168.0.1:5216/MapFiles/oven_demo.png',
+          url: 'http://192.168.10.100:5216/MapFiles/oven_demo.png',
           projection: projection,
           imageExtent: extent,
           imageSize: this.map_img_size,
@@ -946,10 +946,12 @@ export default {
     },
     ResetMapCenterViaAGVLoc(agv_name) {
       //Get AGV Coordination
+      debugger
       var agvfeatures = this.AGVFeatures[agv_name]
       if (agvfeatures) {
         var coordination = agvfeatures.agv_feature.getGeometry().getCoordinates()
         this.map.getView().setCenter(coordination)
+        //this.map.getView().setZoom(4)
       }
     },
     HandleSettingBtnClick() {
