@@ -17,7 +17,7 @@ export const MapStore = createStore({
             'red',
             'purple',
         ],
-        mapBackendServer: 'http://192.168.10.100:5216'
+        mapBackendServer: 'http://192.168.0.1:5216'
     },
     getters: {
         MapData: state => {
@@ -120,6 +120,20 @@ export const MapStore = createStore({
             var points = Object.values(state.MapData.Points)
             var options = points.filter(pt => pt.IsParking == true).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
             return options;
+        },
+        AllPointsOptions: state => {
+            var options = []
+            var points = state.MapData.Points
+            var indexes = Object.keys(points)
+            indexes.forEach(index => {
+                var ptData = points[index]
+                options.push({
+                    index: index,
+                    tag: ptData.TagNumber,
+                    name: ptData.Name
+                })
+            })
+            return options
         }
     },
     mutations: {
@@ -154,6 +168,11 @@ export const MapStore = createStore({
         },
         Save({ commit }) {
 
+        },
+        /**根據點位的index搜尋點位物件 */
+        GetMapPointByIndex({ commit, state }, index) {
+            var points = state.MapData.Points
+            return points[index]
         }
     }
 }

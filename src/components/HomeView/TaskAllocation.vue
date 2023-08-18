@@ -285,7 +285,6 @@ export default {
         response = await TaskAllocation.ParkTask(new clsParkTaskData(this.selectedAGVName, this.destinTag));
       }
       this.wait_task_confirm = false;
-      debugger
       if (response.status != 200) {
         const is_Unauthorized = response.status == 401;
         this.$swal.fire({

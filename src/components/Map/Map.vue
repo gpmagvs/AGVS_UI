@@ -946,7 +946,6 @@ export default {
     },
     ResetMapCenterViaAGVLoc(agv_name) {
       //Get AGV Coordination
-      debugger
       var agvfeatures = this.AGVFeatures[agv_name]
       if (agvfeatures) {
         var coordination = agvfeatures.agv_feature.getGeometry().getCoordinates()

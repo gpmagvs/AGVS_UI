@@ -96,12 +96,47 @@
                 <el-checkbox v-model="pointData_editing.IsExtinguishing" label="消防設備"></el-checkbox>
               </div>
             </el-collapse-item>
-            <el-collapse-item title="Consistency" name="3">
-              <el-form>
-                <el-form-item label="Point Index">
-                  <el-input v-model="index" disabled></el-input>
-                </el-form-item>
-              </el-form>
+            <el-collapse-item title="註冊點" name="3">
+              <div class="text-start">
+                <el-button
+                  @click="()=>{
+                  RegistersTable.push({
+                    index:undefined,
+                    tag:undefined,
+                    name:undefined
+                  })
+                }"
+                >新增</el-button>
+              </div>
+              <el-table row-key="index" height="320px" border :data="RegistersTable">
+                <el-table-column label="Index" prop="index">
+                  <template #default="scope">
+                    <div>
+                      <el-select @change="HandleIndexSelected(scope.row)" v-model="scope.row.index">
+                        <el-option
+                          v-for="pt in pointsOptions"
+                          :key="pt.index"
+                          :label="pt.index"
+                          :value="pt.index"
+                        ></el-option>
+                      </el-select>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label="Tag" prop="tag"></el-table-column>
+                <el-table-column label="Name" prop="name"></el-table-column>
+                <el-table-column label="Name">
+                  <template #default="scope">
+                    <el-button
+                      @click="()=>{
+                      RegistersTable.splice(RegistersTable.indexOf(scope.row),1)
+                    }"
+                      type="danger"
+                      size="small"
+                    >移除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
             </el-collapse-item>
             <el-collapse-item title="分區設定" name="4">
               <el-form>
@@ -120,6 +155,7 @@
 <script>
 import { GetEQInfoByTag } from '@/api/EquipmentAPI.js';
 import { pointTypes } from '@/api/MapAPI.js'
+import { MapStore } from './Map/store';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import MapAPI from '@/api/MapAPI'
 import { ElNotification } from 'element-plus'
@@ -135,6 +171,14 @@ export default {
       index: -1,
       pointData: {},
       pointData_editing: {},
+      RegistersTable: [
+        {
+          index: 0,
+          tag: 1,
+          name: '1'
+
+        }
+      ],
       activeNames: ['1'],
       BindingEQInfo: {
         ConnOptions: {
@@ -164,6 +208,9 @@ export default {
     },
     potinFullName() {
       return `[${this.index}] ${this.pointData.Name}`
+    },
+    pointsOptions() {
+      return MapStore.getters.AllPointsOptions;
     }
   },
   methods: {
@@ -171,25 +218,29 @@ export default {
 
       this.index = ptObj.index
       this.pointData = ptObj.point
-
-      // {
-      //   "ConnOptions": {
-      //       "ConnMethod": 0,
-      //       "IP": "127.0.0.1",
-      //       "Port": 503,
-      //       "ComPort": "COM1"
-      //   },
-      //   "Name": "LDULD#2",
-      //   "TagID": 2
-      // }
-
       this.pointData_editing = JSON.parse(JSON.stringify(ptObj.point))
+      this.InitRegisterTableData();
 
       if (this.IsEQPoint)//EQ
       {
         this.BindingEQInfo = await GetEQInfoByTag(this.pointData.TagNumber);
       }
       this.show = true;
+    },
+    InitRegisterTableData() {
+      this.RegistersTable = []
+      var registersIndexes = this.pointData_editing.RegistsPointIndexs //點位的INDEX列表
+      registersIndexes.forEach(async (index) => {
+        var registedPointData = await MapStore.dispatch('GetMapPointByIndex', index);
+        this.RegistersTable.push({
+          index: index,
+          tag: registedPointData.TagNumber,
+          name: registedPointData.Name
+        })
+      });
+    },
+    ResetRegistPointIndexData() {
+      this.pointData_editing.RegistsPointIndexs = this.RegistersTable.map(dat => dat.index)
     },
     async StationTypeOnChange(e) {
       if (e == 1) {
@@ -198,6 +249,7 @@ export default {
     },
 
     SaveBtnClickHandle() {
+      this.ResetRegistPointIndexData();
       this.$emit('OnPointSettingChanged', { index: this.index, pointData: this.pointData_editing })
       ElNotification({
         title: 'Success',
@@ -228,6 +280,15 @@ export default {
     },
     async Unregist() {
       await MapAPI.Unregist(this.pointData_editing.TagNumber)
+    },
+    HandleIndexSelected(pt) {
+      debugger
+      var index = pt.index
+      MapStore.dispatch('GetMapPointByIndex', index).then(point_Selected => {
+        pt.tag = point_Selected.TagNumber;
+        pt.name = point_Selected.Name;
+      })
+
     }
   },
 }
