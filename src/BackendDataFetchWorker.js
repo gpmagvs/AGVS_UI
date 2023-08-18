@@ -1,4 +1,5 @@
-import { EqStore, MapStore, agv_states_store } from "./store";
+import { EqStore, agv_states_store } from "./store";
+import { MapStore } from '@/components/Map/store'
 import param from "./gpm_param";
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 

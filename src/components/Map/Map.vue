@@ -248,6 +248,13 @@ export default {
         }),
         zIndex: 3
       }), //軌跡圖顯示圖層
+      CustomLayer: new VectorLayer({
+        source: new VectorSource(
+          {
+            features: []
+          }
+        )
+      }),
       AGVFeatures: {},
       MouseCoordination: undefined,
       FeatureKeys: {
@@ -1092,6 +1099,8 @@ export default {
     this.InitMap();
     watch(
       () => this.map_stations, (newval, oldval) => {
+        if (!newval)
+          return;
         this._map_stations = JSON.parse(JSON.stringify(newval))
         this.UpdateStationPointLayer();
         this.UpdateStationPathLayer();

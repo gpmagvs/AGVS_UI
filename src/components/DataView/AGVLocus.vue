@@ -93,7 +93,8 @@
 <script>
 import Map from '@/components/Map/Map.vue'
 import { GetTasks, GetTrajectory } from '@/api/TaskAPI.js'
-import { agv_states_store, MapStore } from '@/store'
+import { agv_states_store } from '@/store'
+import { MapStore } from '@/components/Map/store'
 import moment from 'moment'
 export default {
   components: {

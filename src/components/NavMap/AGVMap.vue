@@ -16,7 +16,8 @@
 import { ref } from 'vue';
 import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer, LGeoJson } from "@vue-leaflet/vue-leaflet";
-import { MapStore } from '@/store';
+
+import { MapStore } from '@/components/Map/store'
 
 export default {
   components: {

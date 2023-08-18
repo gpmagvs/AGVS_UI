@@ -16,7 +16,7 @@ import MapShow from '@/components/Map/Map.vue';
 import MapAPI from '@/api/MapAPI';
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus.js'
-import { MapStore } from '@/store'
+import { MapStore } from '@/components/Map/store'
 
 export default {
   components: {

@@ -14,7 +14,7 @@
 
 <script>
 import Map from '@/components/Map/Map.vue'
-import { MapStore } from '@/store'
+import { MapStore } from '@/components/Map/store'
 import AGVStatusVue from '@/components/HomeView/AGVStatus/AGVStatus.vue'
 
 export default {

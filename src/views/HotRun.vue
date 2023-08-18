@@ -192,7 +192,8 @@
 
 <script>
 import { watch } from 'vue'
-import { userStore, MapStore, agv_states_store } from '@/store';
+import { userStore, agv_states_store } from '@/store';
+import { MapStore } from '@/components/Map/store'
 import { SaveHotRunSettings, GetHotRunSettings, StartHotRun, StopHotRun } from '@/api/TaskAllocation'
 export default {
   data() {

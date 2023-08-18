@@ -93,9 +93,10 @@ import bus from '@/event-bus';
 import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import MapShowVue from '../MapShow.vue';
 import Map from '@/components/Map/Map.vue'
+import { MapStore } from '@/components/Map/store'
 import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { GetPointTypeNameByTypeNum } from '@/api/MapAPI.js'
-import { userStore, MapStore, agv_states_store } from '@/store';
+import { userStore, agv_states_store } from '@/store';
 import { MapPointModel } from '@/components/Map/mapjs';
 
 export default {

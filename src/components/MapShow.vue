@@ -169,7 +169,8 @@ import Notifier from '@/api/NotifyHelper';
 import MapPointSettingDrawer from '@/components/MapPointSettingDrawer.vue'
 import WebSocketHelp from '@/api/WebSocketHepler';
 import param from '@/gpm_param'
-import { MapStore } from '@/store'
+import { MapStore } from '@/components/Map/store'
+
 export default {
   name: 'MapComponent',
   components: {
