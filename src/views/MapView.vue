@@ -2,7 +2,7 @@
   <div class="map-view h-100 d-flex flex-row my-1">
     <div></div>
     <MapShow
-      :map_stations="map_station_data"
+      id="editable_map"
       :agv_upload_coordi_data="agv_upload_data"
       @save="SaveMapClickHandle"
       :editable="true"

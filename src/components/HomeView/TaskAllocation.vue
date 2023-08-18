@@ -72,13 +72,7 @@
               <b-button class="w-100" @click="HandleNavPathPreviewBtnClick" variant="default">預覽路徑</b-button>
             </el-form-item>
           </el-form>
-          <Map
-            id="tmap"
-            class="w-100 border rounded mx-2"
-            :agv_option="agvs_info"
-            :map_stations="map_station_data"
-            ref="map"
-          ></Map>
+          <Map id="task_allocation_map" class="w-100 border rounded mx-2" ref="_map"></Map>
         </div>
         <div v-if="selectedAction=='charge'" class="img charge"></div>
         <div v-else class="img delivery"></div>
@@ -95,7 +89,6 @@ import MapShowVue from '../MapShow.vue';
 import Map from '@/components/Map/Map.vue'
 import { MapStore } from '@/components/Map/store'
 import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
-import { GetPointTypeNameByTypeNum } from '@/api/MapAPI.js'
 import { userStore, agv_states_store } from '@/store';
 import { MapPointModel } from '@/components/Map/mapjs';
 
@@ -136,14 +129,9 @@ export default {
   },
   computed: {
     Map() {
-      return this.$refs['map']
+      return this.$refs['_map']
     },
-    map_station_data() {
-      return MapStore.getters.MapStations
-    },
-    agvs_info() {
-      return MapStore.getters.AGVNavInfo;
-    },
+
     AgvNameList() {
       return agv_states_store.getters.AGVNameList
     },
@@ -361,6 +349,7 @@ export default {
         }, 200);
         return;
       }
+
       this.sourceTag = undefined;
       this.destinTag = undefined;
       this.selectedAGVName = undefined;

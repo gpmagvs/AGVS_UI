@@ -139,15 +139,12 @@
 </template>
 
 <script>
-import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
-import WebSocketHelp from '@/api/WebSocketHepler';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
 import { userStore, agvs_settings_store, agv_states_store } from '@/store'
-import param from '@/gpm_param';
 export default {
   mounted() {
   },
@@ -171,9 +168,7 @@ export default {
       bus.emit('/show_agv_at_center', agv_name)
     },
     ShowTaskAllocationView(clsAgvStatus) {
-
       if (!IsLoginLastTime().isLogin) {
-
         this.$swal.fire({
           title: '權限不足',
           text: '您沒有指派任務的權限，請先進行登入。',
@@ -185,7 +180,6 @@ export default {
         });
         return;
       }
-
       bus.emit('bus-show-task-allocation', { agv_name: clsAgvStatus.AGV_Name, action: '', station_data: undefined });
     },
     ShowOnlineStateChangeModal(agv_name, current_online_status, Model) {

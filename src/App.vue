@@ -81,7 +81,7 @@ export default {
     }
   },
   mounted() {
-    document.title = "AGVSystem";
+    document.title = "GPM 派車系統";
     let login_states = IsLoginLastTime();
 
     //嘗試存取前次的登入狀態，並更新 userStore的值

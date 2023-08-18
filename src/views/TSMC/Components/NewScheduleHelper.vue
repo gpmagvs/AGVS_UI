@@ -59,8 +59,7 @@
         </el-form>
         <Map
           class="flex-fill bg-light border rounded px-1 mx-1"
-          :key="ShowDialog"
-          :map_stations="map_station_data"
+          id="schedule_map"
           :agv_show="false"
         ></Map>
       </div>

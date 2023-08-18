@@ -3,7 +3,11 @@
     <div class="d-flex">
       <div class="flex-fill d-flex flex-column">
         <!-- 編輯選項 -->
-        <div v-if="editable" class="editor-option">
+        <div
+          v-if="editable"
+          class="editor-option fixed-top bg-light"
+          style="margin-top:49px;margin-left:70px"
+        >
           <div class="edit-block action-buttons">
             <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
             <b-button variant="danger" @click="ReloadMap">重新載入</b-button>
@@ -49,7 +53,12 @@
           >目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作</div>
         </div>
         <!-- map render -->
-        <div :id="id" class="agv_map flex-fll" @contextmenu="showContextMenu($event)">
+        <div
+          :id="id"
+          v-bind:style="{marginTop:editable? ( ShowWarningNotify?'170px': '140px'):'0px'}"
+          class="agv_map flex-fll"
+          @contextmenu="showContextMenu($event)"
+        >
           <div v-if="true" class="ol-control custom-buttons">
             <button @click="HandleSettingBtnClick">
               <i class="bi bi-sliders"></i>
@@ -64,7 +73,10 @@
         <MapSettingsDialog ref="settings"></MapSettingsDialog>
       </div>
       <!-- 設定 -->
-      <div class="options bg-light border-start text-start px-1 py-3">
+      <div
+        class="options bg-light border-start text-start px-1 py-3"
+        v-bind:style="{marginTop:editable? ( ShowWarningNotify?'170px': '140px'):'0px'}"
+      >
         <div class="rounded">
           <span class="mx-1">地圖模式</span>
           <el-radio-group
@@ -157,30 +169,13 @@ import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPoi
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
+import { MapStore } from './store'
 
 export default {
   components: {
     MapSettingsDialog, PointContextMenu, MapPointSettingDrawer
   },
   props: {
-    map_stations: {
-      type: Array,
-      default() {
-        return [new clsMapStation()]
-      }
-    },
-    agv_option: {
-      type: AGVOption,
-      default() {
-        return new AGVOption(1, [
-          new clsAGVDisplay("AGV_1", "blue", [0, 0]),
-        ])
-      }
-    },
-    id: {
-      type: String,
-      default: 'agv_map'
-    },
     editable: {
       type: Boolean,
       default: false
@@ -202,6 +197,12 @@ export default {
     task_dispatch_menu_show: {
       type: Boolean,
       default: false
+    },
+    id: {
+      type: String,
+      default() {
+        return 'map'
+      }
     }
   },
   data() {
@@ -274,7 +275,7 @@ export default {
       map_display_mode: 'router',
       station_name_display_mode: 'name',
       agv_display: 'visible',
-      map_image_display: 'none',
+      map_image_display: 'visible',
 
       previousSelectedFeatures: [],
       agv_upload_coordination_mode: false,
@@ -306,6 +307,12 @@ export default {
     },
     ShowWarningNotify() {
       return this.EditorOption.EditMode != "view" && this.map_display_mode == "coordination";
+    },
+    map_station_data() {
+      return MapStore.getters.MapStations
+    },
+    agvs_info() {
+      return MapStore.getters.AGVNavInfo;
     }
   },
   methods: {
@@ -362,7 +369,7 @@ export default {
       source.addFeatures(stationLinkPathes);
     },
     UpdateAGVLayer() {
-      this.agv_option.AGVDisplays.forEach(agv_opt => {
+      this.agvs_info.AGVDisplays.forEach(agv_opt => {
 
         var agvfeatures = this.AGVFeatures[agv_opt.AgvName]
         if (agvfeatures) {
@@ -387,8 +394,9 @@ export default {
             }
 
           }
-          agvfeatures.agv_feature.setGeometry(new Point(coordination))
-          agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
+          var newCoordinates = [coordination[0].toFixed(2), coordination[1].toFixed(2)]
+          agvfeatures.agv_feature.setGeometry(new Point(newCoordinates))
+          agvfeatures.cargo_icon_feature.setGeometry(new Point(newCoordinates))
 
           var style = agvfeatures.agv_feature.getStyle();
           var image = style.getImage()
@@ -909,7 +917,7 @@ export default {
           imageSize: this.map_img_size,
 
         }),
-        visible: false
+        visible: this.map_image_display == 'visible'
       })
 
       const vectorSource = new VectorSource({
@@ -1098,26 +1106,23 @@ export default {
     this.RestoreSettingsFromLocalStorage();
     this.InitMap();
     watch(
-      () => this.map_stations, (newval, oldval) => {
+      () => this.map_station_data, (newval, oldval) => {
         if (!newval)
           return;
+        console.log('map_station_data_change');
         this._map_stations = JSON.parse(JSON.stringify(newval))
         this.UpdateStationPointLayer();
         this.UpdateStationPathLayer();
         this.MapDisplayModeOptHandler();
-
-        // setTimeout(() => {
-        //   if (this.firstUseFlag) {
-        //     this.MapDisplayModeOptHandler();
-        //     this.firstUseFlag = false
-        //   }
-        // }, 500);
-
       }, { deep: true, immediate: true }
     )
 
-    watch(() => this.agv_option, (newval, oldval) => {
-      this.UpdateAGVLayer()
+    watch(() => this.agvs_info, (newval, oldval) => {
+      if (!newval)
+        return
+      setTimeout(() => {
+        this.UpdateAGVLayer()
+      }, 100);
     }, { deep: true, immediate: true })
 
     bus.on('/show_agv_at_center', agv_name => {
@@ -1134,7 +1139,7 @@ export default {
       }, { deep: true, immediate: true }
     )
 
-    document.getElementById('agv_map').addEventListener('contextmenu', (ev) => {
+    document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
       ev.preventDefault()
     })
   },

@@ -3,9 +3,9 @@
     <div class="d-flex">
       <AGVStatusVue></AGVStatusVue>
       <Map
+        id="birdview_map"
         class="flex-fill border rounded"
         :key="map_station_data"
-        :map_stations="map_station_data"
         :editable="false"
       ></Map>
     </div>

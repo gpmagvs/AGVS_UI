@@ -3,12 +3,7 @@
     <!-- <div class="title">
       <i class="bi bi-map"></i>MAP SHOW
     </div>-->
-    <Map
-      class="w-100"
-      :task_dispatch_menu_show="true"
-      :map_stations="map_station_data"
-      :agv_option="agvs_info"
-    ></Map>
+    <Map id="homemap" class="w-100" :task_dispatch_menu_show="true"></Map>
   </div>
 </template>
 

@@ -80,10 +80,10 @@
         <Map
           class="bg-light border"
           ref="map"
+          id="locus_map"
           :editable="false"
           :agv_show="false"
           :station_show="true"
-          :map_stations="map_station_data"
         ></Map>
       </div>
     </div>
