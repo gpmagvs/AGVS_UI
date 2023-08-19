@@ -46,9 +46,6 @@ app.config.globalProperties.$ = app.config.globalProperties
 
 Modal.install(app)
 
-setTimeout(() => {
-  MapStore.dispatch('DownloadMapData')
-}, 100);
 // 合併 store
 const mergedStore = { ...store, ...userStore };
 

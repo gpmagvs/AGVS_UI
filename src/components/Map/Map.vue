@@ -1,5 +1,7 @@
 <template>
   <div class="map-component">
+    <el-alert v-if="map_name=='Unkown'" title="圖資異常" type="warning" effect="dark" />
+
     <div class="d-flex">
       <div class="flex-fill d-flex flex-column">
         <!-- 編輯選項 -->
@@ -103,9 +105,7 @@
           ></el-switch>
         </div>
         <div v-if="agv_show">
-          <span class="mx-1">
-            <i class="bi bi-three-dots-vertical"></i>AGV 顯示
-          </span>
+          <span class="mx-1">AGV 顯示</span>
           <el-switch
             @change="AgvDisplayOptHandler"
             inactive-value="none"
@@ -238,6 +238,7 @@ export default {
   data() {
     return {
       map: new Map(),
+      map_name: 'Unkown',
       zoom: 2,
       zoom_route: 2,
       center: [0, 0],
@@ -976,10 +977,12 @@ export default {
         units: 'pixels',
         extent: extent,
       });
+      debugger
+      this.map_name = MapStore.getters.MapName
       this.ImageLayer = new ImageLayer({
         source: new Static({
           // url: 'Map.png',
-          url: 'http://127.0.0.1:5216/MapFiles/oven_demo.png',
+          url: `http://127.0.0.1:5216/MapFiles/${this.map_name}.png`,
           projection: projection,
           imageExtent: extent,
           imageSize: this.map_img_size,
@@ -1173,44 +1176,47 @@ export default {
 
   mounted() {
 
-    this.RestoreSettingsFromLocalStorage();
-    this.InitMap();
-    watch(
-      () => this.map_station_data, (newval, oldval) => {
+    MapStore.dispatch('DownloadMapData').then(() => {
+      this.RestoreSettingsFromLocalStorage();
+      this.InitMap();
+      watch(
+        () => this.map_station_data, (newval, oldval) => {
+          if (!newval)
+            return;
+          console.log('map_station_data_change');
+          this._map_stations = JSON.parse(JSON.stringify(newval))
+          this.UpdateStationPointLayer();
+          this.UpdateStationPathLayer();
+          this.MapDisplayModeOptHandler();
+        }, { deep: true, immediate: true }
+      )
+
+      watch(() => this.agvs_info, (newval, oldval) => {
         if (!newval)
-          return;
-        console.log('map_station_data_change');
-        this._map_stations = JSON.parse(JSON.stringify(newval))
-        this.UpdateStationPointLayer();
-        this.UpdateStationPathLayer();
-        this.MapDisplayModeOptHandler();
-      }, { deep: true, immediate: true }
-    )
+          return
+        setTimeout(() => {
+          this.UpdateAGVLayer()
+        }, 100);
+      }, { deep: true, immediate: true })
 
-    watch(() => this.agvs_info, (newval, oldval) => {
-      if (!newval)
-        return
-      setTimeout(() => {
-        this.UpdateAGVLayer()
-      }, 100);
-    }, { deep: true, immediate: true })
+      bus.on('/show_agv_at_center', agv_name => {
+        // alert(agv_name)
+        this.ResetMapCenterViaAGVLoc(agv_name)
+      })
 
-    bus.on('/show_agv_at_center', agv_name => {
-      // alert(agv_name)
-      this.ResetMapCenterViaAGVLoc(agv_name)
-    })
+      watch(
+        () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
+          if (this.agv_upload_coordination_mode) {
+            this.HandleAGVUploadData(newval)
+          }
 
-    watch(
-      () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
-        if (this.agv_upload_coordination_mode) {
-          this.HandleAGVUploadData(newval)
-        }
+        }, { deep: true, immediate: true }
+      )
 
-      }, { deep: true, immediate: true }
-    )
+      document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
+        ev.preventDefault()
+      })
 
-    document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
-      ev.preventDefault()
     })
   },
 }

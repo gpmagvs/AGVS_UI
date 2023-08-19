@@ -74,20 +74,21 @@ export default {
 
 <style lang="scss" scoped>
 .connection-state {
-  background-color: #dfdfdf;
-  border-block: 3px solid rgb(187, 187, 187);
+  background-color: rgb(49, 49, 49);
+  // border-block: 3px solid rgb(187, 187, 187);
   padding: 5px;
   padding-left: 70px;
+  i,
   .sys-time {
     font-weight: bold;
     font-family: monospace;
-    color: #777777;
+    color: #ffffff;
   }
   .conn-block {
     margin-right: 8px;
     padding: auto 5px;
     label {
-      color: rgb(43, 43, 43);
+      color: rgb(255, 255, 255);
       margin: auto 5px;
     }
     label,

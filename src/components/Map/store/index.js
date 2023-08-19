@@ -152,15 +152,14 @@ export const MapStore = createStore({
         }
     },
     actions: {
-        DownloadMapData({ commit, state }) {
-            console.log('[MapStore] try get map data');
+        async DownloadMapData({ commit, state }) {
 
             var axio = axios.create({
                 baseURL: process.env.NODE_ENV == 'development' ? state.mapBackendServer :
                     `${window.location.protocol}//${window.location.host}`
             })
 
-            axio.get('api/Map').then(response => {
+            await axio.get('api/Map').then(response => {
                 console.log('[MapStore] get map data', response.data);
                 commit('setMapData', response.data)
             });

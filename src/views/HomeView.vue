@@ -6,13 +6,13 @@
     </div>
     <b-tabs v-bind:style="{width:'60%'}" @activate-tab="TabActiveHandle">
       <b-tab title="地圖">
-        <div style="height:800px">
+        <div style="height:800px" class="border">
           <HomeMap></HomeMap>
           <!-- <LMap></LMap> -->
         </div>
       </b-tab>
       <b-tab title="設備狀態">
-        <div style="height:800px">
+        <div style="height:800px" class="border">
           <EQStatus></EQStatus>
         </div>
       </b-tab>
