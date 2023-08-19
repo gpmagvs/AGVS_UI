@@ -17,7 +17,7 @@ export const MapStore = createStore({
             'red',
             'purple',
         ],
-        mapBackendServer: 'http://192.168.0.1:5216'
+        mapBackendServer: 'http://127.0.0.1:5216'
     },
     getters: {
         MapData: state => {

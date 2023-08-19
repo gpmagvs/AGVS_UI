@@ -57,3 +57,11 @@ export const EmuAPI = {
   }
 
 }
+
+export const ChargerAPI = {
+  async SetCurveSetting(charge_station_name, item, value) {
+    var url = `/api/Equipment/ChargeStation/Settings?EqName=${encodeURIComponent(charge_station_name)}&Item=${encodeURIComponent(item)}&Value=${value}`; //避免帶有特殊符號的時候字串參數會不完整
+    var ret = await axios_entity.get(url)
+    return ret.data
+  }
+}
