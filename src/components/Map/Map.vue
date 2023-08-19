@@ -281,6 +281,7 @@ export default {
       agv_upload_coordination_mode: false,
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
+      routePathsVisible: true,
       contextMenuTop: 0,
       contextMenuLeft: 0,
       contextMenuOptions: new MapContextMenuOptions(),
@@ -939,7 +940,8 @@ export default {
       })
 
       this.AGVLocLayer.setVisible(this.agv_show)
-      this.PointLinksLayer.setVisible(this.station_show)
+
+      this.PointLinksLayer.setVisible(this.station_show&&this.routePathsVisible)
       this.PointLayer.setVisible(this.station_show)
       this.PointRouteLayer.setVisible(false)
       this.InitMapEventHandler();
