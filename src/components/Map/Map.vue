@@ -400,23 +400,23 @@ export default {
       source.addFeatures(stationLinkPathes);
     },
     UpdateAGVLayer() {
-      this.agvs_info.AGVDisplays.forEach(agv_opt => {
+      this.agvs_info.AGVDisplays.forEach(agv_information => {
 
-        var agvfeatures = this.AGVFeatures[agv_opt.AgvName]
+        var agvfeatures = this.AGVFeatures[agv_information.AgvName]
         if (agvfeatures) {
           //以新增
-          var coordination = agv_opt.Coordination;
-          var path_coordinations = agv_opt.NavPathCoordinationList
+          var coordination = agv_information.Coordination;
+          var path_coordinations = agv_information.NavPathCoordinationList
           if (this.map_display_mode == 'router') {
             path_coordinations = [];
 
-            var ft = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == agv_opt.Tag)
+            var ft = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == agv_information.Tag)
             if (ft) {
               coordination = ft.getGeometry().getCoordinates()
             }
             var pts = this.PointLayer.getSource().getFeatures();
-            for (let index = 0; index < agv_opt.NavPathCoordinationList.length; index++) {
-              const coor = agv_opt.NavPathCoordinationList[index];
+            for (let index = 0; index < agv_information.NavPathCoordinationList.length; index++) {
+              const coor = agv_information.NavPathCoordinationList[index];
               var ft = pts.find(feature => feature.getGeometry().getCoordinates()[0] == coor[0] &&
                 feature.getGeometry().getCoordinates()[1] == coor[1])
 
@@ -431,32 +431,41 @@ export default {
 
           var style = agvfeatures.agv_feature.getStyle();
           var image = style.getImage()
-          image.setRotation((agv_opt.Theta - 90) * -1 * Math.PI / 180.0)
+          image.setRotation((agv_information.Theta - 90) * -1 * Math.PI / 180.0)
           style.setImage(image)
+
+          var text = style.getText();
+          text.setText(agv_information.WaitingInfo.IsWaiting ? agv_information.AgvName + `\r\n等待${agv_information.WaitingInfo.WaitingPoint.Name} Release..` : agv_information.AgvName);
+          var fill = text.getBackgroundFill()
+          fill.setColor(agv_information.WaitingInfo.IsWaiting ? 'red' : agv_information.TextColor)
+          text.setBackgroundFill(fill);
           agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
-          ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_opt.CargoStatus)
+          ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_information.CargoStatus)
+
+
+
 
         } else {
 
           var _agvfeature = new Feature({
-            geometry: new Point(agv_opt.Coordination)
+            geometry: new Point(agv_information.Coordination)
           })
-          _agvfeature.setStyle(AGVPointStyle(agv_opt.AgvName, agv_opt.TextColor))
-          _agvfeature.set('agvname', agv_opt.AgvName)
+          _agvfeature.setStyle(AGVPointStyle(agv_information.AgvName, agv_information.TextColor))
+          _agvfeature.set('agvname', agv_information.AgvName)
           _agvfeature.set("feature_type", this.FeatureKeys.agv)
 
           //
           var nav_path_feature = new Feature({
             geometry: new LineString([])
           })
-          nav_path_feature.setStyle(CreateLocusPathStyles(agv_opt.TextColor, 5))
+          nav_path_feature.setStyle(CreateLocusPathStyles(agv_information.TextColor, 5))
 
 
           var _cargo_icon_feature = _agvfeature.clone()
           _cargo_icon_feature.setStyle(AGVCargoIconStyle())
 
-          this.AGVFeatures[agv_opt.AgvName] = {
+          this.AGVFeatures[agv_information.AgvName] = {
             agv_feature: _agvfeature,
             path_feature: nav_path_feature,
             cargo_icon_feature: _cargo_icon_feature
@@ -970,7 +979,7 @@ export default {
       this.ImageLayer = new ImageLayer({
         source: new Static({
           // url: 'Map.png',
-          url: 'http://192.168.10.100:5216/MapFiles/oven_demo.png',
+          url: 'http://127.0.0.1:5216/MapFiles/oven_demo.png',
           projection: projection,
           imageExtent: extent,
           imageSize: this.map_img_size,

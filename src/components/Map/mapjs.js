@@ -272,7 +272,7 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0) {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo()) {
         this.AgvName = AgvName
         this.TextColor = TextColor
         this.Coordination = initCoordination;
@@ -280,9 +280,15 @@ export class clsAGVDisplay {
         this.CargoStatus = CargoStatus
         this.Tag = Tag
         this.Theta = Theta
+        this.WaitingInfo = WaitingInfo
     }
 }
-
+export class clsWaitingInfo {
+    constructor() {
+        this.IsWaiting = false;
+        this.WaitingPoint = {}
+    }
+}
 export class clsCargoStates {
     constructor(exist = false, type = 0, cst_id = '') {
         this.exist = exist;
