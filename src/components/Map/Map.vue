@@ -77,17 +77,6 @@
         class="options bg-light border-start text-start px-1 py-3"
         v-bind:style="{marginTop:editable? ( ShowWarningNotify?'170px': '140px'):'0px'}"
       >
-        <div class="rounded">
-          <span class="mx-1">地圖模式</span>
-          <el-radio-group
-            v-model="map_display_mode"
-            class="ml-4"
-            @change="MapDisplayModeOptHandler"
-          >
-            <el-radio label="coordination" size="large">Slam座標</el-radio>
-            <el-radio label="router" size="large">路網</el-radio>
-          </el-radio-group>
-        </div>
         <div v-if="station_show" class="rounded d-flex flex-column">
           <span class="border-bottom">顯示名稱</span>
           <el-radio-group
@@ -99,25 +88,65 @@
             <el-radio label="tag" size="large">Tag</el-radio>
           </el-radio-group>
         </div>
-        <div v-if="agv_show" class="rounded">
+        <div>
+          <span class="mx-1">地圖模式</span>
+          <el-switch
+            @change="MapDisplayModeOptHandler"
+            inactive-value="router"
+            active-value="coordination"
+            width="70"
+            v-model="map_display_mode"
+            inline-prompt
+            inactive-text="路網"
+            active-text="Slam"
+            inactive-color="seagreen"
+          ></el-switch>
+        </div>
+        <div v-if="agv_show">
           <span class="mx-1">
             <i class="bi bi-three-dots-vertical"></i>AGV 顯示
           </span>
-          <el-radio-group v-model="agv_display" class="ml-4" @change="AgvDisplayOptHandler">
-            <el-radio label="visible" size="large">顯示</el-radio>
-            <el-radio label="none" size="large">隱藏</el-radio>
-          </el-radio-group>
+          <el-switch
+            @change="AgvDisplayOptHandler"
+            inactive-value="none"
+            active-value="visible"
+            width="70"
+            v-model="agv_display"
+            inline-prompt
+            inactive-text="隱藏"
+            active-text="顯示"
+            inactive-color="rgb(146, 148, 153)"
+          ></el-switch>
         </div>
-        <div class="rounded">
+        <div>
           <span class="mx-1">Slam底圖顯示</span>
-          <el-radio-group
+          <el-switch
             v-model="map_image_display"
-            class="ml-4"
+            inactive-value="none"
+            inactive-text="隱藏"
+            active-value="visible"
+            active-text="顯示"
+            inactive-color="rgb(146, 148, 153)"
+            inline-prompt
+            width="70"
             @change="SlamImageDisplayOptHandler"
-          >
-            <el-radio label="visible" size="large">顯示</el-radio>
-            <el-radio label="none" size="large">隱藏</el-radio>
-          </el-radio-group>
+          ></el-switch>
+        </div>
+
+        <div>
+          <span class="mx-1">路網顯示</span>
+          <el-switch
+            v-model="routePathsVisible"
+            inactive-text="隱藏"
+            active-text="顯示"
+            inline-prompt
+            inactive-color="rgb(146, 148, 153)"
+            width="70"
+            @change="(visible)=>{
+              PointLinksLayer.setVisible(visible);
+              HideNormalStations(!visible);
+            }"
+          ></el-switch>
         </div>
 
         <div v-if="editable" class="rounded">
@@ -170,6 +199,7 @@ import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import { MapStore } from './store'
+import { Fill, Stroke, Style, Circle } from 'ol/style';
 
 export default {
   components: {
@@ -626,6 +656,34 @@ export default {
         return feature;
       }
     },
+    HideNormalStations(hide) {
+
+
+      var normalPtFeatures = this.StationPointsFeatures.filter(feature => feature.get('station_type') == 0)
+      normalPtFeatures.forEach(feature => {
+        if (hide) {
+
+
+          var invisibleStyle = new Style({
+            fill: new Fill({
+              color: 'rgba(0, 0, 0, 0)' // 透明填充颜色
+            }),
+            stroke: new Stroke({
+              color: 'rgba(0, 0, 0, 0)' // 透明边界颜色
+            }),
+            image: new Circle({
+              radius: 0 // 半径为0，不显示 
+            })
+          });
+          var oriStyle = feature.getStyle().clone()
+          feature.set('visible-style', oriStyle)
+          feature.setStyle(invisibleStyle)
+        } else {
+          var _oriStyle = feature.get('visible-style')
+          feature.setStyle(_oriStyle)
+        }
+      })
+    },
     SaveSettingsToLocalStorage() {
       var zoom = this.map.getView().getZoom()
       var center = this.map.getView().getCenter()
@@ -941,7 +999,7 @@ export default {
 
       this.AGVLocLayer.setVisible(this.agv_show)
 
-      this.PointLinksLayer.setVisible(this.station_show&&this.routePathsVisible)
+      this.PointLinksLayer.setVisible(this.station_show && this.routePathsVisible)
       this.PointLayer.setVisible(this.station_show)
       this.PointRouteLayer.setVisible(false)
       this.InitMapEventHandler();
@@ -1205,6 +1263,11 @@ export default {
       border-bottom: 1px solid gainsboro;
       font-weight: bold;
     }
+  }
+  .el-switch {
+    position: relative;
+    left: -16px;
+    top: 6px;
   }
 }
 
