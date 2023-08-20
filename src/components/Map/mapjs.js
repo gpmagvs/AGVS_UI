@@ -1,7 +1,8 @@
 
-import { Circle, Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
+import { Circle, Fill, Icon, Stroke, Style, Text, RegularShape } from 'ol/style.js';
 import Point from 'ol/geom/Point.js';
 import Feature from 'ol/Feature';
+import { Rectangle } from 'leaflet';
 
 const station_colors = {
     normal: 'orange',
@@ -47,39 +48,60 @@ var rack_station_icon = new Icon({
 })
 
 /**一般點位 */
-function normal_station_icon(map_data = {}) {
+function normal_station_image(map_data = {}) {
     var fillColor = 'orange'
+    const stroke = new Stroke({ color: 'black', width: 2 });
+
     if (map_data) {
         if (!map_data.Enable) {
-            fillColor = 'red'
+            return new RegularShape({
+                fill: new Fill({
+                    color: 'red',
+                }),
+                stroke: new Stroke({ color: 'red', width: 2 }),
+                points: 4,
+                radius: 10,
+                radius2: 0,
+                angle: Math.PI / 4,
+            })
         } else {
 
             if (map_data.IsVirtualPoint) {
-                fillColor = 'pink'
+                fillColor = 'grey'
+            } else {
+                fillColor = 'orange'
             }
             if (map_data.IsAvoid) {
-                fillColor = 'blue'
+                return new RegularShape({
+                    fill: new Fill({
+                        color: 'orange',
+                    }),
+                    stroke: stroke,
+                    points: 3,
+                    radius: 8,
+                    angle: 0,
+                })
             }
         }
 
     }
+
+
+
     return new Circle({
         radius: 6,
         fill: new Fill({
             color: fillColor,
         }),
-        stroke: new Stroke({
-            color: 'black',
-            width: 2,
-        }),
+        stroke: stroke,
     })
 }
 
 
 export function GetStationStyle(text = '', station_type = 0, map_data = {}) {
-    var image = normal_station_icon(map_data)
+    var image = normal_station_image(map_data)
     if (station_type == 0) {
-        image = normal_station_icon(map_data)
+        image = normal_station_image(map_data)
     }
     else if (station_type == 1) {
         image = eq_station_icon

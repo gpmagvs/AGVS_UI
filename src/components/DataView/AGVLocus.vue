@@ -36,19 +36,23 @@
             type="primary"
           >搜尋</el-button>
         </div>
-        <el-table :data="tableData" style="width:660px" height="600" highlight-current-row>
+        <el-table :data="tableData" style="width:720px" height="600" highlight-current-row>
           <el-table-column align="center" label="No" width="50">
             <template #default="scope">
               <div>{{GetNo(scope.row)}}</div>
             </template>
           </el-table-column>
           <el-table-column label="Task ID" prop="task_id"></el-table-column>
-          <el-table-column label="開始時間" prop="start_time"></el-table-column>
-          <el-table-column label="結束時間" prop="end_time"></el-table-column>
-          <el-table-column align="center" label="巡檢時間(秒)" prop="duration" min-width="60">
+          <el-table-column label="開始時間" prop="start_time">
+            <template #default="scope">{{ FormatTime(scope.row.start_time) }}</template>
+          </el-table-column>
+          <el-table-column label="結束時間" prop="end_time">
+            <template #default="scope">{{ FormatTime(scope.row.end_time) }}</template>
+          </el-table-column>
+          <el-table-column align="center" label="花費時間(秒)" prop="duration" min-width="60">
             <template #default="scope">
               <div>
-                <el-tag effect="dark" type="info">{{ scope.row.duration }}</el-tag>
+                <el-tag effect="dark" type="info">{{ CalculatTimeSpend(scope.row) }}</el-tag>
               </div>
             </template>
           </el-table-column>
@@ -157,9 +161,11 @@ export default {
               customClass: 'my-sweetalert'
             })
         }
-
       }
 
+    },
+    FormatTime(time) {
+      return moment(time).format('YYYY/MM/DD HH:mm:ss')
     },
     HandleLocusSettingChange() {
       this.SaveLocusSettingsToLocalStroage();
@@ -200,6 +206,9 @@ export default {
       if (settings_json) {
         this.locus_settings = JSON.parse(settings_json)
       }
+    },
+    CalculatTimeSpend(row) {
+      return moment(row.end_time).unix() - moment(row.start_time).unix();
     }
   },
   mounted() {

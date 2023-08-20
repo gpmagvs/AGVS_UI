@@ -190,7 +190,7 @@ import Static from 'ol/source/ImageStatic.js';
 import { getCenter } from 'ol/extent.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
+import { Tile as TileLayer, Vector as VectorLayer, Graticule } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
@@ -977,7 +977,6 @@ export default {
         units: 'pixels',
         extent: extent,
       });
-      debugger
       this.map_name = MapStore.getters.MapName
       this.ImageLayer = new ImageLayer({
         source: new Static({
@@ -997,7 +996,6 @@ export default {
       this.AGVLocusLayer = new VectorLayer({
         source: vectorSource,
       })
-
       this.map = new Map({
         layers: [this.ImageLayer, this.PointLinksLayer, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
         target: this.id,
@@ -1009,12 +1007,14 @@ export default {
         })
       })
 
+
       this.AGVLocLayer.setVisible(this.agv_show)
 
       this.PointLinksLayer.setVisible(this.station_show && this.routePathsVisible)
       this.PointLayer.setVisible(this.station_show)
       this.PointRouteLayer.setVisible(false)
       this.InitMapEventHandler();
+
     },
     ResetMapCenterViaAGVLoc(agv_name) {
       //Get AGV Coordination

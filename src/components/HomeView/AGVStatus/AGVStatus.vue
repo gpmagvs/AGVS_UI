@@ -196,9 +196,9 @@ export default {
           showCancelButton: true,
           confirmButtonText: 'OK',
           customClass: 'my-sweetalert'
-        }).then(res => {
+        }).then(async (res) => {
           if (res.isConfirmed) {
-            this.SendOnlineStateChangeRequest()
+            var resp = await this.SendOnlineStateChangeRequest()
           }
         })
 

@@ -19,13 +19,16 @@
       </el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60"></el-table-column>
       <el-table-column label="卡匣ID" prop="Carrier_ID"></el-table-column>
-      <el-table-column label="起點">
-        <el-table-column label="站點" prop="From_Station"></el-table-column>
-        <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column>
+      <el-table-column fixed="right" label="起點">
+        <template #default="scope">{{ GetStationName(scope.row.From_Station) }}</template>
+
+        <!-- <el-table-column label="站點" prop="From_Station"></el-table-column>
+        <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column>-->
       </el-table-column>
-      <el-table-column label="終點">
-        <el-table-column label="站點" prop="To_Station"></el-table-column>
-        <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column>
+      <el-table-column fixed="right" label="終點">
+        <template #default="scope">{{ GetStationName(scope.row.To_Station) }}</template>
+        <!-- <el-table-column label="站點" prop="To_Station"></el-table-column>
+        <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column>-->
       </el-table-column>
       <el-table-column fixed="right" label="派工人員" prop="DispatcherName"></el-table-column>
     </el-table>
@@ -34,6 +37,8 @@
 
 <script>
 import { GetTaskStateType } from './TaskStatus'
+import { MapStore } from '@/components/Map/store'
+
 export default {
   props: {
     CompletedTaskList: {
@@ -49,9 +54,21 @@ export default {
       }
     }
   },
+  computed: {
+    MapPoints() {
+      return Object.values(MapStore.getters.MapData.Points)
+    }
+  },
   methods: {
     GetTaskStateType(State) {
       return GetTaskStateType(State);
+    }
+    ,
+    GetStationName(tag) {
+      var station = this.MapPoints.find(station => station.TagNumber + '' == tag)
+      if (station)
+        return station.Name
+      return tag
     }
   },
 }

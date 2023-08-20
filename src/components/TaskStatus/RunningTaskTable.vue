@@ -18,11 +18,13 @@
       </el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60"></el-table-column>
       <el-table-column label="卡匣ID" prop="Carrier_ID" width="100"></el-table-column>
-      <el-table-column label="起點" prop="From_Station">
+      <el-table-column fixed="right" label="起點" prop="From_Station">
+        <template #default="scope">{{ GetStationName(scope.row.From_Station) }}</template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column> -->
       </el-table-column>
-      <el-table-column label="終點" prop="To_Station">
+      <el-table-column fixed="right" label="終點" prop="To_Station">
+        <template #default="scope">{{ GetStationName(scope.row.To_Station) }}</template>
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
       </el-table-column>
@@ -42,6 +44,7 @@
 import { userStore } from '@/store'
 import { TaskAllocation } from '@/api/TaskAllocation'
 import { GetTaskStateType } from './TaskStatus'
+import { MapStore } from '@/components/Map/store'
 
 export default {
   props: {
@@ -67,6 +70,9 @@ export default {
   computed: {
     taskCancelable() {
       return userStore.getters.IsLogin;
+    },
+    MapPoints() {
+      return Object.values(MapStore.getters.MapData.Points)
     }
   },
   methods: {
@@ -91,6 +97,12 @@ export default {
     },
     GetTaskStateType(State) {
       return GetTaskStateType(State);
+    },
+    GetStationName(tag) {
+      var station = this.MapPoints.find(station => station.TagNumber + '' == tag)
+      if (station)
+        return station.Name
+      return tag
     }
   },
 }

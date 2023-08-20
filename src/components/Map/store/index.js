@@ -94,7 +94,11 @@ export const MapStore = createStore({
                         pathCoordinations.push(pt.coordination)
                     })
                 }
-                agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], [data.currentCoordication.X, data.currentCoordication.Y], pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info))
+                var coordination = [0, 0]
+                if (data.currentCoordication) {
+                    coordination = [data.currentCoordication.X, data.currentCoordication.Y]
+                }
+                agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info))
                 index += 1;
             })
             var _AGVOption = new AGVOption(agv_num, agvDataLs)
@@ -103,22 +107,22 @@ export const MapStore = createStore({
         AllNormalStationOptions: state => {
             //[{tag:1,name:'' }]
             var points = Object.values(state.MapData.Points)
-            var points = points.filter(pt => pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `[Normal] ${pt.Name}(Tag=${pt.TagNumber})`))
+            var points = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `[Normal] ${pt.Name}(Tag=${pt.TagNumber})`))
             return points;
         },
         AllEqStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => pt.StationType == 1).map(pt => new StationSelectOptions(pt.TagNumber, `[EQ] ${pt.Name}(Tag=${pt.TagNumber})`))
+            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 1).map(pt => new StationSelectOptions(pt.TagNumber, `[EQ] ${pt.Name}(Tag=${pt.TagNumber})`))
             return options;
         },
         AllChargeStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => pt.StationType == 3).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
+            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 3).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
             return options;
         },
         AllParkingStationOptions: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => pt.IsParking == true).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
+            var options = points.filter(pt => !pt.IsVirtualPoint && pt.IsParking == true).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
             return options;
         },
         AllPointsOptions: state => {

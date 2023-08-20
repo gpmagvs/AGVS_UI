@@ -1,10 +1,13 @@
 <template>
   <div class="map-menu border" v-bind:style="menu_style">
-    <div class="title border-bottom">{{ options.title }}</div>
+    <div
+      class="title border-bottom"
+      v-bind:class="station_data.Enable?'text-primary':'text-danger'"
+    >{{ options.title + (station_data.Enable?'':'(已禁用)')}}</div>
 
     <div v-if="options.show_task_dispatch" class="menu task">
-      <span>站點類型{{ options.task_options.StationType }}</span>
-      <div v-if="station_type==0">
+      <span>站點類型 : {{ station_data.IsVirtualPoint?'虛擬點': options.task_options.StationType }}</span>
+      <div v-if="station_type==0 &&!station_data.IsVirtualPoint">
         <!-- 一般點位可指派之任務 -->
         <b-button
           variant="primary"
@@ -32,7 +35,7 @@
           @click="()=>{$emit('OnTaskBtnClick',{action:'charge',station_data:station_data})}"
         >充電</b-button>
       </div>
-      <div v-if="station_data.IsParking">
+      <div v-if="station_data.IsParking&&!station_data.IsVirtualPoint">
         <b-button
           variant="primary"
           @click="()=>{$emit('OnTaskBtnClick',{action:'park',station_data:station_data})}"

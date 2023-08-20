@@ -20,6 +20,7 @@
   </div>
 </template>
 <script>
+import { watch } from 'vue'
 export default {
   data() {
     return {
@@ -65,7 +66,13 @@ export default {
         chart: {
           height: 550,
           type: 'rangeBar',
-
+          animations: {
+            enabled: false,
+            dynamicAnimation: {
+              enabled: false,
+              speed: 350
+            }
+          }
         },
         dynamicUpdate: false,
         plotOptions: {
@@ -91,7 +98,8 @@ export default {
           // horizontalAlign: 'left'
         }
       },
-
+      data: {},
+      datetime: 1
     }
   },
   computed: {
@@ -102,12 +110,15 @@ export default {
   methods: {
 
     async RenderChart(data) {
+      this.data = data;
       var _series = [];
       this.chart.updateSeries(_series);
+      console.log('1', Date.now());
       Object.keys(data).forEach(agv_name => {
         _series.push(this.BuildDataSeries(agv_name, data[agv_name]));
       })
       this.chart.updateSeries(_series, false);
+      console.log('2', Date.now());
       setTimeout(() => {
         this.loading = false;
       }, 600);
@@ -157,6 +168,22 @@ export default {
     }
   },
   mounted() {
+    // watch(() => this.data, (new_, old_) => {
+
+    //   Object.keys(new_).forEach((agv_name) => {
+    //     var newAgvData = new_[agv_name]
+    //     var oldAgvData = old_[agv_name]
+    //     if (!newAgvData) {
+    //       return;
+    //     }
+    //     if (!oldAgvData) {
+    //       this.series.push(this.BuildDataSeries(agv_name, newAgvData))
+    //     }
+    //     else {
+
+    //     }
+    //   })
+    // })
   },
 }
 </script>

@@ -6,6 +6,8 @@ var axios_entity = axios.create({
 
 /**取得今日的稼動資料 */
 export async function GetTodayAvailability() {
+  console.log(Date.now())
   var res = await axios_entity.get('api/Availabilitys/Today')
+  console.log(Date.now())
   return res.data
 }

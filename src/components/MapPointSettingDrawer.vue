@@ -282,7 +282,6 @@ export default {
       await MapAPI.Unregist(this.pointData_editing.TagNumber)
     },
     HandleIndexSelected(pt) {
-      debugger
       var index = pt.index
       MapStore.dispatch('GetMapPointByIndex', index).then(point_Selected => {
         pt.tag = point_Selected.TagNumber;
