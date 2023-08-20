@@ -26,6 +26,7 @@
     </b-modal>
 
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
+    <MoveAGVNotifty></MoveAGVNotifty>
     <ConnectionState></ConnectionState>
   </div>
 
@@ -43,9 +44,10 @@ import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { IsLoginLastTime } from '@/api/AuthHelper.js'
 import { userStore } from '@/store'
+import MoveAGVNotifty from '@/components/Traffic/MoveAGVNotify.vue'
 export default {
   components: {
-    Header, AlarmDisplayVue, SideMenuDrawer, SideMenu, ConnectionState
+    Header, AlarmDisplayVue, SideMenuDrawer, SideMenu, ConnectionState, MoveAGVNotifty
   },
   data() {
     return {

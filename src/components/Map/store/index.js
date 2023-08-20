@@ -176,6 +176,11 @@ export const MapStore = createStore({
         GetMapPointByIndex({ commit, state }, index) {
             var points = state.MapData.Points
             return points[index]
+        },
+        /**根據點位的index搜尋點位物件 */
+        GetMapPointByTag({ commit, state }, tag) {
+            var points = state.MapData.Points
+            return Object.values(points).find(pt => pt.TagNumber + '' == tag + '')
         }
     }
 }
