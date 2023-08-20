@@ -283,7 +283,45 @@ function PointColorSelect(station_type) {
     else
         return 'black'
 }
+function GetActionName(action, CargoStates = new clsCargoStates()) {
+    if (action == 0)
+        return CargoStates.exist ? '跑貨' : '移動'
+    if (action == 1)
+        return '取貨'
+    if (action == 2)
+        return '放貨停車'
+    if (action == 3)
+        return '前進'
+    if (action == 4)
+        return '後退'
+    if (action == 5)
+        return 'Fab?'
+    if (action == 6)
+        return '量測'
+    if (action == 7)
+        return '放貨'
+    if (action == 8)
+        return '充電'
+    if (action == 9)
+        return '搬運'
+    if (action == 10)
+        return '移出充電站'
+    if (action == 11)
+        return '快逃'
+    if (action == 12)
+        return '停車'
 
+    if (action == 13)
+        return '離開停車'
+    if (action == 14)
+        return '電池交換'
+    if (action == 15)
+        return 'Hold'
+    if (action == 16)
+        return 'Break'
+    if (action == 17)
+        return ''
+}
 /**AGV地圖顯示參數 */
 export class AGVOption {
     constructor(AGVNum = 1, AGVDisplayOptions = [new clsAGVDisplay()]) {
@@ -294,7 +332,7 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo()) {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates()) {
         this.AgvName = AgvName
         this.TextColor = TextColor
         this.Coordination = initCoordination;
@@ -303,6 +341,9 @@ export class clsAGVDisplay {
         this.Tag = Tag
         this.Theta = Theta
         this.WaitingInfo = WaitingInfo
+        this.CurrentAction = AgvStates.is_executing_task ? GetActionName(CurrentAction, CargoStatus) : ""
+        this.AgvStates = AgvStates
+
     }
 }
 export class clsWaitingInfo {
@@ -331,7 +372,13 @@ export class clsMapStation {
         this.data = {}
     }
 }
-
+export class clsAgvStates {
+    constructor() {
+        this.is_online = false
+        this.is_executing_task = false
+        this.main_status = 'IDLE'
+    }
+}
 /**後端圖資模型 */
 export class MapPointModel {
     constructor() {

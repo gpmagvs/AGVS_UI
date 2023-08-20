@@ -434,18 +434,19 @@ export default {
           var image = style.getImage()
           image.setRotation((agv_information.Theta - 90) * -1 * Math.PI / 180.0)
           style.setImage(image)
-
+          debugger
+          var actionString = agv_information.CurrentAction
           var text = style.getText();
-          text.setText(agv_information.WaitingInfo.IsWaiting ? agv_information.AgvName + `\r\n等待${agv_information.WaitingInfo.WaitingPoint.Name} Release..` : agv_information.AgvName);
+          var agvText = agv_information.AgvName + (actionString == '' ? '' : `(${actionString})`);
+          agvText += agv_information.WaitingInfo.IsWaiting ? `\r\n等待${agv_information.WaitingInfo.WaitingPoint.Name} Release..` : '';
+          text.setText(agvText);
+
           var fill = text.getBackgroundFill()
-          fill.setColor(agv_information.WaitingInfo.IsWaiting ? 'red' : agv_information.TextColor)
+          fill.setColor(!agv_information.AgvStates.is_online ? 'rgb(147, 147, 147)' : (agv_information.WaitingInfo.IsWaiting ? 'orange' : agv_information.TextColor))
           text.setBackgroundFill(fill);
           agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_information.CargoStatus)
-
-
-
 
         } else {
 

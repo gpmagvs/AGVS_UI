@@ -98,7 +98,7 @@ export const MapStore = createStore({
                 if (data.currentCoordication) {
                     coordination = [data.currentCoordication.X, data.currentCoordication.Y]
                 }
-                agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info))
+                agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states))
                 index += 1;
             })
             var _AGVOption = new AGVOption(agv_num, agvDataLs)
