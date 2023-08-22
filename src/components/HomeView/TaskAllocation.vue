@@ -81,7 +81,8 @@
               <b-button class="w-100" @click="HandleNavPathPreviewBtnClick" variant="default">預覽路徑</b-button>
             </el-form-item>
           </el-form>
-          <Map id="task_allocation_map" class="w-100 border rounded mx-2" ref="_map"></Map>
+          <Map 
+          canva_height="750px" id="task_allocation_map" class="w-100 border rounded mx-2" ref="_map"></Map>
         </div>
         <div v-if="selectedAction=='charge'" class="img charge"></div>
         <div v-else class="img delivery"></div>

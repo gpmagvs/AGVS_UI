@@ -7,6 +7,7 @@
       @save="SaveMapClickHandle"
       :editable="true"
       :agv_show="false"
+      canva_height="750px"
     ></MapShow>
   </div>
 </template>

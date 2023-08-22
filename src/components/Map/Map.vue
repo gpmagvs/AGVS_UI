@@ -2,7 +2,7 @@
   <div class="map-component">
     <el-alert v-if="map_name=='Unkown'" title="圖資異常" type="warning" effect="dark" />
 
-    <div class="d-flex">
+    <div class="d-flex h-100">
       <div class="flex-fill d-flex flex-column">
         <!-- 編輯選項 -->
         <div
@@ -57,7 +57,7 @@
         <!-- map render -->
         <div
           :id="id"
-          v-bind:style="{marginTop:editable? ( ShowWarningNotify?'170px': '140px'):'0px'}"
+          v-bind:style="{height:canva_height ,marginTop:editable? ( ShowWarningNotify?'120px': '80px'):'0px'}"
           class="agv_map flex-fll"
           @contextmenu="showContextMenu($event)"
         >
@@ -69,15 +69,16 @@
             <!-- <button>2</button> -->
           </div>
           <div class="ol-control cursour-coordination-show">
-            <span style="color:#b3b3b3">{{ MouseCoordinationDisplay }}</span>
+            <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
           </div>
+          <QuicklyAction></QuicklyAction>
         </div>
         <MapSettingsDialog ref="settings"></MapSettingsDialog>
       </div>
       <!-- 設定 -->
       <div
         class="options bg-light border-start text-start px-1 py-3"
-        v-bind:style="{marginTop:editable? ( ShowWarningNotify?'170px': '140px'):'0px'}"
+        v-bind:style="{marginTop:editable? ( ShowWarningNotify?'120px': '80px'):'0px'}"
       >
         <div v-if="station_show" class="rounded d-flex flex-column">
           <span class="border-bottom">顯示名稱</span>
@@ -172,6 +173,7 @@
       @OnTaskBtnClick="HandleMenuTaskBtnClick"
       @OnPtSettingBtnClick="HandlePtSettingBtnClick"
     ></PointContextMenu>
+
     <MapPointSettingDrawer ref="ptsetting" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
   </div>
 </template>
@@ -195,15 +197,17 @@ import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon } from './mapjs';
-import MapSettingsDialog from './MapSettingsDialog.vue';
-import PointContextMenu from './MapContextMenu.vue';
-import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import { MapStore } from './store'
 import { Fill, Stroke, Style, Circle } from 'ol/style';
 
+import MapSettingsDialog from './MapSettingsDialog.vue';
+import PointContextMenu from './MapContextMenu.vue';
+import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
+import QuicklyAction from './QuicklyActionMenu.vue'
+
 export default {
   components: {
-    MapSettingsDialog, PointContextMenu, MapPointSettingDrawer
+    QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer
   },
   props: {
     editable: {
@@ -233,6 +237,10 @@ export default {
       default() {
         return 'map'
       }
+    },
+    canva_height: {
+      type: String,
+      default: '670px'
     }
   },
   data() {
@@ -895,8 +903,8 @@ export default {
       this.StationNameDisplayOptHandler();
       this.PointLayer.setVisible(isShowSlamCoordi);
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
-      this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
-      this.map.getView().setCenter(isShowSlamCoordi ? [2, 2] : [0, 0]);
+      // this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
+      // this.map.getView().setCenter(isShowSlamCoordi ? [2, 2] : [0, 0]);
       //this.SaveSettingsToLocalStorage();
     },
     StationNameDisplayOptHandler() {
@@ -1226,6 +1234,7 @@ export default {
 <style lang="scss" scoped>
 .map-component {
   width: 100%;
+  height: 100%;
 }
 .custom-buttons {
   // top: 133px;
@@ -1247,7 +1256,7 @@ export default {
   }
 }
 .cursour-coordination-show {
-  z-index: 0;
+  z-index: 1;
   padding-left: 37px;
   margin-top: 10px;
   width: 120px;
@@ -1314,6 +1323,5 @@ export default {
 }
 .agv_map {
   width: 100%;
-  height: 786px;
 }
 </style>

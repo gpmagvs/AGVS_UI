@@ -28,7 +28,7 @@
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
       </el-table-column>
-      <el-table-column label="派工人員" prop="DispatcherName"></el-table-column>
+      <el-table-column fixed="right" label="派工人員" prop="DispatcherName"></el-table-column>
       <el-table-column v-if="taskCancelable" fixed="right" width="100">
         <template #default="scope">
           <div>

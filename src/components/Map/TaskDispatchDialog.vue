@@ -10,6 +10,7 @@
           id="task-dispatch-used-map"
           :map_stations="map_station_data"
           :task_dispatch_menu_show="true"
+          canva_height="750px"
         ></Map>
       </div>
     </el-dialog>
