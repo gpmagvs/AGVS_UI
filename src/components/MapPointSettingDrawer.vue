@@ -24,8 +24,8 @@
 
         <div class="settings px-2">
           <div v-show="true" class="text-start">
-            <b-button variant="primary" @click="Regist">註冊</b-button>
-            <b-button variant="danger" @click="Unregist">解註冊</b-button>
+            <b-button size="sm" variant="primary" @click="Regist">註冊</b-button>
+            <b-button size="sm" variant="danger" @click="Unregist">解註冊</b-button>
           </div>
           <el-collapse v-model="activeNames">
             <el-collapse-item title="基本設定" name="1">
@@ -232,11 +232,13 @@ export default {
       var registersIndexes = this.pointData_editing.RegistsPointIndexs //點位的INDEX列表
       registersIndexes.forEach(async (index) => {
         var registedPointData = await MapStore.dispatch('GetMapPointByIndex', index);
-        this.RegistersTable.push({
-          index: index,
-          tag: registedPointData.TagNumber,
-          name: registedPointData.Name
-        })
+        if (registedPointData) {
+          this.RegistersTable.push({
+            index: index,
+            tag: registedPointData.TagNumber,
+            name: registedPointData.Name
+          })
+        }
       });
     },
     ResetRegistPointIndexData() {
@@ -276,10 +278,39 @@ export default {
         this.show = false;
     },
     async Regist() {
-      await MapAPI.Regist(this.pointData_editing.TagNumber)
+      var response = await MapAPI.Regist(this.pointData_editing.TagNumber);
+      var success = response.result;
+      //            return Ok(new { result = result, message = err_msg });
+      this.show = false;
+      this.$swal.fire(
+        {
+          text: '',
+          title: `${this.pointData_editing.TagNumber} ${success ? '註冊成功' : '註冊失敗'}`,
+          icon: success ? 'success' : 'error',
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          this.show = true;
+        })
     },
     async Unregist() {
-      await MapAPI.Unregist(this.pointData_editing.TagNumber)
+      var response = await MapAPI.Unregist(this.pointData_editing.TagNumber)
+      var success = response.result;
+
+      this.show = false;
+      //            return Ok(new { result = result, message = err_msg });
+      this.$swal.fire(
+        {
+          text: '',
+          title: `${this.pointData_editing.TagNumber} ${success ? '解除註冊成功' : '解除註冊失敗'}`,
+          icon: success ? 'success' : 'error',
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          this.show = true;
+        })
     },
     HandleIndexSelected(pt) {
       var index = pt.index
