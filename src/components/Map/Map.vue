@@ -1061,22 +1061,21 @@ export default {
         features.forEach(feature => {
           var style = feature.getStyle()
           if (style) {
-            try {
 
-              feature.set("oristyle", style.clone())
-              var newStyle = style.clone()
-              var text = newStyle.getText();
-              if (text) {
-                var stroke = text.getStroke()
-                if (stroke) {
-                  var newStroke = stroke.clone();
-                  newStroke.setColor(color)
-                  text.setStroke(newStroke)
-                  feature.setStyle(newStyle)
-                }
+
+            feature.set("oristyle", style.clone())
+            var newStyle = style.clone()
+            var text = newStyle.getText();
+            if (text) {
+              var stroke = text.getStroke()
+              if (stroke) {
+                var newStroke = stroke.clone();
+                newStroke.setColor(color)
+                text.setStroke(newStroke)
+                feature.setStyle(newStyle)
               }
             }
-            catch (error) { }
+
           }
 
           this.previousSelectedFeatures.push(feature)
