@@ -486,7 +486,9 @@ export class MapPointModel {
         this.Graph = {
             Display: "",
             X: 0,
-            Y: 0
+            Y: 0,
+            IsBezierCurvePoint: false,
+            BezierCurveID: ''
         }
         this.Target = {
 
@@ -540,5 +542,13 @@ export class StationSelectOptions {
     constructor(tag = 0, name = '') {
         this.tag = tag
         this.name = name
+    }
+}
+
+export class BezierCurve {
+    constructor(ID = "", Rank = 2, MidPointCoordination = [0, 0]) {
+        this.ID = ID
+        this.Rank = Rank
+        this.MidPointCoordination = MidPointCoordination
     }
 }

@@ -351,6 +351,9 @@ export default {
     map_station_data() {
       return MapStore.getters.MapStations
     },
+    BezierCurves() {
+      return MapStore.getters.BezierCurves
+    },
     agvs_info() {
       return MapStore.getters.AGVNavInfo;
     }
@@ -380,17 +383,43 @@ export default {
 
     },
     UpdateStationPathLayer() {
+
+      var source = this.PointLinksLayer.getSource();
+      source.clear();
       var stationFeatures = this.StationPointsFeatures
       var stationLinkPathes = [];
       stationFeatures.forEach(feature => {
+        var data = feature.get('data')
+        var graph = data.Graph;
         var target_indexes = feature.get('targets')
         for (let index = 0; index < target_indexes.length; index++) {
           const pt_index = target_indexes[index];
           var target_feature = stationFeatures.find(f => f.get('index') == pt_index)
+
           if (target_feature) {
+            var target_data = target_feature.get('data')
+            var target_graph = target_data.Graph
+            var segment = [];
+            var startPoint = feature.getGeometry().getCoordinates()
+            var endPoint = target_feature.getGeometry().getCoordinates()
+            segment = [startPoint, endPoint]
+            if (graph.IsBezierCurvePoint && target_graph.IsBezierCurvePoint) {
+              debugger
+              var bezier_curve_id = graph.BezierCurveID
+              var beziercurve_model = this.BezierCurves[bezier_curve_id]
+              if (beziercurve_model) {
+                var midpoint = beziercurve_model.MidPointCoordination
+                var points = createBezierCurvePoints(2, [startPoint, midpoint, endPoint])
+                segment = points
+                var midFeature = new Feature({
+                  geometry: new Point(midpoint)
+                })
+                source.addFeature(midFeature);
+              }
+            }
             let lineFeature = new Feature(
               {
-                geometry: new LineString([feature.getGeometry().getCoordinates(), target_feature.getGeometry().getCoordinates()]),
+                geometry: new LineString(segment),
               },
             );
             var isEqLink = feature.get('station_type') != 0 | target_feature.get('station_type') != 0;
@@ -404,8 +433,6 @@ export default {
         }
       })
 
-      var source = this.PointLinksLayer.getSource();
-      source.clear();
       source.addFeatures(stationLinkPathes);
     },
     UpdateAGVLayer() {

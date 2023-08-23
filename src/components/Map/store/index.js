@@ -30,6 +30,9 @@ export const MapStore = createStore({
         MapName: state => {
             return state.MapData == null ? "Unkown" : state.MapData.Name
         },
+        BezierCurves: state => {
+            return state.MapData == null ? {} : state.MapData.BezierCurves
+        },
         GeoMapData: state => {
             return state.MapGeoJson
         },
