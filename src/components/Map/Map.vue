@@ -120,7 +120,7 @@
           ></el-switch>
         </div>
         <div>
-          <span class="mx-1">Slam底圖顯示</span>
+          <span class="mx-1">Slam底圖</span>
           <el-switch
             v-model="map_image_display"
             inactive-value="none"
@@ -1263,7 +1263,7 @@ export default {
   }
 }
 .cursour-coordination-show {
-  z-index: 1;
+  z-index: 0;
   padding-left: 37px;
   margin-top: 10px;
   width: 120px;
@@ -1281,6 +1281,7 @@ export default {
 
 .options {
   text-align: left;
+  width:108px;
   label {
     width: 100%;
     margin-right: auto;
@@ -1298,7 +1299,6 @@ export default {
   }
   .el-switch {
     position: relative;
-    left: -16px;
     top: 6px;
   }
 }

@@ -6,7 +6,7 @@
       :agv_upload_coordi_data="agv_upload_data"
       @save="SaveMapClickHandle"
       :editable="true"
-      :agv_show="false"
+      :agv_show="true"
       canva_height="750px"
     ></MapShow>
   </div>
