@@ -76,6 +76,9 @@
                 <el-form-item label="角度">
                   <el-input-number v-model="pointData_editing.Direction"></el-input-number>
                 </el-form-item>
+                <el-form-item v-if="pointData_editing.StationType !=0" label="二次定位點角度">
+                  <el-input-number v-model="pointData_editing.Direction_Secondary_Point"></el-input-number>
+                </el-form-item>
                 <el-form-item label="雷射模式">
                   <el-input-number v-model="pointData_editing.LsrMode" :step="1"></el-input-number>
                 </el-form-item>

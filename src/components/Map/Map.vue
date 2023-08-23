@@ -442,7 +442,6 @@ export default {
           var image = style.getImage()
           image.setRotation((agv_information.Theta - 90) * -1 * Math.PI / 180.0)
           style.setImage(image)
-          debugger
           var actionString = agv_information.CurrentAction
           var text = style.getText();
           var agvText = agv_information.AgvName + (actionString == '' ? '' : `(${actionString})`);
@@ -971,8 +970,8 @@ export default {
           customClass: 'my-sweetalert'
         }).then((res) => {
           if (res.isConfirmed) {
-
-            this._map_stations = JSON.parse(JSON.stringify(this.map_stations))
+            debugger
+            this._map_stations = JSON.parse(JSON.stringify(this.map_station_data))
             console.log('update map ')
             this.UpdateStationPointLayer();
             this.UpdateStationPathLayer();

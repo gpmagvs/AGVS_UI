@@ -28,7 +28,6 @@ export default {
     }
   },
   mounted() {
-    debugger
     this.FetchTodayDataAndRender();
 
 
@@ -54,7 +53,6 @@ export default {
     async FetchTodayDataAndRender() {
       this.todayData = await GetTodayAvailability();
       if (this.todayTimelineChart) {
-        debugger
         this.todayTimelineChart.RenderChart(this.todayData);
       }
     },
