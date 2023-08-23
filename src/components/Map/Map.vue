@@ -196,7 +196,7 @@ import { Tile as TileLayer, Vector as VectorLayer, Graticule } from 'ol/layer.js
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature } from './mapjs';
 import { MapStore } from './store'
 import { Fill, Stroke, Style, Circle } from 'ol/style';
 
@@ -361,7 +361,7 @@ export default {
       var stationPointFeatures_ForRouteShow = []//路網顯示用
       for (let index = 0; index < this._map_stations.length; index++) {
         var station = this._map_stations[index];
-        var iconFeature = this.CreateStationFeature(station)
+        var iconFeature = CreateStationFeature(station)
         stationPointFeatures.push(iconFeature)
 
         var routeUseFeature = iconFeature.get('routeModeFeature')
@@ -495,6 +495,8 @@ export default {
       var dragInteraction = new Pointer({
         /**滑鼠點下事件 */
         handleDownEvent: function (event) {
+          debugger
+          const isRightClick = event.originalEvent.button == 2
           this_vue.editModeContextMenuVisible = false;
 
           this_vue.ClearSelectedFeature();
@@ -507,14 +509,13 @@ export default {
           if (!feature) {
 
             this_vue.IsDragging = false;
-            if (currentAction == 'add-station' && event.originalEvent.button == 2) {
+            if (currentAction == 'add-station' && isRightClick) {
 
-              feature = CreateNewFeature(event.coordinate, feature);
+              feature = CreateNewStationPointFeature(event.coordinate, this_vue.GenNewIndexOfStation());
               //this_vue.map_stations.push(station)
             } else
               return false;
           }
-
           this_vue.HighLightFeatureSelected([feature])
           if (this_vue.EditorOption.EditMode == 'view') {
             return false;
@@ -535,16 +536,20 @@ export default {
             else if (featureType == this_vue.FeatureKeys.path && currentAction == 'remove-path')
               this_vue.RemovePath(feature);
             else if (currentAction == 'add-path')
-              this_vue.PushPathData(feature)
+              this_vue.PushPathEndPointData(feature)
 
           }
           return true;
         },
         /**滑鼠拖曳事件 */
         handleDragEvent: function (event) {
+          var edit_action = this_vue.EditorOption.EditAction;
           if (this_vue.EditorOption.EditMode == 'view') {
             return;
           }
+          if (edit_action == 'add-path' | edit_action == 'remove-path')
+            return;
+
           var deltaX = event.coordinate[0] - this.coordinate_[0];
           var deltaY = event.coordinate[1] - this.coordinate_[1];
           var geometry = this.feature_.getGeometry();
@@ -569,12 +574,13 @@ export default {
 
         /**滑鼠點擊後放開事件 */
         handleUpEvent: function (ev) {
+          debugger
           if (this_vue.EditorOption.EditMode == 'view')
             return;
           var currentAction = this_vue.EditorOption.EditAction;
 
           if (currentAction != 'add-path' && currentAction != 'remove-path') {
-            if (currentAction == 'add-station') {
+            if (currentAction == 'add-station' && ev.originalEvent.button == 2) {
               this_vue.PointLayer.getSource().addFeature(this.feature_)
             } else {
 
@@ -652,28 +658,9 @@ export default {
 
       })
 
-      function CreateNewFeature(coordinate) {
-        var station = new clsMapStation();
-        station.coordination = coordinate;
-        station.index = this_vue.GenNewIndexOfStation();
-        station.station_type = 0;
-        station.name = station.index + '';
-        station.tag = station.index;
 
-        var mapPtModel = new MapPointModel();
-        mapPtModel.StationType = 0;
-        mapPtModel.X = coordinate[0];
-        mapPtModel.Y = coordinate[1];
-        mapPtModel.Graph.X = parseInt(Math.round(coordinate[0]));
-        mapPtModel.Graph.Y = parseInt(Math.round(coordinate[1]));
-        mapPtModel.Name = station.index + '';
-        mapPtModel.TagNumber = station.index;
-
-        station.data = mapPtModel;
-        var feature = this_vue.CreateStationFeature(station);
-        return feature;
-      }
     },
+
     HideNormalStations(hide) {
 
 
@@ -736,25 +723,7 @@ export default {
         this.center_route = settings.center_route
       }
     },
-    CreateStationFeature(station = new clsMapStation()) {
-      const iconFeature = new Feature({
-        geometry: new Point(station.coordination)
-        // geometry: new Point(station.graph)
-      });
-      iconFeature.set('index', station.index)
-      iconFeature.set('station_type', station.station_type)
-      iconFeature.set('targets', station.targets)
-      iconFeature.set('feature_type', this.FeatureKeys.Station)
-      iconFeature.set('data', station.data)
-      var name = station.name
-      iconFeature.setStyle(GetStationStyle(name, station.station_type, station.data));
-      var routeFeature = iconFeature.clone();
-      if (station.data.Graph) {
-        routeFeature.setGeometry(new Point([station.data.Graph.X, station.data.Graph.Y]))
-      }
-      iconFeature.set('routeModeFeature', routeFeature)
-      return iconFeature;
-    },
+
     AddPoint(coordinate) {
       this.PointLayer.getSource().addFeature(new Feature({
         geometry: new Point(coordinate)
@@ -805,7 +774,10 @@ export default {
 
               var ori_geo = path_featureFound.getGeometry()
               var ori_endCoord = ori_geo.getCoordinates()[1]
-              var geometry = new LineString([feature.getGeometry().getCoordinates(), ori_endCoord])
+
+              //TODO create bazier curve 
+              var points = createBezierCurvePoints(3, [feature.getGeometry().getCoordinates(), ori_endCoord, [20, 30]])
+              var geometry = new LineString(points)
               path_featureFound.setGeometry(geometry)
               path_featureFound.setStyle(CreateStationPathStyles(path_featureFound))
             }
@@ -835,7 +807,7 @@ export default {
       }
 
     },
-    PushPathData(feature = new Feature()) {
+    PushPathEndPointData(feature = new Feature()) {
 
       if (feature.get("feature_type") != this.FeatureKeys.Station)
         return;
@@ -850,27 +822,34 @@ export default {
       }
       this.PathEditTempStore.push(feature)
       if (this.PathEditTempStore.length == 2) {
-        var startPoint = this.PathEditTempStore[0];
-        var endPoint = this.PathEditTempStore[1];
+        var startPointFeature = this.PathEditTempStore[0];
+        var endPointFeature = this.PathEditTempStore[1];
+        var startPoint = startPointFeature.getGeometry().getCoordinates();
+        var endPoint = endPointFeature.getGeometry().getCoordinates();
+        var midPoint = [(startPoint[0] + endPoint[0]) / 2, (startPoint[1] + endPoint[1]) / 2]
+        var mindfeature = CreateNewStationPointFeature(midPoint, this.GenNewIndexOfStation());
+        //this.PointLayer.getSource().addFeature(mindfeature)
+        var points = createBezierCurvePoints(2, [startPoint, midPoint, endPoint])
+
         let lineFeature = new Feature(
           {
-            geometry: new LineString([startPoint.getGeometry().getCoordinates(), endPoint.getGeometry().getCoordinates()]),
+            geometry: new LineString(points),
           },
         );
-        var isEqLink = endPoint.get('station_type') != 0;
-        var endPointIndex = endPoint.get('index');
-        var path_id = `${startPoint.get('index')}_${endPointIndex}`
+        var isEqLink = endPointFeature.get('station_type') != 0;
+        var endPointIndex = endPointFeature.get('index');
+        var path_id = `${startPointFeature.get('index')}_${endPointIndex}`
 
         if (this.PointLinksLayer.getSource().getFeatures().find(f => f.get('path_id') == path_id))
           return;
-        var oritargets = startPoint.get('targets');
+        var oritargets = startPointFeature.get('targets');
         if (!oritargets)
           oritargets = []
-        var startPtMapData = startPoint.get('data')
+        var startPtMapData = startPointFeature.get('data')
         startPtMapData.Target[endPointIndex] = 1//
-        startPoint.set('data', startPtMapData)
+        startPointFeature.set('data', startPtMapData)
         oritargets.push(endPointIndex)
-        startPoint.set('targets', oritargets)
+        startPointFeature.set('targets', oritargets)
         lineFeature.set('path_id', path_id)
         lineFeature.set('isEqLink', isEqLink)
         lineFeature.set('feature_type', this.FeatureKeys.path)
@@ -970,7 +949,6 @@ export default {
           customClass: 'my-sweetalert'
         }).then((res) => {
           if (res.isConfirmed) {
-            debugger
             this._map_stations = JSON.parse(JSON.stringify(this.map_station_data))
             console.log('update map ')
             this.UpdateStationPointLayer();
@@ -1054,23 +1032,27 @@ export default {
 
         this.ClearSelectedFeature();
         features.forEach(feature => {
-
           var style = feature.getStyle()
-          if (!style)
-            return;
-          feature.set("oristyle", style.clone())
-          var newStyle = style.clone()
-          var text = newStyle.getText();
-          if (text) {
-            var stroke = text.getStroke()
-            if (stroke) {
-              var newStroke = stroke.clone();
-              newStroke.setColor(color)
-              text.setStroke(newStroke)
-              feature.setStyle(newStyle)
-              this.previousSelectedFeatures.push(feature)
+          if (style) {
+            try {
+
+              feature.set("oristyle", style.clone())
+              var newStyle = style.clone()
+              var text = newStyle.getText();
+              if (text) {
+                var stroke = text.getStroke()
+                if (stroke) {
+                  var newStroke = stroke.clone();
+                  newStroke.setColor(color)
+                  text.setStroke(newStroke)
+                  feature.setStyle(newStyle)
+                }
+              }
             }
+            catch (error) { }
           }
+
+          this.previousSelectedFeatures.push(feature)
         })
       } catch (error) {
 
@@ -1112,12 +1094,13 @@ export default {
           mapPtModel.TagNumber = coorInfo.TagNumber
           mapPtModel.Direction = parseInt(Math.round(coorInfo.Theta));
           station.data = mapPtModel
-          var feature = this.CreateStationFeature(station)
+          var feature = CreateStationFeature(station)
           this.PointLayer.getSource().addFeature(feature)
         }
       })
     },
     showContextMenu(event) {
+      debugger
       event.preventDefault();
       if (this.EditorOption.EditAction == 'add-station')
         return;
@@ -1125,16 +1108,15 @@ export default {
       if (this.previousSelectedFeature) {
         this.contextMenuTop = event.clientY;
         this.contextMenuLeft = event.clientX;
+        var feature_type = this.previousSelectedFeature.get('feature_type');
+        this.contextMenuOptions.feature_type = feature_type;
         var data = this.previousSelectedFeature.get('data');
-
-        this.contextMenuOptions.title = data.Name
-        this.contextMenuOptions.point_data = data
-
-        this.contextMenuOptions.task_options = new MenuUseTaskOption(data.StationType)
-        this.contextMenuOptions.show_task_dispatch = this.task_dispatch_menu_show
-
-
-
+        if (data) {
+          this.contextMenuOptions.title = data.Name
+          this.contextMenuOptions.point_data = data
+          this.contextMenuOptions.task_options = new MenuUseTaskOption(data.StationType)
+          this.contextMenuOptions.show_task_dispatch = this.task_dispatch_menu_show
+        }
         this.editModeContextMenuVisible = true;
       }
     },

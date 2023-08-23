@@ -4,6 +4,40 @@ import Point from 'ol/geom/Point.js';
 import Feature from 'ol/Feature';
 import { Rectangle } from 'leaflet';
 
+/**階乘 */
+function factorial(num) {
+    if (num <= 1) {
+        return 1;
+    } else {
+        return num * factorial(num - 1);
+    }
+}
+
+/*
+ * 生成贝塞尔曲线插值点
+ * @para n {number} 控制点数量
+ * @para arrPoints {array} 控制点坐标集合
+ */
+export function createBezierCurvePoints(n = 1, arrPoints = [Point]) {
+
+    var Ptx = 0;
+    var Pty = 0;
+
+    var arrbline = [];
+    for (var t = 0; t < 1; t = t + 0.01) {
+        Ptx = 0;
+        Pty = 0;
+        for (var i = 0; i <= n; i++) {
+            Ptx += (factorial(n) / (factorial(i) * factorial(n - i))) * Math.pow((1 - t), n - i) * Math.pow(t, i) * arrPoints[i][0];
+            Pty += (factorial(n) / (factorial(i) * factorial(n - i))) * Math.pow((1 - t), n - i) * Math.pow(t, i) * arrPoints[i][1];
+        }
+        arrbline.push([Ptx, Pty]);
+    }
+
+    return arrbline;
+}
+
+
 const station_colors = {
     normal: 'orange',
     eq: 'lightblue',
@@ -151,6 +185,7 @@ export function CreateStationPathStyles(feature) {
     if (data) {
         isPathClose = data.IsPathClose
     }
+
     const geometry = feature.getGeometry();
     const styles = [
         new Style({
@@ -161,46 +196,91 @@ export function CreateStationPathStyles(feature) {
             }),
         }),
     ];
-    geometry.forEachSegment(function (start, end) {
-        const dx = end[0] - start[0];
-        const dy = end[1] - start[1];
-        const rotation = Math.atan2(dy, dx);
+    const coordinates = geometry.getCoordinates()
 
-        // arrows
-        styles.push(
-            new Style({
-                geometry: new Point(end),
-                image: new Icon({
-                    src: 'arrow.png',
-                    anchor: [1.6, 0.5],
-                    rotateWithView: true,
-                    rotation: -rotation,
-                    scale: 0.22,
-                    color: isPathClose ? 'red' : pathColor
-                }),
-            })
-        );
-        if (isPathClose) {
-            start = [(end[0] + start[0]) / 2, (end[1] + start[1]) / 2]
+    var index = 0;
+    geometry.forEachSegment(function (start, end) {
+        if (index == coordinates.length - 2) {
             const dx = end[0] - start[0];
             const dy = end[1] - start[1];
             const rotation = Math.atan2(dy, dx);
             // arrows
             styles.push(
                 new Style({
-                    geometry: new Point(start),
+                    geometry: new Point(end),
                     image: new Icon({
-                        src: 'close.png',
-                        anchor: [1.2, 0.5],
+                        src: 'arrow.png',
+                        anchor: [1.6, 0.5],
                         rotateWithView: true,
                         rotation: -rotation,
-                        scale: 0.6,
+                        scale: 0.22,
+                        color: isPathClose ? 'red' : pathColor
                     }),
                 })
             );
+            if (isPathClose) {
+                start = [(end[0] + start[0]) / 2, (end[1] + start[1]) / 2]
+                const dx = end[0] - start[0];
+                const dy = end[1] - start[1];
+                const rotation = Math.atan2(dy, dx);
+                // arrows
+                styles.push(
+                    new Style({
+                        geometry: new Point(start),
+                        image: new Icon({
+                            src: 'close.png',
+                            anchor: [1.2, 0.5],
+                            rotateWithView: true,
+                            rotation: -rotation,
+                            scale: 0.6,
+                        }),
+                    })
+                );
+            }
         }
+        index += 1;
     });
     return styles;
+}
+
+export function CreateNewStationPointFeature(coordinate, point_index, featureStatonType) {
+    var station = new clsMapStation();
+    station.coordination = coordinate;
+    station.index = point_index;
+    station.station_type = 0;
+    station.name = station.index + '';
+    station.tag = station.index;
+
+    var mapPtModel = new MapPointModel();
+    mapPtModel.StationType = 0;
+    mapPtModel.X = coordinate[0];
+    mapPtModel.Y = coordinate[1];
+    mapPtModel.Graph.X = parseInt(Math.round(coordinate[0]));
+    mapPtModel.Graph.Y = parseInt(Math.round(coordinate[1]));
+    mapPtModel.Name = station.index + '';
+    mapPtModel.TagNumber = station.index;
+    station.data = mapPtModel;
+    var feature = CreateStationFeature(station);
+    return feature;
+}
+export function CreateStationFeature(station = new clsMapStation()) {
+    const iconFeature = new Feature({
+        geometry: new Point(station.coordination)
+        // geometry: new Point(station.graph)
+    });
+    iconFeature.set('index', station.index)
+    iconFeature.set('station_type', station.station_type)
+    iconFeature.set('targets', station.targets)
+    iconFeature.set('feature_type', 'station')
+    iconFeature.set('data', station.data)
+    var name = station.name
+    iconFeature.setStyle(GetStationStyle(name, station.station_type, station.data));
+    var routeFeature = iconFeature.clone();
+    if (station.data.Graph) {
+        routeFeature.setGeometry(new Point([station.data.Graph.X, station.data.Graph.Y]))
+    }
+    iconFeature.set('routeModeFeature', routeFeature)
+    return iconFeature;
 }
 function GetCargoIcon(cargo_type, exist = false) {
     if (!exist)
@@ -441,6 +521,7 @@ export class MapContextMenuOptions {
     constructor() {
         this.title = 'title'
         this.backgroundColor = 'white'
+        this.feature_type = 'Station'
         this.point_data = new MapPointModel()
         this.show_task_dispatch = false
         this.task_options = new MenuUseTaskOption()
