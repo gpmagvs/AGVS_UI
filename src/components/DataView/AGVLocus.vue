@@ -133,8 +133,8 @@ export default {
       ],
       agvname: '',
       timePick: {
-        start_time: '2022-08-03 12:00:00',
-        end_time: '2022-08-04 12:00:00'
+        start_time: '2023-08-03 12:00:00',
+        end_time: '2023-08-04 12:00:00'
       },
       locus_settings: {
 
@@ -228,8 +228,13 @@ export default {
       var settings_json = localStorage.getItem('locus')
       if (settings_json) {
         var store = JSON.parse(settings_json);
-        this.locus_settings = store.locus_paint
-        this.timePick = store.time
+        if (store.locus_paint)
+          this.locus_settings = store.locus_paint
+        if (store.time)
+          this.timePick = store.time
+        else {
+          this.timePick.start_time = this.timePick.end_time = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
+        }
       }
     },
     CalculatTimeSpend(row) {
