@@ -205,6 +205,8 @@ import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import QuicklyAction from './QuicklyActionMenu.vue'
 
+import MapAPI from '@/api/MapAPI';
+
 export default {
   components: {
     QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer
@@ -331,6 +333,9 @@ export default {
     MapServerUrl() {
       return MapStore.getters.MapServerUrl;
     },
+    PathesSegments() {
+      return MapStore.getters.Pathes;
+    },
     previousSelectedFeature() {
       return this.previousSelectedFeatures[0]
     },
@@ -386,9 +391,36 @@ export default {
 
     },
     UpdateStationPathLayer() {
-
+      debugger
       var source = this.PointLinksLayer.getSource();
       source.clear();
+      var stationLinkPathes = [];
+
+      var pathSegments = this.PathesSegments
+      pathSegments.forEach(path => {
+        var lineCoordinations = [path.StartCoordination, path.EndCoordination]
+        // if (path.IsBezier) {
+        //   var points = createBezierCurvePoints(2, [path.StartCoordination, path.BezierMiddleCoordination, path.EndCoordination])
+        //   var midFeature = new Feature({
+        //     geometry: new Point(path.BezierMiddleCoordination)
+        //   })
+        //   source.addFeature(midFeature);
+        //   lineCoordinations = points
+        // }
+        let lineFeature = new Feature(
+          {
+            geometry: new LineString(lineCoordinations),
+          },
+        );
+        lineFeature.set('path_id', path.PathID)
+        lineFeature.set('isEqLink', path.IsEQLink)
+        lineFeature.set('feature_type', this.FeatureKeys.path)
+        lineFeature.setStyle(CreateStationPathStyles(lineFeature))
+        stationLinkPathes.push(lineFeature)
+      })
+      source.addFeatures(stationLinkPathes);
+      return;
+
       var stationFeatures = this.StationPointsFeatures
       var stationLinkPathes = [];
       stationFeatures.forEach(feature => {
@@ -407,7 +439,6 @@ export default {
             var endPoint = target_feature.getGeometry().getCoordinates()
             segment = [startPoint, endPoint]
             if (graph.IsBezierCurvePoint && target_graph.IsBezierCurvePoint) {
-              debugger
               var bezier_curve_id = graph.BezierCurveID
               var beziercurve_model = this.BezierCurves[bezier_curve_id]
               if (beziercurve_model) {
@@ -436,7 +467,6 @@ export default {
         }
       })
 
-      source.addFeatures(stationLinkPathes);
     },
     UpdateAGVLayer() {
       this.agvs_info.AGVDisplays.forEach(agv_information => {
@@ -525,7 +555,6 @@ export default {
       var dragInteraction = new Pointer({
         /**滑鼠點下事件 */
         handleDownEvent: function (event) {
-          debugger
           const isRightClick = event.originalEvent.button == 2
           this_vue.editModeContextMenuVisible = false;
 
@@ -604,7 +633,6 @@ export default {
 
         /**滑鼠點擊後放開事件 */
         handleUpEvent: function (ev) {
-          debugger
           if (this_vue.EditorOption.EditMode == 'view')
             return;
           var currentAction = this_vue.EditorOption.EditAction;
@@ -806,8 +834,10 @@ export default {
               var ori_endCoord = ori_geo.getCoordinates()[1]
 
               //TODO create bazier curve 
-              var points = createBezierCurvePoints(3, [feature.getGeometry().getCoordinates(), ori_endCoord, [20, 30]])
-              var geometry = new LineString(points)
+              // var points = createBezierCurvePoints(3, [feature.getGeometry().getCoordinates(), ori_endCoord, [20, 30]])
+              // var geometry = new LineString(points)
+
+              var geometry = new LineString([feature.getGeometry().getCoordinates(), ori_endCoord])
               path_featureFound.setGeometry(geometry)
               path_featureFound.setStyle(CreateStationPathStyles(path_featureFound))
             }
@@ -979,6 +1009,7 @@ export default {
           customClass: 'my-sweetalert'
         }).then((res) => {
           if (res.isConfirmed) {
+            MapStore.dispatch('DownloadMapData', '')
             this._map_stations = JSON.parse(JSON.stringify(this.map_station_data))
             console.log('update map ')
             this.UpdateStationPointLayer();
@@ -1129,7 +1160,6 @@ export default {
       })
     },
     showContextMenu(event) {
-      debugger
       event.preventDefault();
       if (this.EditorOption.EditAction == 'add-station')
         return;

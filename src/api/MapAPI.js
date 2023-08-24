@@ -1,7 +1,8 @@
 import axios from 'axios'
 import param from '@/gpm_param'
+import { MapStore } from '@/components/Map/store'
 var axios_entity = axios.create({
-  baseURL: param.backend_host,
+  baseURL: MapStore.getters.MapServerUrl,
 })
 var axios_entity_vms = axios.create({
   baseURL: param.vms_host,
@@ -52,20 +53,11 @@ const MapAPI = {
         return undefined
       })
   },
-  SaveMap(_data) {
-    return axios_entity
-      .post('api/Map/SaveMap', _data)
-      .then((ret) => {
-        return true
-      })
-      .catch((err) => {
-        return false
-      })
-  },
   ReloadMap() {
     return axios_entity
       .get('api/Map/ReloadMap')
       .then((ret) => {
+        MapStore.dispatch('DownloadMapData');
         return ret.data
       })
       .catch((err) => {

@@ -53,7 +53,7 @@ export default {
 
     async SaveMapClickHandle(points_data) {
       console.log(points_data);
-      var mapData = MapStore.getters.MapData
+      var mapData = JSON.parse(JSON.stringify(MapStore.getters.MapData))
       mapData.Points = points_data;
       this.map_saving = true;
       this.$swal.fire(
@@ -65,7 +65,7 @@ export default {
           showConfirmButton: false,
           customClass: 'my-sweetalert',
         })
-      var success = await MapAPI.SaveMap(mapData);
+      var success = await MapStore.dispatch('SaveMap', mapData);
       this.map_saving = false;
       if (success) {
         //Notifier.Success('圖資儲存成功');
@@ -77,7 +77,7 @@ export default {
           customClass: 'my-sweetalert',
           timer: 1500,
         })
-        bus.emit('on_map_save_success', '');
+
       }
       else {
         Notifier.Danger('圖資儲存失敗');

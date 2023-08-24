@@ -27,6 +27,9 @@ export const MapStore = createStore({
             }
             return state.MapData;
         },
+        Pathes: state => {
+            return state.MapData.Pathes
+        },
         MapName: state => {
             return state.MapData == null ? "Unkown" : state.MapData.Name
         },
@@ -167,7 +170,6 @@ export const MapStore = createStore({
             var axio = axios.create({
                 baseURL: state.mapBackendServer
             })
-
             await axio.get('api/Map').then(response => {
                 console.log('[MapStore] get map data', response.data);
                 commit('setMapData', response.data)
@@ -186,7 +188,21 @@ export const MapStore = createStore({
         GetMapPointByTag({ commit, state }, tag) {
             var points = state.MapData.Points
             return Object.values(points).find(pt => pt.TagNumber + '' == tag + '')
-        }
+        },
+        SaveMap({ commit, state, actions }, _data) {
+            var axio = axios.create({
+                baseURL: state.mapBackendServer
+            })
+
+            return axio.post('api/Map/SaveMap', _data)
+                .then((ret) => {
+                    return true
+                })
+                .catch((err) => {
+                    return false
+                })
+        },
+
     }
 }
 )
