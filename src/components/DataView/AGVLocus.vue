@@ -36,7 +36,13 @@
             type="primary"
           >搜尋</el-button>
         </div>
-        <el-table :data="tableData" style="width:720px" height="600" highlight-current-row>
+        <el-table
+          v-loading="loading"
+          :data="tableData"
+          style="width:720px"
+          height="600"
+          highlight-current-row
+        >
           <el-table-column align="center" label="No" width="50">
             <template #default="scope">
               <div>{{GetNo(scope.row)}}</div>
@@ -82,6 +88,7 @@
           </div>
         </div>
         <Map
+          v-loading="locus_painting"
           class="bg-light border"
           ref="map"
           id="locus_map"
@@ -117,8 +124,8 @@ export default {
       tableData: [
         {
           task_id: '',
-          start_time: '2022-08-03 12:00:00',
-          end_time: '2022-08-03 12:10:00',
+          start_time: '2023-08-03 12:00:00',
+          end_time: '2023-08-03 12:10:00',
           duration: 600,
           corrdinations: [[0, 0], [-1.2, 2.2], [-1.3, 2.3], [-1.4, 3]]
         },
@@ -134,22 +141,32 @@ export default {
         color: 'red',
         width: 1,
       },
-      showing_row_data: {}
+      showing_row_data: {},
+      loading: false,
+      locus_painting: false
     }
   },
   methods: {
+    SetDefaultTimeInterval() {
+
+    },
     GetNo(row) {
       return this.tableData.indexOf(row) + 1;
     },
     async ShowLocusHandler(row_data) {
       if (row_data.corrdinations == undefined) {
         try {
-          var trajData = await GetTrajectory(row_data.task_id)
-          if (trajData) {
-            row_data.corrdinations = trajData.coordinations.map(data => ([data.X, data.Y]))
-            this.showing_row_data = row_data;
-            this.$refs.map.ShowLocus(row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
-          }
+          this.locus_painting = true;
+          setTimeout(async () => {
+            var trajData = await GetTrajectory(row_data.task_id)
+            if (trajData) {
+              row_data.corrdinations = trajData.coordinations.map(data => ([data.X, data.Y]))
+              this.showing_row_data = row_data;
+
+              this.$refs.map.ShowLocus(row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
+              this.locus_painting = false;
+            }
+          }, 300);
         } catch (error) {
           this.$swal.fire(
             {
@@ -168,11 +185,11 @@ export default {
       return moment(time).format('YYYY/MM/DD HH:mm:ss')
     },
     HandleLocusSettingChange() {
-      this.SaveLocusSettingsToLocalStroage();
       this.$refs.map.ShowLocus(this.showing_row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
     },
     async HandleSearchBtnClicked() {
 
+      this.SaveLocusSettingsToLocalStroage();
       if (this.agvname == '') {
         this.$swal.fire(
           {
@@ -189,22 +206,30 @@ export default {
       var startTime = moment(this.timePick.start_time).format('YYYY/MM/DD HH:mm:ss')
       var endTime = moment(this.timePick.end_time).format('YYYY/MM/DD HH:mm:ss')
       var tasklist = []
-      tasklist = await GetTasks(startTime, endTime, this.agvname)
-      this.tableData = tasklist.map(obj => ({
-        task_id: obj.TaskName,
-        start_time: obj.RecieveTime,
-        end_time: obj.FinishTime,
-        duration: 0,
-        corrdinations: undefined
-      }))
+      this.loading = true;
+      setTimeout(async () => {
+        tasklist = await GetTasks(startTime, endTime, this.agvname)
+        this.tableData = tasklist.map(obj => ({
+          task_id: obj.TaskName,
+          start_time: obj.RecieveTime,
+          end_time: obj.FinishTime,
+          duration: 0,
+          corrdinations: undefined
+        }))
+        this.loading = false
+      }, 200);
+
     },
+
     SaveLocusSettingsToLocalStroage() {
-      localStorage.setItem('locus', JSON.stringify(this.locus_settings))
+      localStorage.setItem('locus', JSON.stringify({ locus_paint: this.locus_settings, time: this.timePick }))
     },
     ReloadLocusSettingsFromLocalStorage() {
       var settings_json = localStorage.getItem('locus')
       if (settings_json) {
-        this.locus_settings = JSON.parse(settings_json)
+        var store = JSON.parse(settings_json);
+        this.locus_settings = store.locus_paint
+        this.timePick = store.time
       }
     },
     CalculatTimeSpend(row) {
@@ -212,7 +237,7 @@ export default {
     }
   },
   mounted() {
-
+    this.SetDefaultTimeInterval();
     this.ReloadLocusSettingsFromLocalStorage();
     //假資料 
     this.tableData = []
