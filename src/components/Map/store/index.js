@@ -17,7 +17,7 @@ export const MapStore = createStore({
             'red',
             'purple',
         ],
-        mapBackendServer: 'http://127.0.0.1:5216'
+        mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' : `${window.location.protocol}//${window.location.host}`
     },
     getters: {
         MapData: state => {
@@ -35,6 +35,9 @@ export const MapStore = createStore({
         },
         GeoMapData: state => {
             return state.MapGeoJson
+        },
+        MapServerUrl: state => {
+            return state.mapBackendServer
         },
         MapStations: (state, actions) => {
             var mapDataSource = state.MapData
@@ -162,8 +165,7 @@ export const MapStore = createStore({
         async DownloadMapData({ commit, state }) {
 
             var axio = axios.create({
-                baseURL: process.env.NODE_ENV == 'development' ? state.mapBackendServer :
-                    `${window.location.protocol}//${window.location.host}`
+                baseURL: state.mapBackendServer
             })
 
             await axio.get('api/Map').then(response => {

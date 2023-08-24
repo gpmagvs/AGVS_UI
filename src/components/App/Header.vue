@@ -232,10 +232,13 @@ export default {
     async DownloadSystemOperationsSettings() {
       setTimeout(async () => {
         var settings = await GetOperationStates()
+        debugger
         agvs_settings_store.commit('setOperations', settings)
-        this.modes.system_operation_mode.actived = settings.system_run_mode;
-        this.modes.host_conn_mode.actived = settings.host_online_mode;
-        this.modes.host_operation_mode.actived = settings.host_remote_mode;
+        this.modes.system_operation_mode.actived = settings.system_run_mode == 1;
+        this.modes.host_conn_mode.actived = settings.host_online_mode == 1;
+        this.modes.host_operation_mode.actived = settings.host_remote_mode == 1;
+        this.modes.system_operation_mode.loading = settings.system_run_mode == 2 | settings.system_run_mode == 3
+
 
       }, 1000);
     },

@@ -328,6 +328,9 @@ export default {
     }
   },
   computed: {
+    MapServerUrl() {
+      return MapStore.getters.MapServerUrl;
+    },
     previousSelectedFeature() {
       return this.previousSelectedFeatures[0]
     },
@@ -994,7 +997,7 @@ export default {
       this.ImageLayer = new ImageLayer({
         source: new Static({
           // url: 'Map.png',
-          url: `http://127.0.0.1:5216/MapFiles/${this.map_name}.png`,
+          url: `${this.MapServerUrl}/MapFiles/${this.map_name}.png`,
           projection: projection,
           imageExtent: extent,
           imageSize: this.map_img_size,
@@ -1281,7 +1284,7 @@ export default {
 
 .options {
   text-align: left;
-  width:108px;
+  width: 108px;
   label {
     width: 100%;
     margin-right: auto;
