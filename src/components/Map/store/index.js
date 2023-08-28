@@ -20,6 +20,12 @@ export const MapStore = createStore({
         mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' : `${window.location.protocol}//${window.location.host}`
     },
     getters: {
+        MapBackednAxios: state => {
+            var axio = axios.create({
+                baseURL: state.mapBackendServer
+            })
+            return axio
+        },
         MapData: state => {
             var localStore = localStorage.getItem('mapData')
             if (state.MapData == null && localStore) {
@@ -165,12 +171,8 @@ export const MapStore = createStore({
         }
     },
     actions: {
-        async DownloadMapData({ commit, state }) {
-
-            var axio = axios.create({
-                baseURL: state.mapBackendServer
-            })
-            await axio.get('api/Map').then(response => {
+        async DownloadMapData({ commit, getters }) {
+            await getters.MapBackednAxios.get('api/Map').then(response => {
                 console.log('[MapStore] get map data', response.data);
                 commit('setMapData', response.data)
             });
@@ -189,12 +191,8 @@ export const MapStore = createStore({
             var points = state.MapData.Points
             return Object.values(points).find(pt => pt.TagNumber + '' == tag + '')
         },
-        SaveMap({ commit, state, actions }, _data) {
-            var axio = axios.create({
-                baseURL: state.mapBackendServer
-            })
-
-            return axio.post('api/Map/SaveMap', _data)
+        SaveMap({ commit, state, actions, getters }, _data) {
+            return getters.MapBackednAxios.post('api/Map/SaveMap', _data)
                 .then((ret) => {
                     return true
                 })
@@ -202,6 +200,9 @@ export const MapStore = createStore({
                     return false
                 })
         },
+        UploadCoorFunctionSwitch({ getters }, enabled) {
+            getters.MapBackednAxios.get(`api/Map/SwitchAGVUploadLocFun?enabled=${enabled}`)
+        }
 
     }
 }

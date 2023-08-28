@@ -160,6 +160,7 @@
             active-text="ON"
             inline-prompt
             v-model="agv_upload_coordination_mode"
+            @change="HandleAGVUploadCorrdinationChanged"
           ></el-switch>
         </div>
       </div>
@@ -1220,6 +1221,9 @@ export default {
       }
       this.HighLightFeaturesByStationType(highlight_station_type, 'blue')
       bus.emit('bus-show-task-allocation', data);
+    },
+    HandleAGVUploadCorrdinationChanged(enabled) {
+      MapStore.dispatch('UploadCoorFunctionSwitch', enabled)
     }
   },
 
