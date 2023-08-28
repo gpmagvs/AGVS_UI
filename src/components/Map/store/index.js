@@ -17,6 +17,7 @@ export const MapStore = createStore({
             'red',
             'purple',
         ],
+        worker: new Worker(''),
         mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' : `${window.location.protocol}//${window.location.host}`
     },
     getters: {
@@ -168,6 +169,9 @@ export const MapStore = createStore({
         },
         setAGVLocUpload(state, data) {
             state.AGVLocUpload = data
+        },
+        setWorker(state, worker) {
+            state.worker = worker;
         }
     },
     actions: {
@@ -200,8 +204,20 @@ export const MapStore = createStore({
                     return false
                 })
         },
-        UploadCoorFunctionSwitch({ getters }, enabled) {
+        UploadCoorFunctionSwitch({ commit, state, getters }, enabled) {
             getters.MapBackednAxios.get(`api/Map/SwitchAGVUploadLocFun?enabled=${enabled}`)
+            if (enabled) {
+                const worker = new Worker('websocket_worker.js')
+                worker.onmessage = (event) => {
+                    if (event.data != 'error' && event.data != 'closed')
+                        commit('setAGVLocUpload', event.data)
+                }
+                worker.postMessage({ command: 'connect', ws_url: getters.MapServerUrl.replace('http', 'ws') + '/ws/AGVLocationUpload' });
+                commit('setWorker', worker)
+
+            } else {
+                state.worker.postMessage({ command: 'disconnect' })
+            }
         }
 
     }

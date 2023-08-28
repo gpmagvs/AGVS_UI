@@ -159,6 +159,7 @@
             inactive-text="OFF"
             active-text="ON"
             inline-prompt
+            width="70"
             v-model="agv_upload_coordination_mode"
             @change="HandleAGVUploadCorrdinationChanged"
           ></el-switch>
