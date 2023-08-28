@@ -154,30 +154,32 @@ export default {
       return this.tableData.indexOf(row) + 1;
     },
     async ShowLocusHandler(row_data) {
-      if (row_data.corrdinations == undefined) {
-        try {
-          this.locus_painting = true;
-          setTimeout(async () => {
+
+      try {
+        this.locus_painting = true;
+        setTimeout(async () => {
+          if (row_data.corrdinations == undefined) {
+
             var trajData = await GetTrajectory(row_data.task_id)
             if (trajData) {
               row_data.corrdinations = trajData.coordinations.map(data => ([data.X, data.Y]))
               this.showing_row_data = row_data;
-
-              this.$refs.map.ShowLocus(row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
-              this.locus_painting = false;
             }
-          }, 300);
-        } catch (error) {
-          this.$swal.fire(
-            {
-              text: error.response.data,
-              title: '後端服務異常',
-              icon: 'error',
-              showCancelButton: false,
-              confirmButtonText: 'OK',
-              customClass: 'my-sweetalert'
-            })
-        }
+          }
+
+          this.$refs.map.ShowLocus(row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
+          this.locus_painting = false;
+        }, 300);
+      } catch (error) {
+        this.$swal.fire(
+          {
+            text: error.response.data,
+            title: '後端服務異常',
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
       }
 
     },

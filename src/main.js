@@ -22,6 +22,7 @@ import 'sweetalert2/dist/sweetalert2.min.css'
 import 'vuefinder/dist/style.css'
 import VueFinder from 'vuefinder/dist/vuefinder'
 import './BackendDataFetchWorker.js'
+import './idling_detector.js'
 
 const i18n = createI18n({
   legacy: false,
