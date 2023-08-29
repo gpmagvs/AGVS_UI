@@ -4,7 +4,7 @@ var interval = setInterval(() => {
     idleTime += 1;
     if (idleTime >= 60) {
         resetTimer()
-        location.reload()
+        //location.reload()
     }
 }, 1000);
 
