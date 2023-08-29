@@ -1203,9 +1203,7 @@ export default {
       watch(() => this.agvs_info, (newval, oldval) => {
         if (!newval)
           return
-        setTimeout(() => {
-          this.UpdateAGVLayer()
-        }, 100);
+        this.UpdateAGVLayer()
       }, { deep: true, immediate: true })
 
       bus.on('/show_agv_at_center', agv_name => {
