@@ -16,6 +16,8 @@
       <input type="text"  v-model="TaskName" placeholder="ALL"  size="20" >
       <b-button @click="QueryAlarm()" :QueryAlarm="QueryAlarm" class="Select-Query" variant="primary" size="sm"
         style="float:right">搜尋</b-button>
+      <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv" variant="primary" size="sm"
+        style="float:right">輸出csv檔</b-button>
     </div>
     <div>
       <el-table :data="alarms" empty-text="No Alarms" row-class-name="row_state_class_name" size="small"
@@ -48,6 +50,7 @@
 
 <script>
 import { QueryAlarm } from '@/api/AlarmAPI.js'
+import { SaveTocsv } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 import Notifier from '@/api/NotifyHelper'
 export default {
@@ -102,8 +105,11 @@ export default {
           Notifier.Danger('警報查詢失敗後端服務異常')
         });
       }, 300);
-
     },
+    async SaveTocsv(){
+        SaveTocsv(this.start_time, this.end_time, this.AGVSelected,this.TaskName)
+        Notifier.Primary('檔案儲存成功')
+      },
     PageChnageHandle(payload) {
       QueryAlarm(this.currentpage,this.start_time, this.end_time, this.AGVSelected,this.TaskName).then(retquery => {
         this.alarms = retquery.alarms;

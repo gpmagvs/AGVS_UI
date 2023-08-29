@@ -12,8 +12,12 @@
           <option>AGV_2</option>
           <option>AGV_3</option>>
         </select>
+      <label>任務名稱</label>
+      <input type="text"  v-model="TaskName" placeholder="ALL"  size="20" >
         <b-button @click="TaskQuery()" :TaskQuery="TaskQuery" class="Select-Query" variant="primary" size="sm"
           style="float:right">搜尋</b-button>
+        <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv" variant="primary" size="sm"
+        style="float:right">輸出csv檔</b-button>
       </div>
       <div>
         <el-table :data="tasks" empty-text="No Tasks" row-class-name="row_state_class_name" size="small"
@@ -41,6 +45,7 @@
   
   <script>
   import { TaskQuery } from '@/api/TaskAPI.js'
+  import { SaveTocsv } from '@/api/TaskAPI.js'
   import moment from 'moment'
   import Notifier from '@/api/NotifyHelper'
   export default {
@@ -49,6 +54,7 @@
         start_time: '2023-06-01 00:00:00',
         end_time: '2023-06-30 00:00:00',
         AGVSelected: 'ALL',
+        TaskName: '',
         tasks: [],
         per_page_num: 10,
         rows: 1,
@@ -57,7 +63,7 @@
       }
     },
     mounted() {
-        TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+        TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
             this.tasks = retquery.tasks
             this.rows = retquery.count;
             this.currentpage = retquery.currentpage;
@@ -80,7 +86,7 @@
         this.currentpage = 1;
         this.payload=2;
         setTimeout(() => {
-            TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+            TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
             this.tasks = retquery.tasks
             this.rows = retquery.count;
             this.currentpage = retquery.currentpage;
@@ -91,8 +97,12 @@
         }, 300);
   
       },
+      async SaveTocsv(){
+        SaveTocsv(this.start_time, this.end_time, this.AGVSelected,this.TaskName)
+        Notifier.Primary('檔案儲存成功')
+      },
       PageChnageHandle(payload) {
-        TaskQuery(this.currentpage,this.start_time, this.end_time, this.AGVSelected).then(retquery => {
+        TaskQuery(this.currentpage,this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
           this.tasks = retquery.tasks;
         }
         ).catch(er => {

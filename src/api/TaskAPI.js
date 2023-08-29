@@ -5,14 +5,16 @@ var axios_entity = axios.create({
   baseURL: param.backend_host,
 })
 /*任務歷史查詢*/
-export async function TaskQuery(currentpage, start_time, end_time, AGV_Name = 'ALL') {
-  var retquery = await axios_entity.get(`/api/TaskQuery/TaskQuery?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}`)
+export async function TaskQuery(currentpage, start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL') {
+  var retquery = await axios_entity.get(`/api/TaskQuery/TaskQuery?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`)
 
   console.info(retquery.data)
   return retquery.data;
 }
-
-
+/**輸出CSV */
+export async function SaveTocsv(start_time,end_time,AGV_Name='ALL',TaskName='ALL') {
+  await axios_entity.get(`/api/TaskQuery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`)
+}
 /**查詢任務 */
 
 export async function GetTasks(start, end, agvname) {
