@@ -255,9 +255,7 @@ export default {
       zoom_route: 2,
       center: [0, 0],
       center_route: [0, 0],
-      map_img_extent: [-20, -20, 20, 20],//32*24
-      // map_img_size: [1500, 1500],
-      map_img_size: [400, 400],
+
       _map_stations: [],
       ImageLayer: new ImageLayer(),
       /**Slam座標圖層 */
@@ -334,6 +332,12 @@ export default {
   computed: {
     MapServerUrl() {
       return MapStore.getters.MapServerUrl;
+    },
+    map_img_extent() {
+      return MapStore.getters.Map_Image_Boundary;
+    },
+    map_img_size() {
+      return MapStore.getters.Map_Image_Size;
     },
     PathesSegments() {
       return MapStore.getters.Pathes;

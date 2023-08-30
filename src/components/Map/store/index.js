@@ -18,7 +18,7 @@ export const MapStore = createStore({
             'purple',
         ],
         worker: new Worker(''),
-        mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://192.168.0.1:5216' : `${window.location.protocol}//${window.location.host}`
+        mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' : `${window.location.protocol}//${window.location.host}`
     },
     getters: {
         MapBackednAxios: state => {
@@ -33,6 +33,13 @@ export const MapStore = createStore({
                 return JSON.parse(localStore)
             }
             return state.MapData;
+        },
+        /**圖片像素 [長,寬] */
+        Map_Image_Size: state => {
+            return state.MapData.Map_Image_Size;
+        },
+        Map_Image_Boundary: state => {
+            return state.MapData.Map_Image_Boundary;
         },
         Pathes: state => {
             return state.MapData.Pathes
