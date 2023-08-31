@@ -76,7 +76,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="Comment" width="180">
+        <el-table-column label="Comment" width="240">
           <template #default="scope">
             <el-input v-model="scope.row.comment"></el-input>
           </template>
@@ -116,9 +116,10 @@
             })
           }"
           >新增動作</el-button>
+          <el-button class="mx-2" @click="HandleSaveBtnClickInDrawer" type="primary">儲存設定</el-button>
           <el-table
             row-key="no"
-            style="width:800px"
+            style="width:860px"
             border
             class="m-2"
             :data="selected_script_actions"
@@ -132,7 +133,7 @@
               </template>
             </el-table-column>
             <el-table-column label="NO." prop="no" width="60" align="center"></el-table-column>
-            <el-table-column label="動作" prop="action">
+            <el-table-column label="動作" prop="action" width="120">
               <template #default="scope">
                 <el-select class="w-100" v-model="scope.row.action" placeholder="請選擇Action">
                   <el-option label="移動" value="move"></el-option>
@@ -144,7 +145,7 @@
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="起點" prop="source_tag">
+            <el-table-column label="起點" prop="source_tag" width="250">
               <template #default="scope">
                 <el-select
                   :disabled="scope.row.action!='carry'"
@@ -161,7 +162,7 @@
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="終點" prop="destine_tag">
+            <el-table-column label="終點" prop="destine_tag" width="250">
               <template #default="scope">
                 <el-select class="w-100" v-model="scope.row.destine_tag" placeholder="請選擇終點">
                   <el-option
@@ -327,6 +328,15 @@ export default {
           customClass: 'my-sweetalert',
           timer: response.result ? 1000 : undefined
         })
+    },
+    async HandleSaveBtnClickInDrawer() {
+      this.action_drawer_visible = false
+      setTimeout(async () => {
+        await this.HandleSaveBtnClick();
+        setTimeout(() => {
+          this.action_drawer_visible = true;
+        }, 1000);
+      }, 100);
     },
     HandleDeleteHotRunAction(action) {
       var index = this.selected_script_actions.indexOf(action)

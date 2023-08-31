@@ -34,6 +34,13 @@ export const MapStore = createStore({
             }
             return state.MapData;
         },
+        /**圖片像素 [長,寬] */
+        Map_Image_Size: state => {
+            return state.MapData.Map_Image_Size;
+        },
+        Map_Image_Boundary: state => {
+            return state.MapData.Map_Image_Boundary;
+        },
         Pathes: state => {
             return state.MapData.Pathes
         },
