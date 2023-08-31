@@ -25,7 +25,7 @@ class WebSocketHelp {
   Connect() {
     console.info(`Try Connect to : ${this.ws_url}`)
     const socket = new WebSocket(`${this.ws_url}`)
-    this.SendAliveCheck()
+
     socket.onerror = (ev) => {
       console.info(`Try Connect to : ${this.ws_url} ON ＥＲＲＯＲ FAIL`)
     }
@@ -73,23 +73,7 @@ class WebSocketHelp {
     return this.wssocket.onmessage
   }
 
-  SendAliveCheck() {
-    this.alive_check_timer = setInterval(() => {
-      if (this.wssocket) {
-        if (this.wssocket.readyState == WebSocket.CONNECTING) {
-          return;
-        }
-        if (this.wssocket.readyState == WebSocket.OPEN) {
-          this.wssocket.send('alive')
-        }
 
-        if (this.wssocket.readyState != this.previousWsState && this.wssocket.readyState == WebSocket.CLOSED) {
-          this.ReconnectWorker()
-        }
-        this.previousWsState = this.wssocket.readyState
-      }
-    }, 5000)
-  }
 }
 
 export default WebSocketHelp

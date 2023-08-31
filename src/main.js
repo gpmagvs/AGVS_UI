@@ -34,9 +34,6 @@ const i18n = createI18n({
   },
 })
 
-store.commit('setConfig', { Test: '123_abc' })
-
-
 const Sweetalert_options = {
   confirmButtonColor: 'rgb(13, 110, 253)',
   cancelButtonColor: '#ff7674',
