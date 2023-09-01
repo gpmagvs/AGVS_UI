@@ -63,6 +63,8 @@
       }
     },
     mounted() {
+      const EndDate= new Date();
+    this.end_time = EndDate.toISOString().substring(0,10) + ' 00:00:00';
         TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
             this.tasks = retquery.tasks
             this.rows = retquery.count;
