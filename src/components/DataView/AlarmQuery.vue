@@ -10,12 +10,14 @@
         <option>ALL</option>
         <option>AGV_1</option>
         <option>AGV_2</option>
-        <option>AGV_3</option>>
+        <option>AGV_3</option>
       </select>
       <label>任務名稱</label>
       <input type="text"  v-model="TaskName" placeholder="ALL"  size="20" >
       <b-button @click="QueryAlarm()" :QueryAlarm="QueryAlarm" class="Select-Query" variant="primary" size="sm"
         style="float:right">搜尋</b-button>
+      <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv" variant="primary" size="sm"
+        style="float:right">輸出csv檔</b-button>
     </div>
     <div>
       <el-table :data="alarms" empty-text="No Alarms" row-class-name="row_state_class_name" size="small"
@@ -48,6 +50,7 @@
 
 <script>
 import { QueryAlarm } from '@/api/AlarmAPI.js'
+import { SaveTocsv } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 import Notifier from '@/api/NotifyHelper'
 export default {
@@ -65,6 +68,9 @@ export default {
     }
   },
   mounted() {
+    const EndDate= new Date();
+    this.end_time = EndDate.toISOString().substring(0,10) + ' 00:00:00';
+    //this.start_time = (new Date().setDate(EndDate.getDate()-7)).toISOString().substring(0,10) + ' 00:00:00';
     QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected,this.TaskName).then(retquery => {
           this.alarms = retquery.alarms
           this.rows = retquery.count;
@@ -102,8 +108,11 @@ export default {
           Notifier.Danger('警報查詢失敗後端服務異常')
         });
       }, 300);
-
     },
+    async SaveTocsv(){
+        await SaveTocsv(this.start_time, this.end_time, this.AGVSelected,this.TaskName)
+        Notifier.Primary('檔案儲存成功')
+      },
     PageChnageHandle(payload) {
       QueryAlarm(this.currentpage,this.start_time, this.end_time, this.AGVSelected,this.TaskName).then(retquery => {
         this.alarms = retquery.alarms;
