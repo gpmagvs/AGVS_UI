@@ -1,9 +1,9 @@
 <template>
   <div class="sys-settings custom-tabs-head-large p-1 w-100">
     <b-tabs>
-      <b-tab title="設備管理" active>
+      <b-tab title="AGV 電量設定 active">
         <div class="setting-tab">
-          <EQManager></EQManager>
+          <AGVBatterySetting></AGVBatterySetting>
         </div>
       </b-tab>
       <b-tab title="用戶管理">
@@ -11,14 +11,14 @@
           <UserManager ref="user_manager"></UserManager>
         </div>
       </b-tab>
-      <b-tab title="AGV 電量設定">
-        <div class="setting-tab">
-          <AGVBatterySetting></AGVBatterySetting>
-        </div>
-      </b-tab>
       <b-tab title="充電站設置">
         <div class="setting-tab">
           <ChargeStationView></ChargeStationView>
+        </div>
+      </b-tab>
+      <b-tab title="設備管理">
+        <div class="setting-tab">
+          <EQManager></EQManager>
         </div>
       </b-tab>
       <b-tab title="HOT RUN">
