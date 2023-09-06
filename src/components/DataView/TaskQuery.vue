@@ -1,6 +1,6 @@
 <template>
   <div class="Task-query">
-    <div class="query-options bg-light d-flex border-bottom w-100 py-2">
+    <div class="Task-options bg-light d-flex border-bottom w-100 py-2">
       <label>Start Time</label>
       <input type="datetime-local" v-model="start_time" prop="Start Time" />
       <label>End Time</label>
@@ -10,10 +10,10 @@
         <option>ALL</option>
         <option>AGV_1</option>
         <option>AGV_2</option>
-        <option>AGV_3</option>>
+        <option>AGV_3</option>
       </select>
       <label>任務名稱</label>
-      <input type="text" v-model="TaskName" placeholder="ALL" size="20" />
+      <input type="text" v-model="TaskName" placeholder="ALL" size="20"/>
       <b-button
         @click="TaskQuery()"
         :TaskQuery="TaskQuery"
