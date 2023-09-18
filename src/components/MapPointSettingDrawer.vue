@@ -81,9 +81,20 @@
                 </el-form-item>
                 <el-form-item label="雷射模式">
                   <el-input-number v-model="pointData_editing.LsrMode" :step="1"></el-input-number>
+                  <i
+                    class="bi bi-question-circle information"
+                    @click="HandleLaserModeInfoIconClick"
+                  ></i>
                 </el-form-item>
                 <el-form-item label="速度">
                   <el-input-number v-model="pointData_editing.Speed" :step="0.1" :precision="1"></el-input-number>
+                </el-form-item>
+                <el-form-item label="AGV閃避模式">
+                  <el-input-number v-model="pointData_editing.DodgeMode" :step="1"></el-input-number>
+                  <i
+                    class="bi bi-question-circle information"
+                    @click="HandleDodgeModeInfoIconClick"
+                  ></i>
                 </el-form-item>
               </el-form>
             </el-collapse-item>
@@ -322,7 +333,34 @@ export default {
         pt.name = point_Selected.Name;
       })
 
+    },
+    HandleDodgeModeInfoIconClick() {
+      this.show = false;
+      this.$swal.fire(
+        {
+          html: '<div class="text-start">10:取消任務時Pass站點(用於避免與WIP內AGV旋轉干涉)<br>11:地標輔助修正(用於轉角或長走道起點，AGV會追Tag中心)<br>12:里程計輔助定位(用於窄道)<br>14:里程計輔助定位、偵測色帶(用於窄道、脫離色帶會上報異常)</div>',
+          title: 'Dodge Mode',
+          icon: 'information',
+          showCancelButton: false,
+          customClass: 'my-sweetalert'
+        }).then(() => {
+          this.show = true
+        })
+    },
+    HandleLaserModeInfoIconClick() {
+      this.show = false;
+      this.$swal.fire(
+        {
+          html: '<div class="text-start">0:Bypass<br>1:Normal<br>2:二次定位<br>3:Normal_Short<br>5:Turning<br>7:Loading<br>10:Special<br>12:Narrow(窄道)<br>13:Norrow_Long</div>',
+          title: 'Laser Mode',
+          icon: 'information',
+          showCancelButton: false,
+          customClass: 'my-sweetalert'
+        }).then(() => {
+          this.show = true
+        })
     }
+
   },
 }
 </script>
@@ -354,6 +392,11 @@ export default {
       flex-direction: row;
       margin: 3px;
     }
+  }
+  .information {
+    font-size: 16px;
+    margin: auto 10px;
+    cursor: pointer;
   }
 }
 </style>

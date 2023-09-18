@@ -493,8 +493,8 @@ export class MapPointModel {
         this.Target = {
 
         }
-        this.DodgeMode = ""
-        this.SpinMode = ""
+        this.DodgeMode = 0
+        this.SpinMode = 0
         this.SubMap = ""
         this.AutoDoor = {
             KeyName: "",
