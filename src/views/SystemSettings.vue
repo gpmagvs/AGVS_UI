@@ -1,7 +1,7 @@
 <template>
   <div class="sys-settings custom-tabs-head-large p-1 w-100">
     <b-tabs>
-      <b-tab title="AGV 電量設定 active">
+      <b-tab title="AGV 電量設定" active>
         <div class="setting-tab">
           <AGVBatterySetting></AGVBatterySetting>
         </div>
