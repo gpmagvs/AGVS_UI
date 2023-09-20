@@ -8,60 +8,58 @@
     draggable
     width="800"
     fullscreen
-    style="z-index:29900"
-  >
-    <template #header="{titleId, login_title }">
+    style="z-index:29900">
+    <template #header="{ titleId, login_title }">
       <div class="login-header">
-        <h3 :id="titleId" :class="login_title">新增排程</h3>
+        <h3 :id="titleId" :class="login_title">{{ Title }}</h3>
         <el-divider></el-divider>
       </div>
     </template>
     <div class="copntent">
       <div class="d-flex text-start p-1">
-        <el-form class="border px-2" style="width:545px">
-          <el-form-item label="時間設定">
-            <el-date-picker v-model="time" type="datetime" placeholder="選擇量測時間" />
-          </el-form-item>
-          <el-form-item label="區域設定">
-            <div class="d-flex flex-column">
-              <div>
+        <div class="options border p-2" style="width:545px">
+          <div class="label"><i class="bi bi-clock"></i>時間設定</div>
+          <el-time-picker format="HH:mm" v-model="schedule_settigs.time" type="datetime" placeholder="選擇量測時間" />
+          <div class="label"><i class="bi bi-truck-front"></i>指派車輛</div>
+          <el-select format="HH:mm" v-model="schedule_settigs.agv_name" placeholder="選擇車輛">
+            <el-option
+              v-for="agv_name in AgvNameList"
+              :key="agv_name"
+              :label="agv_name"
+              :value="agv_name"></el-option>
+          </el-select>
+          <div class="label"><i class="bi bi-geo"></i>量測Bay選取</div>
+          <div class="d-flex flex-column">
+            <!-- <div>
                 <el-radio-group v-model="region_mode">
                   <el-radio label="全部區域"></el-radio>
                   <el-radio label="局部選擇"></el-radio>
                 </el-radio-group>
-              </div>
-              <div class="mx-3">已選擇Bay數量:{{ selectedBays.length }}</div>
-              <div
-                v-loading="region_mode!='局部選擇'"
-                class="border rounded"
-                element-loading-spinner="''"
-                element-loading-svg-view-box="-10, -10, 50, 50"
-                element-loading-background="rgba(122, 122, 122, 0.1)"
-              >
-                <b-tabs card>
-                  <b-tab v-for="area in 1" :key="area" :title="`Area-${area}`">
-                    <div class style="height:250px">
-                      <el-checkbox :indeterminate="!IsAllSeclted" @change="handleSelectAll">全選</el-checkbox>
-                      <el-checkbox-group v-model="selectedBays">
-                        <el-checkbox
-                          class="m-1"
-                          v-for="bay_name in BayNames"
-                          :key="bay_name"
-                          :label="bay_name"
-                        ></el-checkbox>
-                      </el-checkbox-group>
-                    </div>
-                  </b-tab>
-                </b-tabs>
+              </div> -->
+            <div
+              v-loading="region_mode != '局部選擇'"
+              class="border rounded"
+              element-loading-spinner="''"
+              element-loading-svg-view-box="-10, -10, 50, 50"
+              element-loading-background="rgba(122, 122, 122, 0.1)">
+              <div class style="height:250px">
+                <el-checkbox :indeterminate="!IsAllSeclted" @change="handleSelectAll">全選</el-checkbox>
+                <el-checkbox-group v-model="schedule_settigs.bays">
+                  <el-checkbox
+                    class="m-1"
+                    v-for="bay_name in BayNames"
+                    :key="bay_name"
+                    :label="bay_name"></el-checkbox>
+                </el-checkbox-group>
               </div>
             </div>
-          </el-form-item>
-        </el-form>
+          </div>
+        </div>
         <Map
           class="flex-fill bg-light border rounded px-1 mx-1"
           id="schedule_map"
           :agv_show="false"
-        ></Map>
+          style="padding-right: 10px;"></Map>
       </div>
     </div>
   </el-dialog>
@@ -70,7 +68,8 @@
 <script>
 import Map from '@/components/Map/Map.vue'
 import { MapStore } from '@/components/Map/store'
-
+import { agv_states_store } from '@/store'
+import moment from 'moment'
 export default {
   components: {
     Map,
@@ -78,9 +77,13 @@ export default {
   data() {
     return {
       ShowDialog: false,
-      time: '',
+      Title: '新增量測排程',
       region_mode: '局部選擇',
-      selectedBays: []
+      schedule_settigs: {
+        time: '',
+        agv_name: '',
+        bays: []
+      }
     }
   },
   computed: {
@@ -95,21 +98,24 @@ export default {
       //   return ['Bay1', 'Bay2', 'Bay3', 'Bay4', 'Bay5', 'Bay6', 'Bay7', 'Bay8', 'Bay9', 'Bay10']
     },
     IsAllSeclted() {
-      return this.BayNames.length == this.selectedBays.length | this.selectedBays.length == 0;
-    }
+      return this.BayNames.length == this.schedule_settigs.bays.length | this.schedule_settigs.bays.length == 0;
+    },
+    AgvNameList() {
+      return agv_states_store.getters.AGVNameList
+    },
 
   },
   methods: {
     EditorMode(data) {
-      this.time = data.time;
-      this.selectedBays = data.bays;
+      this.Title = '排程量測 : ' + moment(data.time).format('HH:mm')
+      this.schedule_settigs = data;
       this.ShowDialog = true;
     },
     handleSelectAll(check) {
       if (check)
-        this.selectedBays = this.BayNames;
+        this.schedule_settigs.bays = this.BayNames;
       else
-        this.selectedBays = []
+        this.schedule_settigs.bays = []
     }
   },
   mounted() {
@@ -124,5 +130,14 @@ export default {
   top: -50px;
   left: 70px;
   overflow: hidden;
+
+  .options {
+    .label {
+      font-weight: bold;
+      font-size: 20px;
+      letter-spacing: 3px;
+      margin: 10px auto;
+    }
+  }
 }
 </style>

@@ -71,7 +71,7 @@ export const tsmc_routes = [
         name: '/',
         component: () => import('@/views/TSMC/Components/TaskDispatch.vue'),
         meta: {
-          Display: "Task Dispatch"
+          Display: "車輛狀態與任務"
         }
       },
       {
@@ -86,7 +86,7 @@ export const tsmc_routes = [
         name: 'AGVLocus',
         component: () => import('@/components/DataView/AGVLocus.vue'),
         meta: {
-          Display: "AGV Locus"
+          Display: "AGV軌跡"
         }
       }
     ]
@@ -105,7 +105,8 @@ export const tsmc_routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: routes,
+  routes: tsmc_routes,
+  // routes: routes,
 })
 
 export default router

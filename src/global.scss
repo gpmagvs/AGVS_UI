@@ -1,49 +1,56 @@
-.el-table{
+.el-table {
   z-index: 1;
 }
-.card-like{
-    border: 1px solid #dadada;
-    border-radius: 10px;
-    margin: 3px;
-    background-color: white;
+
+.card-like {
+  border: 1px solid #dadada;
+  border-radius: 3px;
+  margin: 3px;
+  background-color: white;
+  padding: 2px;
+
+  .title {
+    text-align: left;
+    font-weight: bold;
+    font-size: 16px;
+    color: rgb(13, 110, 253);
+    border-bottom: 1px solid rgb(202, 202, 202);
+    margin-bottom: 1px;
     padding: 2px;
-    
-    .title{
-        text-align: left;
-        font-weight: bold;
-        font-size: 16px;
-        color:rgb(13, 110, 253);
-        border-bottom: 1px solid rgb(202, 202, 202);
-        margin-bottom: 1px;
-        padding: 2px;
-        i{
-            margin-right: 5px;
-        }
+
+    i {
+      margin-right: 5px;
     }
+  }
 }
 
-.custom-tabs-head ,.custom-tabs-head-large{
-   
-    .nav-item {
-        button {
-          font-size: 16px;
-          font-weight: bold;
-        }
-        .nav-link {
-          color: rgb(90, 90, 90);
-        }
-        .nav-link.active {
-          color: rgb(13, 110, 253);
-        }
-      }
+.custom-tabs-head,
+.custom-tabs-head-large {
+
+  .nav-item {
+    button {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .nav-link {
+      color: rgb(90, 90, 90);
+    }
+
+    .nav-link.active {
+      color: rgb(13, 110, 253);
+    }
+  }
 }
-.custom-tabs-head-large{
+
+.custom-tabs-head-large {
   .nav-item {
     button {
       font-size: 20px;
     }
   }
 }
+
 .copy-icon {
   cursor: pointer;
   margin-inline: 5px;
