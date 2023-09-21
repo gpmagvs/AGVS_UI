@@ -130,22 +130,22 @@ export const MapStore = createStore({
         AllNormalStationOptions: state => {
             //[{tag:1,name:'' }]
             var points = Object.values(state.MapData.Points)
-            var points = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `[Normal] ${pt.Name}(Tag=${pt.TagNumber})`))
+            var points = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Name}(Tag=${pt.TagNumber})`))
             return points;
         },
         AllEqStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 1).map(pt => new StationSelectOptions(pt.TagNumber, `[EQ] ${pt.Name}(Tag=${pt.TagNumber})`))
+            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 1).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Name}(Tag=${pt.TagNumber})`))
             return options;
         },
         AllChargeStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 3).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
+            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 3).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Name}(Tag=${pt.TagNumber})`))
             return options;
         },
         AllParkingStationOptions: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && pt.IsParking == true).map(pt => new StationSelectOptions(pt.TagNumber, `[Charge] ${pt.Name}(Tag=${pt.TagNumber})`))
+            var options = points.filter(pt => !pt.IsVirtualPoint && pt.IsParking == true).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Name}(Tag=${pt.TagNumber})`))
             return options;
         },
         AllPointsOptions: state => {

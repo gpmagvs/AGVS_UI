@@ -12,19 +12,24 @@
       border
       height="680"
       style="width:1800px">
-      <el-table-column label="Index" prop="index" width="80" align="center" />
-      <el-table-column label="設備名稱" prop="Name" width="220">
+      <el-table-column label="Index" prop="index" width="80" align="center" fixed="left" />
+      <el-table-column label="設備名稱" prop="Name" width="250" fixed="left">
         <template #default="scope">
-          <b-form-input
-            :state="ValidName(scope.row)"
-            v-model="scope.row.Name"
-            placeholder="設備名稱"
-            :no-wheel="true"
-            size="sm"
-            :min="1"></b-form-input>
+          <div class="d-flex">
+            <b-form-input
+              :state="ValidName(scope.row)"
+              v-model="scope.row.Name"
+              placeholder="設備名稱"
+              style="width:120px"
+              :no-wheel="true"
+              size="sm"
+              :min="1">
+            </b-form-input>
+            <b-button class="mx-1" size="sm" variant="primary" @click="HandleUseMapDataDisplayName(scope.row.TagID)">使用圖資設定</b-button>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="Tag ID" prop="TagID" width="120">
+      <el-table-column label="Tag ID" prop="TagID" width="100" align="center" fixed="left">
         <template #default="scope">
           <b-form-input
             type="number"
@@ -110,7 +115,9 @@
 <script>
 import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import RegionsSelector from '@/components/RegionsSelector.vue'
-
+import { MapStore } from '../Map/store';
+import { ElNotification } from 'element-plus';
+import { duration } from 'moment';
 export default {
   components: {
     RegionsSelector,
@@ -222,6 +229,26 @@ export default {
     },
     beforeRouteLeave(to, from, next) {
       alert('leave!')
+    },
+    async HandleUseMapDataDisplayName(tag) {
+      var mapPoint = await MapStore.dispatch('GetMapPointByTag', tag)
+      if (mapPoint) {
+        this.EqDatas.find(eq => eq.TagID == tag).Name = mapPoint.Name;
+        ElNotification({
+          message: `Get Display Name From Map Success(Tag ${tag} = ${mapPoint.Name})`,
+          duration: 1000,
+          type: 'success',
+          title: '設備同步名稱'
+        })
+      } else {
+        ElNotification({
+          message: `Get Display Name From Map Fail`,
+          duration: 1000,
+          type: 'error',
+          title: '設備同步名稱失敗'
+        })
+      }
+
     }
   },
   mounted() {
