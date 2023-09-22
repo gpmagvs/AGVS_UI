@@ -1,13 +1,22 @@
 import bus from './event-bus'
+import { GetFrontendOptions } from './api/SystemAPI';
+import { userStore } from './store';
 var idleTime = 0
-var interval = setInterval(() => {
-    idleTime += 1;
-    if (idleTime >= 60) {
-        resetTimer()
-        //location.reload()
-    }
-}, 1000);
+GetFrontendOptions().then(options => {
+    console.info(`website option downloaded:\r\n ${JSON.stringify(options)}`);
+    var interval = setInterval(() => {
+        idleTime += 1;
+        if (idleTime >= options.WebUserLogoutExipreTime) {
+            if (userStore.getters.IsLogin) {
+                userStore.dispatch('logout', null)
+                bus.emit('auto_logout_notify_invoke', "");
+            }
 
+            resetTimer();
+        }
+    }, 1000);
+
+})
 document.addEventListener('touchstart', resetTimer);
 document.addEventListener('touchmove', resetTimer);
 document.addEventListener('touchend', resetTimer);

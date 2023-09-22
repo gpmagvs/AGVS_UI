@@ -7,36 +7,30 @@
       </h3>-->
       <div
         v-if="!modes.system_operation_mode.actived"
-        class="matain-mode-notify py-2 px-3"
-      >維護模式:自動派車、充電功能已關閉。</div>
-
-      <div class="page-name-display mx-2">{{current_route_info.route_display_name}}</div>
+        class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。</div>
+      <div class="page-name-display mx-2">{{ current_route_info.route_display_name }}</div>
       <div class="flex-fill"></div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
-        <div class="op-mode-switch-container" v-for="(mode,key) in modes" :key="key">
-          <span class="mx-1">{{mode.name}}</span>
+        <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="key">
+          <span class="mx-1">{{ mode.name }}</span>
           <el-switch
             v-model="mode.actived"
             active-color="rgb(95, 171, 80)"
             inactive-color="red"
             :active-text="mode.active_text"
-            :inactive-text=" mode.inactive_text "
+            :inactive-text="mode.inactive_text"
             border-color="grey"
             inline-prompt
             :before-change="mode.beforeChangeHandler"
             :loading="mode.loading"
             size="large"
-            width="75px"
-          ></el-switch>
+            width="75px"></el-switch>
         </div>
-
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" class="mx-1" variant="light">
-                中文
-                <i class="bi bi-caret-down-fill"></i>
+              <b-button size="sm" class="mx-1" variant="light"> 中文 <i class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
@@ -50,9 +44,7 @@
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" variant="light">
-                {{ UserName }}
-                <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
+              <b-button size="sm" variant="light"> {{ UserName }} <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
@@ -62,14 +54,12 @@
                 <b-button
                   v-if="IsLogin"
                   class="my-1 bg-light text-dark"
-                  @click="LoginClickHandler('switch')"
-                >切換使用者</b-button>
+                  @click="LoginClickHandler('switch')">切換使用者</b-button>
               </div>
             </template>
           </el-popover>
         </div>
       </div>
-
       <Login ref="login" :IsLogin="IsLogin"></Login>
     </div>
     <!--Alarm-->
@@ -77,20 +67,17 @@
       <div class="alarm-container" v-bind:class="system_alarms">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
-            系統警報
-          </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 系統警報 </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
         <div class="opt">
           <div>
             <b-button
-              v-if="current_user_role!=0"
+              v-if="current_user_role != 0"
               @click="ResetSysAlarmsHandler"
               class="mb-2"
               size="sm"
-              variant="danger"
-            >警報復歸</b-button>
+              variant="danger">警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -98,9 +85,7 @@
       <div class="alarm-container" v-bind:class="equipment_alarms">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
-            設備警報
-          </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 設備警報 </span>
           <span class="alarm-text">{{ eq_alrm_text }}</span>
         </div>
         <div class="opt">
@@ -110,8 +95,7 @@
               @click="ResetEqpAlarmsHandler"
               class="mb-2"
               size="sm"
-              variant="danger"
-            >警報復歸</b-button>
+              variant="danger">警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -151,6 +135,14 @@ export default {
           inactive_text: '維護',
           loading: false,
           beforeChangeHandler: this.SysOptModeChangeRequest
+        },
+        transfer_mode: {
+          name: "派工模式",
+          enabled: false,
+          active_text: '手動',
+          inactive_text: '自動',
+          loading: false,
+          beforeChangeHandler: this.TransferModeChangeRequest
         },
         host_conn_mode: {
           name: 'HOST連線',
@@ -278,6 +270,12 @@ export default {
         }
       })
 
+    },
+    async TransferModeChangeRequest() {
+
+      if (!this.CheckUserLoginState())
+        return false;
+      return success
     },
     async SysOptModeChangeRequest() {
       if (!this.CheckUserLoginState())
@@ -434,12 +432,15 @@ export default {
 .app-header {
   z-index: 2;
   padding-left: 70px;
+
   h3 {
     margin-left: 40px;
   }
+
   h3:hover {
     cursor: pointer;
   }
+
   .alarm {
     height: 48px;
 
@@ -448,12 +449,14 @@ export default {
       flex-direction: row;
       background-color: rgb(255, 229, 234);
       border: 2px solid rgb(248, 195, 195);
+
       .type-text,
       .alarm-text {
         margin: auto 5px;
         font-weight: bold;
         float: left;
       }
+
       .type-text {
         width: 99px;
         border-radius: 13px;
@@ -463,15 +466,18 @@ export default {
         text-align: center;
         // text-decoration: underline;
       }
+
       .alarm-text {
         padding: 3px;
         font-weight: normal;
         font-size: 18px;
       }
+
       .opt {
         padding-inline: 3px;
         display: flex;
         flex-direction: row;
+
         div {
           width: 85px;
           padding-top: 3px;
@@ -481,58 +487,71 @@ export default {
           font-size: 25px;
           margin-right: 5px;
         }
+
         i:hover {
           cursor: pointer;
         }
       }
     }
+
     .alarm {
       animation: alarm_blink 2s infinite;
     }
+
     .warning {
       animation: warning_blink 1s infinite;
     }
   }
+
   .options {
     position: relative;
     top: 5px;
     margin-right: 10px;
+
     .op-mode-switch-container {
       margin-right: 5px;
       font-weight: bold;
+
       .is-text {
         font-size: 16px;
       }
     }
   }
+
   @keyframes alarm_blink {
     0% {
       background-color: red;
       color: white;
     }
+
     50% {
       background-color: rgb(255, 229, 234);
       color: red;
     }
+
     100% {
       background-color: red;
       color: white;
     }
   }
+
   @keyframes warning_blink {
     0% {
       background-color: rgb(231, 197, 85);
       color: white;
     }
+
     50% {
       background-color: rgb(255, 229, 234);
       color: black;
     }
+
     100% {
       background-color: rgb(231, 197, 85);
       color: white;
     }
   }
+
   .matain-mode-notify {
     font-weight: bold;
     font-size: 20px;
@@ -544,22 +563,26 @@ export default {
     height: 44px;
     top: 1px;
   }
+
   @keyframes blink {
     0% {
       background-color: red;
     }
+
     50% {
       background-color: red;
     }
+
     100% {
       background-color: grey;
     }
   }
+
   .page-name-display {
     font-size: 25px;
     font-weight: bold;
   }
-  .user-account {
-  }
+
+  .user-account {}
 }
 </style>

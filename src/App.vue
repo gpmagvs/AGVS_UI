@@ -3,9 +3,7 @@
     <div>
       <Header @onMenuToggleClicked="ToggleMenu"></Header>
     </div>
-
     <SideMenu></SideMenu>
-
     <div class="flex-fill" v-bind:style="router_view_style">
       <router-view v-slot="{ Component }">
         <keep-alive>
@@ -13,23 +11,19 @@
         </keep-alive>
       </router-view>
     </div>
-
     <b-modal
       v-model="ShowOKOnlyModal"
       :title="`${okOnlyModalProps.title}`"
       :centered="true"
       :okOnly="true"
       :headerBgVariant="okOnlyModalProps.title_variant"
-      headerTextVariant="light"
-    >
+      headerTextVariant="light">
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
-
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
     <MoveAGVNotifty></MoveAGVNotifty>
     <ConnectionState></ConnectionState>
   </div>
-
   <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
 </template>
 
@@ -96,7 +90,19 @@ export default {
       this.okOnlyModalProps = props;
       this.ShowOKOnlyModal = true;
     });
-
+    bus.on('auto_logout_notify_invoke', () => {
+      this.$swal.fire(
+        {
+          text: '',
+          title: '因閒置太久，已自動登出。',
+          icon: 'warning',
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(() => {
+          location.reload();
+        })
+    })
     const route = useRoute()
     watch(
       () => route.path,
@@ -165,12 +171,16 @@ nav {
     }
   }
 }
+
 body,
 html {
   height: 100%;
-  -webkit-user-select: none; /* Chrome, Safari, Opera */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE 10+ */
+  -webkit-user-select: none;
+  /* Chrome, Safari, Opera */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE 10+ */
   user-select: none;
   //overflow-x: hidden;
   // overflow-y: hidden;

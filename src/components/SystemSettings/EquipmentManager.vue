@@ -6,27 +6,30 @@
       <b-button squared @click="ReloadSettingsHandler">重新載入</b-button>
     </p>
     <el-table
-      :header-cell-style="{color:'white',backgroundColor:'rgb(13, 110, 253)',fontSize:'16px'}"
+      :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '16px' }"
       :data="EqDatas"
       size="small"
       border
       height="680"
-      style="width:1600px"
-    >
-      <el-table-column label="Index" prop="index" width="80" />
-      <el-table-column label="設備名稱" prop="Name" width="220">
+      style="width:1800px">
+      <el-table-column label="Index" prop="index" width="80" align="center" fixed="left" />
+      <el-table-column label="設備名稱" prop="Name" width="250" fixed="left">
         <template #default="scope">
-          <b-form-input
-            :state="ValidName(scope.row)"
-            v-model="scope.row.Name"
-            placeholder="設備名稱"
-            :no-wheel="true"
-            size="sm"
-            :min="1"
-          ></b-form-input>
+          <div class="d-flex">
+            <b-form-input
+              :state="ValidName(scope.row)"
+              v-model="scope.row.Name"
+              placeholder="設備名稱"
+              style="width:120px"
+              :no-wheel="true"
+              size="sm"
+              :min="1">
+            </b-form-input>
+            <b-button class="mx-1" size="sm" variant="primary" @click="HandleUseMapDataDisplayName(scope.row.TagID)">使用圖資設定</b-button>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="Tag ID" prop="TagID" width="120">
+      <el-table-column label="Tag ID" prop="TagID" width="100" align="center" fixed="left">
         <template #default="scope">
           <b-form-input
             type="number"
@@ -35,13 +38,27 @@
             placeholder="tag id"
             :no-wheel="true"
             size="sm"
-            :min="1"
-          ></b-form-input>
+            :min="1"></b-form-input>
         </template>
       </el-table-column>
       <el-table-column label="區域" prop="Region" width="130">
         <template #default="scope">
           <RegionsSelector v-model="scope.row.Region"></RegionsSelector>
+        </template>
+      </el-table-column>
+      <el-table-column label="下游設備" width="550">
+        <template #default="scope">
+          <el-select
+            v-model="scope.row.ValidDownStreamEndPointNames"
+            multiple
+            placeholder="Select"
+            style="width: 500px">
+            <el-option
+              v-for="eq_name in EqNames"
+              :key="eq_name"
+              :label="eq_name"
+              :value="eq_name" />
+          </el-select>
         </template>
       </el-table-column>
       <el-table-column label="連線方式" prop="ConnOptions.ConnMethod" width="140">
@@ -58,40 +75,36 @@
         <el-table-column label="IP" prop="ConnOptions.IP" width="220">
           <template #default="scope">
             <el-input
-              :disabled="scope.row.ConnOptions.ConnMethod==1"
+              :disabled="scope.row.ConnOptions.ConnMethod == 1"
               v-model="scope.row.ConnOptions.IP"
-              :size="cell_item_size"
-            ></el-input>
+              :size="cell_item_size"></el-input>
           </template>
         </el-table-column>
         <el-table-column label="Port" prop="ConnOptions.Port" width="120">
           <template #default="scope">
             <el-input
-              :disabled="scope.row.ConnOptions.ConnMethod==1"
+              :disabled="scope.row.ConnOptions.ConnMethod == 1"
               v-model.number="scope.row.ConnOptions.Port"
-              :size="cell_item_size"
-            ></el-input>
+              :size="cell_item_size"></el-input>
           </template>
         </el-table-column>
         <el-table-column label="ComPort" prop="ConnOptions.ComPort" width="120">
           <template #default="scope">
             <el-input
-              :disabled="scope.row.ConnOptions.ConnMethod==0"
+              :disabled="scope.row.ConnOptions.ConnMethod == 0"
               v-model="scope.row.ConnOptions.ComPort"
-              :size="cell_item_size"
-            ></el-input>
+              :size="cell_item_size"></el-input>
           </template>
         </el-table-column>
       </el-table-column>
-      <el-table-column label="操作" min-width="120">
+      <el-table-column label="操作" min-width="220" fixed="right">
         <template #default="scope">
           <div>
             <el-button :size="cell_item_size" type="danger" @click="RemoveHandle(scope.row)">移除</el-button>
             <el-button
               :size="cell_item_size"
               type="default"
-              @click="ConnectTestHandle(scope.row)"
-            >通訊測試</el-button>
+              @click="ConnectTestHandle(scope.row)">通訊測試</el-button>
           </div>
         </template>
       </el-table-column>
@@ -102,7 +115,9 @@
 <script>
 import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import RegionsSelector from '@/components/RegionsSelector.vue'
-
+import { MapStore } from '../Map/store';
+import { ElNotification } from 'element-plus';
+import { duration } from 'moment';
 export default {
   components: {
     RegionsSelector,
@@ -114,6 +129,7 @@ export default {
         // {
         //   Name: "123",
         //   TagID: 1,
+        //   ValidDownStreamEndPointNames: [],
         //   ConnOptions: {
         //     ConnMethod: 0,
         //     IP: "10.0.0.1",
@@ -213,16 +229,40 @@ export default {
     },
     beforeRouteLeave(to, from, next) {
       alert('leave!')
+    },
+    async HandleUseMapDataDisplayName(tag) {
+      var mapPoint = await MapStore.dispatch('GetMapPointByTag', tag)
+      if (mapPoint) {
+        this.EqDatas.find(eq => eq.TagID == tag).Name = mapPoint.Name;
+        ElNotification({
+          message: `Get Display Name From Map Success(Tag ${tag} = ${mapPoint.Name})`,
+          duration: 1000,
+          type: 'success',
+          title: '設備同步名稱'
+        })
+      } else {
+        ElNotification({
+          message: `Get Display Name From Map Fail`,
+          duration: 1000,
+          type: 'error',
+          title: '設備同步名稱失敗'
+        })
+      }
+
     }
   },
   mounted() {
 
     this.DownloadEQOptions();
   },
+  computed: {
+    EqNames() {
+      return this.EqDatas.map(ep => ep.Name);
+    }
+  },
 }
 </script>
 
 <style lang="scss" scoped>
-.equipment-manager {
-}
+.equipment-manager {}
 </style>

@@ -29,5 +29,11 @@
     "prefix": "swalsuccess",
     "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'success',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
     "description": "Log output to console"
+  },
+  "Show swal confirm dialog_information": {
+    "scope": "javascript,typescript",
+    "prefix": "swalinformation",
+    "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'info',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+    "description": "Log output to console"
   }
 }

@@ -66,15 +66,13 @@
             </el-form-item>
             <!--  -->
             <el-form-item label="起點" v-if="selectedAction == 'carry'">
-              <div>
-                <el-select class="w-100" v-model="sourceTag" placeholder="選擇站點">
-                  <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
-                </el-select>
-              </div>
+              <el-select class="w-100" v-model="sourceTag" @change="HandleFromSelectChanged" placeholder="選擇站點">
+                <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
+              </el-select>
             </el-form-item>
             <el-form-item label="目的地">
               <el-select class="w-100" v-model="destinTag" placeholder="選擇站點">
-                <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
+                <el-option v-for="tag in selectedAction == 'carry' ? downstream_tags : tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
               </el-select>
             </el-form-item>
             <!--  -->
@@ -111,7 +109,7 @@ import { MapStore } from '@/components/Map/store'
 import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store } from '@/store';
 import { MapPointModel } from '@/components/Map/mapjs';
-
+import { GetEQOptions } from '@/api/EquipmentAPI'
 export default {
   components: {
     MapShowVue, Map
@@ -142,10 +140,15 @@ export default {
         { tag: 50, name: '充電站(TAG-50)' },
         { tag: 70, name: '充電站(TAG-70)' },
       ],
+      downstream_tags: [
+        { tag: 1, name: '標籤1' },
+        { tag: 2, name: '標籤2' }
+      ],
       csts: [ // cst_id選項
         { tag: 1, name: '' },
       ],
-      agv_type: 0
+      agv_type: 0,
+      equipments_options: undefined
     }
   },
   computed: {
@@ -346,6 +349,24 @@ export default {
       console.info(option)
       if (option)
         this.sourceTag = MapPoint.TagNumber
+    },
+    async HandleFromSelectChanged(source_tag) {
+      this.destinTag = undefined
+      this.downstream_tags = [];
+      this.equipments_options = await GetEQOptions();
+      var source_eq = this.equipments_options.find(eq => eq.TagID == source_tag)
+      if (source_eq) {
+        var downstream_eq_names = source_eq.ValidDownStreamEndPointNames
+        console.info(downstream_eq_names)
+        var downstread_eq_options = this.equipments_options.filter(eq => downstream_eq_names.includes(eq.Name))
+        console.info(downstread_eq_options)
+        Object.values(downstread_eq_options).forEach(element => {
+          this.downstream_tags.push({
+            tag: element.TagID,
+            name: `${element.Name}(Tag=${element.TagID})`
+          })
+        });
+      }
     }
   },
   mounted() {
@@ -387,6 +408,7 @@ export default {
 
         if (this.selectedAction == 'carry') {
           this.sourceTag = data.station_data.TagNumber
+          this.HandleFromSelectChanged(this.sourceTag)
         }
         else {
           this.destinTag = data.station_data.TagNumber
