@@ -1,15 +1,13 @@
 <template>
   <div class="map-component">
-    <el-alert v-if="map_name=='Unkown'" title="圖資異常" type="warning" effect="dark" />
-
+    <el-alert v-if="map_name == 'Unkown'" title="圖資異常" type="warning" effect="dark" />
     <div class="d-flex h-100">
       <div class="flex-fill d-flex flex-column">
         <!-- 編輯選項 -->
         <div
           v-if="editable"
           class="editor-option fixed-top bg-light"
-          style="margin-top:49px;margin-left:70px"
-        >
+          style="margin-top:49px;margin-left:70px">
           <div class="edit-block action-buttons">
             <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
             <b-button variant="danger" @click="ReloadMap">重新載入</b-button>
@@ -17,8 +15,7 @@
           <div class="d-flex">
             <div class="edit-block">
               <span>
-                <i class="bi bi-three-dots-vertical"></i>模式
-              </span>
+                <i class="bi bi-three-dots-vertical"></i>模式 </span>
               <el-radio-group v-model="EditorOption.EditMode" size="large">
                 <el-radio-button size="small" label="view">檢視</el-radio-button>
                 <el-radio-button size="small" label="edit">編輯</el-radio-button>
@@ -26,24 +23,21 @@
             </div>
             <div class="edit-block d-flex">
               <span>
-                <i class="bi bi-three-dots-vertical"></i>編輯動作
-              </span>
+                <i class="bi bi-three-dots-vertical"></i>編輯動作 </span>
               <el-radio-group
-                :disabled="EditorOption.EditMode!='edit'"
+                :disabled="EditorOption.EditMode != 'edit'"
                 v-model="EditorOption.EditAction"
-                size="large"
-              >
+                size="large">
                 <el-radio-button size="small" label="none">無</el-radio-button>
                 <el-radio-button size="small" label="add-station">新增點位</el-radio-button>
                 <el-radio-button size="small" label="remove-station">移除點位</el-radio-button>
               </el-radio-group>
               <el-radio-group
                 class="mx-1"
-                :disabled="EditorOption.EditMode!='edit'"
+                :disabled="EditorOption.EditMode != 'edit'"
                 v-model="EditorOption.EditAction"
-                @change="()=>{PathEditTempStore=[]}"
-                size="large"
-              >
+                @change="() => { PathEditTempStore = [] }"
+                size="large">
                 <el-radio-button size="small" label="add-path">新增路徑</el-radio-button>
                 <el-radio-button size="small" label="remove-path">移除路徑</el-radio-button>
               </el-radio-group>
@@ -51,16 +45,14 @@
           </div>
           <div
             v-show="ShowWarningNotify"
-            class="bg-warning text-light border rounded p-1"
-          >目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作</div>
+            class="bg-warning text-light border rounded p-1">目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作</div>
         </div>
         <!-- map render -->
         <div
           :id="id"
-          v-bind:style="{height:canva_height ,marginTop:editable? ( ShowWarningNotify?'120px': '80px'):'0px'}"
+          v-bind:style="{ height: canva_height, marginTop: editable ? (ShowWarningNotify ? '120px' : '80px') : '0px' }"
           class="agv_map flex-fll"
-          @contextmenu="showContextMenu($event)"
-        >
+          @contextmenu="showContextMenu($event)">
           <div v-if="true" class="ol-control custom-buttons">
             <button @click="HandleSettingBtnClick">
               <i class="bi bi-sliders"></i>
@@ -78,14 +70,12 @@
       <!-- 設定 -->
       <div
         class="options bg-light border-start text-start px-1 py-3"
-        v-bind:style="{marginTop:editable? ( ShowWarningNotify?'120px': '80px'):'0px'}"
-      >
+        v-bind:style="{ marginTop: editable ? (ShowWarningNotify ? '120px' : '80px') : '0px' }">
         <div v-if="station_show" class="rounded d-flex flex-column">
           <span class="border-bottom">顯示名稱</span>
           <el-radio-group
             v-model="station_name_display_mode"
-            @change="StationNameDisplayOptHandler"
-          >
+            @change="StationNameDisplayOptHandler">
             <el-radio label="index" size="large">Index</el-radio>
             <el-radio label="name" size="large">Name</el-radio>
             <el-radio label="tag" size="large">Tag</el-radio>
@@ -102,8 +92,7 @@
             inline-prompt
             inactive-text="路網"
             active-text="Slam"
-            inactive-color="seagreen"
-          ></el-switch>
+            inactive-color="seagreen"></el-switch>
         </div>
         <div v-if="agv_show">
           <span class="mx-1">AGV 顯示</span>
@@ -116,8 +105,7 @@
             inline-prompt
             inactive-text="隱藏"
             active-text="顯示"
-            inactive-color="rgb(146, 148, 153)"
-          ></el-switch>
+            inactive-color="rgb(146, 148, 153)"></el-switch>
         </div>
         <div>
           <span class="mx-1">Slam底圖</span>
@@ -130,10 +118,8 @@
             inactive-color="rgb(146, 148, 153)"
             inline-prompt
             width="70"
-            @change="SlamImageDisplayOptHandler"
-          ></el-switch>
+            @change="SlamImageDisplayOptHandler"></el-switch>
         </div>
-
         <div>
           <span class="mx-1">路網顯示</span>
           <el-switch
@@ -143,13 +129,11 @@
             inline-prompt
             inactive-color="rgb(146, 148, 153)"
             width="70"
-            @change="(visible)=>{
+            @change="(visible) => {
               PointLinksLayer.setVisible(visible);
               HideNormalStations(!visible);
-            }"
-          ></el-switch>
+            }"></el-switch>
         </div>
-
         <div v-if="editable" class="rounded">
           <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
             <span class="mx-1">AGV上報點位模式</span>
@@ -161,21 +145,17 @@
             inline-prompt
             width="70"
             v-model="agv_upload_coordination_mode"
-            @change="HandleAGVUploadCorrdinationChanged"
-          ></el-switch>
+            @change="HandleAGVUploadCorrdinationChanged"></el-switch>
         </div>
       </div>
     </div>
-
     <PointContextMenu
       ref="EditModeContextMenu"
       v-show="editModeContextMenuVisible"
-      :mouse_click_position="[contextMenuTop,contextMenuLeft]"
+      :mouse_click_position="[contextMenuTop, contextMenuLeft]"
       :options="contextMenuOptions"
       @OnTaskBtnClick="HandleMenuTaskBtnClick"
-      @OnPtSettingBtnClick="HandlePtSettingBtnClick"
-    ></PointContextMenu>
-
+      @OnPtSettingBtnClick="HandlePtSettingBtnClick"></PointContextMenu>
     <MapPointSettingDrawer ref="ptsetting" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
   </div>
 </template>
@@ -397,7 +377,6 @@ export default {
 
     },
     UpdateStationPathLayer() {
-      debugger
       var source = this.PointLinksLayer.getSource();
       source.clear();
       var stationLinkPathes = [];
@@ -1238,6 +1217,7 @@ export default {
   width: 100%;
   height: 100%;
 }
+
 .custom-buttons {
   // top: 133px;
   text-align: right;
@@ -1246,22 +1226,26 @@ export default {
   margin-top: 55px;
   padding-left: 7px;
   height: 300px;
+
   button {
     border: 1px solid #d5d5d5;
     border-radius: 3px;
     height: 22px;
     width: 24px;
   }
+
   button:hover {
     cursor: pointer;
     border: 0.01rem solid black;
   }
 }
+
 .cursour-coordination-show {
   z-index: 0;
   padding-left: 37px;
   margin-top: 10px;
   width: 120px;
+
   span {
     font-weight: bold;
   }
@@ -1277,21 +1261,25 @@ export default {
 .options {
   text-align: left;
   width: 108px;
+
   label {
     width: 100%;
     margin-right: auto;
     height: 25px;
   }
+
   div {
     display: flex;
     flex-direction: column;
     margin-bottom: 6px;
     padding: 3px;
+
     span {
       border-bottom: 1px solid gainsboro;
       font-weight: bold;
     }
   }
+
   .el-switch {
     position: relative;
     top: 6px;
@@ -1311,18 +1299,21 @@ export default {
       margin-right: 5px;
     }
   }
+
   .edit-block {
     font-size: 15px;
     font-weight: bold;
     display: flex;
     flex-direction: row;
     padding: 5px;
+
     span {
       text-align: left;
       margin-right: 10px;
     }
   }
 }
+
 .agv_map {
   width: 100%;
 }

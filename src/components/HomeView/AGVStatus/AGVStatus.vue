@@ -3,15 +3,13 @@
     <div class="title">
       <i class="bi bi-three-dots-vertical"></i>車輛狀態 STATUS
     </div>
-
     <el-tabs class="px-1" tab-position="top">
       <el-tab-pane
         v-for="group in Groups"
         :key="group.group"
-        :label=" `${group.group_name}(${group.agv_states.length})`"
-      >
+        :label="`${group.group_name}(${group.agv_states.length})`">
         <el-table
-          :header-cell-style="{color:'black',backgroundColor:'rgb(241, 241, 241)'}"
+          :header-cell-style="{ color: 'black', backgroundColor: 'rgb(241, 241, 241)' }"
           :data="group.agv_states"
           size="small"
           height="93%"
@@ -19,11 +17,10 @@
           :row-class-name="connected_class"
           highlight-current-row
           style="width:100%"
-          @row-click="HandleRowClick"
-        >
+          @row-click="HandleRowClick">
           <el-table-column label="車輛名稱" prop="AGV_Name" width="90px" type="index">
             <template #default="scope">
-              <b>{{scope.row.AGV_Name.toUpperCase() }}</b>
+              <b>{{ scope.row.AGV_Name.toUpperCase() }}</b>
             </template>
           </el-table-column>
           <!-- <el-table-column label="AGV ID" prop="AGV_ID"></el-table-column> -->
@@ -33,10 +30,9 @@
               <div class="online-status-div">
                 <el-tag
                   effect="dark"
-                  @click="ShowOnlineStateChangeModal(scope.row.AGV_Name,scope.row.OnlineStatus,scope.row.Model)"
-                  :type="scope.row.OnlineStatus ==0?'danger':'success'"
-                >
-                  <b>{{ scope.row.OnlineStatus==1?'ONLINE':'OFFLINE' }}</b>
+                  @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
+                  :type="scope.row.OnlineStatus == 0 ? 'danger' : 'success'">
+                  <b>{{ scope.row.OnlineStatus == 1 ? 'ONLINE' : 'OFFLINE' }}</b>
                 </el-tag>
               </div>
             </template>
@@ -46,25 +42,22 @@
             prop="MainStatus"
             :formatter="AGVStatusFormatter"
             align="center"
-            width="130"
-          >
+            width="130">
             <template #default="scope">
               <div>
                 <el-tag effect="dark" :type="AGV_Status_TagType(scope.row.MainStatus)">
-                  <b>{{AGVStatusFormatter(scope.row)}}</b>
+                  <b>{{ AGVStatusFormatter(scope.row) }}</b>
                 </el-tag>
               </div>
             </template>
           </el-table-column>
-
           <el-table-column label="位置" prop="StationName" align="left">
             <template #default="scope">
               <div>
                 <i
                   class="bi bi-geo-alt-fill"
                   style="font-size:20px;cursor:pointer"
-                  @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"
-                ></i>
+                  @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
                 <b>{{ scope.row.StationName }}</b>
               </div>
             </template>
@@ -90,8 +83,7 @@
                     :animated="true"
                     v-bind:class="BatteryClass(scope.row.BatteryLevel)"
                     :value="scope.row.BatteryLevel"
-                    :label="`${((scope.row.BatteryLevel / 100) * 100).toFixed(2)}%`"
-                  ></b-progress-bar>
+                    :label="`${((scope.row.BatteryLevel / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                 </b-progress>
               </div>
             </template>
@@ -103,18 +95,14 @@
                   class="w-100 m-1"
                   @click="ShowTaskAllocationView(scope.row)"
                   size="sm"
-                  variant="primary"
-                >
-                  <i class="bi bi-bus-front"></i>任務
-                </b-button>
+                  variant="primary">
+                  <i class="bi bi-bus-front"></i>任務 </b-button>
                 <b-button
                   class="w-100 m-1"
                   @click="ShowAGVChargeConfirmDialog(scope.row)"
                   size="sm"
-                  variant="success"
-                >
-                  <i class="bi bi-lightning-charge-fill"></i>充電
-                </b-button>
+                  variant="success">
+                  <i class="bi bi-lightning-charge-fill"></i>充電 </b-button>
               </div>
             </template>
           </el-table-column>
@@ -131,8 +119,7 @@
       @ok="SendOnlineStateChangeRequest"
       :no-close-on-esc="true"
       header-bg-variant="warning"
-      header-text-variant="light"
-    >
+      header-text-variant="light">
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
   </div>
@@ -180,7 +167,7 @@ export default {
         });
         return;
       }
-      bus.emit('bus-show-task-allocation', { agv_name: clsAgvStatus.AGV_Name, action: '', station_data: undefined });
+      bus.emit('bus-show-task-allocation', { agv_name: clsAgvStatus.AGV_Name, agv_type: clsAgvStatus.Model, action: '', station_data: undefined });
     },
     ShowOnlineStateChangeModal(agv_name, current_online_status, Model) {
 
@@ -349,6 +336,8 @@ export default {
           return 'GPM AGV'
         else if (group_enum == 2)
           return 'YUNTECH AGV'
+        else if (group_enum == 3)
+          return '巡檢 AGV'
         else
           return 'GROUP'
       }
@@ -386,14 +375,17 @@ export default {
   .online-status-div:hover {
     cursor: pointer;
   }
+
   .agv-row-no-operation {
     .cell {
       padding: 8px 11px;
     }
   }
+
   .connect {
     background-color: rgb(229, 255, 240);
   }
+
   .disconnect {
     background-color: rgb(255, 184, 182);
   }
@@ -401,9 +393,11 @@ export default {
   .batter-full-level {
     background-color: rgb(57, 194, 57);
   }
+
   .batter-mid-level {
     background-color: orange;
   }
+
   .batter-low-level {
     background-color: red;
   }

@@ -8,17 +8,15 @@
       direction="btt"
       :modal="false"
       :z-index="123"
-      @closed="HandleDrawerClosed"
-    >
+      @closed="HandleDrawerClosed">
       <template #header>
         <div class="d-flex">
           <el-button
-            @click="()=>{show=false}"
+            @click="() => { show = false }"
             size="large"
             style="margin-left:53px;font-size:larger;"
-            type="primary"
-          >←返回(ESC)</el-button>
-          <h3 class="flex-fill text-center">Local任務派送-車輛:{{selectedAGVName }}</h3>
+            type="primary">←返回(ESC)</el-button>
+          <h3 class="flex-fill text-center">Local任務派送-車輛:{{ selectedAGVName }}</h3>
         </div>
       </template>
       <div class="drawer-content border-top" v-loading="wait_task_confirm">
@@ -30,18 +28,16 @@
                   v-for="agv_name in AgvNameList"
                   :key="agv_name"
                   :label="agv_name"
-                  :value="agv_name"
-                ></el-option>
+                  :value="agv_name"></el-option>
               </el-select>
             </el-form-item>
-
             <el-form-item label="AGV任務動作">
               <el-select
+                v-if="agv_type != 2"
                 class="w-100"
                 v-model="selectedAction"
                 placeholder="請選擇Action"
-                @change="ActionChangeHandler"
-              >
+                @change="ActionChangeHandler">
                 <el-option label="移動" value="move"></el-option>
                 <el-option label="停車" value="park"></el-option>
                 <el-option label="搬運" value="carry"></el-option>
@@ -49,10 +45,27 @@
                 <el-option label="取貨" value="unload"></el-option>
                 <el-option label="充電" value="charge"></el-option>
               </el-select>
+              <!-- 巡檢AGV使用 -->
+              <el-select
+                v-else
+                class="w-100"
+                v-model="selectedAction"
+                placeholder="請選擇Action"
+                @change="ActionChangeHandler">
+                <el-option label="移動" value="move"></el-option>
+                <el-option label="交換電池" value="exchange_battery"></el-option>
+                <el-option label="巡檢量測" value="measure"></el-option>
+                <el-option label="進Bay" value="measure"></el-option>
+                <el-option label="出Bay" value="measure"></el-option>
+                <!-- <el-option label="停車" value="park"></el-option> -->
+                <!-- <el-option label="搬運" value="carry"></el-option>
+                <el-option label="放貨" value="load"></el-option>
+                <el-option label="取貨" value="unload"></el-option>
+                <el-option label="充電" value="charge"></el-option> -->
+              </el-select>
             </el-form-item>
-
             <!--  -->
-            <el-form-item label="起點" v-if="selectedAction=='carry'">
+            <el-form-item label="起點" v-if="selectedAction == 'carry'">
               <div>
                 <el-select class="w-100" v-model="sourceTag" placeholder="選擇站點">
                   <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
@@ -65,26 +78,23 @@
               </el-select>
             </el-form-item>
             <!--  -->
-
             <el-form-item
-              v-if="selectedAction === 'carry'|selectedAction === 'load'|selectedAction === 'unload'"
-              label="Cassttle ID"
-            >
+              v-if="selectedAction === 'carry' | selectedAction === 'load' | selectedAction === 'unload'"
+              label="Cassttle ID">
               <el-input class="w-100" v-model="Cst_ID_Input" placeholder="請選擇cst_id"></el-input>
             </el-form-item>
             <el-form-item>
               <b-button
                 class="w-100 my-2"
                 @click="TaskDeliveryBtnClickHandle"
-                variant="primary"
-              >派送任務</b-button>
+                variant="primary">派送任務</b-button>
               <b-button class="w-100" @click="HandleNavPathPreviewBtnClick" variant="default">預覽路徑</b-button>
             </el-form-item>
           </el-form>
-          <Map 
-          canva_height="750px" id="task_allocation_map" class="w-100 border rounded mx-2" ref="_map"></Map>
+          <Map
+            canva_height="750px" id="task_allocation_map" class="w-100 border rounded mx-2" ref="_map"></Map>
         </div>
-        <div v-if="selectedAction=='charge'" class="img charge"></div>
+        <div v-if="selectedAction == 'charge'" class="img charge"></div>
         <div v-else class="img delivery"></div>
       </div>
     </el-drawer>
@@ -134,7 +144,8 @@ export default {
       ],
       csts: [ // cst_id選項
         { tag: 1, name: '' },
-      ]
+      ],
+      agv_type: 0
     }
   },
   computed: {
@@ -338,7 +349,7 @@ export default {
     }
   },
   mounted() {
-    bus.on('bus-show-task-allocation', (data = { agv_name: undefined, action: '', station_data: new MapPointModel() }) => {
+    bus.on('bus-show-task-allocation', (data = { agv_name: undefined, agv_type: 0, action: '', station_data: new MapPointModel() }) => {
       if (!this.IsUserLogin) {
         setTimeout(() => {
 
@@ -358,7 +369,7 @@ export default {
         }, 200);
         return;
       }
-
+      this.agv_type = data.agv_type
       this.sourceTag = undefined;
       this.destinTag = undefined;
       this.selectedAGVName = undefined;
@@ -393,16 +404,19 @@ export default {
     display: flex;
     flex-direction: row;
     padding-left: 50px;
+
     .title {
       width: 120px;
     }
   }
+
   .drawer-content {
     height: 100%;
     width: 100%;
     padding-left: 76px;
     position: absolute;
     top: 67px;
+
     .img {
       width: 200px;
       height: 200px;
@@ -416,6 +430,7 @@ export default {
     .delivery {
       background-image: url("@/assets/images/fast-delivery.png");
     }
+
     .charge {
       background-image: url("@/assets/images/charging-station.png");
     }

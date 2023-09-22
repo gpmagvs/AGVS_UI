@@ -6,4 +6,5 @@ export class clsAgvStatus {
   Running_Status = 'Idle'
   Carrier_ID = 'TA12345678'
   Battery_Level = 50
+  AGV_Type = 2
 }

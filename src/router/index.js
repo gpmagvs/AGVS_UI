@@ -105,8 +105,8 @@ export const tsmc_routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: tsmc_routes,
-  // routes: routes,
+  //routes: tsmc_routes,
+  routes: routes,
 })
 
 export default router
