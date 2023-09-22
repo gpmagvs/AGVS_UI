@@ -85,6 +85,7 @@ export const MapStore = createStore({
             return map_stations
         },
         BaysData: state => {
+            debugger
             if (state.MapData)
                 return state.MapData.Bays
             else
@@ -141,6 +142,11 @@ export const MapStore = createStore({
         AllChargeStation: state => {
             var points = Object.values(state.MapData.Points)
             var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 3).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Name}(Tag=${pt.TagNumber})`))
+            return options;
+        },
+        AllExangeBatteryStation: state => {
+            var points = Object.values(state.MapData.Points)
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 16 | pt.StationType == 3)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Name}(Tag=${pt.TagNumber})`))
             return options;
         },
         AllParkingStationOptions: state => {

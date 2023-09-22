@@ -55,8 +55,8 @@
                 <el-option label="移動" value="move"></el-option>
                 <el-option label="交換電池" value="exchange_battery"></el-option>
                 <el-option label="巡檢量測" value="measure"></el-option>
-                <el-option label="進Bay" value="measure"></el-option>
-                <el-option label="出Bay" value="measure"></el-option>
+                <el-option label="進Bay" value="in-bay"></el-option>
+                <el-option label="出Bay" value="out-bay"></el-option>
                 <!-- <el-option label="停車" value="park"></el-option> -->
                 <!-- <el-option label="搬運" value="carry"></el-option>
                 <el-option label="放貨" value="load"></el-option>
@@ -72,7 +72,7 @@
             </el-form-item>
             <el-form-item label="目的地">
               <el-select class="w-100" v-model="destinTag" placeholder="選擇站點">
-                <el-option v-for="tag in selectedAction == 'carry' ? downstream_tags : tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
+                <el-option v-for="tag in DetermineDestinOptions()" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
               </el-select>
             </el-form-item>
             <!--  -->
@@ -106,7 +106,7 @@ import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import MapShowVue from '../MapShow.vue';
 import Map from '@/components/Map/Map.vue'
 import { MapStore } from '@/components/Map/store'
-import { TaskAllocation, clsMoveTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
+import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store } from '@/store';
 import { MapPointModel } from '@/components/Map/mapjs';
 import { GetEQOptions } from '@/api/EquipmentAPI'
@@ -176,6 +176,18 @@ export default {
     },
     IsUserLogin() {
       return userStore.getters.level != 0
+    },
+    bay_names() {
+
+      var bay_data = MapStore.getters.BaysData;
+      return Object.keys(bay_data).map(bay_name => ({
+        tag: bay_name,
+        name: bay_name
+      }))
+
+    },
+    exchanger_options() {
+      return MapStore.getters.AllExangeBatteryStation;
     }
   },
   methods: {
@@ -192,6 +204,18 @@ export default {
         this.Map.HighLightFeaturesByStationType(3, highlight_color);
     },
     HandleNavPathPreviewBtnClick() {
+    },
+    DetermineDestinOptions() {
+
+      if (this.selectedAction == 'measure')
+        return this.bay_names;
+      else if (this.selectedAction == 'carry')
+        return this.downstream_tags;
+      else if (this.selectedAction == 'exchange_battery')
+        return this.exchanger_options;
+      else
+        return this.tags;
+
     },
     TaskDeliveryBtnClickHandle() {
       if (!this.selectedAGVName) {
@@ -282,6 +306,10 @@ export default {
         response = await TaskAllocation.MoveTask(new clsMoveTaskData(this.selectedAGVName, this.destinTag));
       }
 
+      if (this.selectedAction == 'measure') {
+        debugger
+        response = await TaskAllocation.MoveTask(new clsMeasureTaskData(this.selectedAGVName, this.destinTag));
+      }
       if (this.selectedAction == 'load') {
         response = await TaskAllocation.LoadTask(new clsLoadTaskData(this.selectedAGVName, this.destinTag, 1, this.Cst_ID_Input));
       }
@@ -292,6 +320,10 @@ export default {
 
       if (this.selectedAction == 'carry') {
         response = await TaskAllocation.CarryTask(new clsCarryTaskData(this.selectedAGVName, this.sourceTag, 1, this.destinTag, 1, this.Cst_ID_Input));
+      }
+      if (this.selectedAction == 'exchange_battery') {
+        debugger
+        response = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(this.selectedAGVName, this.destinTag));
       }
       if (this.selectedAction == 'charge') {
         response = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.selectedAGVName, this.destinTag));

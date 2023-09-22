@@ -21,6 +21,19 @@ export class clsMoveTaskData {
   }
 }
 
+export class clsMeasureTaskData {
+  constructor(agv_name, bay_name, Priority = 50) {
+    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.Action = 6
+    this.DesignatedAGVName = agv_name
+    this.From_Station = '-1'
+    this.From_Slot = '-1'
+    this.To_Station = bay_name
+    this.To_Slot = '-1'
+    this.Carrier_ID = '-1'
+    this.Priority = Priority
+  }
+}
 export class clsLoadTaskData {
   constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
     this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
@@ -63,6 +76,19 @@ export class clsChargeTaskData {
   }
 }
 
+export class clsExangeBatteryTaskData {
+  constructor(agv_name, to_tag, Priority = 50) {
+    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.Action = 14
+    this.DesignatedAGVName = agv_name
+    this.From_Station = '-1'
+    this.From_Slot = '-1'
+    this.To_Station = to_tag + ''
+    this.To_Slot = '-1'
+    this.Carrier_ID = '-1'
+    this.Priority = Priority
+  }
+}
 export class clsParkTaskData {
   constructor(agv_name, to_tag, Priority = 50) {
     this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
@@ -118,6 +144,9 @@ export var TaskAllocation = {
   async MoveTask(clsMoveTaskData = new clsMoveTaskData('agv', 1)) {
     return await CallAPI('/api/Task/Move', clsMoveTaskData)
   },
+  async MeasureTask(clsMoveTaskData = new clsMoveTaskData('agv', 1)) {
+    return await CallAPI('/api/Task/Move', clsMoveTaskData)
+  },
   async LoadTask(clsLoadTaskData = new clsLoadTaskData('agv', 1, 1, 'CST_ID')) {
     return await CallAPI('/api/Task/Load', clsLoadTaskData)
   },
@@ -131,6 +160,9 @@ export var TaskAllocation = {
   },
   async ChargeTask(clsChargeTaskData) {
     return await CallAPI('/api/Task/Charge', clsChargeTaskData)
+  },
+  async ExangeBatteryTask(clsExangeBatteryTaskData) {
+    return await CallAPI('/api/Task/ExangeBattery', clsExangeBatteryTaskData)
   },
   async ParkTask(clsChargeTaskData) {
     return await CallAPI('/api/Task/Park', clsChargeTaskData)
