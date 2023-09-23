@@ -17,49 +17,56 @@
     </template>
     <div class="copntent">
       <div class="d-flex text-start p-1">
-        <div class="options border p-2" style="width:545px">
-          <div class="label"><i class="bi bi-clock"></i>時間設定</div>
-          <el-time-picker format="HH:mm" v-model="schedule_settigs.time" type="datetime" placeholder="選擇量測時間" />
-          <div class="label"><i class="bi bi-truck-front"></i>指派車輛</div>
-          <el-select format="HH:mm" v-model="schedule_settigs.agv_name" placeholder="選擇車輛">
-            <el-option
-              v-for="agv_name in AgvNameList"
-              :key="agv_name"
-              :label="agv_name"
-              :value="agv_name"></el-option>
-          </el-select>
-          <div class="label"><i class="bi bi-geo"></i>量測Bay選取</div>
-          <div class="d-flex flex-column">
-            <!-- <div>
-                <el-radio-group v-model="region_mode">
-                  <el-radio label="全部區域"></el-radio>
-                  <el-radio label="局部選擇"></el-radio>
-                </el-radio-group>
-              </div> -->
-            <div
-              v-loading="region_mode != '局部選擇'"
-              class="border rounded"
-              element-loading-spinner="''"
-              element-loading-svg-view-box="-10, -10, 50, 50"
-              element-loading-background="rgba(122, 122, 122, 0.1)">
-              <div class style="height:250px">
-                <el-checkbox :indeterminate="!IsAllSeclted" @change="handleSelectAll">全選</el-checkbox>
-                <el-checkbox-group v-model="schedule_settigs.bays">
-                  <el-checkbox
-                    class="m-1"
-                    v-for="bay_name in BayNames"
-                    :key="bay_name"
-                    :label="bay_name"></el-checkbox>
-                </el-checkbox-group>
+        <div class="options border p-2" style="width:700px">
+          <div class="border rounded p-2 my-2">
+            <div class="label"><i class="bi bi-clock"></i>時間設定</div>
+            <el-time-picker format="HH:mm" v-model="schedule_settigs.time" type="datetime" placeholder="選擇量測時間" />
+          </div>
+          <div class="border rounded  p-2 my-2">
+            <div class="label"><i class="bi bi-truck-front"></i>指派車輛</div>
+            <el-select v-model="schedule_settigs.agv_name" placeholder="選擇車輛">
+              <el-option
+                v-for="agv_name in AgvNameList"
+                :key="agv_name"
+                :label="agv_name"
+                :value="agv_name"></el-option>
+            </el-select>
+          </div>
+          <div class="border rounded  p-2 my-2">
+            <div class="label"><i class="bi bi-geo"></i>量測Bay選取</div>
+            <div class="d-flex flex-column">
+            </div>
+            <div>
+              <div class style="height:350px">
+                <el-table border :data="BayTableData" @selection-change="handleSelectionChange">
+                  <el-table-column type="selection" label="選取">
+                  </el-table-column>
+                  <el-table-column prop="BayName" label="Bay"></el-table-column>
+                  <el-table-column prop="BayName" label="量測點">
+                    <template #default="scope">
+                      <el-select v-model="scope.row.SelectedPointNames" multiple>
+                        <el-option v-for="pt in scope.row.PointNames" :key="pt" :label="pt" :value="pt"></el-option>
+                      </el-select>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="量測順序">
+                    <template #default="scope">
+                      <el-select v-model="scope.row.Sequence">
+                        <el-option v-for="Sequence in SequenceList" :key="Sequence" :label="Sequence" :value="Sequence"></el-option>
+                      </el-select>
+                    </template>
+                  </el-table-column>
+                </el-table>
               </div>
             </div>
           </div>
+          <b-button :disabled="schedule_settigs.SelectedBays.length == 0 || schedule_settigs.agv_name == '' || schedule_settigs.time == ''" @click="HandleAddNewScheduleClick" style="cursor: pointer;" class="w-100 my-3" variant="primary">新增排程</b-button>
         </div>
         <Map
-          class="flex-fill bg-light border rounded px-1 mx-1"
+          class=" bg-light border rounded px-1 mx-1"
           id="schedule_map"
           :agv_show="false"
-          style="padding-right: 10px;"></Map>
+          style="padding-right: 10px;width: 900px;"></Map>
       </div>
     </div>
   </el-dialog>
@@ -70,6 +77,7 @@ import Map from '@/components/Map/Map.vue'
 import { MapStore } from '@/components/Map/store'
 import { agv_states_store } from '@/store'
 import moment from 'moment'
+import { GetBayTable } from '@/api/MeasureScript'
 export default {
   components: {
     Map,
@@ -82,8 +90,25 @@ export default {
       schedule_settigs: {
         time: '',
         agv_name: '',
-        bays: []
-      }
+        bays: [],
+        SelectedBays: []
+      },
+      BayTableData: [
+        {
+          BayName: 'Bay1',
+          PointNames: ['AAA12', '2', '3'],
+          SelectedPointNames: ['AAA12', '3'],
+          Sequence: 1
+        },
+        {
+          BayName: 'Bay2',
+          PointNames: ['1', '2', '3'],
+          SelectedPointNames: ['1', '3'],
+          Sequence: 2
+        }
+      ],
+      SequenceList: []
+
     }
   },
   computed: {
@@ -102,7 +127,7 @@ export default {
     },
     AgvNameList() {
       return agv_states_store.getters.AGVNameList
-    },
+    }
 
   },
   methods: {
@@ -116,9 +141,23 @@ export default {
         this.schedule_settigs.bays = this.BayNames;
       else
         this.schedule_settigs.bays = []
+    },
+    HandleAddNewScheduleClick() {
+      alert(JSON.stringify(this.schedule_settigs))
+    },
+    handleSelectionChange(vals) {
+      this.schedule_settigs.SelectedBays = vals;
     }
   },
   mounted() {
+    GetBayTable().then(dat => {
+      this.BayTableData = dat;
+      this.SequenceList = []
+      var bays_count = this.BayTableData.length;
+      for (let index = 0; index < bays_count; index++) {
+        this.SequenceList.push(index + 1)
+      }
+    })
   },
 
 }
@@ -137,6 +176,10 @@ export default {
       font-size: 20px;
       letter-spacing: 3px;
       margin: 10px auto;
+
+      i {
+        margin-right: 4px;
+      }
     }
   }
 }

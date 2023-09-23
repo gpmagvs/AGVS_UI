@@ -5,18 +5,17 @@
         <el-button
           class="my-1"
           type="danger"
-          @click="()=>{
+          @click="() => {
             hotRunScripts.push({
-                no : hotRunScripts.length+1,
-                agv_name: undefined,
-                loop_num: 10,
-                finish_num: 0,
-                action_num: 9,
-                state: 'IDLE',
-                actions: []
+              no: hotRunScripts.length + 1,
+              agv_name: undefined,
+              loop_num: 10,
+              finish_num: 0,
+              action_num: 9,
+              state: 'IDLE',
+              actions: []
             })
-        }"
-        >新增動作</el-button>
+          }">新增動作</el-button>
         <el-button @click="HandleSaveBtnClick" type="primary">儲存設定</el-button>
       </div>
       <el-table row-key="no" :data="hotRunScripts" :default-expand-all="false" border>
@@ -29,8 +28,7 @@
                   v-for="agv_name in AgvNameList"
                   :key="agv_name"
                   :label="agv_name"
-                  :value="agv_name"
-                ></el-option>
+                  :value="agv_name"></el-option>
               </el-select>
             </div>
           </template>
@@ -40,8 +38,7 @@
             <div>
               <el-tag
                 effect="dark"
-                :type="scope.row.state=='Running'?'success':'warning'"
-              >{{scope.row.state }}</el-tag>
+                :type="scope.row.state == 'Running' ? 'success' : 'warning'">{{ scope.row.state }}</el-tag>
             </div>
           </template>
         </el-table-column>
@@ -50,7 +47,6 @@
             <div>{{ scope.row.finish_num }}/{{ scope.row.loop_num }}</div>
           </template>
         </el-table-column>
-
         <el-table-column label="Loop次數" prop="finish_num" width="120" align="center">
           <template #default="scope">
             <el-input-number
@@ -58,8 +54,7 @@
               style="width:80px"
               :step="1"
               :precision="0"
-              v-model="scope.row.loop_num"
-            ></el-input-number>
+              v-model="scope.row.loop_num"></el-input-number>
           </template>
         </el-table-column>
         <el-table-column label="動作數" width="140">
@@ -68,11 +63,11 @@
               <span class="mx-2">{{ scope.row.actions.length }}</span>
               <el-button
                 size="small"
-                @click="()=>{action_drawer_visible=true;
-                    selected_script_name =scope.row.agv_name;
-                    selected_script_actions = scope.row.actions;
-                    }"
-              >動作設定</el-button>
+                @click="() => {
+                  action_drawer_visible = true;
+                  selected_script_name = scope.row.agv_name;
+                  selected_script_actions = scope.row.actions;
+                }">動作設定</el-button>
             </div>
           </template>
         </el-table-column>
@@ -85,45 +80,40 @@
           <template #default="scope">
             <div>
               <el-button
-                :type="scope.row.state=='Running'?'danger':'success'"
+                :type="scope.row.state == 'Running' ? 'danger' : 'success'"
                 size="small"
-                @click="HandleStartBtnClick(scope.row)"
-              >{{ scope.row.state=='Running'?'中止':'執行' }}</el-button>
-
+                @click="HandleStartBtnClick(scope.row)">{{ scope.row.state == 'Running' ? '中止' : '執行' }}</el-button>
               <el-button size="small" @click="HandleDeleteScript(scope.row)" type="danger">刪除</el-button>
             </div>
           </template>
         </el-table-column>
       </el-table>
       <el-drawer v-model="action_drawer_visible" direction="rtl" size="50%">
-        <template #header="{  titleId, titleClass }">
+        <template #header="{ titleId, titleClass }">
           <h4
             class="text-danger px-5 text-center"
             :id="titleId"
-            :class="titleClass"
-          >HOT RUN Actions Setting : {{ selected_script_name }}</h4>
+            :class="titleClass">HOT RUN Actions Setting : {{ selected_script_name }}</h4>
         </template>
         <div class="px-2 text-start">
           <el-button
             class="mx-2"
             type="danger"
-            @click="()=>{
-            selected_script_actions.push({
-              no :selected_script_actions.length+1,
-              action: 'move',
-              source_tag: undefined,
-              destine_tag: undefined
-            })
-          }"
-          >新增動作</el-button>
+            @click="() => {
+              selected_script_actions.push({
+                no: selected_script_actions.length + 1,
+                action: 'move',
+                source_tag: undefined,
+                destine_tag: undefined
+              })
+            }">新增動作</el-button>
           <el-button class="mx-2" @click="HandleSaveBtnClickInDrawer" type="primary">儲存設定</el-button>
           <el-table
             row-key="no"
             style="width:860px"
             border
             class="m-2"
-            :data="selected_script_actions"
-          >
+            :data="selected_script_actions">
             <el-table-column width="50">
               <template #default="scope">
                 <div class="text-start w-100">
@@ -142,46 +132,49 @@
                   <el-option label="放貨" value="load"></el-option>
                   <el-option label="取貨" value="unload"></el-option>
                   <el-option label="充電" value="charge"></el-option>
+                  <el-option label="巡檢量測" value="measure"></el-option>
                 </el-select>
               </template>
             </el-table-column>
             <el-table-column label="起點" prop="source_tag" width="250">
               <template #default="scope">
                 <el-select
-                  :disabled="scope.row.action!='carry'"
+                  :disabled="scope.row.action != 'carry'"
                   class="w-100"
                   v-model="scope.row.source_tag"
-                  placeholder="請選擇起點"
-                >
+                  placeholder="請選擇起點">
                   <el-option
                     v-for="option in GetOption(scope.row.action)"
                     :key="option"
                     :label="option.name"
-                    :value="option.tag"
-                  ></el-option>
+                    :value="option.tag"></el-option>
                 </el-select>
               </template>
             </el-table-column>
             <el-table-column label="終點" prop="destine_tag" width="250">
               <template #default="scope">
-                <el-select class="w-100" v-model="scope.row.destine_tag" placeholder="請選擇終點">
+                <el-select v-if="scope.row.action != 'measure'" class="w-100" v-model="scope.row.destine_tag" placeholder="請選擇終點">
                   <el-option
                     v-for="option in GetOption(scope.row.action)"
                     :key="option"
                     :label="option.name"
-                    :value="option.tag"
-                  ></el-option>
+                    :value="option.tag"></el-option>
+                </el-select>
+                <el-select v-else class="w-100" v-model="scope.row.destine_name" placeholder="請選擇終點">
+                  <el-option
+                    v-for="option in GetOption(scope.row.action)"
+                    :key="option"
+                    :label="option.name"
+                    :value="option.tag"></el-option>
                 </el-select>
               </template>
             </el-table-column>
-
             <el-table-column>
               <template #default="scope">
                 <el-button
                   @click="HandleDeleteHotRunAction(scope.row)"
                   size="small"
-                  type="danger"
-                >Delete</el-button>
+                  type="danger">Delete</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -239,6 +232,8 @@ export default {
         return this.stock_tags
       if (action == 'charge')
         return this.chargable_tags
+      if (action == 'measure')
+        return this.bay_tags
     },
     action_move_up(action_data) {
       var index = this.selected_script_actions.indexOf(action_data)
@@ -372,6 +367,13 @@ export default {
     stock_tags() { return MapStore.getters.AllEqStation },
     chargable_tags() { return MapStore.getters.AllChargeStation },
     parkable_tags() { return MapStore.getters.AllParkingStationOptions },
+    bay_tags() {
+      var bay_data = MapStore.getters.BaysData;
+      return Object.keys(bay_data).map(bay_name => ({
+        tag: bay_name,
+        name: bay_name
+      }))
+    },
     hot_run_states() {
       return agv_states_store.getters.HotRunStates
     }
