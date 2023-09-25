@@ -17,4 +17,13 @@ export async function GetSchedules() {
     var response = await axios_entity.get('/api/InstrumentMeasure/GetMeasureSchedules');
     return response.data;
 }
-
+/**刪除排程 */
+export async function DeleteSchedule(time, agv_name) {
+    var response = await axios_entity.delete(`/api/InstrumentMeasure/DeleteSchedule?time=${time}&agv_name=${agv_name}`);
+    return response.data;
+}
+/**新增排程量測 */
+export async function AddNewMeasureSchedule(schedule) {
+    var response = await axios_entity.post('/api/InstrumentMeasure/AddNewMeasureSchedule', schedule);
+    return response.data;
+}

@@ -44,6 +44,7 @@
                 <el-option label="放貨" value="load"></el-option>
                 <el-option label="取貨" value="unload"></el-option>
                 <el-option label="充電" value="charge"></el-option>
+                <el-option v-if="IsDeveloper" label="巡檢量測" value="measure"></el-option>
               </el-select>
               <!-- 巡檢AGV使用 -->
               <el-select

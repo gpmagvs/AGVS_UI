@@ -6,7 +6,7 @@
           <div>
             <b-button
               @click="() => {
-                $refs.schedule_add_helper.ShowDialog = true
+                $refs.schedule_add_helper.Show()
               }"
               variant="primary">新增排程</b-button>
           </div>
@@ -28,7 +28,7 @@
               <el-table-column label="操作" min-width="150">
                 <template #default="scope">
                   <el-button size="small" type="primary" @click="EditBtnClickHandler">檢視</el-button>
-                  <el-button size="small" type="danger">刪除</el-button>
+                  <el-button size="small" type="danger" @click="HandleDeleteScheduleClick(scope.row)">刪除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -39,15 +39,15 @@
         <div class=" p-2 border"></div>
       </b-tab>
     </b-tabs>
-    <NewScheduleHelper ref="schedule_add_helper"></NewScheduleHelper>
-    <NewScheduleHelper :edit_mode="true" ref="schedule_edit_helper"></NewScheduleHelper>
+    <NewScheduleHelper @on_submit="HandleSchedulesChanged" ref="schedule_add_helper"></NewScheduleHelper>
+    <NewScheduleHelper @on_submit="HandleSchedulesChanged" :edit_mode="true" ref="schedule_edit_helper"></NewScheduleHelper>
   </div>
 </template>
 
 <script>
 import NewScheduleHelper from './NewScheduleHelper.vue'
 import moment from 'moment'
-import { GetSchedules } from '@/api/MeasureResultAPI.js'
+import { GetSchedules, DeleteSchedule } from '@/api/MeasureResultAPI.js'
 export default {
   components: {
     NewScheduleHelper,
@@ -79,11 +79,31 @@ export default {
         this.$refs.schedule_edit_helper.EditorMode(clone_)
       }, 0.5);
     },
+    async HandleDeleteScheduleClick(row) {
+      this.$swal.fire(
+        {
+          html: `<b>時間:</b>${row.Time} <br/><b>AGV:</b>${row.AGVName} `,
+          title: '確定要刪除此排程?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(async (ret) => {
+          if (ret.isConfirmed) {
+            await DeleteSchedule(row.Time, row.AGVName)
+            this.GetSchedulesFromBackend();
+          }
+        })
+
+    },
     FormatTime(row, column, cellValue, index) {
       return moment(cellValue).format("HH:mm")
     },
     async GetSchedulesFromBackend() {
       this.SecheulData = await GetSchedules()
+    },
+    HandleSchedulesChanged() {
+      this.GetSchedulesFromBackend();
     }
   },
   mounted() {
