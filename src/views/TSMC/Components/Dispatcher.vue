@@ -17,12 +17,14 @@
               :data="SecheulData"
               highlight-current-row
               @row-click="(row, column, event) => { selectedScheduleData = row }">
-              <el-table-column label="No" width="80">
+              <!-- <el-table-column label="No" width="80">
                 <template #default="scope">排程-{{ GetRowIndex(scope.row) + 1 }}</template>
+              </el-table-column> -->
+              <el-table-column label="時間" min-width="160" prop="Time"></el-table-column>
+              <el-table-column label="車輛" min-width="160" prop="AGVName"></el-table-column>
+              <el-table-column label="Bay數量" min-width="160" prop="Bays">
+                <template #default="scope"> {{ scope.row.Bays.length }} </template>
               </el-table-column>
-              <el-table-column label="時間" min-width="160" prop="time" :formatter="FormatTime"></el-table-column>
-              <el-table-column label="車輛" min-width="160" prop="agv_name"></el-table-column>
-              <el-table-column label="Bay數量" min-width="160" prop="bay_num"></el-table-column>
               <el-table-column label="操作" min-width="150">
                 <template #default="scope">
                   <el-button size="small" type="primary" @click="EditBtnClickHandler">檢視</el-button>
@@ -38,13 +40,14 @@
       </b-tab>
     </b-tabs>
     <NewScheduleHelper ref="schedule_add_helper"></NewScheduleHelper>
-    <NewScheduleHelper ref="schedule_edit_helper"></NewScheduleHelper>
+    <NewScheduleHelper :edit_mode="true" ref="schedule_edit_helper"></NewScheduleHelper>
   </div>
 </template>
 
 <script>
 import NewScheduleHelper from './NewScheduleHelper.vue'
 import moment from 'moment'
+import { GetSchedules } from '@/api/MeasureResultAPI.js'
 export default {
   components: {
     NewScheduleHelper,
@@ -53,24 +56,11 @@ export default {
     return {
       SecheulData: [
         {
-          time: '1991/12/20 12:10:20',
-          bays: ['Bay1'],
-          bay_num: 1,
-          agv_name: 'AGV_001'
+          Time: '1991/12/20 12:10:20',
+          Bays: [],
+          AGVName: 'AGV_001',
+          ScriptName: 'script_name',
         },
-        {
-          time: '2023/08/01 12:23:23',
-          bays: ['Bay1', 'Bay2'],
-          bay_num: 2,
-          agv_name: 'AGV_001'
-        },
-        {
-          time: '1997/04/18 00:00:33',
-          bays: ['Bay1', 'Bay2', 'Bay3'],
-          bay_num: 3,
-          agv_name: 'AGV_001'
-        },
-
       ],
       selectedScheduleData: {},
       ShowScheduleDetail: false
@@ -82,12 +72,22 @@ export default {
     },
     EditBtnClickHandler() {
       setTimeout(() => {
-        this.$refs.schedule_edit_helper.EditorMode(this.selectedScheduleData)
+        var dateStr = moment(Date.now()).format('yyyy/MM/DD')
+        var clone_ = JSON.parse(JSON.stringify(this.selectedScheduleData))
+
+        clone_.Time = dateStr + ' ' + clone_.Time;
+        this.$refs.schedule_edit_helper.EditorMode(clone_)
       }, 0.5);
     },
     FormatTime(row, column, cellValue, index) {
       return moment(cellValue).format("HH:mm")
+    },
+    async GetSchedulesFromBackend() {
+      this.SecheulData = await GetSchedules()
     }
+  },
+  mounted() {
+    this.GetSchedulesFromBackend();
   },
 }
 </script>

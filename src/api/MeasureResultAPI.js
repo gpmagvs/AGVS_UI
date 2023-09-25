@@ -12,3 +12,9 @@ export async function Query(option = clsQueryOptions) {
     return response.data;
 }
 
+/**取得排程量測資料 */
+export async function GetSchedules() {
+    var response = await axios_entity.get('/api/InstrumentMeasure/GetMeasureSchedules');
+    return response.data;
+}
+

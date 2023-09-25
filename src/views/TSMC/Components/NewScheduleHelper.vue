@@ -20,11 +20,11 @@
         <div class="options border p-2" style="width:700px">
           <div class="border rounded p-2 my-2">
             <div class="label"><i class="bi bi-clock"></i>時間設定</div>
-            <el-time-picker format="HH:mm" v-model="schedule_settigs.time" type="datetime" placeholder="選擇量測時間" />
+            <el-time-picker format="HH:mm" v-model="schedule_settigs.Time" type=" time" placeholder="選擇量測時間" />
           </div>
           <div class="border rounded  p-2 my-2">
             <div class="label"><i class="bi bi-truck-front"></i>指派車輛</div>
-            <el-select v-model="schedule_settigs.agv_name" placeholder="選擇車輛">
+            <el-select v-model="schedule_settigs.AGVName" placeholder="選擇車輛" style="width: 220px">
               <el-option
                 v-for="agv_name in AgvNameList"
                 :key="agv_name"
@@ -38,13 +38,13 @@
             </div>
             <div>
               <div class style="height:350px">
-                <el-table border :data="BayTableData" @selection-change="handleSelectionChange">
+                <el-table border :data="BayTableData" ref="table_ref" @selection-change="handleSelectionChange">
                   <el-table-column type="selection" label="選取">
                   </el-table-column>
-                  <el-table-column prop="BayName" label="Bay"></el-table-column>
-                  <el-table-column prop="BayName" label="量測點">
+                  <el-table-column prop="BayName" label="Bay名稱" width="100"></el-table-column>
+                  <el-table-column prop="BayName" label="量測點" width="400">
                     <template #default="scope">
-                      <el-select v-model="scope.row.SelectedPointNames" multiple>
+                      <el-select v-model="scope.row.SelectedPointNames" multiple style="width: 100%">
                         <el-option v-for="pt in scope.row.PointNames" :key="pt" :label="pt" :value="pt"></el-option>
                       </el-select>
                     </template>
@@ -60,7 +60,7 @@
               </div>
             </div>
           </div>
-          <b-button :disabled="schedule_settigs.SelectedBays.length == 0 || schedule_settigs.agv_name == '' || schedule_settigs.time == ''" @click="HandleAddNewScheduleClick" style="cursor: pointer;" class="w-100 my-3" variant="primary">新增排程</b-button>
+          <b-button :disabled="schedule_settigs.AGVName == '' || schedule_settigs.Time == ''" @click="HandleAddNewScheduleClick" style="cursor: pointer;" class="w-100 my-3" variant="primary"> {{ edit_mode ? '修改' : '新增排程' }} </b-button>
         </div>
         <Map
           class=" bg-light border rounded px-1 mx-1"
@@ -82,16 +82,22 @@ export default {
   components: {
     Map,
   },
+  props: {
+    edit_mode: {
+      type: Boolean,
+      default: false
+    },
+  },
   data() {
     return {
       ShowDialog: false,
       Title: '新增量測排程',
       region_mode: '局部選擇',
       schedule_settigs: {
-        time: '',
-        agv_name: '',
-        bays: [],
-        SelectedBays: []
+        Time: '1991/12/20 12:10:20',
+        Bays: [],
+        AGVName: 'AGV_001',
+        ScriptName: 'script_name',
       },
       BayTableData: [
         {
@@ -123,7 +129,7 @@ export default {
       //   return ['Bay1', 'Bay2', 'Bay3', 'Bay4', 'Bay5', 'Bay6', 'Bay7', 'Bay8', 'Bay9', 'Bay10']
     },
     IsAllSeclted() {
-      return this.BayNames.length == this.schedule_settigs.bays.length | this.schedule_settigs.bays.length == 0;
+      return this.BayNames.length == this.schedule_settigs.Bays.length | this.schedule_settigs.Bays.length == 0;
     },
     AgvNameList() {
       return agv_states_store.getters.AGVNameList
@@ -132,21 +138,40 @@ export default {
   },
   methods: {
     EditorMode(data) {
-      this.Title = '排程量測 : ' + moment(data.time).format('HH:mm')
+      this.Title = `排程量測 - ${moment(data.Time).format('HH:mm')}`;
       this.schedule_settigs = data;
+
+      //決定要勾選哪幾個Row
+      setTimeout(() => {
+        data.Bays.forEach(bay => {
+          var bay_name = bay.BayName;
+          var row = this.BayTableData.find(bay_row => bay_row.BayName == bay_name)
+          if (row) {
+            row.SelectedPointNames = bay.SelectedPointNames
+            row.Sequence = bay.Sequence
+            this.$refs["table_ref"].toggleRowSelection(row, true);
+          }
+        });
+
+
+      }, 200);
+
       this.ShowDialog = true;
     },
     handleSelectAll(check) {
       if (check)
-        this.schedule_settigs.bays = this.BayNames;
+        this.schedule_settigs.Bays = this.BayNames;
       else
-        this.schedule_settigs.bays = []
+        this.schedule_settigs.Bays = []
     },
     HandleAddNewScheduleClick() {
       alert(JSON.stringify(this.schedule_settigs))
     },
     handleSelectionChange(vals) {
-      this.schedule_settigs.SelectedBays = vals;
+      //this.SelectedBays = vals;
+      debugger
+      this.schedule_settigs.Bays = []
+
     }
   },
   mounted() {
