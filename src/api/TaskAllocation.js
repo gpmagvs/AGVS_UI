@@ -144,8 +144,9 @@ export var TaskAllocation = {
   async MoveTask(clsMoveTaskData = new clsMoveTaskData('agv', 1)) {
     return await CallAPI('/api/Task/Move', clsMoveTaskData)
   },
-  async MeasureTask(clsMoveTaskData = new clsMoveTaskData('agv', 1)) {
-    return await CallAPI('/api/Task/Move', clsMoveTaskData)
+  /**量測任務 */
+  async MeasureTask(clsMeasureTaskData = new clsMeasureTaskData('agv', 1)) {
+    return await CallAPI('/api/Task/Measure', clsMeasureTaskData)
   },
   async LoadTask(clsLoadTaskData = new clsLoadTaskData('agv', 1, 1, 'CST_ID')) {
     return await CallAPI('/api/Task/Load', clsLoadTaskData)

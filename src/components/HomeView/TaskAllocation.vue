@@ -309,7 +309,7 @@ export default {
 
       if (this.selectedAction == 'measure') {
         debugger
-        response = await TaskAllocation.MoveTask(new clsMeasureTaskData(this.selectedAGVName, this.destinTag));
+        response = await TaskAllocation.MeasureTask(new clsMeasureTaskData(this.selectedAGVName, this.destinTag));
       }
       if (this.selectedAction == 'load') {
         response = await TaskAllocation.LoadTask(new clsLoadTaskData(this.selectedAGVName, this.destinTag, 1, this.Cst_ID_Input));

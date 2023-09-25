@@ -78,7 +78,7 @@ import { MapStore } from '@/components/Map/store'
 import { agv_states_store } from '@/store'
 import moment from 'moment'
 import { GetBayTable } from '@/api/MeasureScript'
-import { AddNewMeasureSchedule } from '@/api/MeasureResultAPI.js'
+import { AddNewMeasureSchedule, ModifyMeasureSchedule } from '@/api/MeasureResultAPI.js'
 
 export default {
   components: {
@@ -97,6 +97,10 @@ export default {
       region_mode: '局部選擇',
       selected_row: {},
       previous_seq: 0,
+      modified: {
+        Time: '',
+        AGVName: ''
+      },
       schedule_settigs: {
         Time: '1991/12/20 12:10:20',
         Bays: [],
@@ -150,9 +154,11 @@ export default {
     },
     EditorMode(data) {
       this.CreateDafualt(false);
-      this.Title = `排程量測 - ${moment(data.Time).format('HH:mm')}`;
+      var time = moment(data.Time).format('HH:mm');
+      this.Title = `排程量測 - ${time}`;
+      this.modified.Time = time
+      this.modified.AGVName = data.AGVName
       this.schedule_settigs = data;
-
       //決定要勾選哪幾個Row
       setTimeout(() => {
         var selected_baynames = data.Bays.map(bay => bay.BayName)
@@ -211,11 +217,16 @@ export default {
           customClass: 'my-sweetalert'
         }).then(async (ret) => {
           if (ret.isConfirmed) {
-            var result = await AddNewMeasureSchedule(submit_data)
+
+            var result = { result: false, message: '' }
+            if (this.edit_mode)
+              result = await ModifyMeasureSchedule(this.modified.Time, this.modified.AGVName, submit_data)
+            else
+              result = await AddNewMeasureSchedule(submit_data)
             this.$swal.fire(
               {
                 text: '',
-                title: result.result ? '新增成功' : '新增失敗',
+                title: this.edit_mode ? (result.result ? '修改成功' : '修改失敗') : (result.result ? '新增成功' : '新增失敗'),
                 icon: result.result ? 'success' : 'error',
                 showCancelButton: false,
                 confirmButtonText: 'OK',

@@ -27,3 +27,8 @@ export async function AddNewMeasureSchedule(schedule) {
     var response = await axios_entity.post('/api/InstrumentMeasure/AddNewMeasureSchedule', schedule);
     return response.data;
 }
+/**修改量測排程 */
+export async function ModifyMeasureSchedule(time, agv_name, schedule) {
+    var response = await axios_entity.post(`/api/InstrumentMeasure/ModifyMeasureSchedule?time=${time}&agv_name=${agv_name}`, schedule);
+    return response.data;
+}

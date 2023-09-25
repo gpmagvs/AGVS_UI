@@ -101,6 +101,11 @@ export const tsmc_routes = [
     name: 'alarm',
     component: AlarmView,
   },
+  {
+    path: '/data',
+    name: 'data',
+    component: DataVue,
+  },
 ]
 
 const router = createRouter({
