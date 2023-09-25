@@ -44,7 +44,7 @@
                   <el-table-column prop="BayName" label="Bay名稱" width="100"></el-table-column>
                   <el-table-column prop="BayName" label="量測點" width="400">
                     <template #default="scope">
-                      <el-select v-model="scope.row.SelectedPointNames" multiple style="width: 100%">
+                      <el-select v-model="scope.row.SelectedPointNames" multiple style="width: 100%" @change="HandlePointsSelectedChange">
                         <el-option v-for="pt in scope.row.PointNames" :key="pt" :label="pt" :value="pt"></el-option>
                       </el-select>
                     </template>
@@ -164,14 +164,28 @@ export default {
       else
         this.schedule_settigs.Bays = []
     },
+    HandleSelectionChange(selection) {
+      alert(JSON.stringify(selection))
+
+    },
+    HandleRowClick(row, column, cell, event) {
+      alert(JSON.stringify(row))
+
+    },
     HandleAddNewScheduleClick() {
       alert(JSON.stringify(this.schedule_settigs))
     },
     handleSelectionChange(vals) {
       //this.SelectedBays = vals;
-      debugger
-      this.schedule_settigs.Bays = []
 
+      this.schedule_settigs.Bays = []
+      vals.forEach(row => {
+        this.schedule_settigs.Bays.push(row)
+      })
+      debugger
+    },
+    HandlePointsSelectedChange(points) {
+      alert(JSON.stringify(points))
     }
   },
   mounted() {
