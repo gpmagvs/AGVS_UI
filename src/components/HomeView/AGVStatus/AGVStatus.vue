@@ -74,16 +74,23 @@
             </el-table-column>
           </el-table-column>
           -->
-          <el-table-column label="載物ID" prop="CurrentCarrierID"></el-table-column>
+          <el-table-column v-if="group.group == 0 || group.group == 1" label="載物ID" prop="CurrentCarrierID"></el-table-column>
           <el-table-column label="電量" prop="BatteryLevel" width="120">
             <template #default="scope">
               <div>
                 <b-progress class="flex-fill" :max="100" :min="0" animated>
                   <b-progress-bar
                     :animated="true"
-                    v-bind:class="BatteryClass(scope.row.BatteryLevel)"
-                    :value="scope.row.BatteryLevel"
-                    :label="`${((scope.row.BatteryLevel / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                    v-bind:class="BatteryClass(scope.row.BatteryLevel_1)"
+                    :value="scope.row.BatteryLevel_1"
+                    :label="`${((scope.row.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                </b-progress>
+                <b-progress v-if="scope.row.BatteryLevel_2 != -1.0" class="flex-fill my-1" :max="100" :min="0" animated>
+                  <b-progress-bar
+                    :animated="true"
+                    v-bind:class="BatteryClass(scope.row.BatteryLevel_2)"
+                    :value="scope.row.BatteryLevel_2"
+                    :label="`${((scope.row.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                 </b-progress>
               </div>
             </template>
@@ -102,7 +109,7 @@
                   @click="ShowAGVChargeConfirmDialog(scope.row)"
                   size="sm"
                   variant="success">
-                  <i class="bi bi-lightning-charge-fill"></i>充電 </b-button>
+                  <i class="bi bi-lightning-charge-fill"></i> {{ group.group == 3 ? '交換電池' : '充電' }} </b-button>
               </div>
             </template>
           </el-table-column>

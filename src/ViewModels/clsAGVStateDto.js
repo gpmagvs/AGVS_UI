@@ -9,13 +9,14 @@ class clsAGVStateDto {
       this.OnlineStatus = 0
       this.CurrentLocation = ''
       this.CurrentCarrierID = ''
-      this.BatteryLevel = 0
+      this.BatteryLevel_1 = 0
+      this.BatteryLevel_2 = 0
       this.TaskName = ''
       this.TaskRunStatus = 0
       this.TaskRunAction = 0
       this.Theta = 0
       this.Connected = false
-      this.StationName=''
+      this.StationName = ''
       this.Group = 0
     } else {
       this.AGV_Name = dto.AGV_Name
@@ -25,13 +26,14 @@ class clsAGVStateDto {
       this.OnlineStatus = dto.OnlineStatus
       this.CurrentLocation = dto.CurrentLocation
       this.CurrentCarrierID = dto.CurrentCarrierID
-      this.BatteryLevel = dto.BatteryLevel
+      this.BatteryLevel_1 = dto.BatteryLevel_1
+      this.BatteryLevel_2 = dto.BatteryLevel_2
       this.TaskName = dto.TaskName
       this.TaskRunStatus = dto.TaskRunStatus
       this.TaskRunAction = dto.TaskRunAction
       this.Theta = dto.Theta
       this.Connected = dto.Connected
-      this.StationName=dto.StationName
+      this.StationName = dto.StationName
       this.Group = dto.Group
     }
   }
