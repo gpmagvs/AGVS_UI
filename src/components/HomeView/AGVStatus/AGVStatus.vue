@@ -171,6 +171,23 @@ export default {
     },
     ShowOnlineStateChangeModal(agv_name, current_online_status, Model) {
 
+      if (!this.IsLogin) {
+        this.$swal.fire(
+          {
+            text: '',
+            title: '沒有請求車子上下線的權限，請先進行登入',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '登入',
+            cancelButtonText: '取消',
+            customClass: 'my-sweetalert'
+          }).then(response => {
+            if (response.isConfirmed) {
+              bus.emit('/show-login-view-invoke', '');
+            }
+          })
+        return;
+      }
       this.OnlineStatusReq.AGV_Name = agv_name;
       this.OnlineStatusReq.Online_Status = current_online_status == 0 ? 'Online' : 'Offline';
       this.OnlineStatusReq.Model = Model;
