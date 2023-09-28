@@ -30,7 +30,7 @@
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
       </el-table-column>
       <el-table-column fixed="right" label="派工人員" prop="DispatcherName"></el-table-column>
-      <el-table-column v-if="taskCancelable" fixed="right" width="100">
+      <el-table-column v-show="taskCancelable" fixed="right" width="100">
         <template #default="scope">
           <div>
             <b-button size="sm" variant="danger" @click="CancelTaskHandler(scope.row.TaskName)">取消任務</b-button>

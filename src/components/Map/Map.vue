@@ -108,7 +108,7 @@
             inactive-color="rgb(146, 148, 153)"></el-switch>
         </div>
         <div>
-          <span class="mx-1">Slam底圖</span>
+          <span class="mx-1">地圖背景</span>
           <el-switch
             v-model="map_image_display"
             inactive-value="none"

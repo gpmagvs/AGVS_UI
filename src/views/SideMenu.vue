@@ -2,12 +2,9 @@
   <div class="side-menu-fixed fixed-left">
     <div class>
       <!--  -->
-
       <el-tooltip placement="right" content="Home">
-        <div v-bind:style="Selected('/')" class="side-item" @click="PageSwitch('/','Home')">
-          <div class="logo-text">
-            GPM
-            <div class="log-sub-text">AGVS</div>
+        <div v-bind:style="Selected('/')" class="side-item" @click="PageSwitch('/', 'Home')">
+          <div class="logo-text"> GPM <div class="log-sub-text">AGVS</div>
           </div>
         </div>
       </el-tooltip>
@@ -16,8 +13,7 @@
         <div
           v-bind:style="Selected('/alarm')"
           class="side-item"
-          @click="PageSwitch('/alarm','系統警報')"
-        >
+          @click="PageSwitch('/alarm', '系統警報')">
           <div class="menu-icon round">
             <img src="images/alarm.png" :height="icon_size" alt />
           </div>
@@ -36,41 +32,35 @@
           </div>
         </div>
       </el-tooltip>-->
-      <!--  -->
       <el-tooltip placement="right" content="圖資管理">
         <div
           v-bind:style="Selected('/map')"
           v-show="IsUserLogin"
           class="side-item"
-          @click="PageSwitch('/map','圖資管理')"
-        >
+          @click="PageSwitch('/map', '圖資管理')">
           <div class="menu-icon round">
             <img src="images/map.png" :height="icon_size" alt />
           </div>
         </div>
       </el-tooltip>
-      <!--  -->
       <el-tooltip placement="right" content="資料">
-        <div v-bind:style="Selected('/data')" class="side-item" @click="PageSwitch('/data','資料')">
+        <div v-bind:style="Selected('/data')" class="side-item" @click="PageSwitch('/data', '資料')">
           <div class="menu-icon round">
             <img src="images/database.png" :height="icon_size" alt />
           </div>
         </div>
       </el-tooltip>
-      <!--  -->
       <el-tooltip placement="right" content="系統設定">
         <div
           v-bind:style="Selected('/sys_settings')"
           v-show="IsUserLogin"
           class="side-item"
-          @click="PageSwitch('/sys_settings','系統設定')"
-        >
+          @click="PageSwitch('/sys_settings', '系統設定')">
           <div class="menu-icon round">
             <img src="images/settings.png" :height="icon_size" alt />
           </div>
         </div>
       </el-tooltip>
-      <!--  -->
     </div>
   </div>
 </template>
@@ -143,22 +133,26 @@ export default {
     cursor: pointer;
     height: 80px;
     width: 100%;
+
     .menu-icon {
       background-color: white;
       margin: 5px 5px;
       width: 50px;
       height: 50px;
       padding: 10px;
+
       img {
         position: relative;
         right: 3px;
         bottom: 3px;
       }
     }
+
     .logo-text {
       font-size: 24px;
       font-weight: bold;
       padding: 0;
+
       .log-sub-text {
         font-size: 20px;
         position: relative;
@@ -167,6 +161,7 @@ export default {
       }
     }
   }
+
   .side-item:hover {
     background-color: rgb(13, 110, 253);
   }

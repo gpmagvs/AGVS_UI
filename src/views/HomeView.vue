@@ -2,9 +2,9 @@
   <div class="home-view h-100 w-100 d-flex flex-row custom-tabs-head">
     <div class="left-col border-right flex-fill">
       <AGVStatusVue></AGVStatusVue>
-      <TaskStatusVue height="330px"></TaskStatusVue>
+      <TaskStatusVue height="500px"></TaskStatusVue>
     </div>
-    <b-tabs v-bind:style="{width:'60%'}" @activate-tab="TabActiveHandle">
+    <b-tabs v-bind:style="{ width: '60%' }" @activate-tab="TabActiveHandle">
       <b-tab title="地圖">
         <div style="height:800px" class="border">
           <HomeMap></HomeMap>
@@ -12,12 +12,11 @@
         </div>
       </b-tab>
       <b-tab title="設備狀態">
-        <div style="height:800px" class="border">
+        <div class="border w-100">
           <EQStatus></EQStatus>
         </div>
       </b-tab>
     </b-tabs>
-
     <TaskAllocationVue></TaskAllocationVue>
   </div>
 </template>

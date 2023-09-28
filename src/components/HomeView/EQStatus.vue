@@ -1,5 +1,5 @@
 <template>
-  <div class="eq-status px-4 py-1 w-100">
+  <div class="eq-status ">
     <div class="text-start border-bottom p-2 my-2 d-flex flex-row justify-content-space">
       <div class="d-flex">
         <div class="p-1">
@@ -16,30 +16,27 @@
         <span>訊號[OFF]</span>
       </div>
     </div>
-    <div v-if="IsDeveloperLogining" class="dev-debug-global d-flex">
+    <!-- <div v-if="IsDeveloperLogining" class="dev-debug-global d-flex">
       <b-button variant="light" @click="EmuAllLoad">ALL Load</b-button>
       <b-button class="mx-2" variant="light" @click="EmuAllBusy">ALL Busy</b-button>
-    </div>
+    </div> -->
     <el-table
-      style="width:890px;"
-      height="600"
+      style="width:950px;"
       border
-      :header-cell-style="{color:'black',backgroundColor:'white'}"
+      :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="display_data"
-      :row-style="{fontWeight:'bold'}"
+      :row-style="{ fontWeight: 'bold' }"
       :row-class-name="eq_connection_status"
-      row-key="EQName"
-    >
-      <el-table-column sortable label="設備名稱" prop="EQName" width="140">
+      row-key="EQName">
+      <el-table-column sortable label="設備名稱" prop="EQName" width="170">
         <template #default="scope">
-          <div>
-            {{ scope.row.EQName }}
-            <el-tooltip placement="top-start" content="複製到剪貼簿">
+          <div> {{ scope.row.EQName }} <el-tooltip placement="top-start" content="複製到剪貼簿">
               <i @click="CopyText(scope.row.EQName)" class="copy-button copy-icon bi bi-clipboard"></i>
             </el-tooltip>
           </div>
         </template>
       </el-table-column>
+      <el-table-column sortable label="Tag" prop="Tag" width="80" align="center"></el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <el-table-column label="L_Requset" prop="Load_Reuest" :width="column_width">
         <template #default="scope">
@@ -75,33 +72,28 @@
         <template #default="scope">
           <div v-if="IsDeveloperLogining" class="d-flex">
             <div class="mx-3">模擬器:</div>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'busy')">切換為Busy</el-button>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'load')">切換為Load</el-button>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName,'unload')">切換為Unload</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">切換為Busy</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'load')">切換為Load</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'unload')">切換為Unload</el-button>
           </div>
           <div class="hs-signals d-flex">
             <div class="mx-3">交握訊號:</div>
-
             <div
               class="di-status"
-              @dblclick="HandleHSsignaleChange(scope.row.EQName,'L_REQ',!scope.row.HS_EQ_L_REQ)"
-              v-bind:style="signalOn(scope.row.HS_EQ_L_REQ)"
-            >L_REQ</div>
+              @dblclick="HandleHSsignaleChange(scope.row.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
+              v-bind:style="signalOn(scope.row.HS_EQ_L_REQ)">L_REQ</div>
             <div
               class="di-status"
-              @dblclick="HandleHSsignaleChange(scope.row.EQName,'U_REQ',!scope.row.HS_EQ_U_REQ)"
-              v-bind:style="signalOn(scope.row.HS_EQ_U_REQ)"
-            >U_REQ</div>
+              @dblclick="HandleHSsignaleChange(scope.row.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
+              v-bind:style="signalOn(scope.row.HS_EQ_U_REQ)">U_REQ</div>
             <div
               class="di-status"
-              @dblclick="HandleHSsignaleChange(scope.row.EQName,'READY',!scope.row.HS_EQ_READY)"
-              v-bind:style="signalOn(scope.row.HS_EQ_READY)"
-            >READY</div>
+              @dblclick="HandleHSsignaleChange(scope.row.EQName, 'READY', !scope.row.HS_EQ_READY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_READY)">READY</div>
             <div
               class="di-status"
-              @dblclick="HandleHSsignaleChange(scope.row.EQName,'BUSY',!scope.row.HS_EQ_BUSY)"
-              v-bind:style="signalOn(scope.row.HS_EQ_BUSY)"
-            >BUSY</div>
+              @dblclick="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_BUSY)">BUSY</div>
           </div>
         </template>
       </el-table-column>
@@ -136,6 +128,7 @@ export default {
       //     Down_Pose: true,
       //     Eqp_Status_Down: true,
       //     Region: '',
+      //    TransferStatus:0,
       //   }
       // ],
       selected_region: "all",
@@ -236,7 +229,8 @@ export default {
 
 <style lang="scss" >
 .eq-status {
-  width: 800px;
+  height: 100%;
+
   .legend {
     div {
       width: 40px;
@@ -246,25 +240,31 @@ export default {
       margin-right: 3px;
       margin-top: 5px;
     }
+
     div:hover {
       cursor: pointer;
     }
+
     span {
       margin-right: 20px;
       font-weight: bold;
       font-size: 14px;
       color: rgb(112, 112, 112);
     }
+
     .disconnect {
       background-color: rgb(245, 108, 108);
     }
+
     .signal-on {
       background-color: lime;
     }
+
     .signal-off {
       background-color: rgb(204, 204, 204);
     }
   }
+
   .di-status {
     color: rgb(139, 139, 139);
     height: 22px;
@@ -275,6 +275,7 @@ export default {
     border-radius: 4px;
     cursor: pointer;
   }
+
   .hs-signals {
     div {
       margin: 3px;
@@ -285,6 +286,7 @@ export default {
   .el-table .success-row {
     --el-table-tr-bg-color: var(--el-color-success-light-9);
   }
+
   .el-table .error-row {
     --el-table-tr-bg-color: var(--el-color-error);
     color: white;
