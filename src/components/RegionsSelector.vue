@@ -1,12 +1,11 @@
 <template>
   <!-- 這裡不可以有 div 否則雙向綁定會失效 -->
-  <el-select v-model="selectedRegion" @change="handleChange">
+  <el-select style="width:120px" v-model="selectedRegion" @change="handleChange">
     <el-option
       v-for="opt in valid_map_regions_options"
       :key="opt.value"
       :label="opt.label"
-      :value="opt.value"
-    ></el-option>
+      :value="opt.value"></el-option>
   </el-select>
 </template>
 
@@ -42,5 +41,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

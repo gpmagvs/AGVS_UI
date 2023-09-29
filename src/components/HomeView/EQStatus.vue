@@ -1,5 +1,5 @@
 <template>
-  <div class="eq-status ">
+  <div class="eq-status">
     <div class="text-start border-bottom p-2 my-2 d-flex flex-row justify-content-space">
       <div class="d-flex">
         <div class="p-1">
@@ -7,7 +7,16 @@
         </div>
         <RegionsSelector v-model="selected_region"></RegionsSelector>
       </div>
-      <div class="legend d-flex flex-row px-2">
+      <div class="d-flex">
+        <div class="p-1">
+          <i class="bi bi-three-dots-vertical pt-2"></i>顯示模式
+        </div>
+        <el-select style="width:120px" v-model="display_mode">
+          <el-option label="設備狀態" value="lduld_state"></el-option>
+          <el-option label="IO訊號" value="io_siganl"></el-option>
+        </el-select>
+      </div>
+      <div v-if="!show_lduld_state" class="legend d-flex flex-row px-2">
         <div class="disconnect"></div>
         <span>斷線</span>
         <div class="signal-on"></div>
@@ -21,7 +30,11 @@
       <b-button class="mx-2" variant="light" @click="EmuAllBusy">ALL Busy</b-button>
     </div> -->
     <el-table
-      style="width:950px;"
+      class="px-1"
+      style="height:600px"
+      v-bind:style="{
+        width: show_lduld_state ? '920px' : '950px'
+      }"
       border
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="display_data"
@@ -37,38 +50,42 @@
         </template>
       </el-table-column>
       <el-table-column sortable label="Tag" prop="Tag" width="80" align="center"></el-table-column>
+      <el-table-column v-if="show_lduld_state" align="center" label="設備狀態" prop="TransferStatus">
+        <template #default="scope"> <el-tag style="width:220px" :type="GetTransferStatusTagtype(scope.row.TransferStatus)" effect="dark"> {{ GetTransferStatusStr(scope.row.TransferStatus) }}</el-tag> </template>
+      </el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
-      <el-table-column label="L_Requset" prop="Load_Reuest" :width="column_width">
+      <!-- IO訊號 -->
+      <el-table-column v-if="!show_lduld_state" label="可移入" prop="Load_Reuest" :width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Load_Reuest)">L_Requset</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Load_Reuest)">可移入</div>
         </template>
       </el-table-column>
-      <el-table-column label="U_Requset" prop="Unload_Request" :width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="可移出" prop="Unload_Request" :width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">U_Requset</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">可移出</div>
         </template>
       </el-table-column>
-      <el-table-column label="Port Exist" prop="Port_Exist" :width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="貨物在席" prop="Port_Exist" :width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">Port Exist</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">貨物在席</div>
         </template>
       </el-table-column>
-      <el-table-column label="UP_POS" prop="Up_Pose" :width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="撈爪上位" prop="Up_Pose" :width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Up_Pose)">UP_POS</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Up_Pose)">撈爪上位</div>
         </template>
       </el-table-column>
-      <el-table-column label="DOWN_POS" prop="Down_Pose" :width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="撈爪下位" prop="Down_Pose" :width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Down_Pose)">DOWN_POS</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Down_Pose)">撈爪下位</div>
         </template>
       </el-table-column>
-      <el-table-column label="EQP Down" prop="Eqp_Status_Down" :width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="Status" prop="Eqp_Status_Down" :width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">EQP Down</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">Status</div>
         </template>
       </el-table-column>
-      <el-table-column type="expand" width="30">
+      <el-table-column type="expand" width="50">
         <template #default="scope">
           <div v-if="IsDeveloperLogining" class="d-flex">
             <div class="mx-3">模擬器:</div>
@@ -116,7 +133,7 @@ export default {
   },
   data() {
     return {
-      column_width: 120,
+      column_width: 105,
       // eq_data: [
       //   {
       //     IsConnected: true,
@@ -132,6 +149,7 @@ export default {
       //   }
       // ],
       selected_region: "all",
+      display_mode: 'lduld_state'
     }
   },
   computed: {
@@ -147,6 +165,9 @@ export default {
     },
     eq_data() {
       return EqStore.getters.EQData
+    },
+    show_lduld_state() {
+      return this.display_mode == 'lduld_state'
     }
   },
   mounted() {
@@ -222,6 +243,39 @@ export default {
       if (!this.IsDeveloperLogining)
         return;
       EmuAPI.SetEQHsSignal(eqname, signal_name, state)
+    },
+    GetTransferStatusStr(status_int) {
+      switch (status_int) {
+        case 0:
+          return '斷線'
+        case 1:
+          return '當機'
+        case 2:
+          return 'BUSY'
+        case 3:
+          return '可移入'
+        case 4:
+          return '可移出'
+        default:
+          break;
+      }
+    },
+    /**'success' | 'info' | 'warning' | 'danger' | '' */
+    GetTransferStatusTagtype(status_int) {
+      switch (status_int) {
+        case 0:
+          return 'info'
+        case 1:
+          return 'danger'
+        case 2:
+          return 'warning'
+        case 3:
+          return 'success'
+        case 4:
+          return 'success'
+        default:
+          break;
+      }
     }
   }
 }
@@ -271,7 +325,7 @@ export default {
     padding: 0;
     margin: 0;
     text-align: center;
-    font-size: 9px;
+    font-size: 8px;
     border-radius: 4px;
     cursor: pointer;
   }

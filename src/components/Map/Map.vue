@@ -1167,47 +1167,48 @@ export default {
   },
 
   mounted() {
+    setTimeout(() => {
+      MapStore.dispatch('DownloadMapData').then(() => {
+        this.RestoreSettingsFromLocalStorage();
+        this.InitMap();
+        watch(
+          () => this.map_station_data, (newval, oldval) => {
+            if (!newval)
+              return;
+            console.log('map_station_data_change');
+            this._map_stations = JSON.parse(JSON.stringify(newval))
+            this.UpdateStationPointLayer();
+            this.UpdateStationPathLayer();
+            this.MapDisplayModeOptHandler();
+          }, { deep: true, immediate: true }
+        )
 
-    MapStore.dispatch('DownloadMapData').then(() => {
-      this.RestoreSettingsFromLocalStorage();
-      this.InitMap();
-      watch(
-        () => this.map_station_data, (newval, oldval) => {
+        watch(() => this.agvs_info, (newval, oldval) => {
           if (!newval)
-            return;
-          console.log('map_station_data_change');
-          this._map_stations = JSON.parse(JSON.stringify(newval))
-          this.UpdateStationPointLayer();
-          this.UpdateStationPathLayer();
-          this.MapDisplayModeOptHandler();
-        }, { deep: true, immediate: true }
-      )
+            return
+          this.UpdateAGVLayer()
+        }, { deep: true, immediate: true })
 
-      watch(() => this.agvs_info, (newval, oldval) => {
-        if (!newval)
-          return
-        this.UpdateAGVLayer()
-      }, { deep: true, immediate: true })
+        bus.on('/show_agv_at_center', agv_name => {
+          // alert(agv_name)
+          this.ResetMapCenterViaAGVLoc(agv_name)
+        })
 
-      bus.on('/show_agv_at_center', agv_name => {
-        // alert(agv_name)
-        this.ResetMapCenterViaAGVLoc(agv_name)
+        watch(
+          () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
+            if (this.agv_upload_coordination_mode) {
+              this.HandleAGVUploadData(newval)
+            }
+
+          }, { deep: true, immediate: true }
+        )
+
+        document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
+          ev.preventDefault()
+        })
+
       })
-
-      watch(
-        () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
-          if (this.agv_upload_coordination_mode) {
-            this.HandleAGVUploadData(newval)
-          }
-
-        }, { deep: true, immediate: true }
-      )
-
-      document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
-        ev.preventDefault()
-      })
-
-    })
+    }, 3000)
   },
 }
 </script>

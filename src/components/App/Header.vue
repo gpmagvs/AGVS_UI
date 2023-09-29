@@ -27,6 +27,21 @@
             size="large"
             width="75px"></el-switch>
         </div>
+        <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container">
+          <span class="mx-1">檢視模式</span>
+          <el-switch
+            v-model="isEasyMode"
+            @change="HandleViewModeChanged"
+            :before-change="CheckUserLoginState"
+            active-color="rgb(95, 171, 80)"
+            inactive-color="red"
+            active-text="簡易模式"
+            inactive-text="工程模式"
+            border-color="grey"
+            inline-prompt
+            size="large"
+            width="80px"></el-switch>
+        </div>
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
@@ -167,7 +182,8 @@ export default {
       system_alrm_text: '',
       eq_alrm_text: '',
       unchecked_alarms: [],
-      showAlarm: true
+      showAlarm: true,
+      isEasyMode: false
     }
   },
   computed: {
@@ -276,6 +292,9 @@ export default {
       if (!this.CheckUserLoginState())
         return false;
       return success
+    },
+    HandleViewModeChanged(isEasyMode) {
+      bus.emit('view_mode_changed', isEasyMode)
     },
     async SysOptModeChangeRequest() {
       if (!this.CheckUserLoginState())

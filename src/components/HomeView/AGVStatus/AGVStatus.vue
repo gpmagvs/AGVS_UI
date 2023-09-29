@@ -9,6 +9,7 @@
         :key="group.group"
         :label="`${group.group_name}(${group.agv_states.length})`">
         <el-table
+          v-if="!IsEasyMode"
           :header-cell-style="{ color: 'black', backgroundColor: 'rgb(241, 241, 241)' }"
           :data="group.agv_states"
           size="small"
@@ -114,6 +115,70 @@
             </template>
           </el-table-column>
         </el-table>
+        <div v-else class="easy-mode">
+          <div v-for="state in group.agv_states" :key="state.AGV_Name" class="easy-mode-car-card border rounded my-2 p-2"
+            v-bind:style="{ backgroundColor: state.Connected ? 'rgb(229, 255, 240)' : 'rgb(255, 184, 182)' }">
+            <!-- {{ state.AGV_Name }} -->
+            <div class="d-flex">
+              <div class="mx-1 border-end px-1">
+                <span class="border-bottom" style="font-weight:bolder">{{ state.AGV_Name }}</span>
+                <div class="py-1">
+                  <img src="agv.png" @click="HandleShowAGVInMapCenter(state.AGV_Name)">
+                  <el-tag
+                    effect="dark"
+                    @click="ShowOnlineStateChangeModal(state.AGV_Name, state.OnlineStatus, state.Model)"
+                    :type="state.OnlineStatus == 0 ? 'danger' : 'success'">
+                    <b>{{ state.OnlineStatus == 1 ? 'ONLINE' : 'OFFLINE' }}</b>
+                  </el-tag>
+                </div>
+              </div>
+              <div style="padding-top:5px" class="w-100">
+                <div class="d-flex w-100">
+                  <div class="item-title">狀態</div>
+                  <div class="w-100 text-start">
+                    <el-tag effect="dark" :type="AGV_Status_TagType(state.MainStatus)">
+                      <b>{{ AGVStatusFormatter(state) }}</b>
+                    </el-tag>
+                  </div>
+                </div>
+                <div class="d-flex w-100 my-2">
+                  <div class="item-title">電量</div>
+                  <div class="w-100 px-1 text-start">
+                    <b-progress class="flex-fill" :max="100" :min="0" animated> <b-progress-bar
+                        :animated="true"
+                        v-bind:class="BatteryClass(state.BatteryLevel_1)"
+                        :value="state.BatteryLevel_1"
+                        :label="`${((state.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                    </b-progress>
+                    <b-progress v-if="state.BatteryLevel_2 != -1.0" class="flex-fill my-1" :max="100" :min="0" animated>
+                      <b-progress-bar
+                        :animated="true"
+                        v-bind:class="BatteryClass(state.BatteryLevel_2)"
+                        :value="state.BatteryLevel_2"
+                        :label="`${((state.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                    </b-progress>
+                  </div>
+                </div>
+                <div class="d-flex w-100 my-1">
+                  <div class="item-title">位置</div>
+                  <div class="w-100 text-start">
+                    <b>{{ state.StationName }}</b>
+                    <i
+                      class="bi bi-geo-alt-fill"
+                      style="font-size:20px;cursor:pointer"
+                      @click="HandleShowAGVInMapCenter(state.AGV_Name)"></i>
+                  </div>
+                </div>
+                <div class="d-flex w-100 my-1">
+                  <div class="item-title">載物ID</div>
+                  <div class="w-100 text-start">
+                    <b>{{ state.Cst }}</b>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -151,8 +216,14 @@ export default {
         AGV_Name: '',
         Online_Status: '',
         Model: 0
-      }
+      },
     }
+  },
+  props: {
+    IsEasyMode: {
+      type: Boolean,
+      default: false
+    },
   },
   methods: {
     HandleRowClick(row, row_) {
@@ -355,9 +426,9 @@ export default {
 
       function GetGroupName(group_enum) {
         if (group_enum == 0)
-          return 'GPM AGV'
+          return 'Fork AGV'
         else if (group_enum == 1)
-          return 'GPM AGV'
+          return '潛盾 AGV'
         else if (group_enum == 2)
           return 'YUNTECH AGV'
         else if (group_enum == 3)
@@ -396,6 +467,19 @@ export default {
 
 <style lang="scss" >
 .agv-status {
+  .easy-mode {
+    font-size: 18px;
+
+    .easy-mode-car-card {
+      width: 280px;
+
+      .item-title {
+        width: 90px;
+        font-size: small;
+      }
+    }
+  }
+
   .online-status-div:hover {
     cursor: pointer;
   }

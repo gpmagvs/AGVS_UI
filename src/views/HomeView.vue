@@ -1,23 +1,41 @@
 <template>
-  <div class="home-view h-100 w-100 d-flex flex-row custom-tabs-head">
-    <div class="left-col border-right flex-fill">
-      <AGVStatusVue></AGVStatusVue>
-      <TaskStatusVue height="500px"></TaskStatusVue>
+  <div class="home-view h-100 w-100  custom-tabs-head" v-loading="loading">
+    <div v-bind:style="{
+      visibility: isEasyMode ? 'hidden' : 'visible'
+    }" class="d-flex flex-row ">
+      <div class="left-col border-right flex-fill">
+        <AGVStatusVue></AGVStatusVue>
+        <TaskStatusVue height="500px"></TaskStatusVue>
+      </div>
+      <b-tabs v-bind:style="{ width: '60%' }" @activate-tab="TabActiveHandle">
+        <b-tab title="地圖">
+          <div style="height:800px" class="border">
+            <HomeMap></HomeMap>
+            <!-- <LMap></LMap> -->
+          </div>
+        </b-tab>
+        <b-tab title="設備狀態">
+          <div class="border w-100">
+            <EQStatus></EQStatus>
+          </div>
+        </b-tab>
+      </b-tabs>
+      <TaskAllocationVue></TaskAllocationVue>
     </div>
-    <b-tabs v-bind:style="{ width: '60%' }" @activate-tab="TabActiveHandle">
-      <b-tab title="地圖">
-        <div style="height:800px" class="border">
-          <HomeMap></HomeMap>
-          <!-- <LMap></LMap> -->
-        </div>
-      </b-tab>
-      <b-tab title="設備狀態">
-        <div class="border w-100">
-          <EQStatus></EQStatus>
-        </div>
-      </b-tab>
-    </b-tabs>
-    <TaskAllocationVue></TaskAllocationVue>
+    <div v-bind:style="{
+      visibility: isEasyMode ? 'visible' : 'hidden',
+      position: 'absolute',
+      top: '140px',
+      width: '100%'
+    }" class="easy_mode d-flex">
+      <div>
+        <AGVStatusVue :IsEasyMode="true"></AGVStatusVue>
+      </div>
+      <div style="width:100%;padding-right:50px" class="border">
+        <HomeMap id="homemap-easymode"></HomeMap>
+        <!-- <LMap></LMap> -->
+      </div>
+    </div>
   </div>
 </template>
 
@@ -37,6 +55,22 @@ export default {
   methods: {
     TabActiveHandle(tab) {
     }
+  },
+  data() {
+    return {
+      isEasyMode: false,
+      loading: false
+    }
+  },
+  mounted() {
+    bus.on('view_mode_changed', (isEasyMode) => {
+      this.loading = true
+      this.isEasyMode = isEasyMode;
+      setTimeout(() => {
+        this.loading = false
+      }, 300)
+
+    });
   },
 }
 </script>
