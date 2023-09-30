@@ -180,6 +180,7 @@ import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature } from './mapjs';
 import { MapStore } from './store'
+import { EqStore } from '@/store'
 import { Fill, Stroke, Style, Circle } from 'ol/style';
 
 import MapSettingsDialog from './MapSettingsDialog.vue';
@@ -357,7 +358,10 @@ export default {
     },
     agvs_info() {
       return MapStore.getters.AGVNavInfo;
-    }
+    },
+    eq_data() {
+      return EqStore.getters.EQData
+    },
   },
   methods: {
     UpdateStationPointLayer() {
@@ -1233,8 +1237,29 @@ export default {
             this.UpdateStationPointLayer();
             this.UpdateStationPathLayer();
             this.MapDisplayModeOptHandler();
+            watch(() => this.eq_data, (new_, old_) => {
+              if (new_.length > 0) {
+                if (!old_) {
+                  new_.forEach(eq_states => {
+                    this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
+                  });
+                  return;
+                }
+                new_.forEach(eq_states => {
+                  var previous = old_.find(q => q.Tag == eq_states.Tag)
+                  if (previous) {
+                    if (previous.TransferStatus != eq_states.TransferStatus) {
+                      console.log(`eq ${eq_states.Tag} io status changed`)
+                      this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
 
-            bus.emit('/map_init_done', '')
+                    }
+                  }
+
+                });
+
+              }
+            }, { deep: true, immediate: true })
+
           }, { deep: true, immediate: true }
         )
 
@@ -1249,9 +1274,6 @@ export default {
           this.ResetMapCenterViaAGVLoc(agv_name)
         })
 
-        bus.on('/eq_lduld_status_changed', (dto) => {
-          this.ChangeLDULDStatus(dto.tagNumber, dto.status)
-        })
         watch(
           () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
             if (this.agv_upload_coordination_mode) {
@@ -1264,10 +1286,8 @@ export default {
         document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
           ev.preventDefault()
         })
-
-        bus.emit('/map_init_done', '')
       })
-    }, 3000)
+    }, 1200)
   },
 }
 </script>

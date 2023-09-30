@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="show_dialog" draggable title="搬運任務">
+    <el-dialog v-model="show_dialog" draggable :title="`${source_station.Name}-搬運任務`">
         <h3>{{ action == 'unload' ? '下游設備列表' : '來源設備列表' }}</h3>
         <div class="justify-content-center px-5">
             <el-table size="small" border :data="CandicateEQOptions">
@@ -49,6 +49,7 @@ export default {
     },
     methods: {
         ShowDialog(source_station, action = 'load') {
+            this.source_station = source_station;
             this.action = action;
             this.CandicateEQOptions = [];
             var source_tag = source_station.TagNumber
@@ -63,7 +64,6 @@ export default {
                     this.CandicateEQOptions = options.filter(eq => eq.ValidDownStreamEndPointNames.includes(source_station.Name))
                 }
 
-                this.source_station = source_station;
                 this.show_dialog = true
             })
         },

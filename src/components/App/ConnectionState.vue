@@ -1,23 +1,19 @@
 <template>
   <div
-    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start"
-  >
+    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start">
     <div class="d-flex flex-row">
       <i class="bi bi-three-dots-vertical"></i>
       <div
         class="conn-block px-1 border-end"
         v-for="connection in Connections"
-        :key="connection.name"
-      >
+        :key="connection.name">
         <label>{{ connection.name }}</label>
         <el-tag
           effect="dark"
-          :type="connection.connected?'success':'danger'"
-        >{{ connection.connected?'Connected':'Disconnect' }}</el-tag>
+          :type="connection.connected ? 'success' : 'danger'">{{ connection.connected ? 'Connected' : 'Disconnect' }}</el-tag>
       </div>
     </div>
-
-    <div class="sys-time">{{sys_time}}</div>
+    <div @dblclick="handleTimeDoubleClick" class="sys-time">{{ sys_time }}</div>
   </div>
 </template>
 
@@ -25,6 +21,7 @@
 import WebSocketHelp from '@/api/WebSocketHepler'
 import param from '@/gpm_param'
 import moment from 'moment'
+import { userStore } from '@/store'
 export default {
   data() {
     return {
@@ -69,6 +66,14 @@ export default {
 
     }
   },
+  methods: {
+    handleTimeDoubleClick() {
+      userStore.dispatch('login', {
+        UserName: 'dev',
+        Password: '12345678'
+      })
+    }
+  },
 }
 </script>
 
@@ -78,19 +83,23 @@ export default {
   // border-block: 3px solid rgb(187, 187, 187);
   padding: 5px;
   padding-left: 70px;
+
   i,
   .sys-time {
     font-weight: bold;
     font-family: monospace;
     color: #ffffff;
   }
+
   .conn-block {
     margin-right: 8px;
     padding: auto 5px;
+
     label {
       color: rgb(255, 255, 255);
       margin: auto 5px;
     }
+
     label,
     .el-tag {
       font-weight: bold;

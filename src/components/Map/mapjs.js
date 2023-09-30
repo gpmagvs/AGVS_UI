@@ -295,7 +295,7 @@ export function CreateEQLDULDFeature(station = new clsMapStation()) {
 
     var _style = new Style({
         text: new Text({
-            text: "移出需求",
+            text: "",
             font: 'bold 18px Calibri,sans-serif',
             offsetX: 14,
             offsetY: -52,

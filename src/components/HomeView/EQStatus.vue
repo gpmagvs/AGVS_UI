@@ -185,57 +185,13 @@ export default {
       });
 
     })
-    watch(() => this.eq_data, (new_, old_) => {
-      if (new_.length > 0) {
-        if (!old_) {
-          new_.forEach(eq_states => {
-            bus.emit('/eq_lduld_status_changed', {
-              tagNumber: eq_states.Tag,
-              status: eq_states.TransferStatus,
-            })
-          });
-
-          return;
-        }
-        // if (JSON.stringify(new_) == JSON.stringify(old_))
-        //   return;
-        // console.log('eq io status changed')
-        new_.forEach(eq_states => {
-          var previous = old_.find(q => q.Tag == eq_states.Tag)
-          if (previous) {
-            if (previous.TransferStatus != eq_states.TransferStatus) {
-              console.log(`eq ${eq_states.Tag} io status changed`)
-              bus.emit('/eq_lduld_status_changed', {
-                tagNumber: eq_states.Tag,
-                status: eq_states.TransferStatus,
-              })
-            }
-          }
-
-        });
-
-      }
-    }, {
-      immediate: true,
-      deep: true
-    })
 
   },
   methods: {
     userStoreTest() {
       alert(userStore.getters.IsDeveloperLogining)
     },
-    // WsConnect() {
 
-    //   const worker = new Worker('websocket_worker.js')
-
-    //   worker.onmessage = (event) => {
-    //     this.eq_data = event.data
-    //     //var unload_req_EQS = this.eq_data.filter(eq => eq.Unload_Request).map(eq => eq.Tag)
-    //     //bus.emit('unload_eq_tags', unload_req_EQS)
-    //   }
-    //   worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/EQStatus' });
-    // },
     eq_connection_status(row, rowIndex) {
       var isConnected = row.row.IsConnected;
       return isConnected ? 'success-row' : 'error-row';
