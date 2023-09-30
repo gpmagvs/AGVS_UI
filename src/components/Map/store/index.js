@@ -85,7 +85,6 @@ export const MapStore = createStore({
             return map_stations
         },
         BaysData: state => {
-            debugger
             if (state.MapData)
                 return state.MapData.Bays
             else

@@ -27,7 +27,8 @@
             size="large"
             width="75px"></el-switch>
         </div>
-        <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container">
+        <!-- <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container"> -->
+        <div class="op-mode-switch-container">
           <span class="mx-1">檢視模式</span>
           <el-switch
             v-model="isEasyMode"
@@ -183,7 +184,7 @@ export default {
       eq_alrm_text: '',
       unchecked_alarms: [],
       showAlarm: true,
-      isEasyMode: false
+      isEasyMode: true
     }
   },
   computed: {

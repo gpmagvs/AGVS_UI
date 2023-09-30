@@ -55,9 +55,9 @@
       </el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <!-- IO訊號 -->
-      <el-table-column v-if="!show_lduld_state" label="可移入" prop="Load_Reuest" :width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="可移入" prop="Load_Request" :width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Load_Reuest)">可移入</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Load_Request)">可移入</div>
         </template>
       </el-table-column>
       <el-table-column v-if="!show_lduld_state" label="可移出" prop="Unload_Request" :width="column_width">
@@ -127,6 +127,8 @@ import { EmuAPI } from '@/api/EquipmentAPI.js'
 import { userStore } from '@/store';
 import param from '@/gpm_param.js'
 import { EqStore } from '@/store'
+import { watch } from 'vue';
+import bus from '@/event-bus.js'
 export default {
   components: {
     RegionsSelector,
@@ -138,7 +140,7 @@ export default {
       //   {
       //     IsConnected: true,
       //     EQName: 'GB123#1',
-      //     Load_Reuest: false,
+      //     Load_Request: false,
       //     Unload_Request: true,
       //     Port_Exist: true,
       //     Up_Pose: false,
@@ -149,7 +151,8 @@ export default {
       //   }
       // ],
       selected_region: "all",
-      display_mode: 'lduld_state'
+      display_mode: 'lduld_state',
+      previous_eq_data: []
     }
   },
   computed: {
@@ -173,6 +176,49 @@ export default {
   mounted() {
     //this.WsConnect();
     var signal_divs = document.getElementsByClassName('di-status');
+    bus.on('/map_init_done', () => {
+      this.eq_data.forEach(eq_states => {
+        bus.emit('/eq_lduld_status_changed', {
+          tagNumber: eq_states.Tag,
+          status: eq_states.TransferStatus,
+        })
+      });
+
+    })
+    watch(() => this.eq_data, (new_, old_) => {
+      if (new_.length > 0) {
+        if (!old_) {
+          new_.forEach(eq_states => {
+            bus.emit('/eq_lduld_status_changed', {
+              tagNumber: eq_states.Tag,
+              status: eq_states.TransferStatus,
+            })
+          });
+
+          return;
+        }
+        // if (JSON.stringify(new_) == JSON.stringify(old_))
+        //   return;
+        // console.log('eq io status changed')
+        new_.forEach(eq_states => {
+          var previous = old_.find(q => q.Tag == eq_states.Tag)
+          if (previous) {
+            if (previous.TransferStatus != eq_states.TransferStatus) {
+              console.log(`eq ${eq_states.Tag} io status changed`)
+              bus.emit('/eq_lduld_status_changed', {
+                tagNumber: eq_states.Tag,
+                status: eq_states.TransferStatus,
+              })
+            }
+          }
+
+        });
+
+      }
+    }, {
+      immediate: true,
+      deep: true
+    })
 
   },
   methods: {
@@ -257,7 +303,7 @@ export default {
         case 4:
           return '可移出'
         default:
-          break;
+          return status_int + ''
       }
     },
     /**'success' | 'info' | 'warning' | 'danger' | '' */

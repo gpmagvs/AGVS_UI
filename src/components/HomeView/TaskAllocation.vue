@@ -308,7 +308,6 @@ export default {
       }
 
       if (this.selectedAction == 'measure') {
-        debugger
         response = await TaskAllocation.MeasureTask(new clsMeasureTaskData(this.selectedAGVName, this.destinTag));
       }
       if (this.selectedAction == 'load') {
@@ -323,7 +322,6 @@ export default {
         response = await TaskAllocation.CarryTask(new clsCarryTaskData(this.selectedAGVName, this.sourceTag, 1, this.destinTag, 1, this.Cst_ID_Input));
       }
       if (this.selectedAction == 'exchange_battery') {
-        debugger
         response = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(this.selectedAGVName, this.destinTag));
       }
       if (this.selectedAction == 'charge') {

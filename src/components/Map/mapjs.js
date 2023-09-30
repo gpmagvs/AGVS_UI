@@ -282,6 +282,40 @@ export function CreateStationFeature(station = new clsMapStation()) {
     iconFeature.set('routeModeFeature', routeFeature)
     return iconFeature;
 }
+
+export function CreateEQLDULDFeature(station = new clsMapStation()) {
+    const iconFeature = new Feature({
+        geometry: new Point(station.coordination)
+    });
+    iconFeature.set('feature_type', 'lduld')
+    iconFeature.set('data', station.data)
+
+    if (station.station_type != 1)
+        return iconFeature;
+
+    var _style = new Style({
+        text: new Text({
+            text: "移出需求",
+            font: 'bold 18px Calibri,sans-serif',
+            offsetX: 14,
+            offsetY: -52,
+            fill: new Fill({
+                color: 'white',//PointColorSelect(station_type)
+            }),
+            backgroundFill: new Fill({
+                color: 'seagreen',//PointColorSelect(station_type)
+            }),
+            backgroundStroke: new Stroke({
+                color: 'black',
+                width: 3,
+            })
+        }),
+    })
+    iconFeature.setStyle(_style)
+    return iconFeature;
+}
+
+
 function GetCargoIcon(cargo_type, exist = false) {
     if (!exist)
         return null
