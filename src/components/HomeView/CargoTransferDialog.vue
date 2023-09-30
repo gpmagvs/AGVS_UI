@@ -1,7 +1,22 @@
 <template>
     <el-dialog v-model="show_dialog" draggable :title="`${source_station.Name}-搬運任務`">
-        <h3>{{ action == 'unload' ? '下游設備列表' : '來源設備列表' }}</h3>
-        <div class="justify-content-center px-5">
+        <div class="justify-content-center px-5 cargo-transfer">
+            <div class="w-100 border-bottom my-1">
+                <h3>車輛選擇</h3>
+            </div>
+            <el-select v-if="!isRunMode" class="w-100" v-model="selectedAGVName">
+                <el-option
+                    v-for="agv_name in AgvNameList"
+                    :key="agv_name"
+                    :label="agv_name"
+                    :value="agv_name"></el-option>
+            </el-select>
+            <el-select v-else disabled class="w-100" v-model="autoSelectAGVName">
+            </el-select>
+            <el-divider></el-divider>
+            <div class="w-100 border-bottom my-1">
+                <h3>{{ action == 'unload' ? '下游設備列表' : '來源設備列表' }}</h3>
+            </div>
             <el-table size="small" border :data="CandicateEQOptions">
                 <el-table-column v-if="action == 'unload'" label="起點">
                     <template #default="scope">
@@ -36,7 +51,7 @@
 
 <script>
 import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
-import { EqStore } from '@/store'
+import { EqStore, agvs_settings_store, agv_states_store } from '@/store'
 export default {
     data() {
         return {
@@ -44,7 +59,9 @@ export default {
             source_station: {},
             EQOptions: [],
             CandicateEQOptions: [],
-            action: ''
+            action: '',
+            selectedAGVName: '',
+            autoSelectAGVName: '自動指派'
         }
     },
     methods: {
@@ -109,8 +126,21 @@ export default {
         eq_status_data() {
             return EqStore.getters.EQData
         },
+        isRunMode() {
+            return agvs_settings_store.getters.IsRunMode
+        },
+
+        AgvNameList() {
+            return agv_states_store.getters.AGVNameList
+        }
     },
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.cargo-transfer {
+    h3 {
+        text-align: left;
+    }
+}
+</style>

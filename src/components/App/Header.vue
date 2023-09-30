@@ -184,7 +184,7 @@ export default {
       eq_alrm_text: '',
       unchecked_alarms: [],
       showAlarm: true,
-      isEasyMode: true
+      isEasyMode: false
     }
   },
   computed: {

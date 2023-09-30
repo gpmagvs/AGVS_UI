@@ -58,7 +58,7 @@ export default {
   },
   data() {
     return {
-      isEasyMode: true,
+      isEasyMode: false,
       loading: false
     }
   },
