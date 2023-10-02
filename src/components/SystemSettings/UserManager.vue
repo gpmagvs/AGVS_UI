@@ -38,7 +38,7 @@
         <el-table-column label="操作" min-width="120">
           <template #default="scope">
             <div>
-              <el-button :disabled="scope.row.Role == 2 || scope.row.Role == 3" @click="DeleteUser(scope.row)" type="danger">刪除</el-button>
+              <el-button @click="DeleteUser(scope.row)" type="danger">刪除</el-button>
             </div>
           </template>
         </el-table-column>
@@ -62,7 +62,7 @@
                 :label="role.label"></el-option>
             </el-select>
           </el-form-item>
-          <b-button @click="HandleAddNewUserClick" class="w-100" variant="primary">新增</b-button>
+          <b-button :disabled="NewUser.UserName == '' || NewUser.Password == ''" @click="HandleAddNewUserClick" class="w-100" variant="primary">新增</b-button>
         </el-form>
       </div>
     </el-dialog>
