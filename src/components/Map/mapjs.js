@@ -493,6 +493,23 @@ export class clsAgvStates {
         this.main_status = 'IDLE'
     }
 }
+export class clsMap {
+    constructor() {
+        this.Version = 1;
+        this.Name = undefined;
+        this.Note = '';
+        this.PointIndex = 0;
+        this.Map_Image_Size = [400, 400];
+        this.Map_Image_Boundary = [-20, -20, 20, 20];
+        this.Points = {};
+        this.BezierCurves = {};
+        this.Pathes = [];
+        this.Segments = [];
+        this.Bays = {};
+
+
+    }
+}
 /**後端圖資模型 */
 export class MapPointModel {
     constructor() {

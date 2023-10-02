@@ -30,6 +30,7 @@
                 size="large">
                 <el-radio-button size="small" label="none">無</el-radio-button>
                 <el-radio-button size="small" label="add-station">新增點位</el-radio-button>
+                <el-radio-button size="small" label="edit-station">編輯點位</el-radio-button>
                 <el-radio-button size="small" label="remove-station">移除點位</el-radio-button>
               </el-radio-group>
               <el-radio-group
@@ -39,6 +40,7 @@
                 @change="() => { PathEditTempStore = [] }"
                 size="large">
                 <el-radio-button size="small" label="add-path">新增路徑</el-radio-button>
+                <el-radio-button size="small" label="edit-path">編輯路徑</el-radio-button>
                 <el-radio-button size="small" label="remove-path">移除路徑</el-radio-button>
               </el-radio-group>
             </div>
@@ -543,6 +545,15 @@ export default {
             this_vue.HandleLDULDLabelClick(feature.get('data'), action);
             return false;
           }
+
+          if (feature.get('path_id')) {
+            var path_id = feature.get('path_id')
+            setTimeout(() => {
+              alert(path_id)
+            }, 100)
+            return false;
+          }
+
 
           this_vue.HighLightFeatureSelected([feature])
           if (this_vue.EditorOption.EditMode == 'view') {

@@ -1,11 +1,11 @@
 import { createStore } from "vuex";
 import axios from 'axios'
-import { AGVOption, clsAGVDisplay, clsMapStation, StationSelectOptions } from '../mapjs';
+import { AGVOption, clsMap, clsAGVDisplay, clsMapStation, StationSelectOptions } from '../mapjs';
 
 /**圖資狀態儲存 */
 export const MapStore = createStore({
     state: {
-        MapData: null,
+        MapData: new clsMap(),
         MapGeoJson: null,
         AGVDynamicPathInfo: undefined,
         AGVLocUpload: {},
@@ -42,7 +42,7 @@ export const MapStore = createStore({
             return state.MapData.Map_Image_Boundary;
         },
         Pathes: state => {
-            return state.MapData.Pathes
+            return state.MapData.Segments
         },
         MapName: state => {
             return state.MapData == null ? "Unkown" : state.MapData.Name
@@ -188,10 +188,15 @@ export const MapStore = createStore({
     },
     actions: {
         async DownloadMapData({ commit, getters }) {
-            await getters.MapBackednAxios.get('api/Map').then(response => {
-                console.log('[MapStore] get map data', response.data);
-                commit('setMapData', response.data)
-            });
+            if (getters.MapData.Name == undefined) {
+
+                await getters.MapBackednAxios.get('api/Map').then(response => {
+                    console.log('[MapStore] get map data', response.data);
+                    commit('setMapData', response.data)
+                });
+            } else {
+                console.info('Map Data Already Stored')
+            }
 
         },
         Save({ commit }) {
