@@ -1,7 +1,7 @@
 <template>
-  <div class="user-manager ">
+  <div class="user-manager">
     <div class="d-flex flex-row">
-      <OperatieButtonSet @save="SaveSetting" @restore="RestoreConfirmDialogShow=true"></OperatieButtonSet>
+      <OperatieButtonSet @save="SaveSetting" @restore="RestoreConfirmDialogShow = true"></OperatieButtonSet>
       <span class="flex-fill"></span>
       <el-button type="default" size="large">新增用戶</el-button>
     </div>
@@ -23,8 +23,7 @@
                   v-for="role in RoleOptions"
                   :key="role.value"
                   :value="role.value"
-                  :label="role.label"
-                ></el-option>
+                  :label="role.label"></el-option>
               </el-select>
             </div>
           </template>
@@ -37,13 +36,11 @@
           </template>
         </el-table-column>
       </el-table>
-
       <b-modal
         v-model="RestoreConfirmDialogShow"
         title="Restore"
         :centered="true"
-        @ok="RestoreSetting"
-      >
+        @ok="RestoreSetting">
         <p>確定要取消當前修改?</p>
       </b-modal>
     </div>
@@ -121,6 +118,5 @@ export default {
 </script>
 
 <style lang="scss">
-.user-manager {
-}
+.user-manager {}
 </style>

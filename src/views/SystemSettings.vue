@@ -1,5 +1,5 @@
 <template>
-  <div class="sys-settings custom-tabs-head-large p-1 w-100">
+  <div class="sys-settings custom-tabs-head-large p-1 ">
     <b-tabs>
       <b-tab title="AGV 電量設定" active>
         <div class="setting-tab">
@@ -85,6 +85,7 @@ export default {
 .sys-settings {
   position: absolute;
   top: 55px;
+  width: 96vw;
 
   .setting-tab {
     padding: 12px;
