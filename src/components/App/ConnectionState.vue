@@ -10,7 +10,7 @@
         <label>{{ connection.name }}</label>
         <el-tag
           effect="dark"
-          :type="connection.connected ? 'success' : 'danger'">{{ connection.connected ? 'Connected' : 'Disconnect' }}</el-tag>
+          :type="connection.connected ? 'success' : 'danger'">{{ connection.connected ? '已連線' : '斷線' }}</el-tag>
       </div>
     </div>
     <div @dblclick="handleTimeDoubleClick" class="sys-time">{{ sys_time }}</div>
@@ -27,7 +27,7 @@ export default {
     return {
       Connections: [
         {
-          name: "後端SERVER",
+          name: "SERVER",
           connected: false,
         },
         {
@@ -47,26 +47,49 @@ export default {
       this.sys_time = moment(Date.now()).format('yyyy-MM-DD HH:mm:ss')
     }, 1000);
 
+    this.ConnectionCheck(undefined, '/ws/VMSAliveCheck', 0);
+    this.ConnectionCheck(param.vms_ws_host, '/ws/VMSAliveCheck', 1);
 
+    // var vms_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck', param.vms_ws_host);
+    // vms_alive_check_ws.Connect();
+    // vms_alive_check_ws.onclose = (ev) => this.Connections[1].connected = false
+    // vms_alive_check_ws.onopen = (ev) => {
+    //   console.info('vms connected');
+    //   this.Connections[1].connected = true;
 
-    var vms_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck', param.vms_ws_host);
-    vms_alive_check_ws.Connect();
-    vms_alive_check_ws.onclose = (ev) => this.Connections[1].connected = false
-    vms_alive_check_ws.onopen = (ev) => {
-      console.info('vms connected');
-      this.Connections[1].connected = true;
+    // }
+    // var agvs_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck');
+    // agvs_alive_check_ws.Connect();
+    // agvs_alive_check_ws.onclose = (ev) => this.Connections[0].connected = false
+    // agvs_alive_check_ws.onopen = (ev) => {
+    //   console.info('agvs connected');
+    //   this.Connections[0].connected = true;
 
-    }
-    var agvs_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck');
-    agvs_alive_check_ws.Connect();
-    agvs_alive_check_ws.onclose = (ev) => this.Connections[0].connected = false
-    agvs_alive_check_ws.onopen = (ev) => {
-      console.info('vms connected');
-      this.Connections[0].connected = true;
-
-    }
+    // }
   },
   methods: {
+    ConnectionCheck(host, ws_url, index) {
+      var alive_check_ws = new WebSocketHelp(ws_url, host);
+      alive_check_ws.Connect();
+      alive_check_ws.onclose = (ev) => {
+        console.log(ws_url + ' onclose')
+        this.Connections[index].connected = false;
+        setTimeout(() => {
+          this.ConnectionCheck(host, ws_url, index);
+        }, 1000)
+
+      }
+      // alive_check_ws.onerror = (ev) => {
+      //   console.log(ws_url + ' onerror')
+      //   this.Connections[index].connected = false;
+      //   this.ConnectionCheck(host, ws_url, index);
+      // }
+      alive_check_ws.onopen = (ev) => {
+        console.log(ws_url + ' onopen')
+        this.Connections[index].connected = true;
+
+      }
+    },
     handleTimeDoubleClick() {
       userStore.dispatch('login', {
         UserName: 'dev',

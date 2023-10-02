@@ -3,7 +3,7 @@
     <!-- <div class="title">
       <i class="bi bi-map"></i>MAP SHOW
     </div>-->
-    <Map canva_height="800px" @onTransferRequst="HandleTransferReq" :id="id" class="w-100" :task_dispatch_menu_show="true"></Map>
+    <Map canva_height="800px" @onTransferRequst="HandleTransferReq" :id="id" class="w-100" :task_dispatch_menu_show="true" :eq_lduld_status_show="true"></Map>
     <CargoTransferDialog ref="transfer_dialog"></CargoTransferDialog>
   </div>
 </template>

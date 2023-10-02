@@ -24,6 +24,7 @@ import VueFinder from 'vuefinder/dist/vuefinder'
 import './BackendDataFetchWorker.js'
 import './idling_detector.js'
 
+document.title = "GPV AGVS"
 const i18n = createI18n({
   legacy: false,
   locale: 'zh-TW',

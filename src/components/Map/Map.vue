@@ -207,6 +207,10 @@ export default {
       type: Boolean,
       default: true
     },
+    eq_lduld_status_show: {
+      type: Boolean,
+      default: false
+    },
     agv_upload_coordi_data: {
       type: Object,
       default() {
@@ -1237,29 +1241,30 @@ export default {
             this.UpdateStationPointLayer();
             this.UpdateStationPathLayer();
             this.MapDisplayModeOptHandler();
-            watch(() => this.eq_data, (new_, old_) => {
-              if (new_.length > 0) {
-                if (!old_) {
-                  new_.forEach(eq_states => {
-                    this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
-                  });
-                  return;
-                }
-                new_.forEach(eq_states => {
-                  var previous = old_.find(q => q.Tag == eq_states.Tag)
-                  if (previous) {
-                    if (previous.TransferStatus != eq_states.TransferStatus) {
-                      console.log(`eq ${eq_states.Tag} io status changed`)
+            if (this.eq_lduld_status_show) {
+              watch(() => this.eq_data, (new_, old_) => {
+                if (new_.length > 0) {
+                  if (!old_) {
+                    new_.forEach(eq_states => {
                       this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
-
-                    }
+                    });
+                    return;
                   }
+                  new_.forEach(eq_states => {
+                    var previous = old_.find(q => q.Tag == eq_states.Tag)
+                    if (previous) {
+                      if (previous.TransferStatus != eq_states.TransferStatus) {
+                        console.log(`eq ${eq_states.Tag} io status changed`)
+                        this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
 
-                });
+                      }
+                    }
 
-              }
-            }, { deep: true, immediate: true })
+                  });
 
+                }
+              }, { deep: true, immediate: true })
+            }
           }, { deep: true, immediate: true }
         )
 

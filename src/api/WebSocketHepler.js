@@ -49,6 +49,15 @@ class WebSocketHelp {
       this.wssocket.close()
     }
   }
+
+  set onerror(ev) {
+    this.onopenHandler = ev
+    this.wssocket.onerror = ev
+  }
+  get onerror() {
+    return this.wssocket.onerror
+  }
+
   set onclose(ev) {
     this.oncloseHandler = ev
     this.wssocket.onclose = ev
@@ -64,6 +73,7 @@ class WebSocketHelp {
   get onopen() {
     return this.wssocket.onopen
   }
+
 
   set onmessage(ev) {
     this.onmessageHandler = ev
