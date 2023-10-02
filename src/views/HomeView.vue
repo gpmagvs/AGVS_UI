@@ -1,5 +1,5 @@
 <template>
-  <div class="home-view h-100 w-100  custom-tabs-head" v-loading="loading">
+  <div class="home-view h-100 custom-tabs-head" v-loading="loading">
     <div v-bind:style="{
       visibility: isEasyMode ? 'hidden' : 'visible'
     }" class="d-flex flex-row ">
@@ -77,6 +77,7 @@ export default {
 
 <style lang="scss" >
 .home-view {
+
   .left-col {
     overflow-y: scroll;
   }

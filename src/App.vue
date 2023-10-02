@@ -59,9 +59,11 @@ export default {
       },
       router_view_style: {
         //style="height:100vh;padding-top:150px;"
+        position: 'relative',
         height: '100vh',
         paddingTop: '140px',
-        paddingLeft: '70px'
+        paddingRight: '95px',
+        left: '70px'
       }
     }
   },
@@ -165,6 +167,7 @@ window.ResizeObserver = class ResizeObserver extends _ResizeObserver {
   text-align: center;
   color: #2c3e50;
   height: 100%;
+  overflow-x: hidden;
 }
 
 nav {
@@ -182,6 +185,7 @@ nav {
 
 body,
 html {
+  width: 100vw;
   height: 100%;
   -webkit-user-select: none;
   /* Chrome, Safari, Opera */
