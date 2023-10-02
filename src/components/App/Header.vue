@@ -7,7 +7,8 @@
       </h3>-->
       <div
         v-if="!modes.system_operation_mode.actived"
-        class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。</div>
+        class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。 </div>
+      <b-button v-else class="mx-2" style="width:100px;font-weight: bold; font-size:large;text-decoration: underline;" variant="light" size="sm">自動派工</b-button>
       <div class="page-name-display mx-2">{{ current_route_info.route_display_name }}</div>
       <div class="flex-fill"></div>
       <div class="options d-flex justify-content-between">

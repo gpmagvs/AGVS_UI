@@ -1,11 +1,15 @@
 <template>
-  <div class="d-flex flex-row">
+  <div class="d-flex flex-row" v-loading="loading"
+    element-loading-text="GPM AGVS"
+    :element-loading-spinner="svg"
+    element-loading-svg-view-box="-10, -10, 50, 50"
+    element-loading-background="rgba(31, 31, 31, 0.9)">
     <div>
-      <Header @onMenuToggleClicked="ToggleMenu"></Header>
+      <Header v-show="!loading" @onMenuToggleClicked="ToggleMenu"></Header>
     </div>
     <SideMenu></SideMenu>
     <div class="flex-fill" v-bind:style="router_view_style">
-      <router-view v-slot="{ Component }">
+      <router-view v-show="!loading" v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" />
         </keep-alive>
@@ -45,6 +49,7 @@ export default {
   },
   data() {
     return {
+      loading: true,
       showMenuToggleIcon: true,
       ShowOKOnlyModal: false,
       okOnlyModalProps: {
@@ -115,6 +120,9 @@ export default {
           this.router_view_style.paddingTop = '150px';
       }
     )
+    setTimeout(() => {
+      this.loading = false
+    }, 2000)
   },
 };
 

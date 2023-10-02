@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="show_dialog" draggable :title="`${source_station.Name}-搬運任務`">
+    <el-dialog destroy-on-close :modal="false" style="z-index:0" v-model="show_dialog" draggable :title="`${source_station.Name}-搬運任務`">
         <div class="justify-content-center px-5 cargo-transfer">
             <div class="w-100 border-bottom my-1">
                 <h3>車輛選擇</h3>
@@ -36,26 +36,49 @@
                 <el-table-column align="center" label="TAG" prop="TagID"></el-table-column>
                 <el-table-column align="center" label="動作">
                     <template #default="scope">
-                        <b-button style="width:90px" size="sm" variant="primary" :disabled="!Transferable(scope.row.TagID)">搬運</b-button>
+                        <el-popconfirm
+                            width="220"
+                            confirm-button-text="確定"
+                            cancel-button-text="取消"
+                            icon-color="#626AEF"
+                            title="確定要進行此搬運任務?"
+                            @confirm="HandleTransferBtnClick(scope.row.TagID)">
+                            <template #reference>
+                                <b-button style="width:90px" size="sm" variant="primary" :disabled="!Transferable(scope.row.TagID)">搬運</b-button>
+                            </template>
+                        </el-popconfirm>
                     </template>
                 </el-table-column>
                 <el-table-column width="300" label="說明">
                     <template #default="scope">
-                        <div class="text-danger">{{ NoTransferActionReason(scope.row.TagID) }}</div>
+                        <div class="text-danger">{{ GetNoTransferActionReason(scope.row.TagID) }}</div>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
+        <!-- <el-dialog draggable destroy-on-close width="500" title="確定要進行此搬運任務?" v-model="confirm_dialog_show">
+            <div class="d-flex flex-row justify-content-center">
+                <b-button>確定</b-button>
+                <b-button>取消</b-button>
+            </div>
+        </el-dialog> -->
     </el-dialog>
 </template>
 
 <script>
 import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import { EqStore, agvs_settings_store, agv_states_store } from '@/store'
+import { TaskAllocation, clsCarryTaskData } from '@/api/TaskAllocation';
+import { InfoFilled } from '@element-plus/icons-vue'
+
 export default {
+    components: {
+        InfoFilled,
+    },
     data() {
         return {
             show_dialog: false,
+            confirm_dialog_show: false,
             source_station: {},
             EQOptions: [],
             CandicateEQOptions: [],
@@ -66,6 +89,11 @@ export default {
     },
     methods: {
         ShowDialog(source_station, action = 'load') {
+            if (this.isRunMode) {
+                this.selectedAGVName = 'Assigning'
+            } else if (this.selectedAGVName == '') {
+                this.selectedAGVName = this.AgvNameList[0]
+            }
             this.source_station = source_station;
             this.action = action;
             this.CandicateEQOptions = [];
@@ -97,7 +125,7 @@ export default {
 
             }
         },
-        NoTransferActionReason(TagID) {
+        GetNoTransferActionReason(TagID) {
             if (TagID == undefined)
                 return "";
             var EQ = this.eq_status_data.find(eq => eq.Tag == TagID);
@@ -120,6 +148,34 @@ export default {
                     return `${EQ.EQName} 設備機構位置錯誤(Up_Pose)`
             }
             return ""
+        },
+        HandleTransferBtnClick(tag) {
+            if (this.selectedAGVName == '') {
+                this.show_dialog = false;
+                this.$swal.fire(
+                    {
+                        text: '',
+                        title: '請選擇車輛',
+                        icon: 'warning',
+                        showCancelButton: false,
+                        confirmButtonText: 'OK',
+                        customClass: 'my-sweetalert'
+                    }).then(() => {
+                        this.show_dialog = true
+                    })
+                return;
+            }
+            // alert(destin_tag)
+            var sourceTag = '-1'
+            var destineTag = '-1'
+            if (this.action == 'load') {
+                sourceTag = tag
+                destineTag = this.source_station.TagNumber
+            } else {
+                sourceTag = this.source_station.TagNumber
+                destineTag = tag
+            }
+            TaskAllocation.CarryTask(new clsCarryTaskData(this.selectedAGVName, sourceTag, 1, destineTag, 1, '-1', 5))
         }
     },
     computed: {
