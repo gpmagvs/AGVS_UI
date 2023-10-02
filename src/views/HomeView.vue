@@ -26,7 +26,8 @@
       visibility: isEasyMode ? 'visible' : 'hidden',
       position: 'absolute',
       top: '140px',
-      width: '100%'
+      width: '100%',
+      height: '82vh'
     }" class="easy_mode d-flex">
       <div>
         <AGVStatusVue :IsEasyMode="true"></AGVStatusVue>

@@ -1,5 +1,5 @@
 <template>
-  <div class="border-bottom bg-default text-start">
+  <div class="save-default-buttons-group border-bottom bg-default text-start">
     <el-button @click="HandleSaveBtnClick" type="primary" size="large">儲存</el-button>
     <el-button @click="HandleRestoreBtnClick" type="danger" size="large">預設值</el-button>
   </div>
@@ -17,5 +17,16 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+.save-default-buttons-group {
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  width: 100%;
+
+  button {
+    width: 100px;
+    font-weight: bold;
+    font-size: 20px;
+  }
+}
 </style>

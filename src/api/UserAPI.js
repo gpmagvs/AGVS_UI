@@ -36,6 +36,17 @@ export async function Modify(users) {
   return ret.data
 }
 
+/**刪除用戶 */
+export async function Delete(user_name) {
+  var ret = await axios_entity.delete(`api/Auth/Delete?user_name=${user_name}`)
+  return ret.data
+}
+
+/**新增用戶 */
+export async function Add(user) {
+  var ret = await axios_entity.post(`api/Auth/Add`, user)
+  return ret.data
+}
 export function StoreToLocalStorage(user) {
   user.LoginTime = Date.now()
   localStorage.setItem('user', JSON.stringify(user))
