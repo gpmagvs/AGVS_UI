@@ -3,6 +3,19 @@ import { Circle, Fill, Icon, Stroke, Style, Text, RegularShape } from 'ol/style.
 import Point from 'ol/geom/Point.js';
 import Feature from 'ol/Feature';
 import { Rectangle } from 'leaflet';
+import { MapStore } from './store';
+
+
+/**根據Index取得點位物件 */
+export function GetPointByIndex(index) {
+    var points = MapStore.getters.MapData.Points;
+    var pt = points[index]
+    if (pt) {
+        return pt;
+    } else {
+        return {}
+    }
+}
 
 /**階乘 */
 function factorial(num) {

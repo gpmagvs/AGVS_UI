@@ -45,27 +45,61 @@
               </el-radio-group>
             </div>
           </div>
-          <div
+          <!-- <div
             v-show="ShowWarningNotify"
-            class="bg-warning text-light border rounded p-1">目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作</div>
+            class="bg-warning text-light border rounded p-1">目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作 </div> -->
         </div>
-        <!-- map render -->
-        <div
-          :id="id"
-          v-bind:style="{ height: canva_height, marginTop: editable ? (ShowWarningNotify ? '120px' : '80px') : '0px' }"
-          class="agv_map flex-fll"
-          @contextmenu="showContextMenu($event)">
-          <div v-if="true" class="ol-control custom-buttons">
-            <button @click="HandleSettingBtnClick">
-              <i class="bi bi-sliders"></i>
-            </button>
-            <button @click="HandleSettingBtnClick">?</button>
-            <!-- <button>2</button> -->
+        <div class="d-flex flex-row" style="overflow-y: hidden;">
+          <!-- settings tabcontrol -->
+          <div v-if="EditorOption.EditMode == 'edit' && editable" class="border" style="padding-top: 84px; width:700px">
+            <b-tabs class="p-1">
+              <b-tab title="點位">
+                <div class="border">123</div>
+              </b-tab>
+              <b-tab title="路徑" active>
+                <div class="border">
+                  <div class="d-flex">
+                    <div style="width:70px">搜尋</div> <el-input></el-input>
+                  </div>
+                  <el-table :data="PathesSegments" highlight-current-row row-key="StartPtIndex" @row-click="HandlePathTbRowClick" border style="height: 650px;" size="small">
+                    <el-table-column label="起點" prop="StartPtIndex" width="120">
+                      <template #default="scope"> <b> {{ GetPointName(scope.row.StartPtIndex) }} </b></template>
+                    </el-table-column>
+                    <el-table-column label="終點" prop="EndPtIndex" width="120">
+                      <template #default="scope"> <b>{{ GetPointName(scope.row.EndPtIndex) }}</b> </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                      <template #default="scope">
+                        <div class="d-flex flex-row">
+                          <b-button size="sm" variant="primary">編輯</b-button>
+                          <b-button class="mx-1" size="sm" variant="danger" @click="HandlePathRemoveBtnClick(scope.row)">移除</b-button>
+                        </div>
+                      </template>
+                    </el-table-column>
+                    <!-- <el-table-column label="是否為工位路線" prop="IsEQLink"></el-table-column> -->
+                  </el-table>
+                </div>
+              </b-tab>
+            </b-tabs>
           </div>
-          <div class="ol-control cursour-coordination-show">
-            <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
+          <!-- map render -->
+          <div
+            :id="id"
+            v-bind:style="{ height: canva_height, marginTop: editable ? (ShowWarningNotify ? '120px' : '80px') : '0px' }"
+            class="agv_map flex-fll"
+            @contextmenu="showContextMenu($event)">
+            <div v-if="true" class="ol-control custom-buttons">
+              <button @click="HandleSettingBtnClick">
+                <i class="bi bi-sliders"></i>
+              </button>
+              <button @click="HandleSettingBtnClick">?</button>
+              <!-- <button>2</button> -->
+            </div>
+            <div class="ol-control cursour-coordination-show">
+              <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
+            </div>
+            <QuicklyAction></QuicklyAction>
           </div>
-          <QuicklyAction></QuicklyAction>
         </div>
         <MapSettingsDialog ref="settings"></MapSettingsDialog>
       </div>
@@ -180,7 +214,7 @@ import { Tile as TileLayer, Vector as VectorLayer, Graticule } from 'ol/layer.js
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex } from './mapjs';
 import { MapStore } from './store'
 import { EqStore } from '@/store'
 import { Fill, Stroke, Style, Circle } from 'ol/style';
@@ -303,7 +337,8 @@ export default {
       IsAddPathMode: true,
       PathEditTempStore: [],
       EditorOption: {
-        EditMode: 'view',
+        // EditMode: 'view',
+        EditMode: 'edit',
         EditAction: 'none'
       },
       /**顯示模式 : coordination 實際座標 ; router 整齊的路網*/
@@ -370,6 +405,26 @@ export default {
     },
   },
   methods: {
+    GetPointName(index) {
+      var pt = GetPointByIndex(index)
+      if (pt) {
+        return pt.Name;
+      }
+    },
+    HandlePathRemoveBtnClick(path_data) {
+      alert(JSON.stringify(path_data))
+    },
+    HandlePathTbRowClick(row, column, event) {
+      //alert(JSON.stringify(row))
+      var path_source = this.PointLinksLayer.getSource();
+      var path_feature = path_source.getFeatures().find(ft => ft.get('path_id') == row.PathID)
+      if (path_feature) {
+        // alert('Wooo!!!! ' + row.PathID)
+        //HighLight This Path
+        debugger
+        var oriStyles = path_feature.getStyle();
+      }
+    },
     UpdateStationPointLayer() {
       var stationPointFeatures = []
       var eqLDULDFeatures = []
@@ -424,7 +479,9 @@ export default {
         lineFeature.set('path_id', path.PathID)
         lineFeature.set('isEqLink', path.IsEQLink)
         lineFeature.set('feature_type', this.FeatureKeys.path)
-        lineFeature.setStyle(CreateStationPathStyles(lineFeature))
+        var styles = CreateStationPathStyles(lineFeature);
+        lineFeature.setStyle(styles)
+        lineFeature.set('ori_stroke_style', styles[0])
         stationLinkPathes.push(lineFeature)
       })
       source.addFeatures(stationLinkPathes);
@@ -548,9 +605,9 @@ export default {
 
           if (feature.get('path_id')) {
             var path_id = feature.get('path_id')
-            setTimeout(() => {
-              alert(path_id)
-            }, 100)
+            // setTimeout(() => {
+            //   alert(path_id)
+            // }, 100)
             return false;
           }
 
