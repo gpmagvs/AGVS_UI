@@ -144,19 +144,21 @@
                 <div class="d-flex w-100 my-2">
                   <div class="item-title">電量</div>
                   <div class="w-100 px-1 text-start">
-                    <b-progress class="flex-fill" :max="100" :min="0" animated> <b-progress-bar
-                        :animated="true"
-                        v-bind:class="BatteryClass(state.BatteryLevel_1)"
-                        :value="state.BatteryLevel_1"
-                        :label="`${((state.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
-                    </b-progress>
-                    <b-progress v-if="state.BatteryLevel_2 != -1.0" class="flex-fill my-1" :max="100" :min="0" animated>
-                      <b-progress-bar
-                        :animated="true"
-                        v-bind:class="BatteryClass(state.BatteryLevel_2)"
-                        :value="state.BatteryLevel_2"
-                        :label="`${((state.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
-                    </b-progress>
+                    <div style="width:110px">
+                      <b-progress class="flex-fill" :max="100" :min="0" animated> <b-progress-bar
+                          :animated="true"
+                          v-bind:class="BatteryClass(state.BatteryLevel_1)"
+                          :value="state.BatteryLevel_1"
+                          :label="`${((state.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                      </b-progress>
+                      <b-progress v-if="state.BatteryLevel_2 != -1.0" class="flex-fill my-1" :max="100" :min="0" animated>
+                        <b-progress-bar
+                          :animated="true"
+                          v-bind:class="BatteryClass(state.BatteryLevel_2)"
+                          :value="state.BatteryLevel_2"
+                          :label="`${((state.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                      </b-progress>
+                    </div>
                   </div>
                 </div>
                 <div class="d-flex w-100 my-1">
@@ -471,7 +473,7 @@ export default {
     font-size: 18px;
 
     .easy-mode-car-card {
-      width: 280px;
+      width: 290px;
 
       .item-title {
         width: 90px;
