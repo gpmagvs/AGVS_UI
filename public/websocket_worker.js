@@ -9,7 +9,13 @@ function initWebsocket(ws_url) {
         console.log('websocket connected');
     }
     socket.onmessage = (ev) => {
-        self.postMessage(JSON.parse(ev.data))
+        setTimeout(() => {
+            var data_json = ev.data;
+            if (data_json != previous_data_json) {
+                self.postMessage(JSON.parse(ev.data))
+                previous_data_json = ev.data
+            }
+        }, 100)
     }
     socket.onclose = (ev) => {
         if (auto_reconnect)
@@ -28,13 +34,21 @@ function closeWebsocket(_auto_reconnec = false) {
 function handleMessage(message) {
 }
 
+var previous_data_json = ''
+
 function TryReConnect() {
     console.info(`${_ws_url} websocket diconnect , retry to restore connection...`)
     var _socket = new WebSocket(_ws_url)
     _socket.onopen = (ev) => {
         socket = _socket
         socket.onmessage = (ev) => {
-            self.postMessage(JSON.parse(ev.data))
+            setTimeout(() => {
+                var data_json = ev.data;
+                if (data_json != previous_data_json) {
+                    self.postMessage(JSON.parse(ev.data))
+                    previous_data_json = ev.data
+                }
+            }, 100)
         }
     }
     _socket.onclose = (ev) => {

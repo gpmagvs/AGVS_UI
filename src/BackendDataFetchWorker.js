@@ -3,9 +3,6 @@ import { MapStore } from '@/components/Map/store'
 import param from "./gpm_param";
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 
-
-
-
 const agv_states_data_fetch_worker = new Worker('websocket_worker.js')
 agv_states_data_fetch_worker.onmessage = (event) => {
     if (event.data != 'error' && event.data != 'closed') {
@@ -18,7 +15,6 @@ agv_states_data_fetch_worker.postMessage({ command: 'connect', ws_url: param.bac
 
 
 const worker = new Worker('websocket_worker.js')
-
 worker.onmessage = (event) => {
     if (event.data != 'error' && event.data != 'closed')
         EqStore.commit('setData', event.data)
@@ -26,15 +22,11 @@ worker.onmessage = (event) => {
 worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/EQStatus' });
 
 const worker2 = new Worker('websocket_worker.js')
-
-
 worker2.onmessage = (event) => {
     if (event.data != 'error' && event.data != 'closed')
         MapStore.commit('setAGVDynamicPathInfo', event.data)
 }
-
 worker2.postMessage({ command: 'connect', ws_url: param.vms_ws_host + '/ws/AGVNaviPathsInfo' });
-
 
 
 const worker_hotrun_data = new Worker('websocket_worker.js')
