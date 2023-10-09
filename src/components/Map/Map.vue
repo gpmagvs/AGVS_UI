@@ -639,10 +639,13 @@ export default {
         },
         /**滑鼠拖曳事件 */
         handleDragEvent: function (event) {
+          var is_editable = this_vue.editable;
+          var edit_mode = this_vue.EditorOption.EditMode;
           var edit_action = this_vue.EditorOption.EditAction;
-          if (this_vue.EditorOption.EditMode == 'view') {
+
+          if (!is_editable || edit_mode != 'edit')
             return;
-          }
+
           if (edit_action == 'add-path' | edit_action == 'remove-path')
             return;
 
