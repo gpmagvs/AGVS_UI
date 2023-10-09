@@ -1,6 +1,6 @@
 <template>
   <div class="map-component">
-    <el-alert v-if="map_name == 'Unkown'" title="圖資異常" type="warning" effect="dark" />
+    <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
     <div class="d-flex h-100">
       <div class="flex-fill d-flex flex-column">
         <!-- 編輯選項 -->
@@ -16,7 +16,7 @@
             <div class="edit-block">
               <span>
                 <i class="bi bi-three-dots-vertical"></i>模式 </span>
-              <el-radio-group v-model="EditorOption.EditMode" size="large">
+              <el-radio-group v-model="EditorOption.EditMode" @change="(opt) => { RestoreOriginalPathStyle(this.selected_path_feature) }" size="large">
                 <el-radio-button size="small" label="view">檢視</el-radio-button>
                 <el-radio-button size="small" label="edit">編輯</el-radio-button>
               </el-radio-group>
@@ -51,16 +51,16 @@
         </div>
         <div class="d-flex flex-row" style="overflow-y: hidden;">
           <!-- settings tabcontrol -->
-          <div v-if="EditorOption.EditMode == 'edit' && editable" class="border" style="padding-top: 84px; width:700px">
+          <div v-if="EditorOption.EditMode == 'edit' && editable" class="border bg-light" style="padding-top: 84px; width:500px">
             <b-tabs class="p-1">
               <b-tab title="點位">
                 <div class="border">123</div>
               </b-tab>
               <b-tab title="路徑" active>
                 <div class="border">
-                  <div class="d-flex">
+                  <!-- <div class="d-flex">
                     <div style="width:70px">搜尋</div> <el-input></el-input>
-                  </div>
+                  </div> -->
                   <el-table :data="PathesSegments" highlight-current-row row-key="StartPtIndex" @row-click="HandlePathTbRowClick" border style="height: 650px;" size="small">
                     <el-table-column label="起點" prop="StartPtIndex" width="120">
                       <template #default="scope"> <b> {{ GetPointName(scope.row.StartPtIndex) }} </b></template>
@@ -85,7 +85,7 @@
           <!-- map render -->
           <div
             :id="id"
-            v-bind:style="{ height: canva_height, marginTop: editable ? (ShowWarningNotify ? '120px' : '80px') : '0px' }"
+            v-bind:style="{ height: canva_height, marginTop: editable ? '80px' : '0px' }"
             class="agv_map flex-fll"
             @contextmenu="showContextMenu($event)">
             <div v-if="true" class="ol-control custom-buttons">
@@ -98,7 +98,7 @@
             <div class="ol-control cursour-coordination-show">
               <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
             </div>
-            <QuicklyAction></QuicklyAction>
+            <!-- <QuicklyAction></QuicklyAction> -->
           </div>
         </div>
         <MapSettingsDialog ref="settings"></MapSettingsDialog>
@@ -106,7 +106,7 @@
       <!-- 設定 -->
       <div
         class="options bg-light border-start text-start px-1 py-3"
-        v-bind:style="{ marginTop: editable ? (ShowWarningNotify ? '120px' : '80px') : '0px' }">
+        v-bind:style="{ marginTop: editable ? '80px' : '0px' }">
         <div v-if="station_show" class="rounded d-flex flex-column">
           <span class="border-bottom">顯示名稱</span>
           <el-radio-group
@@ -203,28 +203,25 @@ import Map from 'ol/Map.js';
 import Point from 'ol/geom/Point.js';
 import VectorSource from 'ol/source/Vector.js';
 import LineString from 'ol/geom/LineString';
-import { Pointer, DragPan } from 'ol/interaction'
+import { Pointer } from 'ol/interaction'
 
 import Projection from 'ol/proj/Projection.js';
 import Static from 'ol/source/ImageStatic.js';
 import { getCenter } from 'ol/extent.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
-import { Tile as TileLayer, Vector as VectorLayer, Graticule } from 'ol/layer.js';
+import { Vector as VectorLayer } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
-import { AGVOption, clsAGVDisplay, clsMapStation, MapPointModel } from './mapjs';
+import { clsMapStation, MapPointModel } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex } from './mapjs';
 import { MapStore } from './store'
 import { EqStore } from '@/store'
 import { Fill, Stroke, Style, Circle } from 'ol/style';
-
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import QuicklyAction from './QuicklyActionMenu.vue'
-
-import MapAPI from '@/api/MapAPI';
 
 export default {
   components: {
@@ -355,7 +352,14 @@ export default {
       contextMenuTop: 0,
       contextMenuLeft: 0,
       contextMenuOptions: new MapContextMenuOptions(),
-      firstUseFlag: true
+      firstUseFlag: true,
+      selected_path_feature: undefined,
+      path_highlight_style: new Style({
+        stroke: new Stroke({
+          color: 'blue',
+          width: 8
+        })
+      })
     }
   },
   computed: {
@@ -415,15 +419,28 @@ export default {
       alert(JSON.stringify(path_data))
     },
     HandlePathTbRowClick(row, column, event) {
+      if (this.selected_path_feature) {
+        this.RestoreOriginalPathStyle(this.selected_path_feature)
+      }
       //alert(JSON.stringify(row))
       var path_source = this.PointLinksLayer.getSource();
       var path_feature = path_source.getFeatures().find(ft => ft.get('path_id') == row.PathID)
       if (path_feature) {
-        // alert('Wooo!!!! ' + row.PathID)
-        //HighLight This Path
-        debugger
         var oriStyles = path_feature.getStyle();
+        oriStyles[0] = this.path_highlight_style
+        path_feature.setStyle(oriStyles)
+        this.selected_path_feature = path_feature
+        var path_coor = path_feature.getGeometry().getCoordinates()[0];
+        this.map.getView().setCenter(path_coor);
       }
+    },
+    RestoreOriginalPathStyle(path_feature) {
+      if (!path_feature)
+        return;
+      var ori_style = path_feature.get('ori_stroke_style')
+      var styles = path_feature.getStyle();
+      styles[0] = ori_style
+      path_feature.setStyle(styles)
     },
     UpdateStationPointLayer() {
       var stationPointFeatures = []
@@ -1051,7 +1068,6 @@ export default {
           if (res.isConfirmed) {
             MapStore.dispatch('DownloadMapData', '')
             this._map_stations = JSON.parse(JSON.stringify(this.map_station_data))
-            console.log('update map ')
             this.UpdateStationPointLayer();
             this.UpdateStationPathLayer();
           }
@@ -1271,6 +1287,7 @@ export default {
     },
     ChangeLDULDStatus(tagNumber, status) {
       try {
+        var ld_uld_state = status == 3 ? 'load' : 'unload'
         var features = this.EQLDULDStatusLayer.getSource().getFeatures();
         var _feature = features.find(ft => ft.get('data').TagNumber == tagNumber);
         if (!_feature)
@@ -1281,6 +1298,7 @@ export default {
         var text = style.getText()
         if (!text)
           return;
+
         var status_text = ''
         if (status == 3 || status == 4) {
           status_text = status == 3 ? ' 入料請求' : '出料請求'
@@ -1289,12 +1307,27 @@ export default {
         text.setBackgroundFill(new Fill({
           color: status == 3 ? 'seagreen' : 'blue'
         }))
-        _feature.set('action', status == 3 ? 'load' : 'unload')
+
+        if (_feature.get('action') == ld_uld_state)
+          return;
+        _feature.set('action', ld_uld_state)
         _feature.setStyle(style)
       } catch (err) {
         debugger
       }
 
+    },
+    RenderEQLDULDStatus() {
+      this.eq_data.forEach(eq_states => {
+        setTimeout(() => {
+          this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
+        }, 100)
+      });
+    },
+    watch_eq_data_changed() {
+      setInterval(() => {
+        this.RenderEQLDULDStatus();
+      }, 100);
     }
   },
 
@@ -1307,38 +1340,16 @@ export default {
           () => this.map_station_data, (newval, oldval) => {
             if (!newval)
               return;
-            console.log('map_station_data_change');
             this._map_stations = JSON.parse(JSON.stringify(newval))
             this.UpdateStationPointLayer();
             this.UpdateStationPathLayer();
             this.MapDisplayModeOptHandler();
-            if (this.eq_lduld_status_show) {
-              watch(() => this.eq_data, (new_, old_) => {
-                if (new_.length > 0) {
-                  if (!old_) {
-                    new_.forEach(eq_states => {
-                      this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
-                    });
-                    return;
-                  }
-                  new_.forEach(eq_states => {
-                    var previous = old_.find(q => q.Tag == eq_states.Tag)
-                    if (previous) {
-                      if (previous.TransferStatus != eq_states.TransferStatus) {
-                        console.log(`eq ${eq_states.Tag} io status changed`)
-                        this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
 
-                      }
-                    }
-
-                  });
-
-                }
-              }, { deep: true, immediate: true })
-            }
           }, { deep: true, immediate: true }
         )
-
+        if (this.eq_lduld_status_show) {
+          this.watch_eq_data_changed();
+        }
         watch(() => this.agvs_info, (newval, oldval) => {
           if (!newval)
             return

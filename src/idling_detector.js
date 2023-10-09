@@ -3,7 +3,6 @@ import { GetFrontendOptions } from './api/SystemAPI';
 import { userStore } from './store';
 var idleTime = 0
 GetFrontendOptions().then(options => {
-    console.info(`website option downloaded:\r\n ${JSON.stringify(options)}`);
     var interval = setInterval(() => {
         idleTime += 1;
         if (idleTime >= options.WebUserLogoutExipreTime) {

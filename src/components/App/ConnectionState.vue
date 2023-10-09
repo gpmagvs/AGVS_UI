@@ -79,15 +79,8 @@ export default {
         }, 1000)
 
       }
-      // alive_check_ws.onerror = (ev) => {
-      //   console.log(ws_url + ' onerror')
-      //   this.Connections[index].connected = false;
-      //   this.ConnectionCheck(host, ws_url, index);
-      // }
       alive_check_ws.onopen = (ev) => {
-        console.log(ws_url + ' onopen')
         this.Connections[index].connected = true;
-
       }
     },
     handleTimeDoubleClick() {

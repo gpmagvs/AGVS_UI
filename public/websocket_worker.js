@@ -5,9 +5,7 @@ var auto_reconnect = true;
 function initWebsocket(ws_url) {
     _ws_url = ws_url;
     socket = new WebSocket(ws_url)
-    socket.onopen = () => {
-        console.log('websocket connected');
-    }
+    socket.onopen = () => { }
     socket.onmessage = (ev) => {
         setTimeout(() => {
             var data_json = ev.data;
@@ -37,7 +35,6 @@ function handleMessage(message) {
 var previous_data_json = ''
 
 function TryReConnect() {
-    console.info(`${_ws_url} websocket diconnect , retry to restore connection...`)
     var _socket = new WebSocket(_ws_url)
     _socket.onopen = (ev) => {
         socket = _socket
@@ -56,7 +53,6 @@ function TryReConnect() {
     }
 }
 self.onmessage = function (event) {
-    console.log('worker ', event)
     const data = event.data;
     if (data.command == 'connect') {
         initWebsocket(data.ws_url)

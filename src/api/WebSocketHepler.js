@@ -23,7 +23,6 @@ class WebSocketHelp {
   }
 
   Connect() {
-    console.info(`Try Connect to : ${this.ws_url}`)
     const socket = new WebSocket(`${this.ws_url}`)
 
     socket.onerror = (ev) => {
@@ -34,9 +33,7 @@ class WebSocketHelp {
   }
   /**重新連線 */
   ReconnectWorker() {
-    console.info(`[Reconnect] Try Connect to : ${this.ws_url}`)
     this.wssocket = new WebSocket(`${this.ws_url}`)
-
     this.wssocket.onmessage = this.onmessageHandler
     this.wssocket.onclose = this.oncloseHandler
     this.wssocket.onopen = this.onopenHandler

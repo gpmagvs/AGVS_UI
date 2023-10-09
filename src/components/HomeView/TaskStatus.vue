@@ -3,8 +3,8 @@
     <div v-show="show_card_title" class="title">
       <i class="bi bi-three-dots-vertical"></i>任務狀態 TASK STATUS
     </div>
-    <div class="px-1" v-if="display_mode=='tabs'">
-      <el-tabs @activate-tab="TabActiveHandle" size>
+    <div class="px-1" v-if="display_mode == 'tabs'">
+      <el-tabs size>
         <el-tab-pane label="未完成任務">
           <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskList"></RunningTaskTable>
         </el-tab-pane>
@@ -83,6 +83,7 @@ export default {
 .task-status {
   .column-display-mode {
     height: 100%;
+
     .title-display {
       text-align: left;
       font-weight: bold;

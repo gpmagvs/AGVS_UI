@@ -10,7 +10,7 @@
         :label="`${group.group_name}(${group.agv_states.length})`">
         <el-table
           v-if="!IsEasyMode"
-          :header-cell-style="{ color: 'black', backgroundColor: 'rgb(241, 241, 241)' }"
+          :header-cell-style="{ color: 'black', border: '1px solid rgb(222, 226, 230)', backgroundColor: 'rgb(241, 241, 241)' }"
           :data="group.agv_states"
           size="small"
           height="93%"
@@ -18,6 +18,8 @@
           :row-class-name="connected_class"
           highlight-current-row
           style="width:100%"
+          border
+          class="border"
           @row-click="HandleRowClick">
           <el-table-column label="車輛名稱" prop="AGV_Name" width="90px" type="index">
             <template #default="scope">

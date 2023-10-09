@@ -1,57 +1,50 @@
 <template>
   <div @mousemove="MapMouseMoveHandler">
     <b-alert class="map-notify py-1 px-2 text-start" v-if="!only_view" show variant="info">
-      <div class="mode-text">{{Mode_Text}}</div>
+      <div class="mode-text">{{ Mode_Text }}</div>
       <div class="d-flex flex-row">
         <div class="tips-text" v-for="tip in Tips" :key="tip">
-          <i class="bi bi-info-square"></i>
-          {{tip}}
+          <i class="bi bi-info-square"></i> {{ tip }}
         </div>
       </div>
     </b-alert>
     <div class="map-show h-100 border py-2 px-2 d-flex flex-row bg-light">
       <div class="w-100">
         <div
-          v-if="hoverPointData!=undefined"
+          v-if="hoverPointData != undefined"
           id="point-tooltip"
           class="rounded text-start p-2"
-          v-bind:style="TooltipStyle"
-        >
+          v-bind:style="TooltipStyle">
           <div>名稱 :{{ hoverPointData.Name }}</div>
           <div>Tag :{{ hoverPointData.TagNumber }} ({{ hoverPointData.X }},{{ hoverPointData.Y }},{{ hoverPointData.Direction }} )</div>
-          <div>站點類型 :{{GetPointTypeNameByTypeNum(hoverPointData.StationType) }}</div>
+          <div>站點類型 :{{ GetPointTypeNameByTypeNum(hoverPointData.StationType) }}</div>
         </div>
         <div class="header-div w-100 d-flex flex-row justify-content-between">
           <div class="options text-start d-flex flex-row">
             <div class="d-flex flex-row option-container">
               <span>
-                <i class="bi bi-three-dots-vertical"></i>顯示方式
-              </span>
+                <i class="bi bi-three-dots-vertical"></i>顯示方式 </span>
               <b-form-group @change="NameDisplayChangeHandle" v-slot="{ ariaDescribedby }">
                 <b-form-radio
                   v-model="display_selected"
                   :aria-describedby="ariaDescribedby"
                   name="some-radios"
-                  value="Index"
-                >Index</b-form-radio>
+                  value="Index">Index</b-form-radio>
                 <b-form-radio
                   v-model="display_selected"
                   :aria-describedby="ariaDescribedby"
                   name="some-radios"
-                  value="Tag"
-                >Tag</b-form-radio>
+                  value="Tag">Tag</b-form-radio>
                 <b-form-radio
                   v-model="display_selected"
                   :aria-describedby="ariaDescribedby"
                   name="some-radios"
-                  value="Name"
-                >名稱</b-form-radio>
+                  value="Name">名稱</b-form-radio>
               </b-form-group>
             </div>
             <div class="d-flex flex-row option-container">
               <span>
-                <i class="bi bi-three-dots-vertical"></i>AGV顯示
-              </span>
+                <i class="bi bi-three-dots-vertical"></i>AGV顯示 </span>
               <b-form-group @change="AGVDisplayChangeHandle">
                 <b-form-radio v-model="agv_display_mode_selected" value="hidden">隱藏</b-form-radio>
                 <b-form-radio v-model="agv_display_mode_selected" value="show">顯示</b-form-radio>
@@ -59,7 +52,7 @@
             </div>
           </div>
           <div>
-            <b-form-input v-model="map_name" disabled size="sm" :state="map_name!=undefined"></b-form-input>
+            <b-form-input v-model="map_name" disabled size="sm" :state="map_name != undefined"></b-form-input>
           </div>
         </div>
         <div
@@ -67,52 +60,45 @@
           ref="map"
           :key="reload_key"
           class="map border"
-          @click="HideAllMenus"
-        >
+          @click="HideAllMenus">
           <!--任務選單-->
           <div
             class="edit-mode-menu bg-light border rounded"
             v-if="showTaskAllocationMenu"
             ref="contextMenu"
-            :style="map_contextmenu_style"
-          >
+            :style="map_contextmenu_style">
             <div class="p-2 text-start">
               <span v-show="!is_agv_feature_selected">Tag:</span>
               <span v-show="is_agv_feature_selected">AGV:</span>
-              <b>{{is_agv_feature_selected? current_select_agv_name:current_select_featureID}}</b>
+              <b>{{ is_agv_feature_selected ? current_select_agv_name : current_select_featureID }}</b>
             </div>
             <div class="px-1" style="position:absolute;left:6px">
               <b-button
                 class="w-100 my-1"
                 size="sm"
                 variant="primary"
-                @click="handleTaskAllocatModeMenuClick('move')"
-              >移動</b-button>
+                @click="handleTaskAllocatModeMenuClick('move')">移動</b-button>
               <b-button
                 class="w-100 my-1"
                 size="sm"
                 variant="primary"
-                @click="handleTaskAllocatModeMenuClick('load')"
-              >放貨</b-button>
+                @click="handleTaskAllocatModeMenuClick('load')">放貨</b-button>
               <b-button
                 class="w-100 my-1"
                 size="sm"
                 variant="primary"
-                @click="handleTaskAllocatModeMenuClick('unload')"
-              >取貨</b-button>
+                @click="handleTaskAllocatModeMenuClick('unload')">取貨</b-button>
             </div>
           </div>
-
           <!--AGV選單-->
           <div
             class="edit-mode-menu bg-light border rounded"
             v-if="showAGVMenu"
             ref="contextMenu"
-            :style="map_contextmenu_style"
-          >
+            :style="map_contextmenu_style">
             <div class="p-2 text-start border-bottom">
               <span>AGV :</span>
-              <b>{{ current_select_agv_name}}</b>
+              <b>{{ current_select_agv_name }}</b>
             </div>
             <div class="px-1" style="position:absolute;left:6px">
               <el-color-picker v-model="color" show-alpha />
@@ -122,8 +108,7 @@
       </div>
       <MapPointSettingDrawer
         ref="point-setting-drawer"
-        @OnPointSettingChanged="PointSettingChangedHandle"
-      ></MapPointSettingDrawer>
+        @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
     </div>
     <b-modal
       draggable
@@ -132,10 +117,9 @@
       :hide-header-close="true"
       hide-footer
       no-close-on-esc
-      @cancel="()=>{selectPathVisible=false}"
+      @cancel="() => { selectPathVisible = false }"
       header-bg-variant="primary"
-      header-text-variant="light"
-    >
+      header-text-variant="light">
       <el-table height="150px" row-key="startPoint.Name" :data="PathesSelectedForDelete">
         <el-table-column label="起點" prop="startPoint.Name"></el-table-column>
         <el-table-column label="終點" prop="endPoint.Name"></el-table-column>
@@ -143,8 +127,7 @@
           <template #default="scope">
             <b-button
               variant="danger"
-              @click="RemovePathByPointsIndex( scope.row.startStation_Index, scope.row.endStation_Index)"
-            >Remove</b-button>
+              @click="RemovePathByPointsIndex(scope.row.startStation_Index, scope.row.endStation_Index)">Remove</b-button>
           </template>
         </el-table-column>
       </el-table>
@@ -152,7 +135,7 @@
   </div>
 </template>
   
-  <script>
+<script>
 import 'ol/ol.css';
 import ContextMenu from 'ol-contextmenu';
 import { Map, View, Feature } from 'ol';
@@ -1554,7 +1537,7 @@ export default {
     }
   },
 };
-  </script>
+</script>
   
 <style lang="scss" scoped>
 .map-notify {
@@ -1567,6 +1550,7 @@ export default {
     color: "orange";
   }
 }
+
 .map-show {
   #point-tooltip {
     position: fixed;
@@ -1576,9 +1560,11 @@ export default {
     z-index: 9200;
     border: 2px dashed black;
   }
+
   .header-div {
     height: 26px;
     margin-bottom: 9px;
+
     .options {
       .option-container {
         background-color: rgb(235, 235, 235);
@@ -1592,6 +1578,7 @@ export default {
           font-weight: bold;
         }
       }
+
       .form-check {
         float: right;
         margin-right: 15px;

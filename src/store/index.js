@@ -159,7 +159,6 @@ export const EqStore = createStore({
     ChargeStationData: state => {
       return state.ChargeStation;
     }
-
   },
   mutations: {
     setData(state, data) {

@@ -1,7 +1,6 @@
 <template>
   <div class="d-flex flex-row" v-loading="loading"
     element-loading-text="GPM AGVS"
-    :element-loading-spinner="svg"
     element-loading-svg-view-box="-10, -10, 50, 50"
     element-loading-background="rgba(31, 31, 31, 0.9)">
     <div>
@@ -89,7 +88,6 @@ export default {
 
     //嘗試存取前次的登入狀態，並更新 userStore的值
     if (login_states.isLogin) {
-      console.info(login_states);
       userStore.commit('setUser', login_states.login_info)
     }
 
