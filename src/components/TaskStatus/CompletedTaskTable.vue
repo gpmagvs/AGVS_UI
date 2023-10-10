@@ -9,11 +9,7 @@
       :height="height"
       empty-text="沒有任務">
       <el-table-column fixed="left" label="任務名稱" prop="TaskName" width="170"></el-table-column>
-      <el-table-column fixed="left" label="執行AGV" prop="DesignatedAGVName" width="90">
-        <template #default="scope">
-          <el-tag>{{ scope.row.DesignatedAGVName }}</el-tag>
-        </template>
-      </el-table-column>
+      <el-table-column fixed="left" label="執行AGV" prop="DesignatedAGVName"> </el-table-column>
       <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
       <el-table-column label="結束時間" prop="FinishTime_Formated" width="80"></el-table-column>
       <el-table-column label="任務狀態" prop="StateName" width="80">
@@ -23,7 +19,7 @@
       </el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60">
         <template #default="scope">
-          <el-tag>{{ scope.row.ActionName }}</el-tag>
+          <b>{{ scope.row.ActionName }}</b>
         </template>
       </el-table-column>
       <el-table-column label="卡匣ID" prop="Carrier_ID">
