@@ -7,8 +7,7 @@
       @save="SaveMapClickHandle"
       :editable="true"
       :agv_show="true"
-      canva_height="750px"
-    ></MapShow>
+      canva_height="750px"></MapShow>
   </div>
 </template>
 
@@ -51,10 +50,11 @@ export default {
   },
   methods: {
 
-    async SaveMapClickHandle(points_data) {
-      console.log(points_data);
+    async SaveMapClickHandle(mapDataSave) {
+      debugger
       var mapData = JSON.parse(JSON.stringify(MapStore.getters.MapData))
-      mapData.Points = points_data;
+      mapData.Points = mapDataSave.Points;
+      mapData.Segments = mapDataSave.Pathes;
       this.map_saving = true;
       this.$swal.fire(
         {

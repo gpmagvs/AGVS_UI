@@ -61,7 +61,7 @@
                   <!-- <div class="d-flex">
                     <div style="width:70px">搜尋</div> <el-input></el-input>
                   </div> -->
-                  <el-table :data="PathesSegments" highlight-current-row row-key="StartPtIndex" @row-click="HandlePathTbRowClick" border style="height: 650px;" size="small">
+                  <el-table :data="PathesSegmentsForEdit" highlight-current-row row-key="StartPtIndex" @row-click="HandlePathTbRowClick" border style="height: 650px;" size="small">
                     <el-table-column label="起點" prop="StartPtIndex" width="120">
                       <template #default="scope"> <b> {{ GetPointName(scope.row.StartPtIndex) }} </b></template>
                     </el-table-column>
@@ -359,7 +359,8 @@ export default {
           color: 'blue',
           width: 8
         })
-      })
+      }),
+      PathesSegmentsForEdit: []
     }
   },
   computed: {
@@ -416,7 +417,9 @@ export default {
       }
     },
     HandlePathRemoveBtnClick(path_data) {
-      alert(JSON.stringify(path_data))
+      var index = this.PathesSegmentsForEdit.indexOf(path_data);
+      this.PathesSegmentsForEdit.splice(index, 1);
+      this.UpdateStationPathLayer();
     },
     HandlePathTbRowClick(row, column, event) {
       if (this.selected_path_feature) {
@@ -476,8 +479,7 @@ export default {
       var source = this.PointLinksLayer.getSource();
       source.clear();
       var stationLinkPathes = [];
-
-      var pathSegments = this.PathesSegments
+      var pathSegments = this.PathesSegmentsForEdit
       pathSegments.forEach(path => {
         var lineCoordinations = [path.StartCoordination, path.EndCoordination]
         // if (path.IsBezier) {
@@ -593,6 +595,7 @@ export default {
       var dragInteraction = new Pointer({
         /**滑鼠點下事件 */
         handleDownEvent: function (event) {
+          debugger
           const isRightClick = event.originalEvent.button == 2
           this_vue.editModeContextMenuVisible = false;
 
@@ -617,14 +620,6 @@ export default {
           if (feature.get('feature_type') == 'lduld') {
             var action = feature.get('action')
             this_vue.HandleLDULDLabelClick(feature.get('data'), action);
-            return false;
-          }
-
-          if (feature.get('path_id')) {
-            var path_id = feature.get('path_id')
-            // setTimeout(() => {
-            //   alert(path_id)
-            // }, 100)
             return false;
           }
 
@@ -858,6 +853,7 @@ export default {
       this.ResetPathLink(feature, true)
     },
     RemovePath(path_feature) {
+      debugger
       var pathID = path_feature.get('path_id')
       var pathIDSplited = pathID.split('_')
       var startPtIndex = parseInt(pathIDSplited[0])
@@ -866,7 +862,16 @@ export default {
       var mapPointModel = startFeature.get('data')
       delete mapPointModel.Target[endPtIndex]
       var mapPointModel = startFeature.set('data', mapPointModel)
-      this.PointLinksLayer.getSource().removeFeature(path_feature)
+
+      var path = this.PathesSegmentsForEdit.find(path => path.StartPtIndex == startPtIndex && path.EndPtIndex == endPtIndex);
+      if (path) {
+        var index = this.PathesSegmentsForEdit.indexOf(path);
+        if (index != -1) {
+          this.PathesSegmentsForEdit.splice(index, 1);
+          this.UpdateStationPathLayer();
+        }
+      }
+      //this.PointLinksLayer.getSource().removeFeature(path_feature)
     },
     RemovePtTarget() {
 
@@ -941,12 +946,15 @@ export default {
       if (this.PathEditTempStore.length == 2) {
         var startPointFeature = this.PathEditTempStore[0];
         var endPointFeature = this.PathEditTempStore[1];
-        var startPoint = startPointFeature.getGeometry().getCoordinates();
-        var endPoint = endPointFeature.getGeometry().getCoordinates();
-        var midPoint = [(startPoint[0] + endPoint[0]) / 2, (startPoint[1] + endPoint[1]) / 2]
+        var startPtIndex = startPointFeature.get('index');
+        var endPtIndex = endPointFeature.get('index');
+
+        var startPointCoordinate = startPointFeature.getGeometry().getCoordinates();
+        var endPointCoordinate = endPointFeature.getGeometry().getCoordinates();
+        var midPoint = [(startPointCoordinate[0] + endPointCoordinate[0]) / 2, (startPointCoordinate[1] + endPointCoordinate[1]) / 2]
         var mindfeature = CreateNewStationPointFeature(midPoint, this.GenNewIndexOfStation());
         //this.PointLayer.getSource().addFeature(mindfeature)
-        var points = createBezierCurvePoints(2, [startPoint, midPoint, endPoint])
+        var points = createBezierCurvePoints(2, [startPointCoordinate, midPoint, endPointCoordinate])
 
         let lineFeature = new Feature(
           {
@@ -954,24 +962,43 @@ export default {
           },
         );
         var isEqLink = endPointFeature.get('station_type') != 0;
-        var endPointIndex = endPointFeature.get('index');
-        var path_id = `${startPointFeature.get('index')}_${endPointIndex}`
+        var path_id = `${startPtIndex}_${endPtIndex}`
 
         if (this.PointLinksLayer.getSource().getFeatures().find(f => f.get('path_id') == path_id))
           return;
+
+        var New_MapPath_V2 = {
+          StartPtIndex: startPtIndex,
+          EndPtIndex: endPtIndex,
+          StartCoordination: startPointCoordinate,
+          EndCoordination: endPointCoordinate,
+          IsEQLink: isEqLink,
+          IsSingleCar: false,
+          IsPassable: false,
+          IsExtinguishingPath: false,
+          Speed: 1,
+          LsrMode: 0,
+          DodgeMode: 0,
+          SpinMode: 0,
+        }
+        debugger
+        this.PathesSegmentsForEdit.push(New_MapPath_V2);
+
         var oritargets = startPointFeature.get('targets');
         if (!oritargets)
           oritargets = []
         var startPtMapData = startPointFeature.get('data')
-        startPtMapData.Target[endPointIndex] = 1//
+        startPtMapData.Target[endPtIndex] = 1//
         startPointFeature.set('data', startPtMapData)
-        oritargets.push(endPointIndex)
+        oritargets.push(endPtIndex)
         startPointFeature.set('targets', oritargets)
-        lineFeature.set('path_id', path_id)
-        lineFeature.set('isEqLink', isEqLink)
-        lineFeature.set('feature_type', this.FeatureKeys.path)
-        lineFeature.setStyle(CreateStationPathStyles(lineFeature))
-        this.PointLinksLayer.getSource().addFeature(lineFeature)
+
+        this.UpdateStationPathLayer();
+        // lineFeature.set('path_id', path_id)
+        // lineFeature.set('isEqLink', isEqLink)
+        // lineFeature.set('feature_type', this.FeatureKeys.path)
+        // lineFeature.setStyle(CreateStationPathStyles(lineFeature))
+        // this.PointLinksLayer.getSource().addFeature(lineFeature)
 
       }
     },
@@ -1039,13 +1066,17 @@ export default {
     /**儲存按鈕處理 */
     HandlerSaveBtnClick() {
       //把feature中的 'data' 物件資料取出
-      var mapData = {}
+      var Points = {}
       this.PointLayer.getSource().getFeatures().forEach(ft => {
         var index = ft.get('index')
         var data = ft.get('data')
-        mapData[index] = data;
+        Points[index] = data;
       })
-      this.$emit('save', mapData)
+      var mapDataSave = {
+        Points: Points,
+        Pathes: this.PathesSegmentsForEdit
+      }
+      this.$emit('save', mapDataSave)
     },
     HandlePtSettingBtnClick() {
       this.editModeContextMenuVisible = false;
@@ -1067,11 +1098,18 @@ export default {
         }).then((res) => {
           if (res.isConfirmed) {
             MapStore.dispatch('DownloadMapData', '')
-            this._map_stations = JSON.parse(JSON.stringify(this.map_station_data))
-            this.UpdateStationPointLayer();
-            this.UpdateStationPathLayer();
+            setTimeout(() => {
+
+              this._map_stations = JSON.parse(JSON.stringify(this.map_station_data))
+              this.DeepClonePathSegmentData();
+              this.UpdateStationPointLayer();
+              this.UpdateStationPathLayer();
+            }, 1000);
           }
         })
+    },
+    DeepClonePathSegmentData() {
+      this.PathesSegmentsForEdit = JSON.parse(JSON.stringify(this.PathesSegments))
     },
     InitMap() {
       const extent = this.map_img_extent;
@@ -1335,7 +1373,9 @@ export default {
     setTimeout(() => {
       MapStore.dispatch('DownloadMapData').then(() => {
         this.RestoreSettingsFromLocalStorage();
+        this.DeepClonePathSegmentData();
         this.InitMap();
+
         watch(
           () => this.map_station_data, (newval, oldval) => {
             if (!newval)

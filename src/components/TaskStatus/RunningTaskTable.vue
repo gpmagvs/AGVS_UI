@@ -13,7 +13,7 @@
       <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
       <el-table-column label="任務狀態" prop="StateName" width="80">
         <template #default="scope">
-          <el-tag :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
+          <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60">

@@ -188,15 +188,10 @@ export const MapStore = createStore({
     },
     actions: {
         async DownloadMapData({ commit, getters }) {
-            if (getters.MapData.Name == undefined) {
-
-                await getters.MapBackednAxios.get('api/Map').then(response => {
-                    console.log('[MapStore] get map data', response.data);
-                    commit('setMapData', response.data)
-                });
-            } else {
-            }
-
+            await getters.MapBackednAxios.get('api/Map').then(response => {
+                console.log('[MapStore] get map data', response.data);
+                commit('setMapData', response.data)
+            });
         },
         Save({ commit }) {
 
