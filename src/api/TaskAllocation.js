@@ -9,7 +9,7 @@ var axios_entity = axios.create({
 
 export class clsMoveTaskData {
   constructor(agv_name, to_tag, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Move_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 0
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -23,7 +23,7 @@ export class clsMoveTaskData {
 
 export class clsMeasureTaskData {
   constructor(agv_name, bay_name, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Measure_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 6
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -36,7 +36,7 @@ export class clsMeasureTaskData {
 }
 export class clsLoadTaskData {
   constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Load_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 7
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -50,7 +50,7 @@ export class clsLoadTaskData {
 
 export class clsUnloadTaskData {
   constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Unload_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 1
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -64,7 +64,7 @@ export class clsUnloadTaskData {
 
 export class clsChargeTaskData {
   constructor(agv_name, to_tag, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Charge_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 8
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -78,7 +78,7 @@ export class clsChargeTaskData {
 
 export class clsExangeBatteryTaskData {
   constructor(agv_name, to_tag, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `BatEx_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 14
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -91,7 +91,7 @@ export class clsExangeBatteryTaskData {
 }
 export class clsParkTaskData {
   constructor(agv_name, to_tag, Priority = 50) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Park_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 12
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -113,7 +113,7 @@ export class clsCarryTaskData {
     cst_id,
     Priority = 50,
   ) {
-    this.TaskName = `*Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 9
     this.DesignatedAGVName = agv_name
     this.From_Station = from_tag + ''
@@ -180,6 +180,7 @@ export async function GetHotRunSettings() {
 
 export async function StartHotRun(no) {
   var response = await axios_entity.get(`/api/Task/HotRun/Start?no=${no}`)
+  return response.data;//{confirm,message}
 }
 
 export async function StopHotRun(no) {

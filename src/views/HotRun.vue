@@ -289,9 +289,31 @@ export default {
             showCancelButton: true,
             confirmButtonText: 'OK',
             customClass: 'my-sweetalert'
-          }).then(res => {
+          }).then(async (res) => {
             if (res.isConfirmed) {
-              StartHotRun(script.no)
+              var response = await StartHotRun(script.no)
+              if (!response.confirm) {
+                this.$swal.fire(
+                  {
+                    text: response.message,
+                    title: '無法執行HOT RUN',
+                    icon: 'error',
+                    showCancelButton: false,
+                    confirmButtonText: 'OK',
+                    customClass: 'my-sweetalert'
+                  })
+              } else {
+                this.$swal.fire(
+                  {
+                    text: '',
+                    title: 'HOT RUN Start!',
+                    icon: 'success',
+                    showCancelButton: false,
+                    confirmButtonText: 'OK',
+                    customClass: 'my-sweetalert'
+                  })
+              }
+
             }
           })
       } else {
