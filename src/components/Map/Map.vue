@@ -545,7 +545,7 @@ export default {
           var actionString = agv_information.CurrentAction
           var text = style.getText();
           var agvText = agv_information.AgvName + (actionString == '' ? '' : `(${actionString})`);
-          agvText += agv_information.WaitingInfo.IsWaiting ? `\r\n等待${agv_information.WaitingInfo.WaitingPoint.Name} Release..` : '';
+          agvText += agv_information.WaitingInfo.IsWaiting ? '\r\n' + agv_information.WaitingInfo.Descrption : '';
           text.setText(agvText);
 
           var fill = text.getBackgroundFill()

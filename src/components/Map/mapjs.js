@@ -476,6 +476,7 @@ export class clsAGVDisplay {
 export class clsWaitingInfo {
     constructor() {
         this.IsWaiting = false;
+        this.Descrption = '';
         this.WaitingPoint = {}
     }
 }
