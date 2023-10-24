@@ -28,7 +28,7 @@
         style="float:right"> 輸出csv檔</b-button>
     </div>
     <div>
-      <el-table border :data="alarms" empty-text="No Alarms" row-class-name="row_state_class_name" size="small"
+      <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small"
         style="width: 100%" aria-current="currentpage" id="alarmtable">
         <el-table-column label="發生時間" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
@@ -103,7 +103,11 @@ export default {
       this.alarms = JSON.parse(ev.data)
     },
     row_state_class_name({ row, rowIndex }) {
-      return row.Level == 1 ? 'ALARM' : 'WARNING';
+      if (row.rowIndex < 0) {
+        return '';
+      }
+      var level = this.alarms[rowIndex].Level;
+      return level == 1 ? 'alarm-row' : 'warning-row';
     },
     async QueryAlarm() {
       this.loading = true;
@@ -153,16 +157,13 @@ export default {
     }
   }
 
-  .el-table {
-    .WARNING {
-      background: rgb(255, 210, 6);
-      color: black;
-    }
+  .el-table .warning-row {
+    background-color: rgb(255, 237, 186);
+    /* --el-table-tr-bg-color: var(--el-color-warning-light-9); */
+  }
 
-    .ALARM {
-      background: rgb(250, 72, 72);
-      color: white;
-    }
+  .el-table .alarm-row {
+    background-color: rgb(245, 198, 206);
   }
 }
 </style>

@@ -388,13 +388,13 @@ export default {
     },
     GetAGVStatusString(status_code) {
       if (status_code == 1)
-        return "待命中/IDLE"
+        return "閒置中"
       else if (status_code == 2)
-        return "執行中/RUN"
+        return "執行中"
       else if (status_code == 3)
-        return "當機/DOWN"
+        return "當機"
       else if (status_code == 4)
-        return "充電中/Charging"
+        return "充電中"
       else
         return "Unknown"
     },

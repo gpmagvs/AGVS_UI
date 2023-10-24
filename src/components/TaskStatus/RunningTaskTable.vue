@@ -84,6 +84,7 @@ export default {
   methods: {
     CancelTaskHandler(task_name) {
       this.cancelTaskName = task_name;
+      var isHotRunTask = task_name.includes('HR')
       this.$swal.fire(
         {
           title: '確定要取消任務?',
@@ -95,6 +96,19 @@ export default {
         }).then(res => {
           if (res.isConfirmed) {
             this.SendCancelTaskRequest()
+
+            if (isHotRunTask) {
+              this.$swal.fire(
+                {
+                  text: '',
+                  title: '是否要取消HOT RUN測試?',
+                  icon: 'question',
+                  showCancelButton: true,
+                  confirmButtonText: 'OK',
+                  customClass: 'my-sweetalert'
+                })
+            }
+
           }
         })
     },
