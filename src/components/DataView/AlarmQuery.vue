@@ -8,31 +8,27 @@
       <label>EQ Name</label>
       <select prop="EQ Name" v-model="AGVSelected">
         <option>ALL</option>
-        <option>AGV_1</option>
-        <option>AGV_2</option>
-        <option>AGV_3</option>
+        <option v-for="name in AgvNameList" :key="name">{{ name }}</option>
       </select>
       <label>任務名稱</label>
-      <input type="text" v-model="TaskName" placeholder="ALL" size="20"/>
-      <b-button 
-      @click="QueryAlarm()" 
-       :QueryAlarm="QueryAlarm" 
-       class="Select-Query" 
-       variant="primary" 
-       size="sm"
-       style="float:right"
-       >搜尋</b-button>
-      <b-button 
-       @click="SaveTocsv()" 
-       :SaveTocsv="SaveTocsv" 
-       class="SaveTocsv mx-2" 
-       variant="primary" 
-       size="sm"
-       style="float:right">
-       輸出csv檔</b-button>
+      <input type="text" v-model="TaskName" placeholder="ALL" size="20" />
+      <b-button
+        @click="QueryAlarm()"
+        :QueryAlarm="QueryAlarm"
+        class="Select-Query"
+        variant="primary"
+        size="sm"
+        style="float:right">搜尋</b-button>
+      <b-button
+        @click="SaveTocsv()"
+        :SaveTocsv="SaveTocsv"
+        class="SaveTocsv mx-2"
+        variant="primary"
+        size="sm"
+        style="float:right"> 輸出csv檔</b-button>
     </div>
     <div>
-      <el-table :data="alarms" empty-text="No Alarms" row-class-name="row_state_class_name" size="small"
+      <el-table border :data="alarms" empty-text="No Alarms" row-class-name="row_state_class_name" size="small"
         style="width: 100%" aria-current="currentpage" id="alarmtable">
         <el-table-column label="發生時間" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
@@ -50,7 +46,7 @@
           </template>
         </el-table-column>
         <el-table-column label="任務名稱" prop="Task_Name" width="210"></el-table-column>
-        <el-table-column label="發生地點" prop="OccurLocation" width="80"></el-table-column>
+        <el-table-column label="發生地點" prop="OccurLocation" width="120"></el-table-column>
         <el-table-column label="持續時間" prop="Duration" width="80"></el-table-column>
         <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" min-width="120"></el-table-column>
       </el-table>
@@ -65,6 +61,8 @@ import { QueryAlarm } from '@/api/AlarmAPI.js'
 import { SaveTocsv } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 import Notifier from '@/api/NotifyHelper'
+
+import { userStore, agv_states_store } from '@/store';
 export default {
   data() {
     return {
@@ -73,11 +71,17 @@ export default {
       AGVSelected: 'ALL',
       TaskName: '',
       alarms: [],
-      per_page_num: 15,
+      per_page_num: 20,
       rows: 1,
       currentpage: 1,
       loading: false,
     }
+  },
+
+  computed: {
+    AgvNameList() {
+      return agv_states_store.getters.AGVNameList
+    },
   },
   mounted() {
     const EndDate = new Date();

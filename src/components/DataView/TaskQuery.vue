@@ -8,28 +8,24 @@
       <label>EQ Name</label>
       <select prop="EQ Name" v-model="AGVSelected">
         <option>ALL</option>
-        <option>AGV_1</option>
-        <option>AGV_2</option>
-        <option>AGV_3</option>
+        <option v-for="name in AgvNameList" :key="name">{{ name }}</option>
       </select>
       <label>任務名稱</label>
-      <input type="text" v-model="TaskName" placeholder="ALL" size="20"/>
+      <input type="text" v-model="TaskName" placeholder="ALL" size="20" />
       <b-button
         @click="TaskQuery()"
         :TaskQuery="TaskQuery"
         class="Select-Query"
         variant="primary"
         size="sm"
-        style="float:right"
-      >搜尋</b-button>
+        style="float:right">搜尋</b-button>
       <b-button
         @click="SaveTocsv()"
         :SaveTocsv="SaveTocsv"
         class="SaveTocsv mx-2"
         variant="primary"
         size="sm"
-        style="float:right"
-      >輸出csv檔</b-button>
+        style="float:right">輸出csv檔</b-button>
     </div>
     <div>
       <el-table
@@ -38,9 +34,9 @@
         row-class-name="row_state_class_name"
         size="small"
         style="width: 100%"
+        border
         aria-current="currentpage"
-        id="Tasktable"
-      >
+        id="Tasktable">
         <el-table-column label="接收時間" prop="RecieveTime" width="160">
           <template #default="scope">{{ formatTime(scope.row.RecieveTime) }}</template>
         </el-table-column>
@@ -62,15 +58,16 @@
         aria-controls="Tasktable"
         class="pagination justify-content-center"
         v-model="currentpage"
-        @click="PageChnageHandle"
-      ></b-pagination>
+        @click="PageChnageHandle"></b-pagination>
     </div>
   </div>
 </template>
   
-  <script>
+<script>
 import { TaskQuery } from '@/api/TaskAPI.js'
 import { SaveTocsv } from '@/api/TaskAPI.js'
+import { userStore, agv_states_store } from '@/store';
+
 import moment from 'moment'
 import Notifier from '@/api/NotifyHelper'
 export default {
@@ -81,11 +78,16 @@ export default {
       AGVSelected: 'ALL',
       TaskName: '',
       tasks: [],
-      per_page_num: 10,
+      per_page_num: 20,
       rows: 1,
       currentpage: 1,
       loading: false,
     }
+  },
+  computed: {
+    AgvNameList() {
+      return agv_states_store.getters.AGVNameList
+    },
   },
   mounted() {
     const EndDate = new Date();
@@ -138,9 +140,9 @@ export default {
     }
   },
 }
-  </script>
+</script>
   
-  <style lang="scss" scoped>
+<style lang="scss" scoped>
 .Task-query {
   overflow-y: scroll;
   padding: 0px;
