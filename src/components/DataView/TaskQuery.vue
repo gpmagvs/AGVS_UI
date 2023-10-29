@@ -52,7 +52,7 @@
         empty-text="No Tasks"
         row-class-name="row_state_class_name"
         size="small"
-        style="width: 100%"
+        style="width: 100%;font-weight: bold;"
         border
         aria-current="currentpage"
         id="Tasktable">
@@ -63,7 +63,11 @@
           <template #default="scope">{{ formatTime(scope.row.FinishTime) }}</template>
         </el-table-column>
         <el-table-column label="任務名稱" prop="TaskName" width="210"></el-table-column>
-        <el-table-column label="執行結果" prop="StateName" width="100" align="center"></el-table-column>
+        <el-table-column label="執行結果" prop="StateName" width="100" align="center">
+          <template #default="scope">
+            <el-tag effect="dark" :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'error' : 'warning'">{{ scope.row.StateName }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="AGV名稱" prop="DesignatedAGVName" width="100" align="center"></el-table-column>
         <el-table-column label="任務類型" prop="ActionName" min-width="30" align="center"></el-table-column>
         <el-table-column label="起始站點" prop="From_Station" width="120" align="center"></el-table-column>
@@ -108,7 +112,7 @@ export default {
       ActionTypeSelected: 'ALL',
       TaskName: '',
       tasks: [],
-      per_page_num: 20,
+      per_page_num: 19,
       rows: 1,
       currentpage: 1,
       loading: false,
@@ -121,7 +125,9 @@ export default {
   },
   mounted() {
     const EndDate = new Date();
-    this.end_time = EndDate.toISOString().substring(0, 10) + ' 00:00:00';
+    this.end_time = EndDate.toISOString().substring(0, 10) + ' 23:59:59';
+    this.start_time = moment(this.end_time, 'YYYY-MM-DD HH:mm:ss').subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
+
     TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
       this.tasks = retquery.tasks
       this.rows = retquery.count;

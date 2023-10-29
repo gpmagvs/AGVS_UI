@@ -185,14 +185,14 @@ body,
 html {
   width: 100vw;
   height: 100%;
-  -webkit-user-select: none;
-  /* Chrome, Safari, Opera */
-  -moz-user-select: none;
-  /* Firefox */
-  -ms-user-select: none;
-  /* IE 10+ */
-  user-select: none;
-  //overflow-x: hidden;
-  // overflow-y: hidden;
+  // -webkit-user-select: none;
+  // /* Chrome, Safari, Opera */
+  // -moz-user-select: none;
+  // /* Firefox */
+  // -ms-user-select: none;
+  // /* IE 10+ */
+  // user-select: none;
+  // //overflow-x: hidden;
+  // // overflow-y: hidden;
 }
 </style>

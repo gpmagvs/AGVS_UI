@@ -5,6 +5,12 @@
       <input type="datetime-local" v-model="start_time" prop="Start Time" />
       <label>End Time</label>
       <input type="datetime-local" v-model="end_time" prop="End Time" />
+      <label>警報類型</label>
+      <select v-bind:class="AlarmTypeSelected == 'ALL' ? '' : AlarmTypeSelected == 'Alarm' ? 'bg-danger text-light' : 'bg-warning text-light'" prop="EQ Name" v-model="AlarmTypeSelected">
+        <option>ALL</option>
+        <option class="bg-danger text-light">Alarm</option>
+        <option class="bg-warning text-light">Warning</option>
+      </select>
       <label>EQ Name</label>
       <select prop="EQ Name" v-model="AGVSelected">
         <option>ALL</option>
@@ -29,29 +35,32 @@
     </div>
     <div>
       <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small"
-        style="width: 100%" aria-current="currentpage" id="alarmtable">
+        style="width: 100%;font-weight: bold;" aria-current="currentpage" id="alarmtable">
         <el-table-column label="發生時間" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
         </el-table-column>
-        <el-table-column label="AGV名稱" prop="Equipment_Name" width="80"></el-table-column>
-        <el-table-column label="警報碼" prop="AlarmCode" width="60"></el-table-column>
+        <el-table-column label="AGV名稱" prop="Equipment_Name" width="80" align="center"></el-table-column>
+        <el-table-column label="警報碼" prop="AlarmCode" width="60" align="center"></el-table-column>
         <el-table-column label="警報描述" prop="Description_En" min-width="420">
           <template #default="scope">
             <div>{{ scope.row.Description_En }}({{ scope.row.Description_Zh }})</div>
           </template>
         </el-table-column>
-        <el-table-column label="警報類型" prop="Level" width="100">
+        <el-table-column label="警報類型" prop="Level" width="100" align="center">
           <template #default="scope">
-            <div>{{ scope.row.Level == 1 ? 'ALARM' : 'WARNING' }}</div>
+            <el-tag style="width:80px" effect="dark" :type="scope.row.Level == 1 ? 'error' : 'warning'">{{ scope.row.Level == 1 ? 'Alarm' : 'Warning' }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="任務名稱" prop="Task_Name" width="210"></el-table-column>
-        <el-table-column label="發生地點" prop="OccurLocation" width="120"></el-table-column>
-        <el-table-column label="持續時間" prop="Duration" width="80"></el-table-column>
+        <el-table-column label="發生地點" prop="OccurLocation" width="120" align="center"></el-table-column>
+        <el-table-column label="持續時間(s)" prop="Duration" width="90" align="center"></el-table-column>
         <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" min-width="120"></el-table-column>
       </el-table>
-      <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="alarmtable"
-        class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
+      <div class="d-flex flex-row justify-content-center">
+        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="alarmtable"
+          class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
+        <div class="mx-3 py-2">共 <span style="font-weight: bold; font-size: large;"> {{ rows }}</span>筆</div>
+      </div>
     </div>
   </div>
 </template>
@@ -69,9 +78,10 @@ export default {
       start_time: '2023-06-01 00:00:00',
       end_time: '2023-06-03 00:00:00',
       AGVSelected: 'ALL',
+      AlarmTypeSelected: 'ALL',
       TaskName: '',
       alarms: [],
-      per_page_num: 20,
+      per_page_num: 19,
       rows: 1,
       currentpage: 1,
       loading: false,
@@ -85,8 +95,8 @@ export default {
   },
   mounted() {
     const EndDate = new Date();
-    this.end_time = EndDate.toISOString().substring(0, 10) + ' 00:00:00';
-    //this.start_time = (new Date().setDate(EndDate.getDate()-7)).toISOString().substring(0,10) + ' 00:00:00';
+    this.end_time = EndDate.toISOString().substring(0, 10) + ' 23:59:59';
+    this.start_time = moment(this.end_time, 'YYYY-MM-DD HH:mm:ss').subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
     QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
       this.alarms = retquery.alarms
       this.rows = retquery.count;
@@ -116,7 +126,7 @@ export default {
       this.currentpage = 1;
       this.payload = 2;
       setTimeout(() => {
-        QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
+        QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.AlarmTypeSelected).then(retquery => {
           this.alarms = retquery.alarms
           this.rows = retquery.count;
           this.currentpage = retquery.currentpage;
@@ -134,7 +144,7 @@ export default {
       Notifier.Primary('檔案儲存成功')
     },
     PageChnageHandle(payload) {
-      QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
+      QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.AlarmTypeSelected).then(retquery => {
         this.alarms = retquery.alarms;
       }
       ).catch(er => {
@@ -145,7 +155,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" >
 .alarm-query {
   overflow-y: scroll;
   padding: 0px;

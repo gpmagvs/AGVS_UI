@@ -87,7 +87,7 @@
                 class="w-100 my-2"
                 @click="TaskDeliveryBtnClickHandle"
                 variant="primary">派送任務</b-button>
-              <b-button class="w-100" @click="HandleNavPathPreviewBtnClick" variant="default">預覽路徑</b-button>
+              <!-- <b-button class="w-100" @click="HandleNavPathPreviewBtnClick" variant="default">預覽路徑</b-button> -->
             </el-form-item>
           </el-form>
           <Map

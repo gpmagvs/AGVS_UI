@@ -3,8 +3,15 @@
     <div class>
       <!--  -->
       <el-tooltip placement="right" content="Home">
-        <div v-bind:style="Selected('/')" class="side-item" @click="PageSwitch('/', 'Home')">
+        <div class="side-item" @click="PageSwitch('/', 'Home')">
           <div class="logo-text"> GPM <div class="log-sub-text">AGVS</div>
+          </div>
+        </div>
+      </el-tooltip>
+      <el-tooltip placement="right" content="Home">
+        <div v-bind:style="Selected('/')" class="side-item" @click="PageSwitch('/', 'Home')">
+          <div class="menu-icon round">
+            <img src="images/home.png" :height="icon_size" alt />
           </div>
         </div>
       </el-tooltip>
@@ -43,8 +50,8 @@
           </div>
         </div>
       </el-tooltip>
-      <el-tooltip placement="right" content="資料">
-        <div v-bind:style="Selected('/data')" class="side-item" @click="PageSwitch('/data', '資料')">
+      <el-tooltip placement="right" content="資料查詢">
+        <div v-bind:style="Selected('/data')" class="side-item" @click="PageSwitch('/data', '資料查詢')">
           <div class="menu-icon round">
             <img src="images/database.png" :height="icon_size" alt />
           </div>

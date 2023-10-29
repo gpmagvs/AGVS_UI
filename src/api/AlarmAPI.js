@@ -17,23 +17,24 @@ export async function ResetEquipmentAlarm() {
 }
 
 /**警報查詢 */
-export async function QueryAlarm(currentpage,start_time,end_time,AGV_Name='ALL',TaskName='ALL') {
-  var retquery= await axios_entity.get(`/api/Alarmquery/QueryAlarm?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`)
+export async function QueryAlarm(currentpage, start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL', AlarmType = "ALL") {
+  var retquery = await axios_entity.get(`/api/Alarmquery/QueryAlarm?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&AlarmType=${AlarmType}`)
   return retquery.data;
 }
 /**輸出CSV */
-export async function SaveTocsv(start_time,end_time,AGV_Name='ALL',TaskName='ALL') {
-  const response = await axios_entity.get(`/api/Alarmquery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`,{responseType: 'blob',});
+export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL') {
+  const response = await axios_entity.get(`/api/Alarmquery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`, { responseType: 'blob', });
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', 'AlarmQuery.csv'); // 設定下載檔案的名稱
+  let fileName = `AGVS_Alarms_From_${start_time}_To_${end_time}.csv`
+  link.setAttribute('download', fileName); // 設定下載檔案的名稱
   document.body.appendChild(link);
   link.click();
 }
 
 export class AlarmHelper {
-  constructor(onmessage = (evt) => {}) {
+  constructor(onmessage = (evt) => { }) {
     this.onmessageHandler = onmessage
     var _alarm_ws = new WebSocketHelp('/UncheckedAlarm')
     _alarm_ws.Connect()
