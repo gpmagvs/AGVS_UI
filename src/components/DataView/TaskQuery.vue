@@ -62,7 +62,14 @@
         <el-table-column label="結束時間" prop="FinishTime" width="160">
           <template #default="scope">{{ formatTime(scope.row.FinishTime) }}</template>
         </el-table-column>
-        <el-table-column label="任務名稱" prop="TaskName" width="210"></el-table-column>
+        <el-table-column label="任務名稱" prop="TaskName" width="230">
+          <template #default="scope">
+            <div> {{ scope.row.TaskName }} <el-tooltip placement="top-start" content="複製到剪貼簿">
+                <i @click="CopyText(scope.row.TaskName)" class="copy-button copy-icon bi bi-clipboard"></i>
+              </el-tooltip>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="執行結果" prop="StateName" width="100" align="center">
           <template #default="scope">
             <el-tag effect="dark" :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'error' : 'warning'">{{ scope.row.StateName }}</el-tag>
@@ -72,7 +79,14 @@
         <el-table-column label="任務類型" prop="ActionName" min-width="30" align="center"></el-table-column>
         <el-table-column label="起始站點" prop="From_Station" width="120" align="center"></el-table-column>
         <el-table-column label="結束站點" prop="To_Station" width="120" align="center"></el-table-column>
-        <el-table-column label="載物ID" prop="Carrier_ID" min-width="30"></el-table-column>
+        <el-table-column label="載物ID" prop="Carrier_ID" min-width="30">
+          <template #default="scope">
+            <div> {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }} <el-tooltip placement="top-start" content="複製到剪貼簿">
+                <i v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''" @click="CopyText(scope.row.Carrier_ID)" class="copy-button copy-icon bi bi-clipboard"></i>
+              </el-tooltip>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="派工人員" prop="DispatcherName" width="100"></el-table-column>
         <el-table-column label="失敗原因" prop="FailureReason" min-width="120">
           <template #default="scope">
@@ -99,7 +113,7 @@
 import { TaskQuery } from '@/api/TaskAPI.js'
 import { SaveTocsv } from '@/api/TaskAPI.js'
 import { userStore, agv_states_store } from '@/store';
-
+import { CopyText } from '@/api/Common/UtilityTools'
 import moment from 'moment'
 import Notifier from '@/api/NotifyHelper'
 export default {
@@ -174,6 +188,9 @@ export default {
       ).catch(er => {
         Notifier.Danger('警報查詢失敗後端服務異常')
       });
+    },
+    CopyText(text) {
+      CopyText(text)
     }
   },
 }

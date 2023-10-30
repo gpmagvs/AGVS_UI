@@ -51,7 +51,14 @@
             <el-tag style="width:80px" effect="dark" :type="scope.row.Level == 1 ? 'error' : 'warning'">{{ scope.row.Level == 1 ? 'Alarm' : 'Warning' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="任務名稱" prop="Task_Name" width="210"></el-table-column>
+        <el-table-column label="任務名稱" prop="Task_Name" width="210">
+          <template #default="scope">
+            <div> {{ scope.row.Task_Name }} <el-tooltip placement="top-start" content="複製到剪貼簿">
+                <i v-if="scope.row.Task_Name != ''" @click="CopyText(scope.row.Task_Name)" class="copy-button copy-icon bi bi-clipboard"></i>
+              </el-tooltip>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="發生地點" prop="OccurLocation" width="120" align="center"></el-table-column>
         <el-table-column label="持續時間(s)" prop="Duration" width="90" align="center"></el-table-column>
         <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" min-width="120"></el-table-column>
@@ -70,6 +77,7 @@ import { QueryAlarm } from '@/api/AlarmAPI.js'
 import { SaveTocsv } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 import Notifier from '@/api/NotifyHelper'
+import { CopyText } from '@/api/Common/UtilityTools'
 
 import { userStore, agv_states_store } from '@/store';
 export default {
@@ -150,6 +158,9 @@ export default {
       ).catch(er => {
         Notifier.Danger('警報查詢失敗後端服務異常')
       });
+    },
+    CopyText(text) {
+      CopyText(text)
     }
   },
 }

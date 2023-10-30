@@ -121,7 +121,6 @@
 <script>
 import WebSocketHelp from '@/api/WebSocketHepler';
 import RegionsSelector from '@/components/RegionsSelector.vue'
-import Clipboard from 'clipboard'
 import { ElNotification } from 'element-plus'
 import { EmuAPI } from '@/api/EquipmentAPI.js'
 import { userStore } from '@/store';
@@ -129,6 +128,8 @@ import param from '@/gpm_param.js'
 import { EqStore } from '@/store'
 import { watch } from 'vue';
 import bus from '@/event-bus.js'
+import { CopyText } from '@/api/Common/UtilityTools'
+
 export default {
   components: {
     RegionsSelector,
@@ -215,21 +216,7 @@ export default {
       console.log(row)
     },
     CopyText(text) {
-      const clipboard = new Clipboard('.copy-button', {
-        text: () => text
-      });
-      clipboard.on('success', () => {
-        ElNotification({
-          title: text,
-          message: "已複製到剪貼簿",
-          duration: 1500
-        })
-        clipboard.destroy();
-      });
-
-      clipboard.on('error', () => {
-        clipboard.destroy();
-      });
+      CopyText(text)
     },
     LDULD_Emu_State_Switch(EQName = "", mode = 'busy|load|unlod') {
       EmuAPI.SetState(EQName, mode)
