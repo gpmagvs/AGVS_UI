@@ -3,13 +3,13 @@
     <div class>
       <!--  -->
       <el-tooltip placement="right" content="Home">
-        <div class="side-item" @click="PageSwitch('/', 'Home')">
+        <div class="side-item" @click="PageSwitch('/', '派車系統')">
           <div class="logo-text"> GPM <div class="log-sub-text">AGVS</div>
           </div>
         </div>
       </el-tooltip>
       <el-tooltip placement="right" content="Home">
-        <div v-bind:style="Selected('/')" class="side-item" @click="PageSwitch('/', 'Home')">
+        <div v-bind:style="Selected('/')" class="side-item" @click="PageSwitch('/', '派車系統')">
           <div class="menu-icon round">
             <img src="images/home.png" :height="icon_size" alt />
           </div>
@@ -27,18 +27,16 @@
         </div>
       </el-tooltip>
       <!--  -->
-      <!-- <el-tooltip placement="right" content="帳籍管理">
+      <el-tooltip placement="right" content="帳籍管理">
         <div
-          v-if="false"
           v-bind:style="Selected('/racks_status')"
           class="side-item"
-          @click="PageSwitch('/racks_status','帳籍管理')"
-        >
+          @click="PageSwitch('/racks_status', '帳籍管理')">
           <div class="menu-icon round">
             <img src="images/rack.png" :height="icon_size" alt />
           </div>
         </div>
-      </el-tooltip>-->
+      </el-tooltip>
       <el-tooltip placement="right" content="圖資管理">
         <div
           v-bind:style="Selected('/map')"

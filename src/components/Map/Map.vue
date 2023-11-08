@@ -595,7 +595,6 @@ export default {
       var dragInteraction = new Pointer({
         /**滑鼠點下事件 */
         handleDownEvent: function (event) {
-          debugger
           const isRightClick = event.originalEvent.button == 2
           this_vue.editModeContextMenuVisible = false;
 
@@ -853,7 +852,6 @@ export default {
       this.ResetPathLink(feature, true)
     },
     RemovePath(path_feature) {
-      debugger
       var pathID = path_feature.get('path_id')
       var pathIDSplited = pathID.split('_')
       var startPtIndex = parseInt(pathIDSplited[0])
@@ -981,7 +979,6 @@ export default {
           DodgeMode: 0,
           SpinMode: 0,
         }
-        debugger
         this.PathesSegmentsForEdit.push(New_MapPath_V2);
 
         var oritargets = startPointFeature.get('targets');
@@ -1351,7 +1348,6 @@ export default {
         _feature.set('action', ld_uld_state)
         _feature.setStyle(style)
       } catch (err) {
-        debugger
       }
 
     },

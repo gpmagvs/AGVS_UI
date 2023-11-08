@@ -18,6 +18,7 @@ class clsAGVStateDto {
       this.Connected = false
       this.StationName = ''
       this.Group = 0
+      this.IsCharging = false
     } else {
       this.AGV_Name = dto.AGV_Name
       this.AGV_Description = dto.AGV_Description
@@ -35,6 +36,7 @@ class clsAGVStateDto {
       this.Connected = dto.Connected
       this.StationName = dto.StationName
       this.Group = dto.Group
+      this.IsCharging = dto.IsCharging
     }
   }
 }

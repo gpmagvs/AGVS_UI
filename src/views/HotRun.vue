@@ -88,7 +88,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-drawer v-model="action_drawer_visible" direction="rtl" size="50%">
+      <el-drawer v-model="action_drawer_visible" direction="rtl" size="60%">
         <template #header="{ titleId, titleClass }">
           <h4
             class="text-danger px-5 text-center"
@@ -110,7 +110,7 @@
           <el-button class="mx-2" @click="HandleSaveBtnClickInDrawer" type="primary">儲存設定</el-button>
           <el-table
             row-key="no"
-            style="width:860px"
+            style="width:1024px"
             border
             class="m-2"
             :data="selected_script_actions">
@@ -149,6 +149,11 @@
                     :label="option.name"
                     :value="option.tag"></el-option>
                 </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column label="卡匣ID" width="150">
+              <template #default="scope">
+                <el-input :disabled="scope.row.action != 'carry' && scope.row.action != 'unload'" v-model="scope.row.cst_id"></el-input>
               </template>
             </el-table-column>
             <el-table-column label="終點" prop="destine_tag" width="250">
@@ -204,13 +209,15 @@ export default {
               no: 1,
               action: 'move',
               source_tag: 0,
-              destine_tag: 2
+              destine_tag: 2,
+              cst_id: "",
             },
             {
               no: 2,
               action: 'move',
               source_tag: 0,
-              destine_tag: 2
+              destine_tag: 2,
+              cst_id: "",
             }
           ]
         },

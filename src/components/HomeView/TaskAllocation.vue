@@ -26,9 +26,9 @@
               <el-select class="w-100" v-model="selectedAGVName">
                 <el-option
                   v-for="agv_name in AgvNameList"
-                  :key="agv_name"
-                  :label="agv_name"
-                  :value="agv_name"></el-option>
+                  :key="agv_name.value"
+                  :label="agv_name.label"
+                  :value="agv_name.value"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="AGV任務動作">
@@ -78,9 +78,9 @@
             </el-form-item>
             <!--  -->
             <el-form-item
-              v-if="selectedAction === 'carry' | selectedAction === 'load' | selectedAction === 'unload'"
-              label="Cassttle ID">
-              <el-input class="w-100" v-model="Cst_ID_Input" placeholder="請選擇cst_id"></el-input>
+              v-if="selectedAction === 'carry' | selectedAction === 'unload'"
+              label="貨物ID">
+              <el-input class="w-100" v-model="Cst_ID_Input" autocomplete></el-input>
             </el-form-item>
             <el-form-item>
               <b-button
@@ -88,6 +88,10 @@
                 @click="TaskDeliveryBtnClickHandle"
                 variant="primary">派送任務</b-button>
               <!-- <b-button class="w-100" @click="HandleNavPathPreviewBtnClick" variant="default">預覽路徑</b-button> -->
+            </el-form-item>
+            <el-form-item v-if="IsDeveloper" label="Bypass 設備狀態檢查">
+              <el-checkbox class="w-100" v-model="bypass_eq_status_check">
+              </el-checkbox>
             </el-form-item>
           </el-form>
           <Map
@@ -108,7 +112,7 @@ import MapShowVue from '../MapShow.vue';
 import Map from '@/components/Map/Map.vue'
 import { MapStore } from '@/components/Map/store'
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
-import { userStore, agv_states_store } from '@/store';
+import { userStore, agv_states_store, agvs_settings_store } from '@/store';
 import { MapPointModel } from '@/components/Map/mapjs';
 import { GetEQOptions } from '@/api/EquipmentAPI'
 export default {
@@ -122,12 +126,13 @@ export default {
       confirm_dialog_show: false,
       notify_dialog_show: false,
       wait_task_confirm: false,
+      bypass_eq_status_check: false,
       notify_text: '',
       selectedAGVName: '',
       selectedAction: 'move', // 選擇的Action
       sourceTag: '', // 選擇的tag_id
       destinTag: '', // 選擇的to_tag
-      Cst_ID_Input: '123', // 選擇的cst_id
+      Cst_ID_Input: '', // 選擇的cst_id
       moveable_tags: [ // tag_id選項
         { tag: 1, name: '標籤1' },
       ],
@@ -158,7 +163,25 @@ export default {
     },
 
     AgvNameList() {
-      return agv_states_store.getters.AGVNameList
+      var namelist = [];
+      if (agvs_settings_store.getters.IsRunMode) {
+        namelist.push({ value: '', label: '自動選車' });
+        if (this.IsDeveloper)
+          createdAgvNameOptions(namelist);
+      }
+      else {
+        createdAgvNameOptions(namelist);
+      }
+
+      function createdAgvNameOptions(namelist) {
+        agv_states_store.getters.AGVNameList.forEach(element => {
+          namelist.push({
+            value: element,
+            label: element
+          });
+        });
+      }
+      return namelist;
     },
     tags() {
       if (this.selectedAction == 'move')
@@ -219,7 +242,7 @@ export default {
 
     },
     TaskDeliveryBtnClickHandle() {
-      if (!this.selectedAGVName) {
+      if (!this.selectedAGVName && !agvs_settings_store.getters.IsRunMode) {
         this.$swal.fire(
           {
             text: '',
@@ -269,18 +292,18 @@ export default {
           })
         return;
       }
-      if ((this.selectedAction == 'carry' | this.selectedAction == 'load' | this.selectedAction == 'unload') && (this.Cst_ID_Input == '' | this.Cst_ID_Input == undefined)) {
-        this.$swal.fire(
-          {
-            text: '',
-            title: '尚未填寫/選擇CST ID',
-            icon: 'warning',
-            showCancelButton: false,
-            confirmButtonText: 'OK',
-            customClass: 'my-sweetalert'
-          })
-        return;
-      }
+      // if ((this.selectedAction == 'carry' | this.selectedAction == 'load' | this.selectedAction == 'unload') && (this.Cst_ID_Input == '' | this.Cst_ID_Input == undefined)) {
+      //   this.$swal.fire(
+      //     {
+      //       text: '',
+      //       title: '尚未填寫/選擇CST ID',
+      //       icon: 'warning',
+      //       showCancelButton: false,
+      //       confirmButtonText: 'OK',
+      //       customClass: 'my-sweetalert'
+      //     })
+      //   return;
+      // }
       var destinName = this.destinTag
       this.$swal.fire(
         {
@@ -304,33 +327,34 @@ export default {
       var response = { confirm: true, message: '' }
 
       if (this.selectedAction == 'move') {
-        response = await TaskAllocation.MoveTask(new clsMoveTaskData(this.selectedAGVName, this.destinTag));
+        response = await TaskAllocation.MoveTask(new clsMoveTaskData(this.selectedAGVName, 50, this.destinTag));
       }
 
       if (this.selectedAction == 'measure') {
         response = await TaskAllocation.MeasureTask(new clsMeasureTaskData(this.selectedAGVName, this.destinTag));
       }
       if (this.selectedAction == 'load') {
-        response = await TaskAllocation.LoadTask(new clsLoadTaskData(this.selectedAGVName, this.destinTag, 1, this.Cst_ID_Input));
+        response = await TaskAllocation.LoadTask(new clsLoadTaskData(this.selectedAGVName, this.destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check));
       }
 
       if (this.selectedAction == 'unload') {
-        response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(this.selectedAGVName, this.destinTag, 1, this.Cst_ID_Input));
+        response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(this.selectedAGVName, this.destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check));
       }
 
       if (this.selectedAction == 'carry') {
-        response = await TaskAllocation.CarryTask(new clsCarryTaskData(this.selectedAGVName, this.sourceTag, 1, this.destinTag, 1, this.Cst_ID_Input));
+        response = await TaskAllocation.CarryTask(new clsCarryTaskData(this.selectedAGVName, this.sourceTag, 1, this.destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check));
       }
       if (this.selectedAction == 'exchange_battery') {
-        response = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(this.selectedAGVName, this.destinTag));
+        response = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(this.selectedAGVName, this.destinTag, 50, this.bypass_eq_status_check));
       }
       if (this.selectedAction == 'charge') {
-        response = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.selectedAGVName, this.destinTag));
+        response = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.selectedAGVName, this.destinTag, 50, this.bypass_eq_status_check));
       }
       if (this.selectedAction == 'park') {
-        response = await TaskAllocation.ParkTask(new clsParkTaskData(this.selectedAGVName, this.destinTag));
+        response = await TaskAllocation.ParkTask(new clsParkTaskData(this.selectedAGVName, this.destinTag, 50, this.bypass_eq_status_check));
       }
       this.wait_task_confirm = false;
+      debugger
       if (response.status != 200) {
         const is_Unauthorized = response.status == 401;
         this.$swal.fire({
@@ -353,10 +377,23 @@ export default {
 
       }
       else {
-        Notifier.Success('任務已派送', 'top', 3000);
-        setTimeout(() => {
-          this.show = false;
-        }, 400);
+        //{confirm:true,message:''}
+        if (response.data.confirm) {
+          Notifier.Success('任務已派送', 'top', 3000);
+          setTimeout(() => {
+            this.show = false;
+          }, 400);
+        } else {
+          this.$swal.fire(
+            {
+              text: response.data.message,
+              title: '任務派送失敗!',
+              icon: 'error',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            })
+        }
       }
 
     },
@@ -402,7 +439,7 @@ export default {
   },
   mounted() {
     bus.on('bus-show-task-allocation', (data = { agv_name: undefined, agv_type: 0, action: '', station_data: new MapPointModel() }) => {
-      if (!this.IsUserLogin) {
+      if (!this.IsUserLogin && !agvs_settings_store.getters.IsRunMode) {
         setTimeout(() => {
 
           this.$swal.fire(
@@ -424,7 +461,7 @@ export default {
       this.agv_type = data.agv_type
       this.sourceTag = undefined;
       this.destinTag = undefined;
-      this.selectedAGVName = undefined;
+      this.selectedAGVName = agvs_settings_store.getters.IsRunMode ? '' : undefined;
       this.moveable_tags = MapStore.getters.AllNormalStationOptions
       this.stock_tags = MapStore.getters.AllEqStation
       this.chargable_tags = MapStore.getters.AllChargeStation

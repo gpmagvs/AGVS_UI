@@ -197,8 +197,11 @@ export default {
       var isConnected = row.row.IsConnected;
       return isConnected ? 'success-row' : 'error-row';
     },
-    signalOn(status) {
+    signalOn(status, isLoadable = false) {
       if (status) {
+        if (isLoadable) {
+          return { backgroundColor: 'blue' }
+        }
         return {
           backgroundColor: 'lime'
         }

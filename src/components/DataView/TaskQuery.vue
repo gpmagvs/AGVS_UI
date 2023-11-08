@@ -90,7 +90,9 @@
         <el-table-column label="派工人員" prop="DispatcherName" width="100"></el-table-column>
         <el-table-column label="失敗原因" prop="FailureReason" min-width="120">
           <template #default="scope">
-            <div class="text-danger">{{ scope.row.FailureReason }}</div>
+            <div class="text-danger">
+              <div v-for="alarm in scope.row.FailureReason.split(',')" :key="alarm">{{ alarm }}</div>
+            </div>
           </template>
         </el-table-column>
       </el-table>

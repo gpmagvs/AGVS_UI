@@ -51,7 +51,6 @@ export default {
   methods: {
 
     async SaveMapClickHandle(mapDataSave) {
-      debugger
       var mapData = JSON.parse(JSON.stringify(MapStore.getters.MapData))
       mapData.Points = mapDataSave.Points;
       mapData.Segments = mapDataSave.Pathes;

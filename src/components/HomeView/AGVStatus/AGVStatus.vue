@@ -35,7 +35,7 @@
                   effect="dark"
                   @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
                   :type="scope.row.OnlineStatus == 0 ? 'danger' : 'success'">
-                  <b>{{ scope.row.OnlineStatus == 1 ? 'ONLINE' : 'OFFLINE' }}</b>
+                  <b>{{ scope.row.OnlineStatus == 1 ? '已上線' : '離線中' }}</b>
                 </el-tag>
               </div>
             </template>
@@ -45,7 +45,7 @@
             prop="MainStatus"
             :formatter="AGVStatusFormatter"
             align="center"
-            width="130">
+            width="80">
             <template #default="scope">
               <div>
                 <el-tag effect="dark" :type="AGV_Status_TagType(scope.row.MainStatus)">
@@ -82,16 +82,18 @@
             <template #default="scope">
               <div>
                 <b-progress class="flex-fill" :max="100" :min="0" animated>
+                  <i v-if="scope.row.IsCharging" v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)" style="color:white" class="bi bi-lightning-charge battery-icon"></i>
                   <b-progress-bar
                     :animated="true"
-                    v-bind:class="BatteryClass(scope.row.BatteryLevel_1)"
+                    v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)"
                     :value="scope.row.BatteryLevel_1"
                     :label="`${((scope.row.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                 </b-progress>
                 <b-progress v-if="scope.row.BatteryLevel_2 != -1.0" class="flex-fill my-1" :max="100" :min="0" animated>
+                  <i v-if="scope.row.IsCharging" v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)" style="color:white" class="bi bi-lightning-charge battery-icon"></i>
                   <b-progress-bar
                     :animated="true"
-                    v-bind:class="BatteryClass(scope.row.BatteryLevel_2)"
+                    v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)"
                     :value="scope.row.BatteryLevel_2"
                     :label="`${((scope.row.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                 </b-progress>
@@ -410,7 +412,10 @@ export default {
       return row.Connected ? `${agv_row_class} connect` : `${agv_row_class} disconnect`
     }
     ,
-    BatteryClass(level) {
+    BatteryClass(level, isCharging = false) {
+
+      if (isCharging)
+        return 'batter-charging'
       if (level >= 30) {
         return 'batter-full-level'
       }
@@ -503,7 +508,7 @@ export default {
   }
 
   .batter-full-level {
-    background-color: rgb(57, 194, 57);
+    background-color: rgb(13, 110, 253);
   }
 
   .batter-mid-level {
@@ -512,6 +517,19 @@ export default {
 
   .batter-low-level {
     background-color: red;
+  }
+
+  .batter-charging {
+    background-color: rgb(57, 194, 57);
+    ;
+  }
+
+  .battery-icon {
+    font-size: 16px;
+    position: relative;
+    top: -5px;
+    height: 25px;
+    padding-left: 3px;
   }
 }
 </style>

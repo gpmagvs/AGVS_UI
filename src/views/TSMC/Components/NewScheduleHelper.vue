@@ -165,7 +165,6 @@ export default {
 
         this.BayTableData.forEach(row => {
           var selected = selected_baynames.includes(row.BayName)
-          debugger
           row.Selected = selected;
           if (selected) {
             var bay = data.Bays.find(b => b.BayName == row.BayName)
@@ -202,7 +201,6 @@ export default {
       this.previous_seq = row.Sequence;
     },
     async HandleAddNewScheduleClick() {
-      debugger
       this.schedule_settigs.Bays = this.BayTableData.filter(row => row.Selected)
       var submit_data = JSON.parse(JSON.stringify(this.schedule_settigs));
       submit_data.Time = moment(submit_data.Time).format('HH:mm')
@@ -252,7 +250,6 @@ export default {
       this.selected_row.Sequence = seq
     },
     handleSelectionChange(rows_seclted) {
-      debugger
       var baynames = rows_seclted.map(row => row.BayName)
       this.BayTableData.forEach(row => {
         row.Selected = baynames.includes(row.BayName)

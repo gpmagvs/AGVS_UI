@@ -2,7 +2,7 @@ import clsDriverState from './clsDriverState'
 import BatteryStatus from './BatteryStatus'
 class VMSData {
   MainState = 'DOWN'
-  IsInitialized = false
+  IsCharging = false
   OnlineMode = 0
   AutoMode = 0
   CarName = 'AGV_'
@@ -36,7 +36,7 @@ class VMSData {
   NewestAlarm = undefined
   AGV_Direct = 'STOP'
   ZAxisDriverState = new clsDriverState()
-  ZAxisActionName=''
+  ZAxisActionName = ''
   DriversStates = new Array() < clsDriverState > 0
   Laser_Mode = 0
   UltrSensorState = new UltrasonicSensorState()

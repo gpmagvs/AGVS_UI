@@ -8,7 +8,7 @@
       <div
         v-if="!modes.system_operation_mode.actived"
         class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。 </div>
-      <b-button v-else class="mx-2" style="width:100px;font-weight: bold; font-size:large;text-decoration: underline;" variant="light" size="sm">自動派工</b-button>
+      <b-button v-else class="mx-2" @click="HandleAutoDispatchBtnClick" style="width:100px;font-weight: bold; font-size:large;text-decoration: underline;" variant="light" size="sm">自動派工</b-button>
       <div class="page-name-display mx-2">{{ current_route_info.route_display_name }}</div>
       <div class="flex-fill"></div>
       <div class="options d-flex justify-content-between">
@@ -139,7 +139,7 @@ export default {
   data() {
     return {
       current_route_info: {
-        route_display_name: 'Home',
+        route_display_name: '派車系統',
         route_name: '/'
       },
 
@@ -239,6 +239,9 @@ export default {
     this.AlarmDisplayHandler();
   },
   methods: {
+    HandleAutoDispatchBtnClick() {
+      bus.emit('bus-show-task-allocation', { agv_name: "", agv_type: "", action: '', station_data: undefined });
+    },
     async DownloadSystemOperationsSettings() {
       setTimeout(async () => {
         var settings = await GetOperationStates()
@@ -246,7 +249,7 @@ export default {
         this.modes.system_operation_mode.actived = settings.system_run_mode == 1;
         this.modes.host_conn_mode.actived = settings.host_online_mode == 1;
         this.modes.host_operation_mode.actived = settings.host_remote_mode == 1;
-        this.modes.system_operation_mode.loading = settings.system_run_mode == 2 || settings.system_run_mode == 3
+        // this.modes.system_operation_mode.loading = settings.system_run_mode == 2 || settings.system_run_mode == 3
 
 
       }, 1000);

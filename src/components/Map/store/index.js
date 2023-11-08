@@ -114,7 +114,9 @@ export const MapStore = createStore({
 
                     pathtags.forEach(tag => {
                         var pt = getters.MapStations.find(st => st.tag == tag)
-                        pathCoordinations.push(pt.coordination)
+                        if (pt) {
+                            pathCoordinations.push(pt.coordination)
+                        }
                     })
                 }
                 var coordination = [0, 0]

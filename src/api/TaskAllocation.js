@@ -8,7 +8,7 @@ var axios_entity = axios.create({
 })
 
 export class clsMoveTaskData {
-  constructor(agv_name, to_tag, Priority = 50) {
+  constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
     this.TaskName = `Move_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 0
     this.DesignatedAGVName = agv_name
@@ -18,11 +18,12 @@ export class clsMoveTaskData {
     this.To_Slot = '-1'
     this.Carrier_ID = '-1'
     this.Priority = Priority
+    this.bypass_eq_status_check = bypass_eq_status_check
   }
 }
 
 export class clsMeasureTaskData {
-  constructor(agv_name, bay_name, Priority = 50) {
+  constructor(agv_name, bay_name, Priority = 50, bypass_eq_status_check = false) {
     this.TaskName = `Measure_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 6
     this.DesignatedAGVName = agv_name
@@ -32,10 +33,11 @@ export class clsMeasureTaskData {
     this.To_Slot = '-1'
     this.Carrier_ID = '-1'
     this.Priority = Priority
+    this.bypass_eq_status_check = bypass_eq_status_check
   }
 }
 export class clsLoadTaskData {
-  constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
+  constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50, bypass_eq_status_check = false) {
     this.TaskName = `Load_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 7
     this.DesignatedAGVName = agv_name
@@ -45,11 +47,12 @@ export class clsLoadTaskData {
     this.To_Slot = to_slot + ''
     this.Carrier_ID = cst_id
     this.Priority = Priority
+    this.bypass_eq_status_check = bypass_eq_status_check
   }
 }
 
 export class clsUnloadTaskData {
-  constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50) {
+  constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50, bypass_eq_status_check = false) {
     this.TaskName = `Unload_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 1
     this.DesignatedAGVName = agv_name
@@ -59,11 +62,12 @@ export class clsUnloadTaskData {
     this.To_Slot = to_slot + ''
     this.Carrier_ID = cst_id
     this.Priority = Priority
+    this.bypass_eq_status_check = bypass_eq_status_check
   }
 }
 
 export class clsChargeTaskData {
-  constructor(agv_name, to_tag, Priority = 50) {
+  constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
     this.TaskName = `Charge_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 8
     this.DesignatedAGVName = agv_name
@@ -73,11 +77,12 @@ export class clsChargeTaskData {
     this.To_Slot = '-1'
     this.Carrier_ID = '-1'
     this.Priority = Priority
+    this.bypass_eq_status_check = bypass_eq_status_check
   }
 }
 
 export class clsExangeBatteryTaskData {
-  constructor(agv_name, to_tag, Priority = 50) {
+  constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
     this.TaskName = `BatEx_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 14
     this.DesignatedAGVName = agv_name
@@ -87,10 +92,11 @@ export class clsExangeBatteryTaskData {
     this.To_Slot = '-1'
     this.Carrier_ID = '-1'
     this.Priority = Priority
+    this.bypass_eq_status_check = bypass_eq_status_check
   }
 }
 export class clsParkTaskData {
-  constructor(agv_name, to_tag, Priority = 50) {
+  constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
     this.TaskName = `Park_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 12
     this.DesignatedAGVName = agv_name
@@ -100,6 +106,7 @@ export class clsParkTaskData {
     this.To_Slot = '-1'
     this.Carrier_ID = '-1'
     this.Priority = Priority
+    this.bypass_eq_status_check = bypass_eq_status_check
   }
 }
 
@@ -111,7 +118,7 @@ export class clsCarryTaskData {
     to_tag,
     to_slot,
     cst_id,
-    Priority = 50,
+    Priority = 50, bypass_eq_status_check = false
   ) {
     this.TaskName = `Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
     this.Action = 9
@@ -122,6 +129,7 @@ export class clsCarryTaskData {
     this.To_Slot = to_slot + ''
     this.Carrier_ID = cst_id
     this.Priority = Priority
+    this.bypass_eq_status_check = bypass_eq_status_check
   }
 }
 
