@@ -327,7 +327,7 @@ export default {
       var response = { confirm: true, message: '' }
 
       if (this.selectedAction == 'move') {
-        response = await TaskAllocation.MoveTask(new clsMoveTaskData(this.selectedAGVName, 50, this.destinTag));
+        response = await TaskAllocation.MoveTask(new clsMoveTaskData(this.selectedAGVName, this.destinTag, 50));
       }
 
       if (this.selectedAction == 'measure') {
@@ -379,7 +379,7 @@ export default {
       else {
         //{confirm:true,message:''}
         if (response.data.confirm) {
-          Notifier.Success('任務已派送', 'top', 3000);
+          Notifier.Success(`任務-[${this.selectedAction.toUpperCase()}] 已派送!`, 'bottom', 2000);
           setTimeout(() => {
             this.show = false;
           }, 400);

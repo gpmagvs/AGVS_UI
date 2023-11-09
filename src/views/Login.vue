@@ -4,12 +4,11 @@
     :show-close="true"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
-    :modal="false"
+    :modal="true"
     draggable
     width="400"
-    style="z-index:9900"
-  >
-    <template #header="{titleId, login_title }">
+    style="z-index:9900">
+    <template #header="{ titleId, login_title }">
       <div class="login-header">
         <h3 :id="titleId" :class="login_title">使用者登入</h3>
         <el-divider></el-divider>
@@ -25,12 +24,11 @@
             ref="account"
             @keyup.enter="FocusPasswordInput"
             @keyup.down="FocusPasswordInput"
-            @keyup.esc="UserName=''"
+            @keyup.esc="UserName = ''"
             v-model="UserName"
-            :state="UserName!=''"
+            :state="UserName != ''"
             placeholder="請輸入帳號"
-            required
-          ></b-form-input>
+            required></b-form-input>
         </el-form-item>
         <el-form-item label="Password" :required="true">
           <b-form-input
@@ -40,20 +38,18 @@
             ref="pw_input"
             @keyup.enter="PasswordEnterClickHandler"
             @keyup.up="FocusAccountInput"
-            @keyup.esc="Password=''"
+            @keyup.esc="Password = ''"
             v-model="Password"
-            :state="Password!=''"
+            :state="Password != ''"
             placeholder="請輸入密碼"
-            required
-          ></b-form-input>
+            required></b-form-input>
         </el-form-item>
         <el-form-item v-if="IsLogin">
           <b-button
             @click="LogoutHandle()"
             :loading="logouting"
             class="w-100"
-            variant="danger"
-          >Logout</b-button>
+            variant="danger">Logout</b-button>
         </el-form-item>
         <el-form-item v-if="!IsLogin">
           <b-button @click="LoginHandle()" :loading="logining" class="w-100" variant="primary">Login</b-button>
@@ -62,7 +58,7 @@
           <b-button @click="dialogVisible = false" class="w-100">Cancel</b-button>
         </el-form-item>
       </el-form>
-      <div class="login-message">{{ message}}</div>
+      <div class="login-message">{{ message }}</div>
     </div>
     <!-- <KeyBoard @onChange="onChange" :input="keyboard_input"></KeyBoard> -->
   </el-dialog>
@@ -210,10 +206,12 @@ export default {
     color: black;
   }
 }
+
 .login-content {
   position: relative;
   top: -50px;
   left: 10px;
+
   .login-message {
     color: red;
     text-align: left;

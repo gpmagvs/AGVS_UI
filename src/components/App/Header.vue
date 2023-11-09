@@ -240,6 +240,18 @@ export default {
   },
   methods: {
     HandleAutoDispatchBtnClick() {
+      if (!userStore.getters.IsLogin) {
+        this.$swal.fire(
+          {
+            text: '',
+            title: '權限不足 請先登入',
+            icon: 'warning',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+        return;
+      }
       bus.emit('bus-show-task-allocation', { agv_name: "", agv_type: "", action: '', station_data: undefined });
     },
     async DownloadSystemOperationsSettings() {
@@ -359,13 +371,15 @@ export default {
     },
     CheckUserLoginState() {
       if (!this.IsLogin) {
-        this.$vs.notify({
-          color: 'danger',
-          title: '權限不足',
-          text: '切換失敗，請先進行登入。',
-          position: 'bottom-right',
-          time: 3000
-        })
+        this.$swal.fire(
+          {
+            text: '',
+            title: '權限不足 請先登入',
+            icon: 'warning',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
       }
       return this.IsLogin;
     },
@@ -410,7 +424,7 @@ export default {
       })
     },
     CreateAlarmDisplayText(alarm) {
-      return `${moment(alarm.Time).format('yyyy/MM/DD HH:mm:ss')} 異常碼[${alarm.AlarmCode}]-${alarm.Description_Zh}(${alarm.Description_En})`
+      return `${moment(alarm.Time).format('yyyy/MM/DD HH:mm:ss')} |${alarm.AlarmCode}|${alarm.Equipment_Name}|-${alarm.Description_Zh}(${alarm.Description_En})`
     },
     AlarmDisplayHandler() {
       var sys_alarm_inx = 0;
@@ -493,7 +507,7 @@ export default {
 
       .alarm-text {
         padding: 3px;
-        font-weight: normal;
+        font-weight: bold;
         font-size: 18px;
       }
 
@@ -544,7 +558,7 @@ export default {
 
   @keyframes alarm_blink {
     0% {
-      background-color: red;
+      background-color: rgb(242, 76, 76);
       color: white;
     }
 
@@ -554,7 +568,7 @@ export default {
     }
 
     100% {
-      background-color: red;
+      background-color: rgb(242, 76, 76);
       color: white;
     }
   }

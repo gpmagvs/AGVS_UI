@@ -2,6 +2,7 @@ import axios from 'axios'
 import param from '@/gpm_param'
 import moment from 'moment'
 import { getAuthHeaders } from './AuthHelper'
+import { userStore } from '@/store'
 var axios_entity = axios.create({
   baseURL: param.backend_host,
   headers: {},
@@ -9,7 +10,7 @@ var axios_entity = axios.create({
 
 export class clsMoveTaskData {
   constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
-    this.TaskName = `Move_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Move_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 0
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -24,7 +25,7 @@ export class clsMoveTaskData {
 
 export class clsMeasureTaskData {
   constructor(agv_name, bay_name, Priority = 50, bypass_eq_status_check = false) {
-    this.TaskName = `Measure_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Measure_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 6
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -38,7 +39,7 @@ export class clsMeasureTaskData {
 }
 export class clsLoadTaskData {
   constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50, bypass_eq_status_check = false) {
-    this.TaskName = `Load_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Load_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 7
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -53,7 +54,7 @@ export class clsLoadTaskData {
 
 export class clsUnloadTaskData {
   constructor(agv_name, to_tag, to_slot, cst_id, Priority = 50, bypass_eq_status_check = false) {
-    this.TaskName = `Unload_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Unload_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 1
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -68,7 +69,7 @@ export class clsUnloadTaskData {
 
 export class clsChargeTaskData {
   constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
-    this.TaskName = `Charge_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Charge_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 8
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -83,7 +84,7 @@ export class clsChargeTaskData {
 
 export class clsExangeBatteryTaskData {
   constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
-    this.TaskName = `BatEx_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `BatEx_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 14
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -97,7 +98,7 @@ export class clsExangeBatteryTaskData {
 }
 export class clsParkTaskData {
   constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
-    this.TaskName = `Park_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Park_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 12
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
@@ -120,7 +121,7 @@ export class clsCarryTaskData {
     cst_id,
     Priority = 50, bypass_eq_status_check = false
   ) {
-    this.TaskName = `Local_${moment(Date.now()).format('yyyyMMDD_HHmmssSSS')}`
+    this.TaskName = `Local_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 9
     this.DesignatedAGVName = agv_name
     this.From_Station = from_tag + ''
@@ -159,9 +160,7 @@ export var TaskAllocation = {
   async LoadTask(clsLoadTaskData = new clsLoadTaskData('agv', 1, 1, 'CST_ID')) {
     return await CallAPI('/api/Task/Load', clsLoadTaskData)
   },
-  async UnloadTask(
-    clsUnloadTaskData = new clsUnloadTaskData('agv', 1, 1, 'CST_ID'),
-  ) {
+  async UnloadTask(clsUnloadTaskData = new clsUnloadTaskData('agv', 1, 1, 'CST_ID')) {
     return await CallAPI('/api/Task/Unload', clsUnloadTaskData)
   },
   async CarryTask(clsCarryTaskData) {
@@ -195,6 +194,8 @@ export async function StopHotRun(no) {
   var response = await axios_entity.get(`/api/Task/HotRun/Stop?no=${no}`)
 }
 async function CallAPI(path, data) {
+  var user_param = `?user=${userStore.getters.UserName}`
+  path += user_param;
   return axios_entity
     .post(path, data, { headers: getAuthHeaders() })
     .then((response) => {

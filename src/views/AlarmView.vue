@@ -31,7 +31,7 @@
       <el-table-column label="時間" prop="Time" width="160">
         <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
       </el-table-column>
-      <el-table-column label="AGV名稱" prop="Equipment_Name" width="120"></el-table-column>
+      <el-table-column label="設備名稱" prop="Equipment_Name" width="150"></el-table-column>
       <el-table-column label="警報碼" prop="AlarmCode" width="120"></el-table-column>
       <el-table-column label="警報描述" prop="Description_En">
         <template #default="scope">
@@ -134,7 +134,7 @@ export default {
     }
 
     .ALARM {
-      background: rgb(250, 72, 72);
+      background: rgb(232, 96, 96);
       color: white;
     }
   }

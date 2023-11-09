@@ -211,6 +211,8 @@ export const MapStore = createStore({
         SaveMap({ commit, state, actions, getters }, _data) {
             return getters.MapBackednAxios.post('api/Map/SaveMap', _data)
                 .then((ret) => {
+                    _data.Note = ret.data.Note;
+                    commit('setMapData', _data);
                     return true
                 })
                 .catch((err) => {
