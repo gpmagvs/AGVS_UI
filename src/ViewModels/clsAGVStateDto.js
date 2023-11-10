@@ -19,6 +19,8 @@ class clsAGVStateDto {
       this.StationName = ''
       this.Group = 0
       this.IsCharging = false
+      this.IP = '127.0.0.1'
+      this.Port = 7025
     } else {
       this.AGV_Name = dto.AGV_Name
       this.AGV_Description = dto.AGV_Description
@@ -37,6 +39,8 @@ class clsAGVStateDto {
       this.StationName = dto.StationName
       this.Group = dto.Group
       this.IsCharging = dto.IsCharging
+      this.IP = dto.IP
+      this.Port = dto.Port
     }
   }
 }
