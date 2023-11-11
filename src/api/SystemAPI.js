@@ -23,8 +23,8 @@ export async function GetOperationStates(mode = 0 | 1) {
  * 0:Maintain
  * 1:Run
  */
-export async function RunMode(mode = 0 | 1) {
-   var ret = await _axios.post(`api/system/runmode?mode=${mode}`);
+export async function RunMode(mode = 0 | 1, forecing_change = false) {
+   var ret = await _axios.post(`api/system/runmode?mode=${mode}&forecing_change=${forecing_change}`);
    return ret.data;
 }
 

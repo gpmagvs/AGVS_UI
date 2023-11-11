@@ -7,8 +7,16 @@
       </h3>-->
       <div
         v-if="!modes.system_operation_mode.actived"
-        class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。 </div>
-      <b-button v-else class="mx-2" @click="HandleAutoDispatchBtnClick" style="width:100px;font-weight: bold; font-size:large;text-decoration: underline;" variant="light" size="sm">自動派工</b-button>
+        class="matain-mode-notify py-2 px-3"
+      >維護模式:自動派車、充電功能已關閉。</div>
+      <b-button
+        v-else
+        class="mx-2"
+        @click="HandleAutoDispatchBtnClick"
+        style="width:100px;font-weight: bold; font-size:large;text-decoration: underline;"
+        variant="light"
+        size="sm"
+      >自動派工</b-button>
       <div class="page-name-display mx-2">{{ current_route_info.route_display_name }}</div>
       <div class="flex-fill"></div>
       <div class="options d-flex justify-content-between">
@@ -26,7 +34,8 @@
             :before-change="mode.beforeChangeHandler"
             :loading="mode.loading"
             size="large"
-            width="75px"></el-switch>
+            width="75px"
+          ></el-switch>
         </div>
         <!-- <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container"> -->
         <div class="op-mode-switch-container">
@@ -42,12 +51,15 @@
             border-color="grey"
             inline-prompt
             size="large"
-            width="80px"></el-switch>
+            width="80px"
+          ></el-switch>
         </div>
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" class="mx-1" variant="light"> 中文 <i class="bi bi-caret-down-fill"></i>
+              <b-button size="sm" class="mx-1" variant="light">
+                中文
+                <i class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
@@ -61,7 +73,9 @@
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" variant="light"> {{ UserName }} <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
+              <b-button size="sm" variant="light">
+                {{ UserName }}
+                <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
@@ -71,7 +85,8 @@
                 <b-button
                   v-if="IsLogin"
                   class="my-1 bg-light text-dark"
-                  @click="LoginClickHandler('switch')">切換使用者</b-button>
+                  @click="LoginClickHandler('switch')"
+                >切換使用者</b-button>
               </div>
             </template>
           </el-popover>
@@ -84,7 +99,9 @@
       <div class="alarm-container" v-bind:class="system_alarms">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 系統警報 </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
+            系統警報
+          </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
         <div class="opt">
@@ -94,7 +111,8 @@
               @click="ResetSysAlarmsHandler"
               class="mb-2"
               size="sm"
-              variant="danger">警報復歸</b-button>
+              variant="danger"
+            >警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -102,7 +120,9 @@
       <div class="alarm-container" v-bind:class="equipment_alarms">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 設備警報 </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
+            設備警報
+          </span>
           <span class="alarm-text">{{ eq_alrm_text }}</span>
         </div>
         <div class="opt">
@@ -112,7 +132,8 @@
               @click="ResetEqpAlarmsHandler"
               class="mb-2"
               size="sm"
-              variant="danger">警報復歸</b-button>
+              variant="danger"
+            >警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -254,7 +275,7 @@ export default {
       }
       bus.emit('bus-show-task-allocation', { agv_name: "", agv_type: "", action: '', station_data: undefined });
     },
-    async DownloadSystemOperationsSettings() {
+    async DownloadSystemOperationsSettings(delay_ms = 1000) {
       setTimeout(async () => {
         var settings = await GetOperationStates()
         agvs_settings_store.commit('setOperations', settings)
@@ -264,7 +285,7 @@ export default {
         // this.modes.system_operation_mode.loading = settings.system_run_mode == 2 || settings.system_run_mode == 3
 
 
-      }, 1000);
+      }, delay_ms);
     },
     on_alarm_message(ev) {
       this.unchecked_alarms = JSON.parse(ev.data)
@@ -313,16 +334,23 @@ export default {
     HandleViewModeChanged(isEasyMode) {
       bus.emit('view_mode_changed', isEasyMode)
     },
-    async SysOptModeChangeRequest() {
+    async SysOptModeChangeRequest(force = false) {
       if (!this.CheckUserLoginState())
         return false;
       this.modes.system_operation_mode.loading = true;
       var mode_req_text = this.modes.system_operation_mode.actived ? '操作模式-MAINTAIN' : '操作模式-RUN';
-      var response = await RunMode(this.modes.system_operation_mode.actived ? 0 : 1);
+      var response = await RunMode(this.modes.system_operation_mode.actived ? 0 : 1, force);
       var success = response.confirm;
       var msg = response.message;
       if (!success) {
-        this.ModeRequestFailHandler("操作模式", msg);
+        var isGodOrDevLogin = userStore.getters.level == 2 || userStore.getters.level == 3;
+        this.ModeRequestFailHandler("操作模式", msg, (msg == '尚有任務在執行中' && isGodOrDevLogin) ? '強制切換' : '', async () => {
+          setTimeout(() => {
+            this.SysOptModeChangeRequest(true);
+            this.DownloadSystemOperationsSettings(100);
+          }, 500)
+
+        });
       }
       else {
         agvs_settings_store.commit('setRunMode', !this.modes.system_operation_mode.actived)
@@ -383,11 +411,19 @@ export default {
       }
       return this.IsLogin;
     },
-    ModeRequestFailHandler(action, message) {
+    ModeRequestFailHandler(action, message, action1_text = '', action_1 = () => { }) {
+      var hasActions = action1_text != "";
       this.$swal.fire({
         title: `${action} 切換失敗`,
         text: message + '，請稍後再嘗試切換。',
-        icon: 'error'
+        icon: 'error',
+        showCancelButton: hasActions,
+        cancelButtonText: action1_text,
+        allowOutsideClick: !hasActions
+      }).then((ret) => {
+        if (!ret.isConfirmed && hasActions) {
+          action_1();
+        }
       })
     },
     ModeRequestSuccessHandler(action) {
@@ -621,6 +657,7 @@ export default {
     font-weight: bold;
   }
 
-  .user-account {}
+  .user-account {
+  }
 }
 </style>
