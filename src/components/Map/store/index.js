@@ -209,9 +209,10 @@ export const MapStore = createStore({
             return Object.values(points).find(pt => pt.TagNumber + '' == tag + '')
         },
         SaveMap({ commit, state, actions, getters }, _data) {
+            debugger
             return getters.MapBackednAxios.post('api/Map/SaveMap', _data)
                 .then((ret) => {
-                    _data.Note = ret.data.Note;
+                    _data.Note = ret.data;
                     commit('setMapData', _data);
                     return true
                 })

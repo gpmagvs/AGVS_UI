@@ -1,5 +1,5 @@
 <template>
-  <div class="map-component">
+  <div class="map-component" v-loading="loading">
     <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
     <div class="d-flex h-100">
       <div class="flex-fill d-flex flex-column">
@@ -273,7 +273,7 @@ export default {
       zoom_route: 2,
       center: [0, 0],
       center_route: [0, 0],
-
+      loading: false,
       _map_stations: [],
       ImageLayer: new ImageLayer(),
       /**Slam座標圖層 */
@@ -687,17 +687,27 @@ export default {
           if (this_vue.EditorOption.EditMode == 'view')
             return;
           var currentAction = this_vue.EditorOption.EditAction;
-
+          debugger
           if (currentAction != 'add-path' && currentAction != 'remove-path') {
-            if (currentAction == 'add-station' && ev.originalEvent.button == 2) {
-              this_vue.PointLayer.getSource().addFeature(this.feature_)
-            } else {
-
-              this_vue.IsDragging = false;
-              try {
-                this_vue.ResetPathLink(this.feature_)
-              } catch (error) {
+            if (ev.originalEvent.button == 2) {//滑鼠右鍵
+              if (currentAction == 'edit-station') {
+                this_vue.HandlePtSettingBtnClick();
               }
+              else if (currentAction == 'add-station') {
+                try {
+                  this_vue.PointLayer.getSource().addFeature(this.feature_)
+                }
+                catch (error) {//若該座標已經有新增feature會跳錯=>變成顯示設定面板
+                  console.error(error);
+                  this_vue.HandlePtSettingBtnClick();
+                }
+              }
+            }
+            this_vue.IsDragging = false;
+            try {
+              debugger
+              this_vue.ResetPathLink(this.feature_)
+            } catch (error) {
             }
           }
           this.feature_ = null;
@@ -884,10 +894,11 @@ export default {
         targets_indexes.forEach(targetIndex => {
           var path_id = `${index}_${targetIndex}`
           var path_featureFound = path_features.find(path_feat => path_feat.get('path_id') == path_id)
-
+          var path_seq_data = this.PathesSegmentsForEdit.find(path => path.PathID == path_id);
           if (path_featureFound) {
             if (remove) {
               this.PointLinksLayer.getSource().removeFeature(path_featureFound)
+              this.PathesSegmentsForEdit.remove(path_seq_data)
             } else {
 
               var ori_geo = path_featureFound.getGeometry()
@@ -896,10 +907,11 @@ export default {
               //TODO create bazier curve 
               // var points = createBezierCurvePoints(3, [feature.getGeometry().getCoordinates(), ori_endCoord, [20, 30]])
               // var geometry = new LineString(points)
-
-              var geometry = new LineString([feature.getGeometry().getCoordinates(), ori_endCoord])
+              var newStartCoordinates = feature.getGeometry().getCoordinates();
+              var geometry = new LineString([newStartCoordinates, ori_endCoord])
               path_featureFound.setGeometry(geometry)
               path_featureFound.setStyle(CreateStationPathStyles(path_featureFound))
+              path_seq_data.StartCoordination = newStartCoordinates;
             }
           }
         });
@@ -910,15 +922,19 @@ export default {
         //終點是自己
         var lineStrings = path_features.filter(feat => feat.get('path_id').split('_')[1] == index)
         lineStrings.forEach(path_feature => {
+          var pathSeqmentData = this.PathesSegmentsForEdit.find(path => path.PathID == path_feature.get('path_id'));
           if (remove) {
             this.PointLinksLayer.getSource().removeFeature(path_feature)
+            this.PathesSegmentsForEdit.remove(pathSeqmentData);
           }
           else {
             var ori_geo = path_feature.getGeometry()
             var ori_startCoord = ori_geo.getCoordinates()[0]
-            var geometry = new LineString([ori_startCoord, feature.getGeometry().getCoordinates()])
+            var newEndCoordinates = feature.getGeometry().getCoordinates();
+            var geometry = new LineString([ori_startCoord, newEndCoordinates])
             path_feature.setGeometry(geometry)
             path_feature.setStyle(CreateStationPathStyles(path_feature))
+            pathSeqmentData.EndCoordination = newEndCoordinates;
           }
 
         });
@@ -959,7 +975,7 @@ export default {
             geometry: new LineString(points),
           },
         );
-        var isEqLink = endPointFeature.get('station_type') != 0;
+        var isEqLink = endPointFeature.get('station_type') != 0 || startPointFeature.get('station_type') != 0;
         var path_id = `${startPtIndex}_${endPtIndex}`
 
         if (this.PointLinksLayer.getSource().getFeatures().find(f => f.get('path_id') == path_id))
@@ -1082,7 +1098,7 @@ export default {
         point: this.previousSelectedFeature.get('data')
       })
     },
-    ReloadMap() {
+    ReloadMap(confirm = true) {
       this.$swal.fire(
         {
           text: '確定要重新載入圖資?',
@@ -1092,16 +1108,13 @@ export default {
           confirmButtonText: '確定',
           cancelButtonText: '取消',
           customClass: 'my-sweetalert'
-        }).then((res) => {
+        }).then(async (res) => {
           if (res.isConfirmed) {
-            MapStore.dispatch('DownloadMapData', '')
-            setTimeout(() => {
-
-              this._map_stations = JSON.parse(JSON.stringify(this.map_station_data))
-              this.DeepClonePathSegmentData();
-              this.UpdateStationPointLayer();
-              this.UpdateStationPathLayer();
-            }, 1000);
+            this.loading = true;
+            await MapStore.dispatch('DownloadMapData', '');
+            console.log('re-done');
+            this.RefreshMap();
+            this.loading = false;
           }
         })
     },
@@ -1144,10 +1157,7 @@ export default {
           maxZoom: 20
         })
       })
-
-
       this.AGVLocLayer.setVisible(this.agv_show)
-
       this.PointLinksLayer.setVisible(this.station_show && this.routePathsVisible)
       this.PointLayer.setVisible(this.station_show)
       this.PointRouteLayer.setVisible(false)
@@ -1168,6 +1178,9 @@ export default {
       this.$refs.settings.show = true;
     },
     ClearSelectedFeature() {
+      if (this.editable)
+        return;
+
       try {
         this.previousSelectedFeatures.forEach(feature => {
           var oriStyle = feature.get('oristyle')
@@ -1181,14 +1194,17 @@ export default {
       this.previousSelectedFeatures = []
     },
     HighLightFeatureSelected(features = [new Feature()], color = 'red') {
-      try {
+      if (this.editable) {
+        this.previousSelectedFeatures = [];
+        this.previousSelectedFeatures.push(features[0])
 
+        return;
+      }
+      try {
         this.ClearSelectedFeature();
         features.forEach(feature => {
           var style = feature.getStyle()
           if (style) {
-
-
             feature.set("oristyle", style.clone())
             var newStyle = style.clone()
             var text = newStyle.getText();
@@ -1201,9 +1217,7 @@ export default {
                 feature.setStyle(newStyle)
               }
             }
-
           }
-
           this.previousSelectedFeatures.push(feature)
         })
       } catch (error) {
@@ -1253,9 +1267,10 @@ export default {
     },
     showContextMenu(event) {
       event.preventDefault();
+      if (this.editable)
+        return;
       if (this.EditorOption.EditAction == 'add-station')
         return;
-
       if (this.previousSelectedFeature) {
         this.contextMenuTop = event.clientY;
         this.contextMenuLeft = event.clientX;
@@ -1362,10 +1377,18 @@ export default {
       setInterval(() => {
         this.RenderEQLDULDStatus();
       }, 100);
+    },
+    RefreshMap() {
+      this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
+      this.DeepClonePathSegmentData();
+      this.UpdateStationPointLayer();
+      this.UpdateStationPathLayer();
+      this.MapDisplayModeOptHandler();
     }
   },
 
   mounted() {
+    this.loading = true;
     setTimeout(() => {
       MapStore.dispatch('DownloadMapData').then(() => {
         this.RestoreSettingsFromLocalStorage();
@@ -1376,11 +1399,7 @@ export default {
           () => this.map_station_data, (newval, oldval) => {
             if (!newval)
               return;
-            this._map_stations = JSON.parse(JSON.stringify(newval))
-            this.UpdateStationPointLayer();
-            this.UpdateStationPathLayer();
-            this.MapDisplayModeOptHandler();
-
+            this.RefreshMap();
           }, { deep: true, immediate: true }
         )
         if (this.eq_lduld_status_show) {
@@ -1409,8 +1428,9 @@ export default {
         document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
           ev.preventDefault()
         })
+        this.loading = false;
       })
-    }, 1200)
+    }, 500)
   },
 }
 </script>

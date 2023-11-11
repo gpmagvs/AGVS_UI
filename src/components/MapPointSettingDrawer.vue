@@ -220,7 +220,8 @@ export default {
   },
   methods: {
     async Show(ptObj) {
-
+      if (!ptObj.point)
+        return;
       this.index = ptObj.index
       this.pointData = ptObj.point
       this.pointData_editing = JSON.parse(JSON.stringify(ptObj.point))
