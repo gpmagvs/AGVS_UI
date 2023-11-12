@@ -11,7 +11,8 @@
       size="small"
       border
       height="680"
-      style="width:1800px">
+      style="width:1800px"
+    >
       <el-table-column label="Index" prop="index" width="80" align="center" fixed="left" />
       <el-table-column label="設備名稱" prop="Name" width="250" fixed="left">
         <template #default="scope">
@@ -23,9 +24,15 @@
               style="width:120px"
               :no-wheel="true"
               size="sm"
-              :min="1">
-            </b-form-input>
-            <b-button class="mx-1" size="sm" variant="primary" @click="HandleUseMapDataDisplayName(scope.row.TagID)">使用圖資設定</b-button>
+              :min="1"
+              @input="HandleEqNameChange(scope.row,scope.row.Name)"
+            ></b-form-input>
+            <b-button
+              class="mx-1"
+              size="sm"
+              variant="primary"
+              @click="HandleUseMapDataDisplayName(scope.row.TagID)"
+            >使用圖資設定</b-button>
           </div>
         </template>
       </el-table-column>
@@ -38,7 +45,8 @@
             placeholder="tag id"
             :no-wheel="true"
             size="sm"
-            :min="1"></b-form-input>
+            :min="1"
+          ></b-form-input>
         </template>
       </el-table-column>
       <el-table-column label="區域" prop="Region" width="130">
@@ -52,12 +60,14 @@
             v-model="scope.row.ValidDownStreamEndPointNames"
             multiple
             placeholder="Select"
-            style="width: 500px">
+            style="width: 500px"
+          >
             <el-option
-              v-for="eq_name in EqNames"
+              v-for="eq_name in GetAvaluableEqNameList(scope.row.Name)"
               :key="eq_name"
               :label="eq_name"
-              :value="eq_name" />
+              :value="eq_name"
+            />
           </el-select>
         </template>
       </el-table-column>
@@ -77,7 +87,8 @@
             <el-input
               :disabled="scope.row.ConnOptions.ConnMethod == 1"
               v-model="scope.row.ConnOptions.IP"
-              :size="cell_item_size"></el-input>
+              :size="cell_item_size"
+            ></el-input>
           </template>
         </el-table-column>
         <el-table-column label="Port" prop="ConnOptions.Port" width="120">
@@ -85,7 +96,8 @@
             <el-input
               :disabled="scope.row.ConnOptions.ConnMethod == 1"
               v-model.number="scope.row.ConnOptions.Port"
-              :size="cell_item_size"></el-input>
+              :size="cell_item_size"
+            ></el-input>
           </template>
         </el-table-column>
         <el-table-column label="ComPort" prop="ConnOptions.ComPort" width="120">
@@ -93,7 +105,8 @@
             <el-input
               :disabled="scope.row.ConnOptions.ConnMethod == 0"
               v-model="scope.row.ConnOptions.ComPort"
-              :size="cell_item_size"></el-input>
+              :size="cell_item_size"
+            ></el-input>
           </template>
         </el-table-column>
       </el-table-column>
@@ -104,7 +117,8 @@
             <el-button
               :size="cell_item_size"
               type="default"
-              @click="ConnectTestHandle(scope.row)">通訊測試</el-button>
+              @click="ConnectTestHandle(scope.row)"
+            >通訊測試</el-button>
           </div>
         </template>
       </el-table-column>
@@ -138,6 +152,7 @@ export default {
         //   }
         // }
       ],
+      EqDatas_Orignal: [],
       ValidTag: (row_) => {
         var tag = row_.TagID;
         var others_row = this.EqDatas.filter(d => d.Name != row_.Name)
@@ -153,7 +168,9 @@ export default {
     }
   },
   methods: {
-
+    GetAvaluableEqNameList(expect_name) {
+      return this.EqNames.filter(name => name != expect_name);
+    },
     async SaveSettingHandler() {
       var ret = await SaveEQOptions(this.EqDatas);
       if (ret.confirm) {
@@ -174,12 +191,17 @@ export default {
     },
     async DownloadEQOptions() {
       this.EqDatas = [];
+
       var datas = await GetEQOptions()
       for (let index = 0; index < datas.length; index++) {
         const element = datas[index];
         element.index = index;
         this.EqDatas.push(element)
       }
+      this.CloneEQDatas();
+    },
+    CloneEQDatas() {
+      this.EqDatas_Orignal = JSON.parse(JSON.stringify(this.EqDatas));
     },
     ReloadSettingsHandler() {
       this.DownloadEQOptions();
@@ -233,7 +255,9 @@ export default {
     async HandleUseMapDataDisplayName(tag) {
       var mapPoint = await MapStore.dispatch('GetMapPointByTag', tag)
       if (mapPoint) {
-        this.EqDatas.find(eq => eq.TagID == tag).Name = mapPoint.Name;
+        var row = this.EqDatas.find(eq => eq.TagID == tag);
+        row.Name = mapPoint.Name;
+        this.HandleEqNameChange(row, mapPoint.Name);
         ElNotification({
           message: `Get Display Name From Map Success(Tag ${tag} = ${mapPoint.Name})`,
           duration: 1000,
@@ -249,6 +273,17 @@ export default {
         })
       }
 
+    },
+    HandleEqNameChange(row, newName) {
+      var tagid = row.TagID;
+      var oriOptions = this.EqDatas_Orignal.find(d => d.TagID == tagid);
+      var oriName = oriOptions.Name;
+      var useOriNameOptionsList = this.EqDatas.filter(eq => eq.ValidDownStreamEndPointNames.includes(oriName));
+      useOriNameOptionsList.forEach(option => {
+        var _index = option.ValidDownStreamEndPointNames.indexOf(oriName);
+        option.ValidDownStreamEndPointNames[_index] = newName;
+      });
+      this.CloneEQDatas();
     }
   },
   mounted() {
@@ -264,5 +299,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.equipment-manager {}
+.equipment-manager {
+}
 </style>

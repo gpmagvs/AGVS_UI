@@ -59,12 +59,6 @@
         aria-current="currentpage"
         id="Tasktable"
       >
-        <el-table-column label="接收時間" prop="RecieveTime" width="160">
-          <template #default="scope">{{ formatTime(scope.row.RecieveTime) }}</template>
-        </el-table-column>
-        <el-table-column label="結束時間" prop="FinishTime" width="160">
-          <template #default="scope">{{ formatTime(scope.row.FinishTime) }}</template>
-        </el-table-column>
         <el-table-column label="任務名稱" prop="TaskName" width="230">
           <template #default="scope">
             <div>
@@ -78,6 +72,13 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column label="接收時間" prop="RecieveTime" width="160">
+          <template #default="scope">{{ formatTime(scope.row.RecieveTime) }}</template>
+        </el-table-column>
+        <el-table-column label="結束時間" prop="FinishTime" width="160">
+          <template #default="scope">{{ formatTime(scope.row.FinishTime) }}</template>
+        </el-table-column>
+
         <el-table-column label="執行結果" prop="StateName" width="100" align="center">
           <template #default="scope">
             <el-tag
