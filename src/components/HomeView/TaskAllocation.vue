@@ -8,14 +8,16 @@
       direction="btt"
       :modal="false"
       :z-index="123"
-      @closed="HandleDrawerClosed">
+      @closed="HandleDrawerClosed"
+    >
       <template #header>
         <div class="d-flex">
           <el-button
             @click="() => { show = false }"
             size="large"
             style="margin-left:53px;font-size:larger;"
-            type="primary">←返回(ESC)</el-button>
+            type="primary"
+          >←返回(ESC)</el-button>
           <h3 class="flex-fill text-center">Local任務派送-車輛:{{ selectedAGVName }}</h3>
         </div>
       </template>
@@ -28,7 +30,8 @@
                   v-for="agv_name in AgvNameList"
                   :key="agv_name.value"
                   :label="agv_name.label"
-                  :value="agv_name.value"></el-option>
+                  :value="agv_name.value"
+                ></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="AGV任務動作">
@@ -37,7 +40,8 @@
                 class="w-100"
                 v-model="selectedAction"
                 placeholder="請選擇Action"
-                @change="ActionChangeHandler">
+                @change="ActionChangeHandler"
+              >
                 <el-option label="移動" value="move"></el-option>
                 <el-option label="停車" value="park"></el-option>
                 <el-option label="搬運" value="carry"></el-option>
@@ -52,7 +56,8 @@
                 class="w-100"
                 v-model="selectedAction"
                 placeholder="請選擇Action"
-                @change="ActionChangeHandler">
+                @change="ActionChangeHandler"
+              >
                 <el-option label="移動" value="move"></el-option>
                 <el-option label="交換電池" value="exchange_battery"></el-option>
                 <el-option label="巡檢量測" value="measure"></el-option>
@@ -62,40 +67,55 @@
                 <!-- <el-option label="搬運" value="carry"></el-option>
                 <el-option label="放貨" value="load"></el-option>
                 <el-option label="取貨" value="unload"></el-option>
-                <el-option label="充電" value="charge"></el-option> -->
+                <el-option label="充電" value="charge"></el-option>-->
               </el-select>
             </el-form-item>
             <!--  -->
             <el-form-item label="起點" v-if="selectedAction == 'carry'">
-              <el-select class="w-100" v-model="sourceTag" @change="HandleFromSelectChanged" placeholder="選擇站點">
+              <el-select
+                class="w-100"
+                v-model="sourceTag"
+                @change="HandleFromSelectChanged"
+                placeholder="選擇站點"
+              >
                 <el-option v-for="tag in tags" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="目的地">
               <el-select class="w-100" v-model="destinTag" placeholder="選擇站點">
-                <el-option v-for="tag in DetermineDestinOptions()" :key="tag.tag" :label="tag.name" :value="tag.tag"></el-option>
+                <el-option
+                  v-for="tag in DetermineDestinOptions()"
+                  :key="tag.tag"
+                  :label="tag.name"
+                  :value="tag.tag"
+                ></el-option>
               </el-select>
             </el-form-item>
             <!--  -->
             <el-form-item
               v-if="selectedAction === 'carry' | selectedAction === 'unload'"
-              label="貨物ID">
+              label="貨物ID"
+            >
               <el-input class="w-100" v-model="Cst_ID_Input" autocomplete></el-input>
             </el-form-item>
             <el-form-item>
               <b-button
                 class="w-100 my-2"
                 @click="TaskDeliveryBtnClickHandle"
-                variant="primary">派送任務</b-button>
+                variant="primary"
+              >派送任務</b-button>
               <!-- <b-button class="w-100" @click="HandleNavPathPreviewBtnClick" variant="default">預覽路徑</b-button> -->
             </el-form-item>
             <el-form-item v-if="IsDeveloper" label="Bypass 設備狀態檢查">
-              <el-checkbox class="w-100" v-model="bypass_eq_status_check">
-              </el-checkbox>
+              <el-checkbox class="w-100" v-model="bypass_eq_status_check"></el-checkbox>
             </el-form-item>
           </el-form>
           <Map
-            canva_height="750px" id="task_allocation_map" class="w-100 border rounded mx-2" ref="_map"></Map>
+            canva_height="750px"
+            id="task_allocation_map"
+            class="w-100 border rounded mx-2"
+            ref="_map"
+          ></Map>
         </div>
         <div v-if="selectedAction == 'charge'" class="img charge"></div>
         <div v-else class="img delivery"></div>
@@ -322,7 +342,8 @@ export default {
     },
     async TaskDeliveryHandle() {
       // TaskAllocation.Task();
-
+      if (userStore.getters.level == 0)
+        this.bypass_eq_status_check = false;
       this.wait_task_confirm = true
       var response = { confirm: true, message: '' }
 

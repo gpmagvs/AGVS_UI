@@ -1,6 +1,7 @@
 <template>
-  <div style="height:600px;width: 600px; display: flex;flex-direction:column;">
+  <div class="border rounded" style="height:600px;width: 95%; display: flex;flex-direction:column;">
     <vue3-chart-js
+      :key="myChart.type"
       ref="chartRef"
       :id="myChart.id"
       :type="myChart.type"
@@ -25,6 +26,18 @@ export default {
         return [1, 1, 1, 1, 1]
       }
     },
+    colorSet: {
+      type: Array,
+      default() {
+        return [
+          'rgb(2, 176, 8)',
+          'rgb(255, 226, 6)',
+          'rgb(255, 92, 92)',
+          'rgb(51, 207, 255)',
+          'rgb(186, 186, 186)'
+        ]
+      }
+    }
   },
   data() {
     return {
@@ -32,22 +45,38 @@ export default {
         id: 'pie',
         type: 'pie',
         data: {
-          labels: ['RUN', 'IDLE', 'DOWN', 'CHARGE', 'UNKNOWN'],
+          labels: ['RUN', 'IDLE', 'DOWN', 'CHARGE', 'UNKNOWN', 'UNKNOWN'],
           datasets: [
             {
-              backgroundColor: [
-                'rgb(98, 243, 166)',
-                'rgb(255, 226, 6)',
-                'rgb(219, 7, 0)',
-                'rgb(51, 207, 255)',
-                'rgb(186, 186, 186)'
-              ],
-              data: [1, 2, 3, 4, 5]
+              backgroundColor: this.colorSet,
+              data: [0, 0, 0, 0, 0]
             }
           ],
         },
         options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animations: {
+            tension: {
+              duration: 1000,
+              easing: 'linear',
+              from: 1,
+              to: 0,
+              loop: true
+            }
+          },
+          scales: {
 
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: '稼動率',
+            }
+          },
         }
       }
     }
@@ -60,8 +89,52 @@ export default {
       //}
     },
     updateChart(data) {
+      this.myChart.type = 'pie'
+      this.myChart.options.scales = undefined
       this.myChart.data.datasets[0].data = data
       this.$refs.chartRef.update();
+    },
+    updateStackBarChart(days = {
+      dates: [],
+      idle: [],
+      run: [],
+      down: [],
+      charge: [],
+    }) {
+      this.myChart.type = 'bar'
+      this.myChart.data.labels = days.dates;
+      this.myChart.data.datasets = [
+        {
+          label: 'IDLE',
+          data: days.idle,
+          backgroundColor: this.colorSet[1],
+          stack: 'Stack 1' // 堆疊群組的名稱
+        },
+        {
+          label: 'RUN',
+          data: days.run,
+          backgroundColor: this.colorSet[0],
+          stack: 'Stack 1'
+        },
+        {
+          label: 'DOWN',
+          data: days.down,
+          backgroundColor: this.colorSet[2],
+          stack: 'Stack 1' // 堆疊群組的名稱
+        },
+
+        {
+          label: 'CHARGE',
+          data: days.charge,
+          backgroundColor: this.colorSet[3],
+          stack: 'Stack 1' // 堆疊群組的名稱
+        }
+      ]
+      try {
+        this.$refs.chartRef.update();
+      } catch (error) {
+      }
+
     }
   },
   mounted() {

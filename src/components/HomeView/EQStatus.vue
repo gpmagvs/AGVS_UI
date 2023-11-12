@@ -28,7 +28,7 @@
     <!-- <div v-if="IsDeveloperLogining" class="dev-debug-global d-flex">
       <b-button variant="light" @click="EmuAllLoad">ALL Load</b-button>
       <b-button class="mx-2" variant="light" @click="EmuAllBusy">ALL Busy</b-button>
-    </div> -->
+    </div>-->
     <el-table
       class="px-1"
       style="height:600px"
@@ -40,10 +40,13 @@
       :data="display_data"
       :row-style="{ fontWeight: 'bold' }"
       :row-class-name="eq_connection_status"
-      row-key="EQName">
+      row-key="EQName"
+    >
       <el-table-column sortable label="設備名稱" prop="EQName" width="170">
         <template #default="scope">
-          <div> {{ scope.row.EQName }} <el-tooltip placement="top-start" content="複製到剪貼簿">
+          <div>
+            {{ scope.row.EQName }}
+            <el-tooltip placement="top-start" content="複製到剪貼簿">
               <i @click="CopyText(scope.row.EQName)" class="copy-button copy-icon bi bi-clipboard"></i>
             </el-tooltip>
           </div>
@@ -51,21 +54,42 @@
       </el-table-column>
       <el-table-column sortable label="Tag" prop="Tag" width="80" align="center"></el-table-column>
       <el-table-column v-if="show_lduld_state" align="center" label="設備狀態" prop="TransferStatus">
-        <template #default="scope"> <el-tag style="width:220px" :type="GetTransferStatusTagtype(scope.row.TransferStatus)" effect="dark"> {{ GetTransferStatusStr(scope.row.TransferStatus) }}</el-tag> </template>
+        <template #default="scope">
+          <el-tag
+            style="width:220px"
+            :type="GetTransferStatusTagtype(scope.row.TransferStatus)"
+            effect="dark"
+          >{{ GetTransferStatusStr(scope.row.TransferStatus) }}</el-tag>
+        </template>
       </el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <!-- IO訊號 -->
-      <el-table-column v-if="!show_lduld_state" label="可移入" prop="Load_Request" :width="column_width">
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="可移入"
+        prop="Load_Request"
+        :width="column_width"
+      >
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Load_Request)">可移入</div>
         </template>
       </el-table-column>
-      <el-table-column v-if="!show_lduld_state" label="可移出" prop="Unload_Request" :width="column_width">
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="可移出"
+        prop="Unload_Request"
+        :width="column_width"
+      >
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">可移出</div>
         </template>
       </el-table-column>
-      <el-table-column v-if="!show_lduld_state" label="貨物在席" prop="Port_Exist" :width="column_width">
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="貨物在席"
+        prop="Port_Exist"
+        :width="column_width"
+      >
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">貨物在席</div>
         </template>
@@ -80,37 +104,75 @@
           <div class="di-status" v-bind:style="signalOn(scope.row.Down_Pose)">撈爪下位</div>
         </template>
       </el-table-column>
-      <el-table-column v-if="!show_lduld_state" label="Status" prop="Eqp_Status_Down" :width="column_width">
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="Status"
+        prop="Eqp_Status_Down"
+        :width="column_width"
+      >
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">Status</div>
         </template>
       </el-table-column>
       <el-table-column type="expand" width="50">
         <template #default="scope">
+          <div class="hs-signals d-flex">
+            <div class="mx-3">交握訊號-EQ</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
+              v-bind:style="signalOn(scope.row.HS_EQ_L_REQ)"
+            >L_REQ</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
+              v-bind:style="signalOn(scope.row.HS_EQ_U_REQ)"
+            >U_REQ</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'READY', !scope.row.HS_EQ_READY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_READY)"
+            >READY</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_BUSY)"
+            >BUSY</div>
+          </div>
+          <div class="hs-signals d-flex">
+            <div class="mx-3">交握訊號-AGV</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
+              v-bind:style="signalOn(scope.row.HS_AGV_VALID)"
+            >VALID</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
+              v-bind:style="signalOn(scope.row.HS_AGV_TR_REQ)"
+            >TR_REQ</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'READY', !scope.row.HS_EQ_READY)"
+              v-bind:style="signalOn(scope.row.HS_AGV_BUSY)"
+            >BUSY</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
+              v-bind:style="signalOn(scope.row.HS_AGV_READY)"
+            >READY</div>
+
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
+              v-bind:style="signalOn(scope.row.HS_AGV_COMPT)"
+            >COMPT</div>
+          </div>
           <div v-if="IsDeveloperLogining" class="d-flex">
             <div class="mx-3">模擬器:</div>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">切換為Busy</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'load')">切換為Load</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'unload')">切換為Unload</el-button>
-          </div>
-          <div class="hs-signals d-flex">
-            <div class="mx-3">交握訊號:</div>
-            <div
-              class="di-status"
-              @dblclick="HandleHSsignaleChange(scope.row.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
-              v-bind:style="signalOn(scope.row.HS_EQ_L_REQ)">L_REQ</div>
-            <div
-              class="di-status"
-              @dblclick="HandleHSsignaleChange(scope.row.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
-              v-bind:style="signalOn(scope.row.HS_EQ_U_REQ)">U_REQ</div>
-            <div
-              class="di-status"
-              @dblclick="HandleHSsignaleChange(scope.row.EQName, 'READY', !scope.row.HS_EQ_READY)"
-              v-bind:style="signalOn(scope.row.HS_EQ_READY)">READY</div>
-            <div
-              class="di-status"
-              @dblclick="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
-              v-bind:style="signalOn(scope.row.HS_EQ_BUSY)">BUSY</div>
           </div>
         </template>
       </el-table-column>
@@ -136,7 +198,7 @@ export default {
   },
   data() {
     return {
-      column_width: 105,
+      column_width: 115,
       // eq_data: [
       //   {
       //     IsConnected: true,

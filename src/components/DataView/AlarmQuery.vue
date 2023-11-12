@@ -6,7 +6,11 @@
       <label>End Time</label>
       <input type="datetime-local" v-model="end_time" prop="End Time" />
       <label>警報類型</label>
-      <select v-bind:class="AlarmTypeSelected == 'ALL' ? '' : AlarmTypeSelected == 'Alarm' ? 'bg-danger text-light' : 'bg-warning text-light'" prop="EQ Name" v-model="AlarmTypeSelected">
+      <select
+        v-bind:class="AlarmTypeSelected == 'ALL' ? '' : AlarmTypeSelected == 'Alarm' ? 'bg-danger text-light' : 'bg-warning text-light'"
+        prop="EQ Name"
+        v-model="AlarmTypeSelected"
+      >
         <option>ALL</option>
         <option class="bg-danger text-light">Alarm</option>
         <option class="bg-warning text-light">Warning</option>
@@ -24,18 +28,28 @@
         class="Select-Query"
         variant="primary"
         size="sm"
-        style="float:right">搜尋</b-button>
+        style="float:right"
+      >搜尋</b-button>
       <b-button
         @click="SaveTocsv()"
         :SaveTocsv="SaveTocsv"
         class="SaveTocsv mx-2"
         variant="primary"
         size="sm"
-        style="float:right"> 輸出csv檔</b-button>
+        style="float:right"
+      >輸出csv檔</b-button>
     </div>
     <div>
-      <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small"
-        style="width: 100%;font-weight: bold;" aria-current="currentpage" id="alarmtable">
+      <el-table
+        border
+        :data="alarms"
+        empty-text="No Alarms"
+        :row-class-name="row_state_class_name"
+        size="small"
+        style="width: 100%;font-weight: bold;"
+        aria-current="currentpage"
+        id="alarmtable"
+      >
         <el-table-column label="發生時間" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
         </el-table-column>
@@ -48,13 +62,23 @@
         </el-table-column>
         <el-table-column label="警報類型" prop="Level" width="100" align="center">
           <template #default="scope">
-            <el-tag style="width:80px" effect="dark" :type="scope.row.Level == 1 ? 'error' : 'warning'">{{ scope.row.Level == 1 ? 'Alarm' : 'Warning' }}</el-tag>
+            <el-tag
+              style="width:80px"
+              effect="dark"
+              :type="scope.row.Level == 1 ? 'danger' : 'warning'"
+            >{{ scope.row.Level == 1 ? 'Alarm' : 'Warning' }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="任務名稱" prop="Task_Name" width="210">
           <template #default="scope">
-            <div> {{ scope.row.Task_Name }} <el-tooltip placement="top-start" content="複製到剪貼簿">
-                <i v-if="scope.row.Task_Name != ''" @click="CopyText(scope.row.Task_Name)" class="copy-button copy-icon bi bi-clipboard"></i>
+            <div>
+              {{ scope.row.Task_Name }}
+              <el-tooltip placement="top-start" content="複製到剪貼簿">
+                <i
+                  v-if="scope.row.Task_Name != ''"
+                  @click="CopyText(scope.row.Task_Name)"
+                  class="copy-button copy-icon bi bi-clipboard"
+                ></i>
               </el-tooltip>
             </div>
           </template>
@@ -64,9 +88,18 @@
         <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" min-width="120"></el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center">
-        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="alarmtable"
-          class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
-        <div class="mx-3 py-2">共 <span style="font-weight: bold; font-size: large;"> {{ rows }}</span>筆</div>
+        <b-pagination
+          :per-page="per_page_num"
+          :total-rows="rows"
+          aria-controls="alarmtable"
+          class="pagination justify-content-center"
+          v-model="currentpage"
+          @click="PageChnageHandle"
+        ></b-pagination>
+        <div class="mx-3 py-2">
+          共
+          <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆
+        </div>
       </div>
     </div>
   </div>
@@ -105,13 +138,16 @@ export default {
     const EndDate = new Date();
     this.end_time = EndDate.toISOString().substring(0, 10) + ' 23:59:59';
     this.start_time = moment(this.end_time, 'YYYY-MM-DD HH:mm:ss').subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
-    QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
-      this.alarms = retquery.alarms
-      this.rows = retquery.count;
-      this.currentpage = retquery.currentpage;
-    }).catch(er => {
-      Notifier.Danger('警報查詢失敗後端服務異常')
-    });
+    setTimeout(() => {
+      QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
+        this.alarms = retquery.alarms
+        this.rows = retquery.count;
+        this.currentpage = retquery.currentpage;
+      }).catch(er => {
+        Notifier.Danger('警報查詢失敗後端服務異常')
+      });
+    }, 500);
+
   },
   methods: {
     formatTime(_time) {

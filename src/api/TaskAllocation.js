@@ -146,9 +146,14 @@ export var TaskAllocation = {
       })
   },
   async Cancel(taskName) {
-    return await axios_entity.get(`/api/Task/Cancel?task_name=${taskName}`, {
-      headers: getAuthHeaders(),
-    })
+    try {
+      var ret = await axios_entity.get(`/api/Task/Cancel?task_name=${taskName}`, {
+        headers: getAuthHeaders(),
+      })
+      return ret.data;
+    } catch (err) {
+      throw err
+    }
   },
   async MoveTask(clsMoveTaskData = new clsMoveTaskData('agv', 1)) {
     return await CallAPI('/api/Task/Move', clsMoveTaskData)

@@ -5,7 +5,8 @@
       v-for="opt in valid_map_regions_options"
       :key="opt.value"
       :label="opt.label"
-      :value="opt.value"></el-option>
+      :value="opt.value"
+    ></el-option>
   </el-select>
 </template>
 
@@ -13,14 +14,13 @@
 import { GetValidRegionOptions } from '@/api/MapAPI.js'
 export default {
   props: {
-    value: {
+    default: {
       type: String,
-      required: true,
     },
   },
   data() {
     return {
-      selectedRegion: this.value,
+      selectedRegion: this.default,
       valid_map_regions_options: [],
 
     }

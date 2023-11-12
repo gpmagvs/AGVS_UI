@@ -2,13 +2,11 @@
   <div class="agv-locus border rounded">
     <div class="w-100 d-flex">
       <div class="menu-container bg-light p-2 border">
-        <div class="border-bottom my-1 py-2" style="width:550px">
+        <div class="border-bottom my-1 py-2">
           <div class="time-pick text-start d-flex">
             <div>
               <div class="label">車輛選擇</div>
-              <el-select v-model="agvname">
-                <el-option v-for="name in agvNameList" :key="name" :label="name" :value="name"></el-option>
-              </el-select>
+              <AGVSelector v-model="agvname"></AGVSelector>
             </div>
             <div>
               <div class="label">開始時間</div>
@@ -28,20 +26,21 @@
                 format="YYYY/MM/DD HH:mm:ss"
               />
             </div>
+            <el-button
+              @click="HandleSearchBtnClicked"
+              style="height:30px;font-size: large;width:120px;position:relative;top:16px"
+              class="my-2"
+              type="primary"
+            >搜尋</el-button>
           </div>
-          <el-button
-            @click="HandleSearchBtnClicked"
-            style="height:50px;font-size: large;"
-            class="w-100 my-2"
-            type="primary"
-          >搜尋</el-button>
         </div>
         <el-table
           v-loading="loading"
           :data="tableData"
           style="width:720px"
-          height="600"
+          height="700"
           highlight-current-row
+          size="small"
         >
           <el-table-column align="center" label="No" width="50">
             <template #default="scope">
@@ -102,6 +101,8 @@
 </template>
 
 <script>
+import AGVSelector from '@/components/AGVSelector'
+
 import Map from '@/components/Map/Map.vue'
 import { GetTasks, GetTrajectory } from '@/api/TaskAPI.js'
 import { agv_states_store } from '@/store'
@@ -109,7 +110,7 @@ import { MapStore } from '@/components/Map/store'
 import moment from 'moment'
 export default {
   components: {
-    Map,
+    Map, AGVSelector
   },
   computed: {
     agvNameList() {
@@ -131,7 +132,7 @@ export default {
         },
 
       ],
-      agvname: '',
+      agvname: 'AGV_001',
       timePick: {
         start_time: '2023-08-03 12:00:00',
         end_time: '2023-08-04 12:00:00'

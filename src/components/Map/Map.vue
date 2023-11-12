@@ -1,5 +1,5 @@
 <template>
-  <div id="map" class="map-component" v-loading="loading">
+  <div id="map" class="map-component">
     <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
     <div class="d-flex h-100">
       <div class="flex-fill d-flex flex-column">
@@ -23,8 +23,8 @@
                 @change="(opt) => { RestoreOriginalPathStyle(this.selected_path_feature) }"
                 size="large"
               >
-                <el-radio-button size="small" label="view">檢視</el-radio-button>
-                <el-radio-button size="small" label="edit">編輯</el-radio-button>
+                <el-radio-button size="small" label="view">檢視[V]</el-radio-button>
+                <el-radio-button size="small" label="edit">編輯[E]</el-radio-button>
               </el-radio-group>
             </div>
             <div class="edit-block d-flex">
@@ -37,9 +37,9 @@
                 size="large"
               >
                 <el-radio-button size="small" label="none">無</el-radio-button>
-                <el-radio-button size="small" label="add-station">新增點位</el-radio-button>
-                <el-radio-button size="small" label="edit-station">編輯點位</el-radio-button>
-                <el-radio-button size="small" label="remove-station">移除點位</el-radio-button>
+                <el-radio-button size="small" label="add-station">新增點位[1]</el-radio-button>
+                <el-radio-button size="small" label="edit-station">編輯點位[2]</el-radio-button>
+                <el-radio-button size="small" label="remove-station">移除點位[3]</el-radio-button>
               </el-radio-group>
               <el-radio-group
                 class="mx-1"
@@ -48,9 +48,9 @@
                 @change="() => { PathEditTempStore = [] }"
                 size="large"
               >
-                <el-radio-button size="small" label="add-path">新增路徑</el-radio-button>
-                <el-radio-button size="small" label="edit-path">編輯路徑</el-radio-button>
-                <el-radio-button size="small" label="remove-path">移除路徑</el-radio-button>
+                <el-radio-button size="small" label="add-path">新增路徑[4]</el-radio-button>
+                <el-radio-button size="small" label="edit-path">編輯路徑[5]</el-radio-button>
+                <el-radio-button size="small" label="remove-path">移除路徑[6]</el-radio-button>
               </el-radio-group>
             </div>
           </div>
@@ -248,7 +248,11 @@
       @OnTaskBtnClick="HandleMenuTaskBtnClick"
       @OnPtSettingBtnClick="HandlePtSettingBtnClick"
     ></PointContextMenu>
-    <MapPointSettingDrawer ref="ptsetting" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
+    <MapPointSettingDrawer
+      ref="ptsetting"
+      @OnLeve="HandlePtSettingDrawerLeaved"
+      @OnPointSettingChanged="PointSettingChangedHandle"
+    ></MapPointSettingDrawer>
   </div>
 </template>
 
@@ -270,7 +274,7 @@ import { Vector as VectorLayer } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon } from './mapjs';
 import { MapStore } from './store'
 import { EqStore } from '@/store'
 import { Fill, Stroke, Style, Circle } from 'ol/style';
@@ -914,7 +918,18 @@ export default {
     /**移除一個站點，並會把相關的路徑移除 */
     RemoveStation(feature = new Feature()) {
       this.PointLayer.getSource().removeFeature(feature)
-      this.ResetPathLink(feature, true)
+      var ptIndex = feature.get('index')
+      var paths_to_remove = this.PathesSegmentsForEdit.filter(path => path.StartPtIndex == ptIndex || path.EndPtIndex == ptIndex);
+      paths_to_remove.forEach(path => {
+        var path_id = path.PathID;
+        var feature_to_remove = this.PointLinksLayer.getSource().getFeatures().find(ft => ft.get('path_id') == path_id);
+        this.PointLinksLayer.getSource().removeFeature(feature_to_remove);
+        var index = this.PathesSegmentsForEdit.indexOf(path);
+        if (index != -1) {
+          this.PathesSegmentsForEdit.splice(index, 1);
+        }
+      })
+      this.UpdateStationPathLayer();
     },
     RemovePath(path_feature) {
       var pathID = path_feature.get('path_id')
@@ -925,8 +940,8 @@ export default {
       var mapPointModel = startFeature.get('data')
       delete mapPointModel.Target[endPtIndex]
       var mapPointModel = startFeature.set('data', mapPointModel)
-
-      var path = this.PathesSegmentsForEdit.find(path => path.StartPtIndex == startPtIndex && path.EndPtIndex == endPtIndex);
+      this.PointLinksLayer.getSource().removeFeature(path_feature);
+      var path = this.PathesSegmentsForEdit.find(path => path.PathID == pathID);
       if (path) {
         var index = this.PathesSegmentsForEdit.indexOf(path);
         if (index != -1) {
@@ -953,12 +968,10 @@ export default {
           if (path_featureFound) {
             if (remove) {
               this.PointLinksLayer.getSource().removeFeature(path_featureFound)
-              this.PathesSegmentsForEdit.remove(path_seq_data)
+              this.PathesSegmentsForEdit.remove(path_seq_data);
             } else {
-
               var ori_geo = path_featureFound.getGeometry()
               var ori_endCoord = ori_geo.getCoordinates()[1]
-
               //TODO create bazier curve 
               // var points = createBezierCurvePoints(3, [feature.getGeometry().getCoordinates(), ori_endCoord, [20, 30]])
               // var geometry = new LineString(points)
@@ -1120,6 +1133,9 @@ export default {
       if (source) {
         var features = []
         source.clear()
+        //創建起終點圖標
+        let iconFeature_end = CreateLocIcon(coordinate_list[coordinate_list.length - 1], false);
+        //features.push(iconFeature_start);
         //創建軌跡 LineString
         let lineFeature = new Feature(
           {
@@ -1128,6 +1144,8 @@ export default {
         );
         lineFeature.setStyle(CreateLocusPathStyles(color, width))
         features.push(lineFeature)
+        features.push(iconFeature_end);
+
         source.addFeatures(features)
       }
     },
@@ -1147,6 +1165,7 @@ export default {
       this.$emit('save', mapDataSave)
     },
     HandlePtSettingBtnClick() {
+      document.removeEventListener('keydown', this.EditModeKeybordEvents)
       this.editModeContextMenuVisible = false;
       this.$refs.ptsetting.Show({
         index: this.previousSelectedFeature.get('index'),
@@ -1341,6 +1360,9 @@ export default {
         this.editModeContextMenuVisible = true;
       }
     },
+    HandlePtSettingDrawerLeaved() {
+      document.addEventListener('keydown', this.EditModeKeybordEvents)
+    },
     PointSettingChangedHandle(data_dto) {
 
       var index = data_dto.index;
@@ -1439,16 +1461,51 @@ export default {
       this.UpdateStationPointLayer();
       this.UpdateStationPathLayer();
       this.MapDisplayModeOptHandler();
+    },
+    EditModeKeybordEvents(event) {
+      var name = event.key.toLowerCase();
+      console.info(name)
+      if (name == 'e') {
+        this.EditorOption.EditMode = 'edit'
+      } if (name == 'v') {
+        this.EditorOption.EditMode = 'view'
+      }
+      if (this.EditorOption.EditMode != 'edit')
+        return;
+      if (name == '1') {
+        this.EditorOption.EditAction = 'add-station'
+      }
+      if (name == '2') {
+        this.EditorOption.EditAction = 'edit-station'
+      }
+      if (name == '3') {
+        this.EditorOption.EditAction = 'remove-station'
+      }
+      if (name == '4') {
+        this.EditorOption.EditAction = 'add-path'
+      }
+      if (name == '5') {
+        this.EditorOption.EditAction = 'edit-path'
+      }
+      if (name == '6') {
+        this.EditorOption.EditAction = 'remove-path'
+      }
     }
   },
 
   mounted() {
-    var element = document.getElementById("map"); // 替换为你要禁用右键菜单的元素的ID
-    element.addEventListener('contextmenu', function (event) {
-      event.preventDefault();
-    });
+
+    if (this.editable)
+      document.addEventListener('keydown', this.EditModeKeybordEvents)
+
+
     this.loading = true;
     setTimeout(() => {
+      var element = document.getElementById("map"); // 替换为你要禁用右键菜单的元素的ID
+      if (element)
+        element.addEventListener('contextmenu', function (event) {
+          event.preventDefault();
+        });
       MapStore.dispatch('DownloadMapData').then(() => {
         this.RestoreSettingsFromLocalStorage();
         this.DeepClonePathSegmentData();

@@ -3,14 +3,19 @@
     <div class="d-flex flex-row">
       <OperatieButtonSet @save="SaveSetting" @restore="HandleRestoreBtnClicked"></OperatieButtonSet>
       <span class="flex-fill"></span>
-      <el-button @click="() => {
+      <el-button
+        @click="() => {
         NewUser = {
           UserName: '',
           Password: '',
           Role: 1
         },
           AddNewUserDialogShow = true
-      }" style="font-weight: bold;font-size: 20px;" type="primary" size="large">新增使用者</el-button>
+      }"
+        style="font-weight: bold;font-size: 20px;"
+        type="primary"
+        size="large"
+      >新增使用者</el-button>
     </div>
     <div class="border">
       <el-table :data="UserData" empty-text="沒有使用者" size="large">
@@ -30,7 +35,8 @@
                   v-for="role in RoleOptions"
                   :key="role.value"
                   :value="role.value"
-                  :label="role.label"></el-option>
+                  :label="role.label"
+                ></el-option>
               </el-select>
             </div>
           </template>
@@ -59,10 +65,16 @@
                 v-for="role in RoleOptions"
                 :key="role.value"
                 :value="role.value"
-                :label="role.label"></el-option>
+                :label="role.label"
+              ></el-option>
             </el-select>
           </el-form-item>
-          <b-button :disabled="NewUser.UserName == '' || NewUser.Password == ''" @click="HandleAddNewUserClick" class="w-100" variant="primary">新增</b-button>
+          <b-button
+            :disabled="NewUser.UserName == '' || NewUser.Password == ''"
+            @click="HandleAddNewUserClick"
+            class="w-100"
+            variant="primary"
+          >新增</b-button>
         </el-form>
       </div>
     </el-dialog>
@@ -105,7 +117,7 @@ export default {
       OriginUserData: {},
       RoleOptions: [
         {
-          label: "訪客",
+          label: "Operator",
           value: 0
         },
         {
@@ -205,5 +217,6 @@ export default {
 </script>
 
 <style lang="scss">
-.user-manager {}
+.user-manager {
+}
 </style>

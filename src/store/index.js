@@ -122,7 +122,7 @@ export const userStore = createStore({
       if (state.user)
         return state.user.Role
       else
-        return 0
+        return -1
     },
     UserName: state => {
       if (state.user)

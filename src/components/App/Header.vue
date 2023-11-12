@@ -219,8 +219,11 @@ export default {
     UserName() {
       var level = userStore.getters.level;
       var username = userStore.getters.UserName.toUpperCase();
-      if (level == 0)
+      if (level == -1)
         return '訪客'
+      else if (level == 0)
+        return `${username}(OP)`
+
       else if (level == 1)
         return `${username}(ENG)`
 

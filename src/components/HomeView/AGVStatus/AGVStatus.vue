@@ -7,7 +7,8 @@
       <el-tab-pane
         v-for="group in Groups"
         :key="group.group"
-        :label="`${group.group_name}(${group.agv_states.length})`">
+        :label="`${group.group_name}(${group.agv_states.length})`"
+      >
         <el-table
           v-if="!IsEasyMode"
           :header-cell-style="{ color: 'black', border: '1px solid rgb(222, 226, 230)', backgroundColor: 'rgb(241, 241, 241)' }"
@@ -20,7 +21,8 @@
           style="width:100%"
           border
           class="border"
-          @row-click="HandleRowClick">
+          @row-click="HandleRowClick"
+        >
           <el-table-column label="車輛名稱" prop="AGV_Name" width="90px" type="index">
             <template #default="scope">
               <b>{{ scope.row.AGV_Name.toUpperCase() }}</b>
@@ -34,7 +36,8 @@
                 <el-tag
                   effect="dark"
                   @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
-                  :type="scope.row.OnlineStatus == 0 ? 'danger' : 'success'">
+                  :type="scope.row.OnlineStatus == 0 ? 'danger' : 'success'"
+                >
                   <b>{{ scope.row.OnlineStatus == 1 ? '已上線' : '離線中' }}</b>
                 </el-tag>
               </div>
@@ -45,7 +48,8 @@
             prop="MainStatus"
             :formatter="AGVStatusFormatter"
             align="center"
-            width="80">
+            width="80"
+          >
             <template #default="scope">
               <div>
                 <el-tag effect="dark" :type="AGV_Status_TagType(scope.row.MainStatus)">
@@ -60,7 +64,8 @@
                 <i
                   class="bi bi-geo-alt-fill"
                   style="font-size:20px;cursor:pointer"
-                  @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
+                  @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"
+                ></i>
                 <b>{{ scope.row.StationName }}</b>
               </div>
             </template>
@@ -77,25 +82,47 @@
             </el-table-column>
           </el-table-column>
           -->
-          <el-table-column v-if="group.group == 0 || group.group == 1" label="載物ID" prop="CurrentCarrierID"></el-table-column>
+          <el-table-column
+            v-if="group.group == 0 || group.group == 1"
+            label="載物ID"
+            prop="CurrentCarrierID"
+          ></el-table-column>
           <el-table-column label="電量" prop="BatteryLevel" width="120">
             <template #default="scope">
               <div>
                 <b-progress class="flex-fill" :max="100" :min="0" animated>
-                  <i v-if="scope.row.IsCharging" v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)" style="color:white" class="bi bi-lightning-charge battery-icon"></i>
+                  <i
+                    v-if="scope.row.IsCharging"
+                    v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)"
+                    style="color:white"
+                    class="bi bi-lightning-charge battery-icon"
+                  ></i>
                   <b-progress-bar
                     :animated="true"
                     v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)"
                     :value="scope.row.BatteryLevel_1"
-                    :label="`${((scope.row.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                    :label="`${((scope.row.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"
+                  ></b-progress-bar>
                 </b-progress>
-                <b-progress v-if="scope.row.BatteryLevel_2 != -1.0" class="flex-fill my-1" :max="100" :min="0" animated>
-                  <i v-if="scope.row.IsCharging" v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)" style="color:white" class="bi bi-lightning-charge battery-icon"></i>
+                <b-progress
+                  v-if="scope.row.BatteryLevel_2 != -1.0"
+                  class="flex-fill my-1"
+                  :max="100"
+                  :min="0"
+                  animated
+                >
+                  <i
+                    v-if="scope.row.IsCharging"
+                    v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)"
+                    style="color:white"
+                    class="bi bi-lightning-charge battery-icon"
+                  ></i>
                   <b-progress-bar
                     :animated="true"
                     v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)"
                     :value="scope.row.BatteryLevel_2"
-                    :label="`${((scope.row.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                    :label="`${((scope.row.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"
+                  ></b-progress-bar>
                 </b-progress>
               </div>
             </template>
@@ -107,31 +134,41 @@
                   class="w-100 m-1"
                   @click="ShowTaskAllocationView(scope.row)"
                   size="sm"
-                  variant="primary">
-                  <i class="bi bi-bus-front"></i>任務 </b-button>
+                  variant="primary"
+                >
+                  <i class="bi bi-bus-front"></i>任務
+                </b-button>
                 <b-button
                   class="w-100 m-1"
                   @click="ShowAGVChargeConfirmDialog(scope.row)"
                   size="sm"
-                  variant="success">
-                  <i class="bi bi-lightning-charge-fill"></i> {{ group.group == 3 ? '交換電池' : '充電' }} </b-button>
+                  variant="success"
+                >
+                  <i class="bi bi-lightning-charge-fill"></i>
+                  {{ group.group == 3 ? '交換電池' : '充電' }}
+                </b-button>
               </div>
             </template>
           </el-table-column>
         </el-table>
         <div v-else class="easy-mode">
-          <div v-for="state in group.agv_states" :key="state.AGV_Name" class="easy-mode-car-card border rounded my-2 p-2"
-            v-bind:style="{ backgroundColor: state.Connected ? 'rgb(229, 255, 240)' : 'rgb(255, 184, 182)' }">
+          <div
+            v-for="state in group.agv_states"
+            :key="state.AGV_Name"
+            class="easy-mode-car-card border rounded my-2 p-2"
+            v-bind:style="{ backgroundColor: state.Connected ? 'rgb(229, 255, 240)' : 'rgb(255, 184, 182)' }"
+          >
             <!-- {{ state.AGV_Name }} -->
             <div class="d-flex">
               <div class="mx-1 border-end px-1">
                 <span class="border-bottom" style="font-weight:bolder">{{ state.AGV_Name }}</span>
                 <div class="py-1">
-                  <img src="agv.png" @click="HandleShowAGVInMapCenter(state.AGV_Name)">
+                  <img src="agv.png" @click="HandleShowAGVInMapCenter(state.AGV_Name)" />
                   <el-tag
                     effect="dark"
                     @click="ShowOnlineStateChangeModal(state.AGV_Name, state.OnlineStatus, state.Model)"
-                    :type="state.OnlineStatus == 0 ? 'danger' : 'success'">
+                    :type="state.OnlineStatus == 0 ? 'danger' : 'success'"
+                  >
                     <b>{{ state.OnlineStatus == 1 ? 'ONLINE' : 'OFFLINE' }}</b>
                   </el-tag>
                 </div>
@@ -149,18 +186,27 @@
                   <div class="item-title">電量</div>
                   <div class="w-100 px-1 text-start">
                     <div style="width:110px">
-                      <b-progress class="flex-fill" :max="100" :min="0" animated> <b-progress-bar
+                      <b-progress class="flex-fill" :max="100" :min="0" animated>
+                        <b-progress-bar
                           :animated="true"
                           v-bind:class="BatteryClass(state.BatteryLevel_1)"
                           :value="state.BatteryLevel_1"
-                          :label="`${((state.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                          :label="`${((state.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"
+                        ></b-progress-bar>
                       </b-progress>
-                      <b-progress v-if="state.BatteryLevel_2 != -1.0" class="flex-fill my-1" :max="100" :min="0" animated>
+                      <b-progress
+                        v-if="state.BatteryLevel_2 != -1.0"
+                        class="flex-fill my-1"
+                        :max="100"
+                        :min="0"
+                        animated
+                      >
                         <b-progress-bar
                           :animated="true"
                           v-bind:class="BatteryClass(state.BatteryLevel_2)"
                           :value="state.BatteryLevel_2"
-                          :label="`${((state.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                          :label="`${((state.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"
+                        ></b-progress-bar>
                       </b-progress>
                     </div>
                   </div>
@@ -172,7 +218,8 @@
                     <i
                       class="bi bi-geo-alt-fill"
                       style="font-size:20px;cursor:pointer"
-                      @click="HandleShowAGVInMapCenter(state.AGV_Name)"></i>
+                      @click="HandleShowAGVInMapCenter(state.AGV_Name)"
+                    ></i>
                   </div>
                 </div>
                 <div class="d-flex w-100 my-1">
@@ -197,7 +244,8 @@
       @ok="SendOnlineStateChangeRequest"
       :no-close-on-esc="true"
       header-bg-variant="warning"
-      header-text-variant="light">
+      header-text-variant="light"
+    >
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
   </div>
@@ -330,7 +378,7 @@ export default {
     },
     ShowAGVChargeConfirmDialog(agv_status) {
 
-      if (!IsLoginLastTime().isLogin) {
+      if (userStore.getters.level < 0) {
         this.$swal.fire({
           title: '權限不足',
           text: '您沒有指派AGV充電的權限，請先進行登入。',
@@ -521,7 +569,6 @@ export default {
 
   .batter-charging {
     background-color: rgb(57, 194, 57);
-    ;
   }
 
   .battery-icon {

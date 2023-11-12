@@ -8,9 +8,10 @@
       :row-class-name="row_class_name"
       empty-text="沒有任務"
       border
-      :height="height">
+      :height="height"
+    >
       <el-table-column label="任務名稱" prop="TaskName" width="170"></el-table-column>
-      <el-table-column label="執行AGV" prop="DesignatedAGVName"> </el-table-column>
+      <el-table-column label="執行AGV" prop="DesignatedAGVName"></el-table-column>
       <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
       <el-table-column label="任務狀態" prop="StateName" width="80">
         <template #default="scope">
@@ -23,7 +24,7 @@
         </template>
       </el-table-column>
       <el-table-column label="卡匣ID" prop="Carrier_ID" width="100">
-        <template #default="scope"> {{ scope.row.Carrier_ID == "-1" ? "" : scope.row.Carrier_ID }} </template>
+        <template #default="scope">{{ scope.row.Carrier_ID == "-1" ? "" : scope.row.Carrier_ID }}</template>
       </el-table-column>
       <el-table-column label="起點" prop="From_Station">
         <template #default="scope">{{ GetStationName(scope.row.From_Station) }}</template>
@@ -52,6 +53,7 @@ import { userStore } from '@/store'
 import { TaskAllocation } from '@/api/TaskAllocation'
 import { GetTaskStateType } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
+import bus from '@/event-bus';
 
 export default {
   props: {
@@ -97,24 +99,30 @@ export default {
         }).then(res => {
           if (res.isConfirmed) {
             this.SendCancelTaskRequest()
-
-            if (isHotRunTask) {
-              this.$swal.fire(
-                {
-                  text: '',
-                  title: '是否要取消HOT RUN測試?',
-                  icon: 'question',
-                  showCancelButton: true,
-                  confirmButtonText: 'OK',
-                  customClass: 'my-sweetalert'
-                })
-            }
-
           }
         })
     },
     async SendCancelTaskRequest() {
-      await TaskAllocation.Cancel(this.cancelTaskName);
+      try {
+        await TaskAllocation.Cancel(this.cancelTaskName);
+      } catch (error) {
+        if (error.response.status == 401) {
+          bus.emit('/show-login-view-invoke')
+
+          // this.$swal.fire(
+          //   {
+          //     text: '',
+          //     title: '請先進行登入',
+          //     icon: 'warning',
+          //     showCancelButton: false,
+          //     confirmButtonText: 'OK',
+          //     customClass: 'my-sweetalert'
+          //   }).then(() => {
+
+          //     bus.emit('/show-login-view-invoke')
+          //   })
+        }
+      }
     },
     GetTaskStateType(State) {
       return GetTaskStateType(State);
@@ -138,7 +146,6 @@ export default {
 
 <style lang="scss" >
 .running-task-table {
-
   .el-table .traffic-task-row {
     background-color: rgb(169, 223, 238);
     /* --el-table-tr-bg-color: var(--el-color-warning-light-9); */

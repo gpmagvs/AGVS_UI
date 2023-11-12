@@ -93,7 +93,13 @@ var rack_station_icon = new Icon({
     opacity: 1,
     color: 'white'
 })
+const loc_icon = new Icon({
+    src: '/images/location.png', // 设置PNG图像的路径
+    offset: [-25, -5],
+    scale: 0.5,
+    size: [180, 180]
 
+})
 /**一般點位 */
 function normal_station_image(map_data = {}) {
     var fillColor = 'orange'
@@ -144,6 +150,15 @@ function normal_station_image(map_data = {}) {
     })
 }
 
+export function CreateLocIcon(coordinate, isStart = true) {
+    let iconFeture = new Feature({
+        geometry: new Point(coordinate),
+    })
+    iconFeture.setStyle(new Style({
+        image: isStart ? loc_icon : loc_icon,
+    }))
+    return iconFeture;
+}
 
 export function GetStationStyle(text = '', station_type = 0, map_data = {}) {
     var image = normal_station_image(map_data)
@@ -159,7 +174,6 @@ export function GetStationStyle(text = '', station_type = 0, map_data = {}) {
     else if (station_type == 3) {
         image = charge_station_icon
     }
-
 
     var textStyle = new Style({
         image: image,

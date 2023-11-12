@@ -1,6 +1,6 @@
 <template>
   <div class="data-view custom-tabs-head-large">
-    <b-tabs size>
+    <b-tabs>
       <b-tab title="歷史任務查詢">
         <div class="w-100">
           <TaskQuery></TaskQuery>
@@ -21,8 +21,15 @@
           <InstrumentMeasureQuery></InstrumentMeasureQuery>
         </div>
       </b-tab>
-      <b-tab v-if="false" title="機台稼動">
-        <AvailbilitysData></AvailbilitysData>
+      <b-tab title="機台稼動">
+        <b-tabs style="height: 100vh;">
+          <b-tab title="查詢">
+            <AvalibilityQuery></AvalibilityQuery>
+          </b-tab>
+          <!-- <b-tab title="今日稼動">
+            <AvailbilitysData></AvailbilitysData>
+          </b-tab>-->
+        </b-tabs>
       </b-tab>
     </b-tabs>
   </div>
@@ -30,13 +37,14 @@
 
 <script>
 import AvailbilitysData from '@/components/DataView/AvailbilitysData.vue';
+import AvalibilityQuery from '@/components/DataView/AvalibilityQuery.vue';
 import AlarmQuery from '@/components/DataView/AlarmQuery.vue';
 import TaskQuery from '@/components/DataView/TaskQuery.vue';
 import AGVLocusDisplay from '@/components/DataView/AGVLocus.vue';
 import InstrumentMeasureQuery from '@/components/DataView/InstrumentMeasureQuery.vue';
 export default {
   components: {
-    AvailbilitysData, AlarmQuery, AGVLocusDisplay, TaskQuery, InstrumentMeasureQuery
+    AvailbilitysData, AvalibilityQuery, AlarmQuery, AGVLocusDisplay, TaskQuery, InstrumentMeasureQuery
   },
 }
 </script>

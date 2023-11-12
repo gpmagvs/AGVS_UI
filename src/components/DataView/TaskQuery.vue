@@ -36,14 +36,16 @@
         class="Select-Query"
         variant="primary mx-1"
         size="sm"
-        style="float:right">搜尋</b-button>
+        style="float:right"
+      >搜尋</b-button>
       <b-button
         @click="SaveTocsv()"
         :SaveTocsv="SaveTocsv"
         class="SaveTocsv mx-2"
         variant="primary"
         size="sm"
-        style="float:right">輸出csv檔</b-button>
+        style="float:right"
+      >輸出csv檔</b-button>
     </div>
     <div>
       <el-table
@@ -55,7 +57,8 @@
         style="width: 100%;font-weight: bold;"
         border
         aria-current="currentpage"
-        id="Tasktable">
+        id="Tasktable"
+      >
         <el-table-column label="接收時間" prop="RecieveTime" width="160">
           <template #default="scope">{{ formatTime(scope.row.RecieveTime) }}</template>
         </el-table-column>
@@ -64,15 +67,23 @@
         </el-table-column>
         <el-table-column label="任務名稱" prop="TaskName" width="230">
           <template #default="scope">
-            <div> {{ scope.row.TaskName }} <el-tooltip placement="top-start" content="複製到剪貼簿">
-                <i @click="CopyText(scope.row.TaskName)" class="copy-button copy-icon bi bi-clipboard"></i>
+            <div>
+              {{ scope.row.TaskName }}
+              <el-tooltip placement="top-start" content="複製到剪貼簿">
+                <i
+                  @click="CopyText(scope.row.TaskName)"
+                  class="copy-button copy-icon bi bi-clipboard"
+                ></i>
               </el-tooltip>
             </div>
           </template>
         </el-table-column>
         <el-table-column label="執行結果" prop="StateName" width="100" align="center">
           <template #default="scope">
-            <el-tag effect="dark" :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'error' : 'warning'">{{ scope.row.StateName }}</el-tag>
+            <el-tag
+              effect="dark"
+              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'"
+            >{{ scope.row.StateName }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="AGV名稱" prop="DesignatedAGVName" width="100" align="center"></el-table-column>
@@ -81,8 +92,14 @@
         <el-table-column label="結束站點" prop="To_Station" width="120" align="center"></el-table-column>
         <el-table-column label="載物ID" prop="Carrier_ID" min-width="30">
           <template #default="scope">
-            <div> {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }} <el-tooltip placement="top-start" content="複製到剪貼簿">
-                <i v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''" @click="CopyText(scope.row.Carrier_ID)" class="copy-button copy-icon bi bi-clipboard"></i>
+            <div>
+              {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }}
+              <el-tooltip placement="top-start" content="複製到剪貼簿">
+                <i
+                  v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
+                  @click="CopyText(scope.row.Carrier_ID)"
+                  class="copy-button copy-icon bi bi-clipboard"
+                ></i>
               </el-tooltip>
             </div>
           </template>
@@ -103,9 +120,12 @@
           aria-controls="Tasktable"
           class="pagination justify-content-center"
           v-model="currentpage"
-          @click="PageChnageHandle">
-        </b-pagination>
-        <div class="mx-3 py-2">共 <span style="font-weight: bold; font-size: large;"> {{ rows }}</span>筆</div>
+          @click="PageChnageHandle"
+        ></b-pagination>
+        <div class="mx-3 py-2">
+          共
+          <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆
+        </div>
       </div>
     </div>
   </div>
@@ -144,13 +164,15 @@ export default {
     this.end_time = EndDate.toISOString().substring(0, 10) + ' 23:59:59';
     this.start_time = moment(this.end_time, 'YYYY-MM-DD HH:mm:ss').subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
 
-    TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
-      this.tasks = retquery.tasks
-      this.rows = retquery.count;
-      this.currentpage = retquery.currentpage;
-    }).catch(er => {
-      Notifier.Danger('警報查詢失敗後端服務異常')
-    });
+    setTimeout(() => {
+      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
+        this.tasks = retquery.tasks
+        this.rows = retquery.count;
+        this.currentpage = retquery.currentpage;
+      }).catch(er => {
+        Notifier.Danger('警報查詢失敗後端服務異常')
+      });
+    }, 500);
   },
   methods: {
     formatTime(_time) {

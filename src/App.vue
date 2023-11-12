@@ -1,8 +1,11 @@
 <template>
-  <div class="d-flex flex-row" v-loading="loading"
+  <div
+    class="d-flex flex-row"
+    v-loading="loading"
     element-loading-text="GPM AGVS"
     element-loading-svg-view-box="-10, -10, 50, 50"
-    element-loading-background="rgba(31, 31, 31, 0.9)">
+    element-loading-background="rgba(31, 31, 31, 0.9)"
+  >
     <div>
       <Header v-show="!loading" @onMenuToggleClicked="ToggleMenu"></Header>
     </div>
@@ -20,7 +23,8 @@
       :centered="true"
       :okOnly="true"
       :headerBgVariant="okOnlyModalProps.title_variant"
-      headerTextVariant="light">
+      headerTextVariant="light"
+    >
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
