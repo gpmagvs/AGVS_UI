@@ -27,7 +27,11 @@ export async function GetEQInfoByTag(tagID) {
   var ret = await axios_entity.get(`/api/Equipment/GetEQInfoByTag?Tag=${tagID}`)
   return ret.data;
 }
-
+export async function SetAGVHandshakeIO(EQName, SignalName, State) {
+  var url = `/api/Equipment/AgvHsSignal?EqName=${encodeURIComponent(EQName)}&SignalName=${encodeURIComponent(SignalName)}&State=${State}`; //避免帶有特殊符號的時候字串參數會不完整
+  var ret = await axios_entity.post(url)
+  return ret.data;
+}
 /**設備模擬器API */
 export const EmuAPI = {
 

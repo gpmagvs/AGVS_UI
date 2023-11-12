@@ -77,8 +77,8 @@ export default {
     async QueryData() {
       this.loading = true;
       this.query_data = await Query(this.options.AGVName, this.options.StartDate, this.options.EndDate);
-      this.$refs['piechart'].updateStackBarChart(this.query_data.days);
-      this.$refs['barchart'].updateChart(this.query_data.total);
+      this.$refs['barchart'].updateStackBarChart(this.query_data.days);
+      this.$refs['piechart'].updateChart(this.query_data.total);
       setTimeout(() => {
         this.loading = false;
       }, 400);

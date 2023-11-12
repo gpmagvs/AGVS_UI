@@ -143,28 +143,28 @@
             <div class="mx-3">交握訊號-AGV</div>
             <div
               class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName,'VALID', !scope.row.HS_AGV_VALID)"
               v-bind:style="signalOn(scope.row.HS_AGV_VALID)"
             >VALID</div>
             <div
               class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName,'TR_REQ', !scope.row.HS_AGV_TR_REQ)"
               v-bind:style="signalOn(scope.row.HS_AGV_TR_REQ)"
             >TR_REQ</div>
             <div
               class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'READY', !scope.row.HS_EQ_READY)"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName,'BUSY', !scope.row.HS_AGV_BUSY)"
               v-bind:style="signalOn(scope.row.HS_AGV_BUSY)"
             >BUSY</div>
             <div
               class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'READY', !scope.row.HS_AGV_READY)"
               v-bind:style="signalOn(scope.row.HS_AGV_READY)"
             >READY</div>
 
             <div
               class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'COMPT', !scope.row.HS_AGV_COMPT)"
               v-bind:style="signalOn(scope.row.HS_AGV_COMPT)"
             >COMPT</div>
           </div>
@@ -184,7 +184,7 @@
 import WebSocketHelp from '@/api/WebSocketHepler';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import { ElNotification } from 'element-plus'
-import { EmuAPI } from '@/api/EquipmentAPI.js'
+import { EmuAPI, SetAGVHandshakeIO } from '@/api/EquipmentAPI.js'
 import { userStore } from '@/store';
 import param from '@/gpm_param.js'
 import { EqStore } from '@/store'
@@ -297,6 +297,12 @@ export default {
       if (!this.IsDeveloperLogining)
         return;
       EmuAPI.SetEQHsSignal(eqname, signal_name, state)
+    },
+    HandleAGVHSSignaleChange(eqname, signal_name, state) {
+      // alert(eqname + ',' + signal_name)
+      if (!this.IsDeveloperLogining)
+        return;
+      SetAGVHandshakeIO(eqname, signal_name, state)
     },
     GetTransferStatusStr(status_int) {
       switch (status_int) {
