@@ -7,8 +7,7 @@
         <div
           v-if="editable"
           class="editor-option fixed-top bg-light"
-          style="margin-top:49px;margin-left:70px"
-        >
+          style="margin-top:49px;margin-left:70px">
           <div class="edit-block action-buttons">
             <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
             <b-button variant="danger" @click="ReloadMap">重新載入</b-button>
@@ -16,26 +15,22 @@
           <div class="d-flex">
             <div class="edit-block">
               <span>
-                <i class="bi bi-three-dots-vertical"></i>模式
-              </span>
+                <i class="bi bi-three-dots-vertical"></i>模式 </span>
               <el-radio-group
                 v-model="EditorOption.EditMode"
                 @change="(opt) => { RestoreOriginalPathStyle(this.selected_path_feature) }"
-                size="large"
-              >
+                size="large">
                 <el-radio-button size="small" label="view">檢視[V]</el-radio-button>
                 <el-radio-button size="small" label="edit">編輯[E]</el-radio-button>
               </el-radio-group>
             </div>
             <div class="edit-block d-flex">
               <span>
-                <i class="bi bi-three-dots-vertical"></i>編輯動作
-              </span>
+                <i class="bi bi-three-dots-vertical"></i>編輯動作 </span>
               <el-radio-group
                 :disabled="EditorOption.EditMode != 'edit'"
                 v-model="EditorOption.EditAction"
-                size="large"
-              >
+                size="large">
                 <el-radio-button size="small" label="none">無</el-radio-button>
                 <el-radio-button size="small" label="add-station">新增點位[1]</el-radio-button>
                 <el-radio-button size="small" label="edit-station">編輯點位[2]</el-radio-button>
@@ -46,8 +41,7 @@
                 :disabled="EditorOption.EditMode != 'edit'"
                 v-model="EditorOption.EditAction"
                 @change="() => { PathEditTempStore = [] }"
-                size="large"
-              >
+                size="large">
                 <el-radio-button size="small" label="add-path">新增路徑[4]</el-radio-button>
                 <el-radio-button size="small" label="edit-path">編輯路徑[5]</el-radio-button>
                 <el-radio-button size="small" label="remove-path">移除路徑[6]</el-radio-button>
@@ -64,23 +58,20 @@
             v-if="EditorOption.EditMode == 'edit' && editable"
             v-bind:class="left_tab_class_name"
             class="border bg-light"
-            style="padding-top: 84px;"
-          >
-            <div class="p-0 m-0 w-100" v-if="left_tab_class_name=='tab-close'">
+            style="padding-top: 84px;">
+            <div class="p-0 m-0 w-100" v-if="left_tab_class_name == 'tab-close'">
               <i
-                @click="()=>{
-                left_tab_class_name =left_tab_class_name =='tab-open'?'tab-close':'tab-open'
-              }"
-                class="bi bi-chevron-double-right"
-              ></i>
+                @click="() => {
+                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+                }"
+                class="bi bi-chevron-double-right"></i>
             </div>
             <div v-else class="tab-open">
               <i
-                @click="()=>{
-                left_tab_class_name =left_tab_class_name =='tab-open'?'tab-close':'tab-open'
-              }"
-                class="bi bi-chevron-double-left"
-              ></i>
+                @click="() => {
+                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+                }"
+                class="bi bi-chevron-double-left"></i>
               <b-tabs class="p-1">
                 <b-tab title="點位">
                   <div class="border">123</div>
@@ -97,8 +88,7 @@
                       @row-click="HandlePathTbRowClick"
                       border
                       style="height: 650px;"
-                      size="small"
-                    >
+                      size="small">
                       <el-table-column label="起點" prop="StartPtIndex" width="120">
                         <template #default="scope">
                           <b>{{ GetPointName(scope.row.StartPtIndex) }}</b>
@@ -117,8 +107,7 @@
                               class="mx-1"
                               size="sm"
                               variant="danger"
-                              @click="HandlePathRemoveBtnClick(scope.row)"
-                            >移除</b-button>
+                              @click="HandlePathRemoveBtnClick(scope.row)">移除</b-button>
                           </div>
                         </template>
                       </el-table-column>
@@ -134,8 +123,7 @@
             :id="id"
             v-bind:style="{ height: canva_height, marginTop: editable ? '80px' : '0px' }"
             class="agv_map flex-fll"
-            @contextmenu="showContextMenu($event)"
-          >
+            @contextmenu="showContextMenu($event)">
             <div v-if="true" class="ol-control custom-buttons">
               <button @click="HandleSettingBtnClick">
                 <i class="bi bi-sliders"></i>
@@ -154,14 +142,12 @@
       <!-- 設定 -->
       <div
         class="options bg-light border-start text-start px-1 py-3"
-        v-bind:style="{ marginTop: editable ? '80px' : '0px' }"
-      >
+        v-bind:style="{ marginTop: editable ? '80px' : '0px' }">
         <div v-if="station_show" class="rounded d-flex flex-column">
           <span class="border-bottom">顯示名稱</span>
           <el-radio-group
             v-model="station_name_display_mode"
-            @change="StationNameDisplayOptHandler"
-          >
+            @change="StationNameDisplayOptHandler">
             <el-radio label="index" size="large">Index</el-radio>
             <el-radio label="name" size="large">Name</el-radio>
             <el-radio label="tag" size="large">Tag</el-radio>
@@ -178,8 +164,7 @@
             inline-prompt
             inactive-text="路網"
             active-text="Slam"
-            inactive-color="seagreen"
-          ></el-switch>
+            inactive-color="seagreen"></el-switch>
         </div>
         <div v-if="agv_show">
           <span class="mx-1">AGV 顯示</span>
@@ -192,8 +177,7 @@
             inline-prompt
             inactive-text="隱藏"
             active-text="顯示"
-            inactive-color="rgb(146, 148, 153)"
-          ></el-switch>
+            inactive-color="rgb(146, 148, 153)"></el-switch>
         </div>
         <div>
           <span class="mx-1">地圖背景</span>
@@ -206,8 +190,7 @@
             inactive-color="rgb(146, 148, 153)"
             inline-prompt
             width="70"
-            @change="SlamImageDisplayOptHandler"
-          ></el-switch>
+            @change="SlamImageDisplayOptHandler"></el-switch>
         </div>
         <div>
           <span class="mx-1">路網顯示</span>
@@ -221,8 +204,7 @@
             @change="(visible) => {
               PointLinksLayer.setVisible(visible);
               HideNormalStations(!visible);
-            }"
-          ></el-switch>
+            }"></el-switch>
         </div>
         <div v-if="editable" class="rounded">
           <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
@@ -235,8 +217,7 @@
             inline-prompt
             width="70"
             v-model="agv_upload_coordination_mode"
-            @change="HandleAGVUploadCorrdinationChanged"
-          ></el-switch>
+            @change="HandleAGVUploadCorrdinationChanged"></el-switch>
         </div>
       </div>
     </div>
@@ -246,13 +227,57 @@
       :mouse_click_position="[contextMenuTop, contextMenuLeft]"
       :options="contextMenuOptions"
       @OnTaskBtnClick="HandleMenuTaskBtnClick"
-      @OnPtSettingBtnClick="HandlePtSettingBtnClick"
-    ></PointContextMenu>
+      @OnPtSettingBtnClick="HandlePtSettingBtnClick"></PointContextMenu>
     <MapPointSettingDrawer
       ref="ptsetting"
       @OnLeve="HandlePtSettingDrawerLeaved"
-      @OnPointSettingChanged="PointSettingChangedHandle"
-    ></MapPointSettingDrawer>
+      @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
+    <MapPathSettingDrawer :SettingsChangedHandler="() => {
+      UpdateStationPathLayer();
+      HandlePathTbRowClick(SelectedPathData);
+
+    }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
+    <el-dialog @closed="() => {
+      if (selected_path_feature) {
+        RestoreOriginalPathStyle(selected_path_feature)
+      }
+    }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
+      <div class="bg-light text-start d-flex py-2">
+        <b-button size="sm" variant="success" @click="() => {
+          PathesCandicats.forEach(path_setting => {
+            path_setting.IsPassable = true
+          });
+          UpdateStationPathLayer();
+          HandlePathTbRowClick(SelectedPathData);
+        }">開放所有道路</b-button>
+        <b-button class="mx-2" variant="danger" size="sm" @click="() => {
+          PathesCandicats.forEach(path_setting => {
+            path_setting.IsPassable = false
+          });
+          UpdateStationPathLayer();
+          HandlePathTbRowClick(SelectedPathData);
+        }">關閉所有道路</b-button>
+      </div>
+      <el-table :data="PathesCandicats" border>
+        <el-table-column label="ID" prop="PathID">
+          <template #default="scope">
+            <el-tag effect="dark">{{ scope.row.PathID }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="起點Index" prop="StartPtIndex"></el-table-column>
+        <el-table-column label="終點Index" prop="EndPtIndex"></el-table-column>
+        <el-table-column label="狀態" prop="IsPassable">
+          <template #default="scope">
+            <el-tag effect="dark" :type="scope.row.IsPassable ? 'success' : 'danger'">{{ scope.row.IsPassable ? '開放' : '封閉' }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template #default="scope">
+            <b-button variant="primary" @click="HandlePathSelected(scope.row)">選取</b-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -281,11 +306,12 @@ import { Fill, Stroke, Style, Circle } from 'ol/style';
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
+import MapPathSettingDrawer from './MapPathSettingDrawer.vue'
 import QuicklyAction from './QuicklyActionMenu.vue'
 
 export default {
   components: {
-    QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer
+    QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer
   },
   props: {
     editable: {
@@ -334,6 +360,10 @@ export default {
       center: [0, 0],
       center_route: [0, 0],
       loading: false,
+      ShowPathSelectDialog: false,
+      IsPathEditing: false,
+      SelectedPathData: {},
+      PathesCandicats: [],
       _map_stations: [],
       ImageLayer: new ImageLayer(),
       /**Slam座標圖層 */
@@ -493,8 +523,10 @@ export default {
         oriStyles[0] = this.path_highlight_style
         path_feature.setStyle(oriStyles)
         this.selected_path_feature = path_feature
-        var path_coor = path_feature.getGeometry().getCoordinates()[0];
-        this.map.getView().setCenter(path_coor);
+        if (!this.IsPathEditing) {
+          var path_coor = path_feature.getGeometry().getCoordinates()[0];
+          this.map.getView().setCenter(path_coor);
+        }
       }
     },
     RestoreOriginalPathStyle(path_feature) {
@@ -558,6 +590,7 @@ export default {
         lineFeature.set('path_id', path.PathID)
         lineFeature.set('isEqLink', path.IsEQLink)
         lineFeature.set('feature_type', this.FeatureKeys.path)
+        lineFeature.set('isClose', !path.IsPassable)
         var styles = CreateStationPathStyles(lineFeature);
         lineFeature.setStyle(styles)
         lineFeature.set('ori_stroke_style', styles[0])
@@ -695,8 +728,7 @@ export default {
           if (currentAction == "none" && featureType != this_vue.FeatureKeys.Station)
             return false;
 
-          //左鍵
-          if (event.originalEvent.button == 0) {
+          if (event.originalEvent.button == 0) {//左鍵
 
             if (featureType == this_vue.FeatureKeys.Station && currentAction == 'remove-station')
               this_vue.RemoveStation(feature);
@@ -704,7 +736,11 @@ export default {
               this_vue.RemovePath(feature);
             else if (currentAction == 'add-path')
               this_vue.PushPathEndPointData(feature)
-
+          }
+          else if (event.originalEvent.button == 2) { //右鍵
+            if (featureType == this_vue.FeatureKeys.path && currentAction == 'edit-path') {
+              this_vue.OpenPath_editor(feature);
+            }
           }
           return true;
         },
@@ -717,7 +753,7 @@ export default {
           if (!is_editable || edit_mode != 'edit')
             return;
 
-          if (edit_action == 'add-path' | edit_action == 'remove-path')
+          if (edit_action == 'add-path' || edit_action == 'edit-path' || edit_action == 'remove-path')
             return;
 
           var deltaX = event.coordinate[0] - this.coordinate_[0];
@@ -1490,6 +1526,39 @@ export default {
       if (name == '6') {
         this.EditorOption.EditAction = 'remove-path'
       }
+    },
+    OpenPath_editor(feature = new Feature()) {
+      var pathid = feature.get('path_id')
+      if (pathid) {
+        var path_data = this.PathesSegmentsForEdit.find(path => path.PathID == pathid)
+        var reverse_pathid = path_data.EndPtIndex + '_' + path_data.StartPtIndex;
+        var reverse_path_data = this.PathesSegmentsForEdit.find(path => path.PathID == reverse_pathid)
+        this.IsPathEditing = true;
+        this.SelectedPathData = path_data;
+        this.HandlePathTbRowClick(path_data);
+        if (reverse_path_data) {
+          this.ShowPathSelectDialog = true;
+          this.PathesCandicats = [path_data, reverse_path_data];
+        } else {
+          this.HandlePathTbRowClick(path_data);
+          this.$refs['path_editor'].Show(path_data);
+        }
+      }
+    },
+    HandlePathSelected(path_data) {
+      this.IsPathEditing = true;
+      this.ShowPathSelectDialog = false;
+      this.SelectedPathData = path_data;
+      setTimeout(() => {
+        this.HandlePathTbRowClick(path_data);
+      }, 1000);
+      this.$refs['path_editor'].Show(path_data);
+    },
+    HandlePathSetingDrawerClosed(edited_path_settings) {
+      this.IsPathEditing = false;
+      if (this.selected_path_feature) {
+        this.RestoreOriginalPathStyle(this.selected_path_feature)
+      }
     }
   },
 
@@ -1555,24 +1624,30 @@ export default {
 .map-component {
   width: 100%;
   height: 100%;
+
   .tab-open {
     width: 500px;
+
     i {
       cursor: pointer;
       position: absolute;
       left: 479px;
       top: 95px;
     }
+
     i:hover {
       background-color: rgb(245, 155, 155);
       color: white;
     }
   }
+
   .tab-close {
     width: 30px;
+
     i {
       cursor: pointer;
     }
+
     i:hover {
       background-color: gray;
       color: white;

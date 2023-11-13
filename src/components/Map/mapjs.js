@@ -208,11 +208,7 @@ export function CreateLocusPathStyles(color = 'red', width = 1) {
 export function CreateStationPathStyles(feature) {
     var data = feature.get('data');
     var isEQLink = feature.get('isEqLink')
-    var isPathClose = false;
-    if (data) {
-        isPathClose = data.IsPathClose
-    }
-
+    var isPathClose = feature.get('isClose');
     const geometry = feature.getGeometry();
     const styles = [
         new Style({

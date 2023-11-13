@@ -1,0 +1,117 @@
+<template>
+    <div class="map-path-editor">
+        <el-drawer v-model="show" size="35%"
+            :close-on-press-escape="true"
+            :close-on-click-modal="true"
+            @closed="$emit('closed', PathDataEdit)"
+            :show-close="false"
+            :modal="true"
+            modal-class="modal-style">
+            <template #header>
+                <div class="header border-bottom">
+                    <h3>路徑設定:{{ PathDataEdit.StartPtIndex }}->{{ PathDataEdit.EndPtIndex }}</h3>
+                </div>
+            </template>
+            <div class="draw-content">
+                <el-form label-width="140" label-position="left">
+                    <el-form-item label="Path ID">
+                        <el-input disabled v-model="PathDataEdit.PathID"></el-input>
+                    </el-form-item>
+                    <el-form-item label="起點(Index)">
+                        <el-input disabled v-model="PathDataEdit.StartPtIndex"></el-input>
+                    </el-form-item>
+                    <el-form-item label="終點(Index)">
+                        <el-input disabled v-model="PathDataEdit.EndPtIndex"></el-input>
+                    </el-form-item>
+                    <el-form-item label="工位路徑">
+                        <el-checkbox disabled v-model="PathDataEdit.IsEQLink"></el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="道路開放">
+                        <el-checkbox @change="SettingsChangedHandler" v-model="PathDataEdit.IsPassable"></el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="僅允許一台車通行">
+                        <el-checkbox v-model="PathDataEdit.IsSingleCar"></el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="是否可旋轉">
+                        <el-checkbox v-model="PathDataEdit.IsRotationable"></el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="消防通道">
+                        <el-checkbox v-model="PathDataEdit.IsExtinguishingPath"></el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="雷射模式">
+                        <el-input-number v-model="PathDataEdit.LsrMode" :step="1"></el-input-number>
+                        <i
+                            class="bi bi-question-circle information"
+                            @click="HandleLaserModeInfoIconClick"></i>
+                    </el-form-item>
+                    <el-form-item label="限速">
+                        <el-input-number v-model="PathDataEdit.Speed" :step="0.1" :precision="1"></el-input-number>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </el-drawer>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            show: false,
+            /** { "StartPtIndex": 5, "EndPtIndex": 0, "StartCoordination": [ 2.653, 6.213 ], "EndCoordination": [ 0.531, 6.217 ], "PathID": "5_0", "IsEQLink": false, "IsSingleCar": false, "IsPassable": false, "IsExtinguishingPath": false, "Speed": 1, "LsrMode": 0, "DodgeMode": 0, "SpinMode": 0 }*/
+            PathDataEdit: {
+                StartPtIndex: 5,
+                EndPtIndex: 0,
+                StartCoordination: [2.653, 6.213],
+                EndCoordination: [0.531, 6.217],
+                PathID: "5_0",
+                IsEQLink: false,
+                IsSingleCar: false,
+                IsRotationable: false,
+                IsPassable: false,
+                IsExtinguishingPath: false,
+                Speed: 1,
+                LsrMode: 0,
+                DodgeMode: 0,
+                SpinMode: 0
+            }
+        }
+    },
+    props: {
+        SettingsChangedHandler: {
+            type: Function,
+            default() {
+                return () => {
+
+                }
+            }
+        }
+    },
+    methods: {
+        Show(PathData) {
+            if (PathData) {
+                this.PathDataEdit = PathData;
+                this.show = true
+            }
+        }
+    },
+}
+</script>
+
+<style lang="scss">
+.draw-content {
+    top: 67px;
+    position: absolute;
+    height: 100%;
+
+    .settings {
+        height: 800px;
+        overflow-y: scroll;
+    }
+
+    button {
+        width: 120px;
+        margin-right: 3px;
+    }
+}
+</style>
