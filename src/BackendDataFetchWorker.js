@@ -35,3 +35,13 @@ worker_hotrun_data.onmessage = (event) => {
         agv_states_store.commit('setHotRunStates', event.data)
 }
 worker_hotrun_data.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/HotRun' });
+
+
+const worker_dynamic_traffic_data = new Worker('websocket_worker.js')
+worker_dynamic_traffic_data.onmessage = (event) => {
+    if (event.data != 'error' && event.data != 'closed') {
+        MapStore.commit('setControledPathesBySystem', event.data.ControledPathesByTraffic)
+    }
+}
+worker_dynamic_traffic_data.postMessage({ command: 'connect', ws_url: param.vms_ws_host + '/ws/DynamicTrafficData' });
+

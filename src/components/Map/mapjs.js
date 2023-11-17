@@ -205,7 +205,7 @@ export function CreateLocusPathStyles(color = 'red', width = 1) {
     ];
     return styles;
 }
-export function CreateStationPathStyles(feature) {
+export function CreateStationPathStyles(feature, color = undefined) {
     var data = feature.get('data');
     var isEQLink = feature.get('isEqLink')
     var isPathClose = feature.get('isClose');

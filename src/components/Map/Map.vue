@@ -498,6 +498,10 @@ export default {
     eq_data() {
       return EqStore.getters.EQData
     },
+    /**dictionary<string:path_id,MapPath> */
+    ControledPathesBySystem() {
+      return MapStore.getters.ControledPathesBySystem;
+    }
   },
   methods: {
     GetPointName(index) {
@@ -800,7 +804,6 @@ export default {
             }
             this_vue.IsDragging = false;
             try {
-              debugger
               this_vue.ResetPathLink(this.feature_)
             } catch (error) {
             }
@@ -1559,14 +1562,35 @@ export default {
       if (this.selected_path_feature) {
         this.RestoreOriginalPathStyle(this.selected_path_feature)
       }
+    },
+    SetPathesAsBeControledStyle() {
+      var path_ids = Object.keys(this.ControledPathesBySystem)
+      if (path_ids.length == 0)
+        return;
+
+      var source = this.PointLinksLayer.getSource();
+      path_ids.forEach(path_id => {
+        var pathFeature = source.getFeatures().find(p => p.get('path_id') == path_id)
+        if (pathFeature) {
+          debugger
+          var _style = pathFeature.getStyle()
+          var stroke = _style[0].getStroke();
+          if (stroke) {
+            stroke.setColor('orange')
+            _style[0].setStroke(stroke)
+            pathFeature.setStyle(_style)
+          }
+        }
+      });
+      this.map.render();
+
+
     }
   },
 
   mounted() {
-
     if (this.editable)
       document.addEventListener('keydown', this.EditModeKeybordEvents)
-
 
     this.loading = true;
     setTimeout(() => {
@@ -1596,6 +1620,10 @@ export default {
           this.UpdateAGVLayer()
         }, { deep: true, immediate: true })
 
+        setInterval(() => {
+          this.SetPathesAsBeControledStyle();
+        }, 1000)
+
         bus.on('/show_agv_at_center', agv_name => {
           // alert(agv_name)
           this.ResetMapCenterViaAGVLoc(agv_name)
@@ -1606,7 +1634,6 @@ export default {
             if (this.agv_upload_coordination_mode) {
               this.HandleAGVUploadData(newval)
             }
-
           }, { deep: true, immediate: true }
         )
 

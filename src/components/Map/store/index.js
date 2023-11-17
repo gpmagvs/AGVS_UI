@@ -8,6 +8,8 @@ export const MapStore = createStore({
         MapData: new clsMap(),
         MapGeoJson: null,
         AGVDynamicPathInfo: undefined,
+        /**被系統交通管制的路徑字典 */
+        ControledPathesBySystem: {},
         AGVLocUpload: {},
         agv_colors: [
             '#42c2f5',
@@ -168,7 +170,8 @@ export const MapStore = createStore({
                 })
             })
             return options
-        }
+        },
+        ControledPathesBySystem: state => state.ControledPathesBySystem
     },
     mutations: {
         setMapData(state, mapdata) {
@@ -186,6 +189,9 @@ export const MapStore = createStore({
         },
         setWorker(state, worker) {
             state.worker = worker;
+        },
+        setControledPathesBySystem(state, ControledPathesBySystem) {
+            state.ControledPathesBySystem = ControledPathesBySystem
         }
     },
     actions: {
@@ -209,7 +215,6 @@ export const MapStore = createStore({
             return Object.values(points).find(pt => pt.TagNumber + '' == tag + '')
         },
         SaveMap({ commit, state, actions, getters }, _data) {
-            debugger
             return getters.MapBackednAxios.post('api/Map/SaveMap', _data)
                 .then((ret) => {
                     _data.Note = ret.data;
