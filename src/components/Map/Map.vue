@@ -1620,9 +1620,9 @@ export default {
           this.UpdateAGVLayer()
         }, { deep: true, immediate: true })
 
-        setInterval(() => {
-          this.SetPathesAsBeControledStyle();
-        }, 1000)
+        // setInterval(() => {
+        //   this.SetPathesAsBeControledStyle();
+        // }, 1000)
 
         bus.on('/show_agv_at_center', agv_name => {
           // alert(agv_name)
