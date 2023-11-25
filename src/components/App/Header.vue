@@ -235,9 +235,14 @@ export default {
         return 'VISITOR'
     },
     SystemAlarms() {
+      if (!this.unchecked_alarms)
+        return [];
       return this.unchecked_alarms.filter(alarm => alarm.Source == 0)
     },
     EquipmentAlarms() {
+
+      if (!this.unchecked_alarms)
+        return [];
       return this.unchecked_alarms.filter(alarm => alarm.Source == 1)
     },
 
@@ -470,6 +475,8 @@ export default {
       var eq_alarm_inx = 0;
 
       setInterval(() => {
+        if (!this.SystemAlarms || this.SystemAlarms.length == 0)
+          return;
         var sys_alarm = this.SystemAlarms[sys_alarm_inx]
         if (sys_alarm) {
           this.system_alarms = [sys_alarm.Level == 1 ? 'alarm' : 'warning'];
@@ -485,6 +492,8 @@ export default {
       }, 2000);
 
       setInterval(() => {
+        if (!this.EquipmentAlarms || this.EquipmentAlarms.length == 0)
+          return;
         var eq_alarm = this.EquipmentAlarms[eq_alarm_inx]
         if (eq_alarm) {
           this.equipment_alarms = [eq_alarm.Level == 1 ? 'alarm' : 'warning'];
