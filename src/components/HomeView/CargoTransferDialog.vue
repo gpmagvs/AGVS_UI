@@ -8,8 +8,8 @@
                 <el-option
                     v-for="agv_name in AgvNameList"
                     :key="agv_name"
-                    :label="agv_name"
-                    :value="agv_name"></el-option>
+                    :label="agv_name == 'Assigning' ? '自動選車' : agv_name"
+                    :value="agv_name == 'Assigning' ? '' : agv_name"></el-option>
             </el-select>
             <el-select v-else disabled class="w-100" v-model="autoSelectAGVName">
             </el-select>
@@ -175,7 +175,8 @@ export default {
                 sourceTag = this.source_station.TagNumber
                 destineTag = tag
             }
-            TaskAllocation.CarryTask(new clsCarryTaskData(this.selectedAGVName, sourceTag, 1, destineTag, 1, '-1', 5))
+            var agvName = this.selectedAGVName == "Assigning" ? '' : this.selectedAGVName;
+            TaskAllocation.CarryTask(new clsCarryTaskData(agvName, sourceTag, 1, destineTag, 1, '-1', 5))
         }
     },
     computed: {
