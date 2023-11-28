@@ -1158,7 +1158,7 @@ export default {
         if (this.station_name_display_mode == 'index')
           displayName = index + '';
         if (this.station_name_display_mode == 'name')
-          displayName = mapdata.Name;
+          displayName = mapdata.Graph.Display;
         if (this.station_name_display_mode == 'tag')
           displayName = mapdata.TagNumber + '';
         var station_type = mapdata.StationType;
@@ -1417,7 +1417,7 @@ export default {
       var style = feature.getStyle()
       var newStyle = style.clone()
       var text = newStyle.getText();
-      text.setText(ptdata.Name);
+      text.setText(ptdata.Graph.Display);
 
       var stroke = text.getStroke()
       if (stroke) {

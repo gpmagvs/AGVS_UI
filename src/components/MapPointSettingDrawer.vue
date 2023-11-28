@@ -8,8 +8,7 @@
       :show-close="false"
       :modal="true"
       modal-class="modal-style"
-      :before-close="CancelBtnClickHandle"
-    >
+      :before-close="CancelBtnClickHandle">
       <template #header>
         <div class="header border-bottom">
           <h3>點位設定-{{ index }}</h3>
@@ -34,13 +33,12 @@
                 </el-form-item>
                 <el-form-item label="顯示名稱">
                   <div>
-                    <el-input v-model="pointData_editing.Name"></el-input>
+                    <el-input v-model="pointData_editing.Graph.Display"></el-input>
                   </div>
                   <div>
                     <el-button
                       v-show="IsEQPoint"
-                      @click="pointData_editing.Name = BindingEQInfo.Name"
-                    >使用繫連的EQ名稱</el-button>
+                      @click="pointData_editing.Graph.Display = BindingEQInfo.Name">使用繫連的EQ名稱</el-button>
                   </div>
                 </el-form-item>
                 <el-form-item label="Tag">
@@ -65,8 +63,7 @@
                       v-for="pt_type in stationTypes"
                       :key="pt_type.value"
                       :label="pt_type.label"
-                      :value="pt_type.value"
-                    ></el-option>
+                      :value="pt_type.value"></el-option>
                   </el-select>
                   <div v-show="IsEQPoint">
                     <el-input disabled v-model="BindingEQInfo.Name"></el-input>
@@ -82,8 +79,7 @@
                   <el-input-number v-model="pointData_editing.LsrMode" :step="1"></el-input-number>
                   <i
                     class="bi bi-question-circle information"
-                    @click="HandleLaserModeInfoIconClick"
-                  ></i>
+                    @click="HandleLaserModeInfoIconClick"></i>
                 </el-form-item>
                 <el-form-item label="速度">
                   <el-input-number v-model="pointData_editing.Speed" :step="0.1" :precision="1"></el-input-number>
@@ -92,8 +88,7 @@
                   <el-input-number v-model="pointData_editing.DodgeMode" :step="1"></el-input-number>
                   <i
                     class="bi bi-question-circle information"
-                    @click="HandleDodgeModeInfoIconClick"
-                  ></i>
+                    @click="HandleDodgeModeInfoIconClick"></i>
                 </el-form-item>
               </el-form>
             </el-collapse-item>
@@ -118,8 +113,7 @@
                       tag: undefined,
                       name: undefined
                     })
-                  }"
-                >新增</el-button>
+                  }">新增</el-button>
               </div>
               <el-table row-key="index" height="320px" border :data="RegistersTable">
                 <el-table-column label="Index" prop="index">
@@ -130,8 +124,7 @@
                           v-for="pt in pointsOptions"
                           :key="pt.index"
                           :label="pt.index"
-                          :value="pt.index"
-                        ></el-option>
+                          :value="pt.index"></el-option>
                       </el-select>
                     </div>
                   </template>
@@ -145,8 +138,7 @@
                         RegistersTable.splice(RegistersTable.indexOf(scope.row), 1)
                       }"
                       type="danger"
-                      size="small"
-                    >移除</el-button>
+                      size="small">移除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
