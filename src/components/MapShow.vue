@@ -771,7 +771,7 @@ export default {
     },
     UpdateRegistedPropery(registed_point) {
 
-      var registedTags = registed_point.map(mapPoint => mapPoint.TagNumber);
+      var registedTags = Object.keys(registed_point);
       this.station_features.forEach(ft => {
         var tagNumber = ft.get('data').TagNumber;
         var isRegisted = registedTags.includes(tagNumber)
