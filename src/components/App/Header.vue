@@ -475,8 +475,11 @@ export default {
       var eq_alarm_inx = 0;
 
       setInterval(() => {
-        if (!this.SystemAlarms || this.SystemAlarms.length == 0)
+        if (!this.SystemAlarms || this.SystemAlarms.length == 0){
+          this.system_alarms = [''];
+          this.system_alrm_text = '';
           return;
+        }
         var sys_alarm = this.SystemAlarms[sys_alarm_inx]
         if (sys_alarm) {
           this.system_alarms = [sys_alarm.Level == 1 ? 'alarm' : 'warning'];
