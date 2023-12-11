@@ -11,8 +11,7 @@
       size="small"
       border
       height="680"
-      style="width:1800px"
-    >
+      style="width:1800px">
       <el-table-column label="Index" prop="index" width="80" align="center" fixed="left" />
       <el-table-column label="設備名稱" prop="Name" width="250" fixed="left">
         <template #default="scope">
@@ -25,14 +24,12 @@
               :no-wheel="true"
               size="sm"
               :min="1"
-              @input="HandleEqNameChange(scope.row,scope.row.Name)"
-            ></b-form-input>
+              @input="HandleEqNameChange(scope.row, scope.row.Name)"></b-form-input>
             <b-button
               class="mx-1"
               size="sm"
               variant="primary"
-              @click="HandleUseMapDataDisplayName(scope.row.TagID)"
-            >使用圖資設定</b-button>
+              @click="HandleUseMapDataDisplayName(scope.row.TagID)">使用圖資設定</b-button>
           </div>
         </template>
       </el-table-column>
@@ -45,8 +42,7 @@
             placeholder="tag id"
             :no-wheel="true"
             size="sm"
-            :min="1"
-          ></b-form-input>
+            :min="1"></b-form-input>
         </template>
       </el-table-column>
       <el-table-column label="區域" prop="Region" width="130">
@@ -60,14 +56,12 @@
             v-model="scope.row.ValidDownStreamEndPointNames"
             multiple
             placeholder="Select"
-            style="width: 500px"
-          >
+            style="width: 500px">
             <el-option
               v-for="eq_name in GetAvaluableEqNameList(scope.row.Name)"
               :key="eq_name"
               :label="eq_name"
-              :value="eq_name"
-            />
+              :value="eq_name" />
           </el-select>
         </template>
       </el-table-column>
@@ -87,8 +81,7 @@
             <el-input
               :disabled="scope.row.ConnOptions.ConnMethod == 1"
               v-model="scope.row.ConnOptions.IP"
-              :size="cell_item_size"
-            ></el-input>
+              :size="cell_item_size"></el-input>
           </template>
         </el-table-column>
         <el-table-column label="Port" prop="ConnOptions.Port" width="120">
@@ -96,8 +89,7 @@
             <el-input
               :disabled="scope.row.ConnOptions.ConnMethod == 1"
               v-model.number="scope.row.ConnOptions.Port"
-              :size="cell_item_size"
-            ></el-input>
+              :size="cell_item_size"></el-input>
           </template>
         </el-table-column>
         <el-table-column label="ComPort" prop="ConnOptions.ComPort" width="120">
@@ -105,8 +97,7 @@
             <el-input
               :disabled="scope.row.ConnOptions.ConnMethod == 0"
               v-model="scope.row.ConnOptions.ComPort"
-              :size="cell_item_size"
-            ></el-input>
+              :size="cell_item_size"></el-input>
           </template>
         </el-table-column>
       </el-table-column>
@@ -117,8 +108,7 @@
             <el-button
               :size="cell_item_size"
               type="default"
-              @click="ConnectTestHandle(scope.row)"
-            >通訊測試</el-button>
+              @click="ConnectTestHandle(scope.row)">通訊測試</el-button>
           </div>
         </template>
       </el-table-column>
@@ -256,10 +246,11 @@ export default {
       var mapPoint = await MapStore.dispatch('GetMapPointByTag', tag)
       if (mapPoint) {
         var row = this.EqDatas.find(eq => eq.TagID == tag);
-        row.Name = mapPoint.Name;
+        var _name = mapPoint.Graph.Display;
+        row.Name = _name;
         this.HandleEqNameChange(row, mapPoint.Name);
         ElNotification({
-          message: `Get Display Name From Map Success(Tag ${tag} = ${mapPoint.Name})`,
+          message: `Get Display Name From Map Success(Tag ${tag} = ${_name})`,
           duration: 1000,
           type: 'success',
           title: '設備同步名稱'
@@ -299,6 +290,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.equipment-manager {
-}
+.equipment-manager {}
 </style>
