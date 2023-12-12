@@ -7,16 +7,14 @@
       </h3>-->
       <div
         v-if="!modes.system_operation_mode.actived"
-        class="matain-mode-notify py-2 px-3"
-      >維護模式:自動派車、充電功能已關閉。</div>
+        class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。</div>
       <b-button
         v-else
         class="mx-2"
         @click="HandleAutoDispatchBtnClick"
         style="width:100px;font-weight: bold; font-size:large;text-decoration: underline;"
         variant="light"
-        size="sm"
-      >自動派工</b-button>
+        size="sm">自動派工</b-button>
       <div class="page-name-display mx-2">{{ current_route_info.route_display_name }}</div>
       <div class="flex-fill"></div>
       <div class="options d-flex justify-content-between">
@@ -34,8 +32,7 @@
             :before-change="mode.beforeChangeHandler"
             :loading="mode.loading"
             size="large"
-            width="75px"
-          ></el-switch>
+            width="75px"></el-switch>
         </div>
         <!-- <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container"> -->
         <div class="op-mode-switch-container">
@@ -51,15 +48,12 @@
             border-color="grey"
             inline-prompt
             size="large"
-            width="80px"
-          ></el-switch>
+            width="80px"></el-switch>
         </div>
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" class="mx-1" variant="light">
-                中文
-                <i class="bi bi-caret-down-fill"></i>
+              <b-button size="sm" class="mx-1" variant="light"> 中文 <i class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
@@ -73,9 +67,7 @@
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" variant="light">
-                {{ UserName }}
-                <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
+              <b-button size="sm" variant="light"> {{ UserName }} <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
@@ -85,8 +77,7 @@
                 <b-button
                   v-if="IsLogin"
                   class="my-1 bg-light text-dark"
-                  @click="LoginClickHandler('switch')"
-                >切換使用者</b-button>
+                  @click="LoginClickHandler('switch')">切換使用者</b-button>
               </div>
             </template>
           </el-popover>
@@ -99,9 +90,7 @@
       <div class="alarm-container" v-bind:class="system_alarms">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
-            系統警報
-          </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 系統警報 </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
         <div class="opt">
@@ -111,8 +100,7 @@
               @click="ResetSysAlarmsHandler"
               class="mb-2"
               size="sm"
-              variant="danger"
-            >警報復歸</b-button>
+              variant="danger">警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -120,9 +108,7 @@
       <div class="alarm-container" v-bind:class="equipment_alarms">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
-            設備警報
-          </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 設備警報 </span>
           <span class="alarm-text">{{ eq_alrm_text }}</span>
         </div>
         <div class="opt">
@@ -132,8 +118,7 @@
               @click="ResetEqpAlarmsHandler"
               class="mb-2"
               size="sm"
-              variant="danger"
-            >警報復歸</b-button>
+              variant="danger">警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -475,7 +460,7 @@ export default {
       var eq_alarm_inx = 0;
 
       setInterval(() => {
-        if (!this.SystemAlarms || this.SystemAlarms.length == 0){
+        if (!this.SystemAlarms || this.SystemAlarms.length == 0) {
           this.system_alarms = [''];
           this.system_alrm_text = '';
           return;
@@ -495,8 +480,11 @@ export default {
       }, 2000);
 
       setInterval(() => {
-        if (!this.EquipmentAlarms || this.EquipmentAlarms.length == 0)
+        if (!this.EquipmentAlarms || this.EquipmentAlarms.length == 0) {
+          this.equipment_alarms = [''];
+          this.eq_alrm_text = '';
           return;
+        }
         var eq_alarm = this.EquipmentAlarms[eq_alarm_inx]
         if (eq_alarm) {
           this.equipment_alarms = [eq_alarm.Level == 1 ? 'alarm' : 'warning'];
@@ -672,7 +660,6 @@ export default {
     font-weight: bold;
   }
 
-  .user-account {
-  }
+  .user-account {}
 }
 </style>
