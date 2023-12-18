@@ -77,7 +77,7 @@ export const MapStore = createStore({
                 mapStationData.tag = pt.TagNumber;
                 mapStationData.coordination = [pt.X, pt.Y];
                 mapStationData.targets = [];
-                mapStationData.graph = [pt.Graph.X / 100, pt.Graph.Y / 100];
+                mapStationData.graph = [pt.Graph.X, pt.Graph.Y];
                 mapStationData.data = pt;
                 Object.keys(pt.Target).forEach(targetIndex => {
                     mapStationData.targets.push(parseInt(targetIndex))

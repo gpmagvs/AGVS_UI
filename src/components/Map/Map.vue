@@ -11,6 +11,7 @@
           <div class="edit-block action-buttons">
             <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
             <b-button variant="danger" @click="ReloadMap">重新載入</b-button>
+            <b-button variant="danger" @click="ClearMap">清除資料</b-button>
           </div>
           <div class="d-flex">
             <div class="edit-block">
@@ -202,7 +203,8 @@
             inactive-color="rgb(146, 148, 153)"
             width="70"
             @change="(visible) => {
-              PointLinksLayer.setVisible(visible);
+              PathLayerForCoordination.setVisible(visible);
+              PathLayerForRouter.setVisible(visible);
               HideNormalStations(!visible);
             }"></el-switch>
         </div>
@@ -387,12 +389,19 @@ export default {
         }),
         zIndex: 2
       }),
-      PointLinksLayer: new VectorLayer({
+      PathLayerForCoordination: new VectorLayer({
         source: new VectorSource({
           features: [],
         }),
         zIndex: 0
-      }),//路網(路線)
+      }),
+      PathLayerForRouter: new VectorLayer({
+        source: new VectorSource({
+          features: [],
+        }),
+        zIndex: 0
+      }),
+      //路網(路線)
       AGVLocLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
@@ -510,6 +519,13 @@ export default {
         return pt.Name;
       }
     },
+    ClearMap() {
+      this.PathesSegmentsForEdit = [];
+      this.PathLayerForCoordination.getSource().clear();
+      this.PathLayerForRouter.getSource().clear();
+      this.PointRouteLayer.getSource().clear();
+      this.PointLayer.getSource().clear();
+    },
     HandlePathRemoveBtnClick(path_data) {
       var index = this.PathesSegmentsForEdit.indexOf(path_data);
       this.PathesSegmentsForEdit.splice(index, 1);
@@ -520,7 +536,7 @@ export default {
         this.RestoreOriginalPathStyle(this.selected_path_feature)
       }
       //alert(JSON.stringify(row))
-      var path_source = this.PointLinksLayer.getSource();
+      var path_source = this.PathLayerForCoordination.getSource();
       var path_feature = path_source.getFeatures().find(ft => ft.get('path_id') == row.PathID)
       if (path_feature) {
         var oriStyles = path_feature.getStyle();
@@ -572,39 +588,54 @@ export default {
 
     },
     UpdateStationPathLayer() {
-      var source = this.PointLinksLayer.getSource();
-      source.clear();
-      var stationLinkPathes = [];
+      var source_coordination_mode = this.PathLayerForCoordination.getSource();
+      var source_router_mode = this.PathLayerForRouter.getSource();
+
+      source_coordination_mode.clear();
+      source_router_mode.clear();
+
+      var path_feature_collection_coordinatino_mode = [];
+      var path_feature_collection_router_mode = [];
       var pathSegments = this.PathesSegmentsForEdit
+
+      var setPathFeatureProperties = function (feature, pathData) {
+        feature.set('start_pt_index', pathData.StartPtIndex)
+        feature.set('end_pt_index', pathData.EndPtIndex)
+        feature.set('path_id', pathData.PathID)
+        feature.set('isEqLink', pathData.IsEQLink)
+        feature.set('feature_type', 'path')
+        feature.set('isClose', !pathData.IsPassable)
+        var styles = CreateStationPathStyles(feature);
+        feature.setStyle(styles)
+        feature.set('ori_stroke_style', styles[0])
+
+      }
+
       pathSegments.forEach(path => {
-        var lineCoordinations = [path.StartCoordination, path.EndCoordination]
-        // if (path.IsBezier) {
-        //   var points = createBezierCurvePoints(2, [path.StartCoordination, path.BezierMiddleCoordination, path.EndCoordination])
-        //   var midFeature = new Feature({
-        //     geometry: new Point(path.BezierMiddleCoordination)
-        //   })
-        //   source.addFeature(midFeature);
-        //   lineCoordinations = points
-        // }
-        let lineFeature = new Feature(
+        let path_Feature_coordination_mode = new Feature(
           {
-            geometry: new LineString(lineCoordinations),
+            geometry: new LineString([path.StartCoordination, path.EndCoordination]),
           },
         );
-        lineFeature.set('path_id', path.PathID)
-        lineFeature.set('isEqLink', path.IsEQLink)
-        lineFeature.set('feature_type', this.FeatureKeys.path)
-        lineFeature.set('isClose', !path.IsPassable)
-        var styles = CreateStationPathStyles(lineFeature);
-        lineFeature.setStyle(styles)
-        lineFeature.set('ori_stroke_style', styles[0])
-        stationLinkPathes.push(lineFeature)
+
+        var startPt = this._map_stations.find(pt => pt.index == path.StartPtIndex);
+        var endPt = this._map_stations.find(pt => pt.index == path.EndPtIndex);
+        let path_feature_route_mode = new Feature({
+          geometry: new LineString([[startPt.data.Graph.X, startPt.data.Graph.Y], [endPt.data.Graph.X, endPt.data.Graph.Y]]),
+
+        })
+        setPathFeatureProperties(path_Feature_coordination_mode, path);
+        setPathFeatureProperties(path_feature_route_mode, path);
+        path_feature_collection_coordinatino_mode.push(path_Feature_coordination_mode)
+        path_feature_collection_router_mode.push(path_feature_route_mode)
       })
-      source.addFeatures(stationLinkPathes);
+
+      source_coordination_mode.addFeatures(path_feature_collection_coordinatino_mode);
+      source_router_mode.addFeatures(path_feature_collection_router_mode);
       return;
 
-
     },
+
     UpdateAGVLayer() {
       this.agvs_info.AGVDisplays.forEach(agv_information => {
 
@@ -775,8 +806,8 @@ export default {
             oriData.Y = newCoordinates[1];
           }
           else {
-            oriData.Graph.X = parseInt(Math.round(newCoordinates[0]));
-            oriData.Graph.Y = parseInt(Math.round(newCoordinates[1]));
+            oriData.Graph.X = newCoordinates[0];
+            oriData.Graph.Y = newCoordinates[1];
           }
 
           this.feature_.set('data', oriData)
@@ -794,7 +825,8 @@ export default {
               }
               else if (currentAction == 'add-station') {
                 try {
-                  this_vue.PointLayer.getSource().addFeature(this.feature_)
+                  this_vue.AddFeatureToMapLayers(this.feature_);
+
                 }
                 catch (error) {//若該座標已經有新增feature會跳錯=>變成顯示設定面板
                   console.error(error);
@@ -804,7 +836,9 @@ export default {
             }
             this_vue.IsDragging = false;
             try {
-              this_vue.ResetPathLink(this.feature_)
+              var index = this.feature_.get('index')
+              //this_vue.ResetPathLink(this_vue.PathLayerForCoordination, index)
+              this_vue.ResetPathLinkOfRouteMode(index);
             } catch (error) {
             }
           }
@@ -879,13 +913,9 @@ export default {
     },
 
     HideNormalStations(hide) {
-
-
       var normalPtFeatures = this.StationPointsFeatures.filter(feature => feature.get('station_type') == 0)
       normalPtFeatures.forEach(feature => {
         if (hide) {
-
-
           var invisibleStyle = new Style({
             fill: new Fill({
               color: 'rgba(0, 0, 0, 0)' // 透明填充颜色
@@ -933,7 +963,7 @@ export default {
       if (settings_json) {
         var settings = JSON.parse(settings_json)
         this.station_name_display_mode = settings.station_name_display_mode
-        this.map_display_mode = settings.mode
+        this.map_display_mode = this.editable ? 'router' : settings.mode
         this.zoom = settings.zoom;
         this.center = settings.center
         this.zoom_route = settings.zoom_route;
@@ -941,36 +971,50 @@ export default {
       }
     },
 
-    AddPoint(coordinate) {
-      this.PointLayer.getSource().addFeature(new Feature({
-        geometry: new Point(coordinate)
-      }))
-    },
-    AddNewAGV(agvName) {
-      var newAgvFeature = new Feature({
-        geometry: new Point([0, 0])
-      })
-      newAgvFeature.setStyle(AGVPointStyle(agvName, 'red'))
-      this.AGVFeatures.push(newAgvFeature)
-      this.AGVLocLayer.getSource().addFeature(newAgvFeature)
-    },
     /**移除一個站點，並會把相關的路徑移除 */
     RemoveStation(feature = new Feature()) {
-      this.PointLayer.getSource().removeFeature(feature)
+      var RemoveFeatureFromSource = function (source, _ptIndex) {
+        var _feature = source.getFeatures().find(f => f.get('index') == _ptIndex)
+        source.removeFeature(_feature)
+
+      }
+      var RemovePath = function (soure, path_data_reference, _feature) {
+        var ptIndex = _feature.get('index')
+        var paths_to_remove = path_data_reference.filter(path => path.StartPtIndex == ptIndex || path.EndPtIndex == ptIndex);
+        paths_to_remove.forEach(path => {
+          var path_id = path.PathID;
+          var feature_to_remove = soure.getFeatures().find(ft => ft.get('path_id') == path_id);
+          soure.removeFeature(feature_to_remove);
+          var index = path_data_reference.indexOf(path);
+          if (index != -1) {
+            path_data_reference.splice(index, 1);
+          }
+        })
+      }
       var ptIndex = feature.get('index')
-      var paths_to_remove = this.PathesSegmentsForEdit.filter(path => path.StartPtIndex == ptIndex || path.EndPtIndex == ptIndex);
-      paths_to_remove.forEach(path => {
-        var path_id = path.PathID;
-        var feature_to_remove = this.PointLinksLayer.getSource().getFeatures().find(ft => ft.get('path_id') == path_id);
-        this.PointLinksLayer.getSource().removeFeature(feature_to_remove);
-        var index = this.PathesSegmentsForEdit.indexOf(path);
-        if (index != -1) {
-          this.PathesSegmentsForEdit.splice(index, 1);
-        }
-      })
+      RemoveFeatureFromSource(this.PointLayer.getSource(), ptIndex);
+      RemoveFeatureFromSource(this.PointRouteLayer.getSource(), ptIndex);
+
+      RemovePath(this.PointLayer.getSource(), this.PathesSegmentsForEdit, feature);
       this.UpdateStationPathLayer();
     },
+    AddFeatureToMapLayers(feature) {
+      this.PointLayer.getSource().addFeature(feature)
+      this.PointRouteLayer.getSource().addFeature(feature)
+      var ptStation = new clsMapStation()
+      ptStation.index = ptStation.name = feature.get('index')
+      ptStation.tag = feature.get('tag')
+      ptStation.station_type = feature.get('station_type')
+      ptStation.targets = feature.get('targets')
+      ptStation.coordination = feature.get('coordination')
+      ptStation.graph = feature.get('graph')
+      ptStation.data = feature.get('data')
+      debugger
+      this._map_stations.push(ptStation);
+
+    },
     RemovePath(path_feature) {
+      debugger
       var pathID = path_feature.get('path_id')
       var pathIDSplited = pathID.split('_')
       var startPtIndex = parseInt(pathIDSplited[0])
@@ -979,7 +1023,7 @@ export default {
       var mapPointModel = startFeature.get('data')
       delete mapPointModel.Target[endPtIndex]
       var mapPointModel = startFeature.set('data', mapPointModel)
-      this.PointLinksLayer.getSource().removeFeature(path_feature);
+      this.PathLayerForCoordination.getSource().removeFeature(path_feature);
       var path = this.PathesSegmentsForEdit.find(path => path.PathID == pathID);
       if (path) {
         var index = this.PathesSegmentsForEdit.indexOf(path);
@@ -993,27 +1037,76 @@ export default {
     RemovePtTarget() {
 
     },
-    ResetPathLink(feature = new Feature(), remove = false) {
-
-      var path_features = this.PointLinksLayer.getSource().getFeatures();
-      var index = feature.get('index');
-      var targets_indexes = feature.get('targets');
+    ResetPathLinkOfRouteMode(pt_index, remove = false) {
+      debugger
+      var feature = this.PointRouteLayer.getSource().getFeatures().find(f => f.get('index') == pt_index);
+      var path_features = this.PathLayerForRouter.getSource().getFeatures();
       try {
         //起點是自己
-        targets_indexes.forEach(targetIndex => {
-          var path_id = `${index}_${targetIndex}`
-          var path_featureFound = path_features.find(path_feat => path_feat.get('path_id') == path_id)
+        var pathes = path_features.filter(path_feat => path_feat.get('start_pt_index') == pt_index);
+        for (var i = 0; i < pathes.length; i++) {
+          var path_featureFound = pathes[i];
+          var path_id = path_featureFound.get('path_id')
           var path_seq_data = this.PathesSegmentsForEdit.find(path => path.PathID == path_id);
           if (path_featureFound) {
             if (remove) {
-              this.PointLinksLayer.getSource().removeFeature(path_featureFound)
+              source.removeFeature(path_featureFound);
+              this.PathesSegmentsForEdit.remove(path_seq_data);
+            }
+            else {
+              var ori_geo = path_featureFound.getGeometry()
+              var ori_endCoord = ori_geo.getCoordinates()[1]
+              var newStartCoordinates = feature.getGeometry().getCoordinates();
+              var geometry = new LineString([newStartCoordinates, ori_endCoord])
+              path_featureFound.setGeometry(geometry)
+              path_featureFound.setStyle(CreateStationPathStyles(path_featureFound))
+              //path_seq_data.StartCoordination = newStartCoordinates;
+            }
+          }
+        }
+      } catch (error) {
+      }
+      try {
+        //終點是自己
+        var pathes = path_features.filter(feat => feat.get('end_pt_index') == pt_index)
+        for (var i = 0; i < pathes.length; i++) {
+          var path_feature = pathes[i]
+          var pathSeqmentData = this.PathesSegmentsForEdit.find(path => path.PathID == path_feature.get('path_id'));
+          if (remove) {
+            source.removeFeature(path_feature)
+            this.PathesSegmentsForEdit.remove(pathSeqmentData);
+          }
+          else {
+            var ori_geo = path_feature.getGeometry()
+            var ori_startCoord = ori_geo.getCoordinates()[0]
+            var newEndCoordinates = feature.getGeometry().getCoordinates();
+            var geometry = new LineString([ori_startCoord, newEndCoordinates])
+            path_feature.setGeometry(geometry)
+            path_feature.setStyle(CreateStationPathStyles(path_feature))
+          }
+        }
+      } catch (error) {
+
+      }
+    },
+    ResetPathLink(path_layer, pt_index, remove = false) {
+      var source = path_layer.getSource();
+      var path_features = source.getFeatures();
+      var feature = path_features.find(ft => ft.get('index') == pt_index)
+      debugger
+      try {
+        //起點是自己
+        var pathes = path_features.filter(path_feat => path_feat.get('start_pt_index') == pt_index)
+        pathes.forEach(path_featureFound => {
+          var path_id = path_featureFound.get('path_id')
+          var path_seq_data = this.PathesSegmentsForEdit.find(path => path.PathID == path_id);
+          if (path_featureFound) {
+            if (remove) {
+              source.removeFeature(path_featureFound)
               this.PathesSegmentsForEdit.remove(path_seq_data);
             } else {
               var ori_geo = path_featureFound.getGeometry()
               var ori_endCoord = ori_geo.getCoordinates()[1]
-              //TODO create bazier curve 
-              // var points = createBezierCurvePoints(3, [feature.getGeometry().getCoordinates(), ori_endCoord, [20, 30]])
-              // var geometry = new LineString(points)
               var newStartCoordinates = feature.getGeometry().getCoordinates();
               var geometry = new LineString([newStartCoordinates, ori_endCoord])
               path_featureFound.setGeometry(geometry)
@@ -1021,17 +1114,19 @@ export default {
               path_seq_data.StartCoordination = newStartCoordinates;
             }
           }
-        });
+        })
+
       } catch (error) {
       }
 
       try {
         //終點是自己
-        var lineStrings = path_features.filter(feat => feat.get('path_id').split('_')[1] == index)
+        debugger
+        var lineStrings = path_features.filter(feat => feat.get('end_pt_index') == pt_index)
         lineStrings.forEach(path_feature => {
           var pathSeqmentData = this.PathesSegmentsForEdit.find(path => path.PathID == path_feature.get('path_id'));
           if (remove) {
-            this.PointLinksLayer.getSource().removeFeature(path_feature)
+            source.removeFeature(path_feature)
             this.PathesSegmentsForEdit.remove(pathSeqmentData);
           }
           else {
@@ -1047,6 +1142,7 @@ export default {
         });
 
       } catch (error) {
+
       }
 
     },
@@ -1070,6 +1166,12 @@ export default {
         var startPtIndex = startPointFeature.get('index');
         var endPtIndex = endPointFeature.get('index');
 
+        var startPtTagX = startPointFeature.get('data').X;
+        var startPtTagY = startPointFeature.get('data').Y;
+
+        var endPtTagX = endPointFeature.get('data').X;
+        var endPtTagY = endPointFeature.get('data').Y;
+
         var startPointCoordinate = startPointFeature.getGeometry().getCoordinates();
         var endPointCoordinate = endPointFeature.getGeometry().getCoordinates();
         var midPoint = [(startPointCoordinate[0] + endPointCoordinate[0]) / 2, (startPointCoordinate[1] + endPointCoordinate[1]) / 2]
@@ -1085,17 +1187,18 @@ export default {
         var isEqLink = endPointFeature.get('station_type') != 0 || startPointFeature.get('station_type') != 0;
         var path_id = `${startPtIndex}_${endPtIndex}`
 
-        if (this.PointLinksLayer.getSource().getFeatures().find(f => f.get('path_id') == path_id))
+        if (this.PathLayerForCoordination.getSource().getFeatures().find(f => f.get('path_id') == path_id))
           return;
 
         var New_MapPath_V2 = {
+          PathID: path_id,
           StartPtIndex: startPtIndex,
           EndPtIndex: endPtIndex,
-          StartCoordination: startPointCoordinate,
-          EndCoordination: endPointCoordinate,
+          StartCoordination: [startPtTagX, startPtTagY],
+          EndCoordination: [endPtTagX, endPtTagY],
           IsEQLink: isEqLink,
           IsSingleCar: false,
-          IsPassable: false,
+          IsPassable: true,
           IsExtinguishingPath: false,
           Speed: 1,
           LsrMode: 0,
@@ -1143,8 +1246,12 @@ export default {
       var isShowSlamCoordi = this.map_display_mode == "coordination";
       this.UpdateStationPathLayer()
       this.StationNameDisplayOptHandler();
+
       this.PointLayer.setVisible(isShowSlamCoordi);
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
+
+      this.PathLayerForCoordination.setVisible(isShowSlamCoordi);
+      this.PathLayerForRouter.setVisible(!isShowSlamCoordi);
       // this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
       // this.map.getView().setCenter(isShowSlamCoordi ? [2, 2] : [0, 0]);
       //this.SaveSettingsToLocalStorage();
@@ -1261,7 +1368,7 @@ export default {
         source: vectorSource,
       })
       this.map = new Map({
-        layers: [this.ImageLayer, this.EQLDULDStatusLayer, this.PointLinksLayer, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
+        layers: [this.ImageLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
         target: this.id,
         view: new View({
           projection: projection,
@@ -1271,9 +1378,15 @@ export default {
         })
       })
       this.AGVLocLayer.setVisible(this.agv_show)
-      this.PointLinksLayer.setVisible(this.station_show && this.routePathsVisible)
-      this.PointLayer.setVisible(this.station_show)
-      this.PointRouteLayer.setVisible(false)
+      if (this.editable) {
+        this.PointLayer.setVisible(false);
+        this.PathLayerForCoordination.setVisible(false);
+        this.PointRouteLayer.setVisible(true);
+        this.PathLayerForRouter.setVisible(true);
+      } else {
+        // this.PathLayerForCoordination.setVisible(this.map_display_mode == 'coordination');
+        // this.PathLayerForRouter.setVisible(this.map_display_mode == 'router');
+      }
       this.EQLDULDStatusLayer.setVisible(!this.editable)
       this.InitMapEventHandler();
 
@@ -1404,29 +1517,46 @@ export default {
     },
     PointSettingChangedHandle(data_dto) {
 
+      debugger
       var index = data_dto.index;
       var ptdata = data_dto.pointData;
 
-      //reset ptinformation
-      var feature = this.PointLayer.getSource().getFeatures().find(ft => ft.get('index') == index);
-      feature.set('data', ptdata)
-      feature.set('station_type', ptdata.StationType)
-      feature.setStyle(GetStationStyle(ptdata.Name, ptdata.StationType, ptdata));
+      var SettingPoints = function (source, _index, _ptdata) {
+        //reset ptinformation
+        var feature = source.getFeatures().find(ft => ft.get('index') == _index);
+        feature.set('data', _ptdata)
+        feature.set('station_type', _ptdata.StationType)
+        feature.setStyle(GetStationStyle(_ptdata.Name, _ptdata.StationType, _ptdata));
 
-      //rename display
-      var style = feature.getStyle()
-      var newStyle = style.clone()
-      var text = newStyle.getText();
-      text.setText(ptdata.Graph.Display);
+        //rename display
+        var style = feature.getStyle()
+        var newStyle = style.clone()
+        var text = newStyle.getText();
+        text.setText(_ptdata.Graph.Display);
 
-      var stroke = text.getStroke()
-      if (stroke) {
-        var newStroke = stroke.clone();
-        newStroke.setColor('blue')
-        text.setStroke(newStroke)
+        var stroke = text.getStroke()
+        if (stroke) {
+          var newStroke = stroke.clone();
+          newStroke.setColor('blue')
+          text.setStroke(newStroke)
+        }
+
+        feature.setStyle(newStyle)
+      };
+
+      SettingPoints(this.PointLayer.getSource(), index, ptdata);
+      SettingPoints(this.PointRouteLayer.getSource(), index, ptdata);
+
+      var pathes_with_start = this.PathesSegmentsForEdit.filter(pt => pt.StartPtIndex == index);
+      var pathes_with_end = this.PathesSegmentsForEdit.filter(pt => pt.EndPtIndex == index);
+
+      for (var i = 0; i < pathes_with_start.length; i++) {
+        pathes_with_start[i].StartCoordination = [ptdata.X, ptdata.Y];
       }
 
-      feature.setStyle(newStyle)
+      for (var i = 0; i < pathes_with_end.length; i++) {
+        pathes_with_end[i].EndCoordination = [ptdata.X, ptdata.Y];
+      }
 
     },
     HandleMenuTaskBtnClick(data = { action: '', station_data: {} }) {
@@ -1495,6 +1625,7 @@ export default {
       }, 100);
     },
     RefreshMap() {
+      debugger
       this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
       this.DeepClonePathSegmentData();
       this.UpdateStationPointLayer();
@@ -1568,7 +1699,7 @@ export default {
       if (path_ids.length == 0)
         return;
 
-      var source = this.PointLinksLayer.getSource();
+      var source = this.PathLayerForCoordination.getSource();
       path_ids.forEach(path_id => {
         var pathFeature = source.getFeatures().find(p => p.get('path_id') == path_id)
         if (pathFeature) {

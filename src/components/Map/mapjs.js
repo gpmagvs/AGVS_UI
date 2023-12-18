@@ -278,9 +278,9 @@ export function CreateNewStationPointFeature(coordinate, point_index, featureSta
     mapPtModel.StationType = 0;
     mapPtModel.X = coordinate[0];
     mapPtModel.Y = coordinate[1];
-    mapPtModel.Graph.X = parseInt(Math.round(coordinate[0]));
-    mapPtModel.Graph.Y = parseInt(Math.round(coordinate[1]));
-    mapPtModel.Name = station.index + '';
+    mapPtModel.Graph.X = coordinate[0];
+    mapPtModel.Graph.Y = coordinate[1];
+    mapPtModel.Name = mapPtModel.Graph.Display = station.name;
     mapPtModel.TagNumber = station.index;
     station.data = mapPtModel;
     var feature = CreateStationFeature(station);
@@ -292,6 +292,7 @@ export function CreateStationFeature(station = new clsMapStation()) {
         // geometry: new Point(station.graph)
     });
     iconFeature.set('index', station.index)
+    iconFeature.set('name', station.name)
     iconFeature.set('station_type', station.station_type)
     iconFeature.set('targets', station.targets)
     iconFeature.set('feature_type', 'station')
