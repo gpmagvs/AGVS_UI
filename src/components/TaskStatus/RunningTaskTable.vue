@@ -8,8 +8,7 @@
       :row-class-name="row_class_name"
       empty-text="沒有任務"
       border
-      :height="height"
-    >
+      :height="height">
       <el-table-column label="任務名稱" prop="TaskName" width="170"></el-table-column>
       <el-table-column label="執行AGV" prop="DesignatedAGVName"></el-table-column>
       <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
@@ -130,7 +129,7 @@ export default {
     GetStationName(tag) {
       var station = this.MapPoints.find(station => station.TagNumber + '' == tag)
       if (station)
-        return station.Name
+        return station.Graph.Display
       return tag
     },
     row_class_name({ row, rowIndex }) {

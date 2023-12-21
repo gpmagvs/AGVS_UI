@@ -73,7 +73,7 @@ export default {
     GetStationName(tag) {
       var station = this.MapPoints.find(station => station.TagNumber + '' == tag)
       if (station)
-        return station.Name
+        return station.Graph.Display
       return tag
     },
     row_class_name({ row, rowIndex }) {

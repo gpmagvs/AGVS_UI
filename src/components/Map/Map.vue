@@ -203,8 +203,18 @@
             inactive-color="rgb(146, 148, 153)"
             width="70"
             @change="(visible) => {
-              PathLayerForCoordination.setVisible(visible);
-              PathLayerForRouter.setVisible(visible);
+              if (visible) {
+                if (map_display_mode == 'router') {
+                  PathLayerForCoordination.setVisible(false);
+                  PathLayerForRouter.setVisible(true);
+                } else {
+                  PathLayerForCoordination.setVisible(true);
+                  PathLayerForRouter.setVisible(false);
+                }
+              } else {
+                PathLayerForCoordination.setVisible(false);
+                PathLayerForRouter.setVisible(false);
+              }
               HideNormalStations(!visible);
             }"></el-switch>
         </div>
@@ -837,8 +847,8 @@ export default {
             this_vue.IsDragging = false;
             try {
               var index = this.feature_.get('index')
-              //this_vue.ResetPathLink(this_vue.PathLayerForCoordination, index)
               this_vue.ResetPathLinkOfRouteMode(index);
+              this_vue.ResetPathLinkOfCoordinationMode(index);
             } catch (error) {
             }
           }
@@ -1037,8 +1047,60 @@ export default {
     RemovePtTarget() {
 
     },
+    ResetPathLinkOfCoordinationMode(pt_index, remove = false) {
+      var feature = this.PointLayer.getSource().getFeatures().find(f => f.get('index') == pt_index);
+      var path_features = this.PathLayerForCoordination.getSource().getFeatures();
+      try {
+        //起點是自己
+        var pathes = path_features.filter(path_feat => path_feat.get('start_pt_index') == pt_index);
+        for (var i = 0; i < pathes.length; i++) {
+          var path_featureFound = pathes[i];
+          var path_id = path_featureFound.get('path_id')
+          var path_seq_data = this.PathesSegmentsForEdit.find(path => path.PathID == path_id);
+          if (path_featureFound) {
+            if (remove) {
+              source.removeFeature(path_featureFound);
+              this.PathesSegmentsForEdit.remove(path_seq_data);
+            }
+            else {
+              var ori_geo = path_featureFound.getGeometry()
+              var ori_endCoord = ori_geo.getCoordinates()[1]
+              var newStartCoordinates = feature.getGeometry().getCoordinates();
+              var geometry = new LineString([newStartCoordinates, ori_endCoord])
+              path_featureFound.setGeometry(geometry)
+              path_featureFound.setStyle(CreateStationPathStyles(path_featureFound))
+              path_seq_data.StartCoordination = newStartCoordinates;
+            }
+          }
+        }
+      } catch (error) {
+      }
+      try {
+        //終點是自己
+        var pathes = path_features.filter(feat => feat.get('end_pt_index') == pt_index)
+        for (var i = 0; i < pathes.length; i++) {
+          var path_feature = pathes[i]
+          var pathSeqmentData = this.PathesSegmentsForEdit.find(path => path.PathID == path_feature.get('path_id'));
+          if (remove) {
+            source.removeFeature(path_feature)
+            this.PathesSegmentsForEdit.remove(pathSeqmentData);
+          }
+          else {
+            var ori_geo = path_feature.getGeometry()
+            var ori_startCoord = ori_geo.getCoordinates()[0]
+            var newEndCoordinates = feature.getGeometry().getCoordinates();
+            var geometry = new LineString([ori_startCoord, newEndCoordinates])
+            path_feature.setGeometry(geometry)
+            path_feature.setStyle(CreateStationPathStyles(path_feature))
+            pathSeqmentData.EndCoordination = newEndCoordinates;
+
+          }
+        }
+      } catch (error) {
+
+      }
+    },
     ResetPathLinkOfRouteMode(pt_index, remove = false) {
-      debugger
       var feature = this.PointRouteLayer.getSource().getFeatures().find(f => f.get('index') == pt_index);
       var path_features = this.PathLayerForRouter.getSource().getFeatures();
       try {
@@ -1246,15 +1308,45 @@ export default {
       var isShowSlamCoordi = this.map_display_mode == "coordination";
       this.UpdateStationPathLayer()
       this.StationNameDisplayOptHandler();
-
       this.PointLayer.setVisible(isShowSlamCoordi);
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
-
       this.PathLayerForCoordination.setVisible(isShowSlamCoordi);
       this.PathLayerForRouter.setVisible(!isShowSlamCoordi);
+
+      //路網模式
+      //this._map_stations
+
       // this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
-      // this.map.getView().setCenter(isShowSlamCoordi ? [2, 2] : [0, 0]);
+      this.map.getView().setCenter(isShowSlamCoordi ? this.GetMidPointOfCoordinationMode() : this.GetMidPointOfRouterMode());
       //this.SaveSettingsToLocalStorage();
+    },
+    GetMidPointOfRouterMode() {
+      var map_stations_copy = [...this._map_stations]
+      map_stations_copy.sort((a, b) => a.graph[0] - b.graph[0]);
+      var first = map_stations_copy[0]
+      var last = map_stations_copy[map_stations_copy.length - 1]
+      var mid_x = (last.graph[0] + first.graph[0]) / 2
+
+      map_stations_copy.sort((a, b) => a.graph[1] - b.graph[1]);
+      first = map_stations_copy[0]
+      last = map_stations_copy[map_stations_copy.length - 1]
+      var mid_y = (last.graph[1] + first.graph[1]) / 2
+      console.log(mid_x, mid_y)
+      return [mid_x, mid_y]
+    },
+    GetMidPointOfCoordinationMode() {
+      var map_stations_copy = [...this._map_stations]
+      map_stations_copy.sort((a, b) => a.coordination[0] - b.coordination[0]);
+      var first = map_stations_copy[0]
+      var last = map_stations_copy[map_stations_copy.length - 1]
+      var mid_x = (last.coordination[0] + first.coordination[0]) / 2
+
+      map_stations_copy.sort((a, b) => a.coordination[1] - b.coordination[1]);
+      first = map_stations_copy[0]
+      last = map_stations_copy[map_stations_copy.length - 1]
+      var mid_y = (last.coordination[1] + first.coordination[1]) / 2
+      console.log(mid_x, mid_y)
+      return [mid_x, mid_y]
     },
     StationNameDisplayOptHandler() {
 
