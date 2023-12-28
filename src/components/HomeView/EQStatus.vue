@@ -40,13 +40,80 @@
       :data="display_data"
       :row-style="{ fontWeight: 'bold' }"
       :row-class-name="eq_connection_status"
-      row-key="EQName"
-    >
+      row-key="EQName">
+      <el-table-column type="expand" width="40">
+        <template #default="scope">
+          <div class="hs-signals d-flex">
+            <div class="mx-3">交握訊號-EQ</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
+              v-bind:style="signalOn(scope.row.HS_EQ_L_REQ)">L_REQ</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
+              v-bind:style="signalOn(scope.row.HS_EQ_U_REQ)">U_REQ</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'READY', !scope.row.HS_EQ_READY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_READY)">READY</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'UP_READY', !scope.row.HS_EQ_UP_READY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_UP_READY)">UP_READY</div>
+            <div
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'LOW_READY', !scope.row.HS_EQ_LOW_READY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_LOW_READY)">LOW_READY</div>
+            <div
+              v-if="false"
+              class="di-status"
+              @click="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
+              v-bind:style="signalOn(scope.row.HS_EQ_BUSY)">BUSY</div>
+          </div>
+          <div class="hs-signals d-flex">
+            <div class="mx-3">交握訊號-AGV</div>
+            <div
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'To_EQ_Up', !scope.row.To_EQ_Up)"
+              v-bind:style="signalOn(scope.row.To_EQ_Up)">To_EQ_Up</div>
+            <div
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'To_EQ_Low', !scope.row.To_EQ_Low)"
+              v-bind:style="signalOn(scope.row.To_EQ_Low)">To_EQ_Low</div>
+            <div
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'VALID', !scope.row.HS_AGV_VALID)"
+              v-bind:style="signalOn(scope.row.HS_AGV_VALID)">VALID</div>
+            <div
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'TR_REQ', !scope.row.HS_AGV_TR_REQ)"
+              v-bind:style="signalOn(scope.row.HS_AGV_TR_REQ)">TR_REQ</div>
+            <div
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_AGV_BUSY)"
+              v-bind:style="signalOn(scope.row.HS_AGV_BUSY)">BUSY</div>
+            <div
+              v-if="false"
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'READY', !scope.row.HS_AGV_READY)"
+              v-bind:style="signalOn(scope.row.HS_AGV_READY)">READY</div>
+            <div
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'COMPT', !scope.row.HS_AGV_COMPT)"
+              v-bind:style="signalOn(scope.row.HS_AGV_COMPT)">COMPT</div>
+          </div>
+          <div v-if="IsDeveloperLogining" class="d-flex">
+            <div class="mx-3">模擬器:</div>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">切換為Busy</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'load')">切換為Load</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'unload')">切換為Unload</el-button>
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column sortable label="設備名稱" prop="EQName" width="170">
         <template #default="scope">
-          <div>
-            {{ scope.row.EQName }}
-            <el-tooltip placement="top-start" content="複製到剪貼簿">
+          <div> {{ scope.row.EQName }} <el-tooltip placement="top-start" content="複製到剪貼簿">
               <i @click="CopyText(scope.row.EQName)" class="copy-button copy-icon bi bi-clipboard"></i>
             </el-tooltip>
           </div>
@@ -58,8 +125,7 @@
           <el-tag
             style="width:220px"
             :type="GetTransferStatusTagtype(scope.row.TransferStatus)"
-            effect="dark"
-          >{{ GetTransferStatusStr(scope.row.TransferStatus) }}</el-tag>
+            effect="dark">{{ GetTransferStatusStr(scope.row.TransferStatus) }}</el-tag>
         </template>
       </el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
@@ -68,8 +134,7 @@
         v-if="!show_lduld_state"
         label="可移入"
         prop="Load_Request"
-        :width="column_width"
-      >
+        :width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Load_Request)">可移入</div>
         </template>
@@ -78,8 +143,7 @@
         v-if="!show_lduld_state"
         label="可移出"
         prop="Unload_Request"
-        :width="column_width"
-      >
+        :width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">可移出</div>
         </template>
@@ -88,13 +152,13 @@
         v-if="!show_lduld_state"
         label="貨物在席"
         prop="Port_Exist"
-        :width="column_width"
-      >
+        :width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">貨物在席</div>
         </template>
       </el-table-column>
-      <el-table-column v-if="!show_lduld_state" label="撈爪上位" prop="Up_Pose" :width="column_width">
+      <!-- 轉換架之類的 -->
+      <!-- <el-table-column v-if="!show_lduld_state" label="撈爪上位" prop="Up_Pose" :width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Up_Pose)">撈爪上位</div>
         </template>
@@ -103,77 +167,33 @@
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Down_Pose)">撈爪下位</div>
         </template>
-      </el-table-column>
+      </el-table-column> -->
+      <!--  -->
       <el-table-column
         v-if="!show_lduld_state"
-        label="Status"
+        label="Down"
         prop="Eqp_Status_Down"
-        :width="column_width"
-      >
+        :width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">Status</div>
         </template>
       </el-table-column>
-      <el-table-column type="expand" width="50">
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="Run"
+        prop="Eqp_Status_Run"
+        :width="column_width">
         <template #default="scope">
-          <div class="hs-signals d-flex">
-            <div class="mx-3">交握訊號-EQ</div>
-            <div
-              class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
-              v-bind:style="signalOn(scope.row.HS_EQ_L_REQ)"
-            >L_REQ</div>
-            <div
-              class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
-              v-bind:style="signalOn(scope.row.HS_EQ_U_REQ)"
-            >U_REQ</div>
-            <div
-              class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'READY', !scope.row.HS_EQ_READY)"
-              v-bind:style="signalOn(scope.row.HS_EQ_READY)"
-            >READY</div>
-            <div
-              class="di-status"
-              @click="HandleHSsignaleChange(scope.row.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
-              v-bind:style="signalOn(scope.row.HS_EQ_BUSY)"
-            >BUSY</div>
-          </div>
-          <div class="hs-signals d-flex">
-            <div class="mx-3">交握訊號-AGV</div>
-            <div
-              class="di-status"
-              @click="HandleAGVHSSignaleChange(scope.row.EQName,'VALID', !scope.row.HS_AGV_VALID)"
-              v-bind:style="signalOn(scope.row.HS_AGV_VALID)"
-            >VALID</div>
-            <div
-              class="di-status"
-              @click="HandleAGVHSSignaleChange(scope.row.EQName,'TR_REQ', !scope.row.HS_AGV_TR_REQ)"
-              v-bind:style="signalOn(scope.row.HS_AGV_TR_REQ)"
-            >TR_REQ</div>
-            <div
-              class="di-status"
-              @click="HandleAGVHSSignaleChange(scope.row.EQName,'BUSY', !scope.row.HS_AGV_BUSY)"
-              v-bind:style="signalOn(scope.row.HS_AGV_BUSY)"
-            >BUSY</div>
-            <div
-              class="di-status"
-              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'READY', !scope.row.HS_AGV_READY)"
-              v-bind:style="signalOn(scope.row.HS_AGV_READY)"
-            >READY</div>
-
-            <div
-              class="di-status"
-              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'COMPT', !scope.row.HS_AGV_COMPT)"
-              v-bind:style="signalOn(scope.row.HS_AGV_COMPT)"
-            >COMPT</div>
-          </div>
-          <div v-if="IsDeveloperLogining" class="d-flex">
-            <div class="mx-3">模擬器:</div>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">切換為Busy</el-button>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'load')">切換為Load</el-button>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'unload')">切換為Unload</el-button>
-          </div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Run)">Run</div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="Idle"
+        prop="Eqp_Status_Idle"
+        :width="column_width">
+        <template #default="scope">
+          <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Idle)">Idle</div>
         </template>
       </el-table-column>
     </el-table>

@@ -46,3 +46,12 @@ export async function HostOperationMode(mode = 0 | 1) {
    return ret.data;
 }
 
+
+/**搬運任務產生模式切換。
+ * 0:MANUAL
+ * 1:LOCAL_AUTO
+ */
+export async function TransferMode(mode = 0 | 1) {
+   var ret = await _axios.post(`api/system/TransferMode?mode=${mode}`);
+   return ret.data;
+}

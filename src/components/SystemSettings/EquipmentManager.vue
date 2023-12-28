@@ -109,6 +109,10 @@
               :size="cell_item_size"
               type="default"
               @click="ConnectTestHandle(scope.row)">通訊測試</el-button>
+            <el-button
+              :size="cell_item_size"
+              type="default"
+              @click="IOCheckBtnHandle(scope.row)">IO點檢</el-button>
           </div>
         </template>
       </el-table-column>
@@ -213,6 +217,9 @@ export default {
     RemoveHandle(row) {
       var remains = this.EqDatas.filter(eq => eq.Name != row.Name)
       this.EqDatas = remains;
+    },
+    async IOCheckBtnHandle(row) {
+
     },
     async ConnectTestHandle(row) {
       var ret = await ConnectTest(row.ConnOptions)

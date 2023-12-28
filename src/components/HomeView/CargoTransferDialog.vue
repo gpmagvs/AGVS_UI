@@ -20,7 +20,7 @@
             <el-table size="small" border :data="CandicateEQOptions">
                 <el-table-column v-if="action == 'unload'" label="起點">
                     <template #default="scope">
-                        <b style="color:blue"> {{ source_station.Name }} </b>
+                        <b style="color:blue"> {{ source_station.Graph.Display }} </b>
                     </template>
                 </el-table-column>
                 <el-table-column :label="action == 'unload' ? '下游設備' : '上游設備'" prop="Name">
@@ -30,7 +30,7 @@
                 </el-table-column>
                 <el-table-column v-if="action == 'load'" label="終點">
                     <template #default="scope">
-                        <b style="color:seagreen"> {{ source_station.Name }} </b>
+                        <b style="color:seagreen"> {{ source_station.Graph.Display }} </b>
                     </template>
                 </el-table-column>
                 <el-table-column align="center" label="TAG" prop="TagID"></el-table-column>

@@ -52,7 +52,8 @@ export const agvs_settings_store = createStore({
       operations: {
         system_run_mode: false,
         host_online_mode: false,
-        host_remote_mode: false
+        host_remote_mode: false,
+        transfer_mode: false
       }
     }
   },
@@ -68,6 +69,9 @@ export const agvs_settings_store = createStore({
     },
     setHostRemote(state, actived) {
       state.sys_settings.operations.host_remote_mode = actived
+    },
+    setTransferRemote(state, actived) {
+      state.sys_settings.operations.transfer_mode = actived
     }
   },
   actions: {

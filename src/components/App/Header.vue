@@ -130,7 +130,7 @@
 <script>
 import Login from '@/views/Login.vue';
 import bus from '@/event-bus.js'
-import { GetOperationStates, RunMode, HostConnMode, HostOperationMode } from '@/api/SystemAPI';
+import { GetOperationStates, RunMode, HostConnMode, HostOperationMode, TransferMode } from '@/api/SystemAPI';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { ResetSystemAlarm, ResetEquipmentAlarm, AlarmHelper } from '@/api/AlarmAPI.js'
 import moment from 'moment'
@@ -162,8 +162,8 @@ export default {
         transfer_mode: {
           name: "派工模式",
           enabled: false,
-          active_text: '手動',
-          inactive_text: '自動',
+          active_text: '自動',
+          inactive_text: '手動',
           loading: false,
           beforeChangeHandler: this.TransferModeChangeRequest
         },
@@ -275,6 +275,7 @@ export default {
         this.modes.system_operation_mode.actived = settings.system_run_mode == 1;
         this.modes.host_conn_mode.actived = settings.host_online_mode == 1;
         this.modes.host_operation_mode.actived = settings.host_remote_mode == 1;
+        this.modes.transfer_mode.actived = settings.transfer_mode == 1
         // this.modes.system_operation_mode.loading = settings.system_run_mode == 2 || settings.system_run_mode == 3
 
 
@@ -322,7 +323,18 @@ export default {
 
       if (!this.CheckUserLoginState())
         return false;
-      return success
+      var response = await TransferMode(this.modes.transfer_mode.actived ? 0 : 1);
+      var success = response.confirm;
+      var mode_req_text = '搬運模式切換'
+      if (!success) {
+        this.ModeRequestFailHandler(`搬運模式`, '搬運模式切換');
+      }
+      else {
+        this.ModeRequestSuccessHandler(mode_req_text);
+        agvs_settings_store.commit('setTransferRemote', !this.modes.transfer_mode.actived)
+      }
+
+      return success;
     },
     HandleViewModeChanged(isEasyMode) {
       bus.emit('view_mode_changed', isEasyMode)
@@ -441,6 +453,7 @@ export default {
         position: 'bottom-right',
         time: 1400
       })
+      this.system_alrm_text = "";
     },
     async ResetEqpAlarmsHandler() {
       await ResetEquipmentAlarm()

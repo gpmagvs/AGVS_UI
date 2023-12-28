@@ -307,12 +307,14 @@ export function CreateStationFeature(station = new clsMapStation()) {
     return iconFeature;
 }
 
-export function CreateEQLDULDFeature(station = new clsMapStation()) {
+export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'router' | 'coordination') {
+    var _coor = mode == 'coordination' ? station.coordination : station.graph;
     const iconFeature = new Feature({
-        geometry: new Point(station.coordination)
+        geometry: new Point(_coor)
     });
     iconFeature.set('feature_type', 'lduld')
     iconFeature.set('data', station.data)
+    iconFeature.set('action', 0)
 
     if (station.station_type != 1)
         return iconFeature;
@@ -320,7 +322,7 @@ export function CreateEQLDULDFeature(station = new clsMapStation()) {
     var _style = new Style({
         text: new Text({
             text: "",
-            font: 'bold 18px Calibri,sans-serif',
+            font: 'bold 12px Calibri,sans-serif',
             offsetX: 14,
             offsetY: -52,
             fill: new Fill({

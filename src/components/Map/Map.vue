@@ -310,7 +310,7 @@ import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
-import { clsMapStation, MapPointModel } from './mapjs';
+import { clsMapStation, MapPointModel, clsAGVDisplay } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon } from './mapjs';
 import { MapStore } from './store'
 import { EqStore } from '@/store'
@@ -569,14 +569,12 @@ export default {
     },
     UpdateStationPointLayer() {
       var stationPointFeatures = []
-      var eqLDULDFeatures = []
       var stationPointFeatures_ForRouteShow = []//路網顯示用
       for (let index = 0; index < this._map_stations.length; index++) {
         var station = this._map_stations[index];
         var iconFeature = CreateStationFeature(station)
-        var lduldFeature = CreateEQLDULDFeature(station)
+
         stationPointFeatures.push(iconFeature)
-        eqLDULDFeatures.push(lduldFeature);
         var routeUseFeature = iconFeature.get('routeModeFeature')
         if (routeUseFeature) {
           stationPointFeatures_ForRouteShow.push(routeUseFeature)
@@ -590,12 +588,7 @@ export default {
       var ptRouteLayerSource = this.PointRouteLayer.getSource();
       ptRouteLayerSource.clear();
       ptRouteLayerSource.addFeatures(stationPointFeatures_ForRouteShow);
-
-      var EQLDULDStatusLayerSource = this.EQLDULDStatusLayer.getSource();
-      EQLDULDStatusLayerSource.clear();
-      EQLDULDStatusLayerSource.addFeatures(eqLDULDFeatures);
-
-
+      this.UpdateEQLDULDFeature();
     },
     UpdateStationPathLayer() {
       var source_coordination_mode = this.PathLayerForCoordination.getSource();
@@ -645,13 +638,24 @@ export default {
       return;
 
     },
+    UpdateEQLDULDFeature() {
+      var eqLDULDFeatures = []
 
+      for (let index = 0; index < this._map_stations.length; index++) {
+        var station = this._map_stations[index];
+        var lduldFeature = CreateEQLDULDFeature(station, this.map_display_mode)
+        eqLDULDFeatures.push(lduldFeature);
+
+      }
+      var EQLDULDStatusLayerSource = this.EQLDULDStatusLayer.getSource();
+      EQLDULDStatusLayerSource.clear();
+      EQLDULDStatusLayerSource.addFeatures(eqLDULDFeatures);
+    },
     UpdateAGVLayer() {
       this.agvs_info.AGVDisplays.forEach(agv_information => {
 
         var agvfeatures = this.AGVFeatures[agv_information.AgvName]
-        if (agvfeatures) {
-          //以新增
+        if (agvfeatures) {  //以新增
           var coordination = agv_information.Coordination;
           var path_coordinations = agv_information.NavPathCoordinationList
           if (this.map_display_mode == 'router') {
@@ -672,14 +676,16 @@ export default {
             }
 
           }
-
           agvfeatures.agv_feature.setGeometry(new Point(coordination))
           agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
-
           var style = agvfeatures.agv_feature.getStyle();
           var image = style.getImage()
-          image.setRotation((agv_information.Theta - 90) * -1 * Math.PI / 180.0)
-          style.setImage(image)
+
+          if (this.map_display_mode != 'router') {
+            image.setRotation((agv_information.Theta - 90) * -1 * Math.PI / 180.0)
+            style.setImage(image)
+          }
+
           var actionString = agv_information.CurrentAction
           var text = style.getText();
           var agvText = agv_information.AgvName + (actionString == '' ? '' : `(${actionString})`);
@@ -693,7 +699,9 @@ export default {
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_information.CargoStatus)
 
-        } else {
+          //this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
+        }
+        else {//動態新增AGV Feature
 
           var _agvfeature = new Feature({
             geometry: new Point(agv_information.Coordination)
@@ -726,6 +734,17 @@ export default {
 
         }
       });
+    },
+    /**根據地圖顯示模式變更現有Agv的顯示位置 */
+    UpdateAGVLocByMapMode(mode = 'router' || 'coordination', agv_information = new clsAGVDisplay()) {
+
+      var agvfeature = this.AGVFeatures[agv_information.AgvName]
+      if (!agvfeature)
+        return;
+      var currentStationFeature = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == agv_information.Tag)
+      var coordination = currentStationFeature.getGeometry().getCoordinates()
+      agvfeature.agv_feature.setGeometry(new Point(coordination))
+
     },
     /**事件處理 */
     InitMapEventHandler() {
@@ -836,7 +855,6 @@ export default {
               else if (currentAction == 'add-station') {
                 try {
                   this_vue.AddFeatureToMapLayers(this.feature_);
-
                 }
                 catch (error) {//若該座標已經有新增feature會跳錯=>變成顯示設定面板
                   console.error(error);
@@ -1313,6 +1331,11 @@ export default {
       this.PathLayerForCoordination.setVisible(isShowSlamCoordi);
       this.PathLayerForRouter.setVisible(!isShowSlamCoordi);
 
+
+      this.agvs_info.AGVDisplays.forEach(agv_information => {
+        this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
+      })
+      this.UpdateEQLDULDFeature();
       //路網模式
       //this._map_stations
 
@@ -1608,8 +1631,6 @@ export default {
       document.addEventListener('keydown', this.EditModeKeybordEvents)
     },
     PointSettingChangedHandle(data_dto) {
-
-      debugger
       var index = data_dto.index;
       var ptdata = data_dto.pointData;
 
@@ -1638,15 +1659,17 @@ export default {
 
       SettingPoints(this.PointLayer.getSource(), index, ptdata);
       SettingPoints(this.PointRouteLayer.getSource(), index, ptdata);
-
+      var _is_eq_link = ptdata.StationType != 0;
       var pathes_with_start = this.PathesSegmentsForEdit.filter(pt => pt.StartPtIndex == index);
       var pathes_with_end = this.PathesSegmentsForEdit.filter(pt => pt.EndPtIndex == index);
 
       for (var i = 0; i < pathes_with_start.length; i++) {
+        pathes_with_start[i].IsEQLink = _is_eq_link;
         pathes_with_start[i].StartCoordination = [ptdata.X, ptdata.Y];
       }
 
       for (var i = 0; i < pathes_with_end.length; i++) {
+        pathes_with_end[i].IsEQLink = _is_eq_link;
         pathes_with_end[i].EndCoordination = [ptdata.X, ptdata.Y];
       }
 
@@ -1692,15 +1715,21 @@ export default {
           status_text = status == 3 ? ' 入料請求' : '出料請求'
         }
         text.setText(status_text);
+
         text.setBackgroundFill(new Fill({
-          color: status == 3 ? 'seagreen' : 'blue'
+          color: status == 3 ? 'orange' : 'blue'
         }))
+        // text.setFill(new Fill({
+        //   color: status == 3 ? 'black' : 'white'
+        // }))
 
         if (_feature.get('action') == ld_uld_state)
           return;
         _feature.set('action', ld_uld_state)
         _feature.setStyle(style)
       } catch (err) {
+
+        console.error(err)
       }
 
     },
@@ -1842,11 +1871,6 @@ export default {
             return
           this.UpdateAGVLayer()
         }, { deep: true, immediate: true })
-
-        // setInterval(() => {
-        //   this.SetPathesAsBeControledStyle();
-        // }, 1000)
-
         bus.on('/show_agv_at_center', agv_name => {
           // alert(agv_name)
           this.ResetMapCenterViaAGVLoc(agv_name)
