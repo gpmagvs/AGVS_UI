@@ -617,9 +617,10 @@ export class MenuUseTaskOption {
 
 /**Select點位選項 */
 export class StationSelectOptions {
-    constructor(tag = 0, name = '') {
+    constructor(tag = 0, name = '', name_display = '') {
         this.tag = tag
         this.name = name
+        this.name_display = name_display
     }
 }
 
