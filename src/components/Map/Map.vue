@@ -801,6 +801,14 @@ export default {
           });
           this.coordinate_ = event.coordinate;
           var currentAction = this_vue.EditorOption.EditAction;
+
+
+          if (isRightClick && feature && feature.get('feature_type') == 'path' && currentAction == 'add-station') {
+            var _new_feature = CreateNewStationPointFeature(event.coordinate, this_vue.GenNewIndexOfStation());
+            this_vue.InsertPointAtPathes(feature, _new_feature);
+            return;
+          }
+
           if (!feature) {
 
             this_vue.IsDragging = false;
@@ -811,6 +819,7 @@ export default {
             } else
               return false;
           }
+
 
           if (feature.get('feature_type') == 'lduld') {
             var action = feature.get('action')
@@ -867,6 +876,9 @@ export default {
 
           geometry = this.feature_.getGeometry();
           var oriData = this.feature_.get('data')
+
+          if(!oriData)
+            return;
           var newCoordinates = geometry.getCoordinates();
 
           if (this_vue.map_display_mode == "coordination") {
@@ -1080,8 +1092,10 @@ export default {
       this._map_stations.push(ptStation);
 
     },
-    RemovePath(path_feature) {
+    /** bi_direction_remove => 自動將雙向路徑移除 */
+    RemovePath(path_feature, bi_direction_remove = false) {
       debugger
+      var removed_path = []
       var pathID = path_feature.get('path_id')
       var pathIDSplited = pathID.split('_')
       var startPtIndex = parseInt(pathIDSplited[0])
@@ -1097,12 +1111,43 @@ export default {
         if (index != -1) {
           this.PathesSegmentsForEdit.splice(index, 1);
           this.UpdateStationPathLayer();
+
+          removed_path.push(path);
+        }
+
+        if (bi_direction_remove) {
+          var _reverse_path_id = `${endPtIndex}_${startPtIndex}`;
+          var _reverd_path_feature = this.PathLayerForCoordination.getSource().getFeatures().find(ft => ft.get('path_id') == _reverse_path_id);
+          if (_reverd_path_feature) {
+            var _removed_pathes = this.RemovePath(_reverd_path_feature, false);
+
+            _removed_pathes.forEach(p => {
+              removed_path.push(p);
+            })
+          }
         }
       }
+
+      return removed_path;
       //this.PointLinksLayer.getSource().removeFeature(path_feature)
     },
     RemovePtTarget() {
 
+    },
+    InsertPointAtPathes(removePathFeature, new_pt_feature) {
+      //新增點位而且新增的位置是在既有的路徑線段上
+      var _removedPathes = this.RemovePath(removePathFeature, true); //移除現有路徑
+      this.AddFeatureToMapLayers(new_pt_feature)
+      //產生多組路徑
+      var stationFeatures = this.PointRouteLayer.getSource().getFeatures();
+      _removedPathes.forEach(path => {
+        var _startPtFeature1 = stationFeatures.find(ft => ft.get('index') == path.StartPtIndex);
+        var _endPtFeature1 = new_pt_feature
+        var _startPtFeature2 = new_pt_feature;
+        var _endPtFeature2 = stationFeatures.find(ft => ft.get('index') == path.EndPtIndex);
+        this.GenPath([_startPtFeature1, _endPtFeature1])
+        this.GenPath([_startPtFeature2, _endPtFeature2])
+      })
     },
     ResetPathLinkOfCoordinationMode(pt_index, remove = false) {
       var feature = this.PointLayer.getSource().getFeatures().find(f => f.get('index') == pt_index);
@@ -1282,62 +1327,62 @@ export default {
       if (this.PathEditTempStore.length == 2) {
         this.GenPath(this.PathEditTempStore);
 
-        if(this.EditorOption.AddPathMode.Direction == 'bi-direction'){
-          var reverse = [this.PathEditTempStore[1],this.PathEditTempStore[0]]
+        if (this.EditorOption.AddPathMode.Direction == 'bi-direction') {
+          var reverse = [this.PathEditTempStore[1], this.PathEditTempStore[0]]
           this.GenPath(reverse);
         }
       }
     },
-    GenPath(start_end_features=[]){
-        var startPointFeature =start_end_features[0];
-        var endPointFeature = start_end_features[1];
-        var startPtIndex = startPointFeature.get('index');
-        var endPtIndex = endPointFeature.get('index');
+    GenPath(start_end_features = []) {
+      var startPointFeature = start_end_features[0];
+      var endPointFeature = start_end_features[1];
+      var startPtIndex = startPointFeature.get('index');
+      var endPtIndex = endPointFeature.get('index');
 
-        var startPtTagX = startPointFeature.get('data').X;
-        var startPtTagY = startPointFeature.get('data').Y;
+      var startPtTagX = startPointFeature.get('data').X;
+      var startPtTagY = startPointFeature.get('data').Y;
 
-        var endPtTagX = endPointFeature.get('data').X;
-        var endPtTagY = endPointFeature.get('data').Y;
+      var endPtTagX = endPointFeature.get('data').X;
+      var endPtTagY = endPointFeature.get('data').Y;
 
-        var startPointCoordinate = startPointFeature.getGeometry().getCoordinates();
-        var endPointCoordinate = endPointFeature.getGeometry().getCoordinates();
-        var midPoint = [(startPointCoordinate[0] + endPointCoordinate[0]) / 2, (startPointCoordinate[1] + endPointCoordinate[1]) / 2]
-        var mindfeature = CreateNewStationPointFeature(midPoint, this.GenNewIndexOfStation());
-        //this.PointLayer.getSource().addFeature(mindfeature)
-        var isEqLink = endPointFeature.get('station_type') != 0 || startPointFeature.get('station_type') != 0;
-        var path_id = `${startPtIndex}_${endPtIndex}`
+      var startPointCoordinate = startPointFeature.getGeometry().getCoordinates();
+      var endPointCoordinate = endPointFeature.getGeometry().getCoordinates();
+      var midPoint = [(startPointCoordinate[0] + endPointCoordinate[0]) / 2, (startPointCoordinate[1] + endPointCoordinate[1]) / 2]
+      var mindfeature = CreateNewStationPointFeature(midPoint, this.GenNewIndexOfStation());
+      //this.PointLayer.getSource().addFeature(mindfeature)
+      var isEqLink = endPointFeature.get('station_type') != 0 || startPointFeature.get('station_type') != 0;
+      var path_id = `${startPtIndex}_${endPtIndex}`
 
-        if (this.PathLayerForCoordination.getSource().getFeatures().find(f => f.get('path_id') == path_id))
-          return;
+      if (this.PathLayerForCoordination.getSource().getFeatures().find(f => f.get('path_id') == path_id))
+        return;
 
-        var New_MapPath_V2 = {
-          PathID: path_id,
-          StartPtIndex: startPtIndex,
-          EndPtIndex: endPtIndex,
-          StartCoordination: [startPtTagX, startPtTagY],
-          EndCoordination: [endPtTagX, endPtTagY],
-          IsEQLink: isEqLink,
-          IsSingleCar: false,
-          IsPassable: true,
-          IsExtinguishingPath: false,
-          Speed: 1,
-          LsrMode: 0,
-          DodgeMode: 0,
-          SpinMode: 0,
-        }
-        this.PathesSegmentsForEdit.push(New_MapPath_V2);
+      var New_MapPath_V2 = {
+        PathID: path_id,
+        StartPtIndex: startPtIndex,
+        EndPtIndex: endPtIndex,
+        StartCoordination: [startPtTagX, startPtTagY],
+        EndCoordination: [endPtTagX, endPtTagY],
+        IsEQLink: isEqLink,
+        IsSingleCar: false,
+        IsPassable: true,
+        IsExtinguishingPath: false,
+        Speed: 1,
+        LsrMode: 0,
+        DodgeMode: 0,
+        SpinMode: 0,
+      }
+      this.PathesSegmentsForEdit.push(New_MapPath_V2);
 
-        var oritargets = startPointFeature.get('targets');
-        if (!oritargets)
-          oritargets = []
-        var startPtMapData = startPointFeature.get('data')
-        startPtMapData.Target[endPtIndex] = 1//
-        startPointFeature.set('data', startPtMapData)
-        oritargets.push(endPtIndex)
-        startPointFeature.set('targets', oritargets)
+      var oritargets = startPointFeature.get('targets');
+      if (!oritargets)
+        oritargets = []
+      var startPtMapData = startPointFeature.get('data')
+      startPtMapData.Target[endPtIndex] = 1//
+      startPointFeature.set('data', startPtMapData)
+      oritargets.push(endPtIndex)
+      startPointFeature.set('targets', oritargets)
 
-        this.UpdateStationPathLayer();
+      this.UpdateStationPathLayer();
     },
     GenNewIndexOfStation() {
 
