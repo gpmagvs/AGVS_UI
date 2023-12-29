@@ -18,6 +18,7 @@
               <span>
                 <i class="bi bi-three-dots-vertical"></i>模式 </span>
               <el-radio-group
+                v-bind:style="radio_group_style"
                 v-model="EditorOption.EditMode"
                 @change="(opt) => { RestoreOriginalPathStyle(this.selected_path_feature) }"
                 size="large">
@@ -29,6 +30,7 @@
               <span>
                 <i class="bi bi-three-dots-vertical"></i>編輯動作 </span>
               <el-radio-group
+                v-bind:style="radio_group_style"
                 :disabled="EditorOption.EditMode != 'edit'"
                 v-model="EditorOption.EditAction"
                 size="large">
@@ -37,16 +39,27 @@
                 <el-radio-button size="small" label="edit-station">編輯點位[2]</el-radio-button>
                 <el-radio-button size="small" label="remove-station">移除點位[3]</el-radio-button>
               </el-radio-group>
-              <el-radio-group
-                class="mx-1"
-                :disabled="EditorOption.EditMode != 'edit'"
-                v-model="EditorOption.EditAction"
-                @change="() => { PathEditTempStore = [] }"
-                size="large">
-                <el-radio-button size="small" label="add-path">新增路徑[4]</el-radio-button>
-                <el-radio-button size="small" label="edit-path">編輯路徑[5]</el-radio-button>
-                <el-radio-button size="small" label="remove-path">移除路徑[6]</el-radio-button>
-              </el-radio-group>
+              <div class="d-flex flex-column">
+                <el-radio-group
+                  class="mx-1"
+                  :disabled="EditorOption.EditMode != 'edit'"
+                  v-model="EditorOption.EditAction"
+                  @change="() => { PathEditTempStore = [] }"
+                  size="large">
+                  <el-radio-button size="small" label="add-path">新增路徑[4]</el-radio-button>
+                  <el-radio-button size="small" label="edit-path">編輯路徑[5]</el-radio-button>
+                  <el-radio-button size="small" label="remove-path">移除路徑[6]</el-radio-button>
+                </el-radio-group>
+                <el-radio-group
+                  v-show="EditorOption.EditAction == 'add-path'"
+                  class="mx-1 my-1"
+                  v-model="EditorOption.AddPathMode.Direction"
+                  @change="() => { }"
+                  size="large">
+                  <el-radio-button size="small" label="one-direction">單向</el-radio-button>
+                  <el-radio-button size="small" label="bi-direction">雙向</el-radio-button>
+                </el-radio-group>
+              </div>
             </div>
           </div>
           <!-- <div
@@ -59,7 +72,7 @@
             v-if="EditorOption.EditMode == 'edit' && editable"
             v-bind:class="left_tab_class_name"
             class="border bg-light"
-            style="padding-top: 84px;">
+            v-bind:style="path_view_style">
             <div class="p-0 m-0 w-100" v-if="left_tab_class_name == 'tab-close'">
               <i
                 @click="() => {
@@ -122,7 +135,7 @@
           <!-- map render -->
           <div
             :id="id"
-            v-bind:style="{ height: canva_height, marginTop: editable ? '80px' : '0px' }"
+            v-bind:style="{ height: canva_height, marginTop: editable ? marginTop : '0px' }"
             class="agv_map flex-fll"
             @contextmenu="showContextMenu($event)">
             <div v-if="true" class="ol-control custom-buttons">
@@ -143,7 +156,7 @@
       <!-- 設定 -->
       <div
         class="options bg-light border-start text-start px-1 py-3"
-        v-bind:style="{ marginTop: editable ? '80px' : '0px' }">
+        v-bind:style="{ marginTop: editable ? marginTop : '0px' }">
         <div v-if="station_show" class="rounded d-flex flex-column">
           <span class="border-bottom">顯示名稱</span>
           <el-radio-group
@@ -445,7 +458,10 @@ export default {
       EditorOption: {
         // EditMode: 'view',
         EditMode: 'edit',
-        EditAction: 'none'
+        EditAction: 'none',
+        AddPathMode: {
+          Direction: 'one-direction'
+        }
       },
       /**顯示模式 : coordination 實際座標 ; router 整齊的路網*/
       map_display_mode: 'router',
@@ -520,6 +536,29 @@ export default {
     /**dictionary<string:path_id,MapPath> */
     ControledPathesBySystem() {
       return MapStore.getters.ControledPathesBySystem;
+    },
+    radio_group_style() {
+      //position: relative;top: -11px;
+      if (this.EditorOption.EditAction == 'add-path')
+        return {
+          position: 'relative',
+          top: '-15px'
+        }
+      return {}
+    },
+    marginTop() {
+      if (this.EditorOption.EditAction == 'add-path')
+        return '106px'
+      return '86px';
+    },
+    path_view_style() {
+      if (this.EditorOption.EditAction == 'add-path')
+        return {
+          paddingTop: '116px'
+        }
+      return {
+        paddingTop: '86px'
+      }
     }
   },
   methods: {
@@ -1241,8 +1280,17 @@ export default {
       }
       this.PathEditTempStore.push(feature)
       if (this.PathEditTempStore.length == 2) {
-        var startPointFeature = this.PathEditTempStore[0];
-        var endPointFeature = this.PathEditTempStore[1];
+        this.GenPath(this.PathEditTempStore);
+
+        if(this.EditorOption.AddPathMode.Direction == 'bi-direction'){
+          var reverse = [this.PathEditTempStore[1],this.PathEditTempStore[0]]
+          this.GenPath(reverse);
+        }
+      }
+    },
+    GenPath(start_end_features=[]){
+        var startPointFeature =start_end_features[0];
+        var endPointFeature = start_end_features[1];
         var startPtIndex = startPointFeature.get('index');
         var endPtIndex = endPointFeature.get('index');
 
@@ -1257,13 +1305,6 @@ export default {
         var midPoint = [(startPointCoordinate[0] + endPointCoordinate[0]) / 2, (startPointCoordinate[1] + endPointCoordinate[1]) / 2]
         var mindfeature = CreateNewStationPointFeature(midPoint, this.GenNewIndexOfStation());
         //this.PointLayer.getSource().addFeature(mindfeature)
-        var points = createBezierCurvePoints(2, [startPointCoordinate, midPoint, endPointCoordinate])
-
-        let lineFeature = new Feature(
-          {
-            geometry: new LineString(points),
-          },
-        );
         var isEqLink = endPointFeature.get('station_type') != 0 || startPointFeature.get('station_type') != 0;
         var path_id = `${startPtIndex}_${endPtIndex}`
 
@@ -1297,13 +1338,6 @@ export default {
         startPointFeature.set('targets', oritargets)
 
         this.UpdateStationPathLayer();
-        // lineFeature.set('path_id', path_id)
-        // lineFeature.set('isEqLink', isEqLink)
-        // lineFeature.set('feature_type', this.FeatureKeys.path)
-        // lineFeature.setStyle(CreateStationPathStyles(lineFeature))
-        // this.PointLinksLayer.getSource().addFeature(lineFeature)
-
-      }
     },
     GenNewIndexOfStation() {
 
@@ -1906,7 +1940,7 @@ export default {
       cursor: pointer;
       position: absolute;
       left: 479px;
-      top: 95px;
+      top: 100px;
     }
 
     i:hover {
