@@ -678,6 +678,10 @@ export default {
 
     },
     UpdateEQLDULDFeature() {
+
+      if (this.editable) //編輯地圖模式下不更新
+        return;
+
       var eqLDULDFeatures = []
 
       for (let index = 0; index < this._map_stations.length; index++) {
@@ -691,6 +695,8 @@ export default {
       EQLDULDStatusLayerSource.addFeatures(eqLDULDFeatures);
     },
     UpdateAGVLayer() {
+      if (this.agv_display != 'visible')
+        return;
       this.agvs_info.AGVDisplays.forEach(agv_information => {
 
         var agvfeatures = this.AGVFeatures[agv_information.AgvName]
@@ -804,8 +810,7 @@ export default {
 
 
           if (isRightClick && feature && feature.get('feature_type') == 'path' && currentAction == 'add-station') {
-            var _new_feature = CreateNewStationPointFeature(event.coordinate, this_vue.GenNewIndexOfStation());
-            this_vue.InsertPointAtPathes(feature, _new_feature);
+            this_vue.InsertPointAtPathes(feature, event.coordinate);
             return;
           }
 
@@ -877,7 +882,7 @@ export default {
           geometry = this.feature_.getGeometry();
           var oriData = this.feature_.get('data')
 
-          if(!oriData)
+          if (!oriData)
             return;
           var newCoordinates = geometry.getCoordinates();
 
@@ -1131,15 +1136,14 @@ export default {
       return removed_path;
       //this.PointLinksLayer.getSource().removeFeature(path_feature)
     },
-    RemovePtTarget() {
-
-    },
-    InsertPointAtPathes(removePathFeature, new_pt_feature) {
+    InsertPointAtPathes(removePathFeature, new_pt_coordinate) {
+      var new_pt_feature = CreateNewStationPointFeature(new_pt_coordinate, this.GenNewIndexOfStation());
       //新增點位而且新增的位置是在既有的路徑線段上
       var _removedPathes = this.RemovePath(removePathFeature, true); //移除現有路徑
       this.AddFeatureToMapLayers(new_pt_feature)
       //產生多組路徑
-      var stationFeatures = this.PointRouteLayer.getSource().getFeatures();
+      var stationFeatures = this.map_display_mode == 'router' ? this.PointRouteLayer.getSource().getFeatures() : this.PointLayer.getSource().getFeatures();
+
       _removedPathes.forEach(path => {
         var _startPtFeature1 = stationFeatures.find(ft => ft.get('index') == path.StartPtIndex);
         var _endPtFeature1 = new_pt_feature
@@ -1148,6 +1152,67 @@ export default {
         this.GenPath([_startPtFeature1, _endPtFeature1])
         this.GenPath([_startPtFeature2, _endPtFeature2])
       })
+      var ratio_from_start = this.CalculateNewPointRatioOfPathStart(_removedPathes[0], new_pt_feature);
+      //alert(ratio_from_start)
+      //this.ResetNewPointCoordination(ratio_from_start, new_pt_feature);
+    },
+    CalculateNewPointRatioOfPathStart(_path, new_pt_feature) {
+      var stationFeatures = this.map_display_mode == 'router' ? this.PointRouteLayer.getSource().getFeatures() : this.PointLayer.getSource().getFeatures();
+      //計算新增的點其位置在路徑上的比例
+      var _startPt = stationFeatures.find(ft => ft.get('index') == _path.StartPtIndex)
+      var _endPt = stationFeatures.find(ft => ft.get('index') == _path.EndPtIndex)
+
+      var _start_coordination = _startPt.getGeometry().getCoordinates();
+      var _end_coordination = _endPt.getGeometry().getCoordinates();
+      var _new_coordination = new_pt_feature.getGeometry().getCoordinates();
+
+      var totalDistance = Math.sqrt(Math.pow(_start_coordination[0] - _end_coordination[0], 2) + Math.pow(_start_coordination[1] - _end_coordination[1], 2));
+      var distanceFromStart = Math.sqrt(Math.pow(_start_coordination[0] - _new_coordination[0], 2) + Math.pow(_start_coordination[1] - _new_coordination[1], 2));
+      var _ratio = distanceFromStart / totalDistance;
+
+
+      return _ratio;
+    },
+    ResetNewPointCoordination(ratio, new_pt_feature) {
+      var stationFeaturesOfRouteMode = this.PointRouteLayer.getSource().getFeatures();
+      var stationFeaturesOfCoordinationMode = this.PointLayer.getSource().getFeatures();
+
+      var pt_index = new_pt_feature.get('index');
+
+      // var _start_from = stationFeaturesOfRouteMode.find(ft => ft.get('targets').includes(pt_index));
+      // var _end_to = stationFeaturesOfRouteMode.find(ft => ft.get('index') == new_pt_feature.get('targets')[0]);
+
+      // var _start_coord = _start_from.getGeometry().getCoordinates();
+      // var _end_coord = _end_to.getGeometry().getCoordinates();
+
+      // var newX = _start_coord[0] + (_end_coord[0] - _start_coord[0]) * ratio
+      // var newY = _start_coord[1] + (_end_coord[1] - _start_coord[1]) * ratio
+
+
+
+      var _start_from = stationFeaturesOfCoordinationMode.find(ft => ft.get('targets').includes(pt_index));
+      var _end_to = stationFeaturesOfCoordinationMode.find(ft => ft.get('index') == new_pt_feature.get('targets')[0]);
+
+      var _start_coord = _start_from.getGeometry().getCoordinates();
+      var _end_coord = _end_to.getGeometry().getCoordinates();
+
+      var newX = _start_coord[0] + (_end_coord[0] - _start_coord[0]) * ratio
+      var newY = _start_coord[1] + (_end_coord[1] - _start_coord[1]) * ratio
+
+      //更新slam模式的新座標位置
+      var feature_ = stationFeaturesOfCoordinationMode.find(pt => pt.get('index') == pt_index)
+      var oriData = feature_.get('data')
+      var newCoordinates = [newX, newY];
+      oriData.X = newCoordinates[0];
+      oriData.Y = newCoordinates[1];
+      feature_.set('data', oriData)
+      // alert(JSON.stringify([newX, newY]))
+
+
+
+      this.ResetPathLinkOfRouteMode(pt_index);
+      this.ResetPathLinkOfCoordinationMode(pt_index);
+
     },
     ResetPathLinkOfCoordinationMode(pt_index, remove = false) {
       var feature = this.PointLayer.getSource().getFeatures().find(f => f.get('index') == pt_index);
