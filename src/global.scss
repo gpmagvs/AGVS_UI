@@ -55,3 +55,23 @@
   cursor: pointer;
   margin-inline: 5px;
 }
+
+.full-sweetalert{
+  // background: red;
+  height: 100vh;
+  width: 100vw;
+  .swal2-icon{
+    position: relative;
+    top: 30%;
+    font-size: 37px;
+  }
+  .swal2-title{
+    font-size: 60px;
+  }
+  .swal2-actions{
+    display: flex;   
+    position: relative;
+    bottom: 60%;
+    font-size: 40px;
+  }
+}

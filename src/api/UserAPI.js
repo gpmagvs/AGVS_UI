@@ -47,7 +47,15 @@ export async function Add(user) {
   var ret = await axios_entity.post(`api/Auth/Add`, user)
   return ret.data
 }
+
 export function StoreToLocalStorage(user) {
   user.LoginTime = Date.now()
   localStorage.setItem('user', JSON.stringify(user))
 }
+
+/**向後端回報路由跳轉狀態 */
+export async function UserRouteChange(userID, route) {
+  var ret = await axios_entity.get(`api/Auth/UserRouteChange?userID=${userID}&current_route=${route}`)
+  return ret.data
+}
+

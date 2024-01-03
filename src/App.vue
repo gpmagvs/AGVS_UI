@@ -1,5 +1,6 @@
 <template>
   <div
+    v-show="!isNoPermission"
     class="d-flex flex-row"
     v-loading="loading"
     element-loading-text="GPM AGVS"
@@ -27,6 +28,7 @@
     </b-modal>
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
     <MoveAGVNotifty></MoveAGVNotifty>
+    <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
     <ConnectionState></ConnectionState>
   </div>
   <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
@@ -44,14 +46,16 @@ import { useRoute } from 'vue-router'
 import { IsLoginLastTime } from '@/api/AuthHelper.js'
 import { userStore } from '@/store'
 import MoveAGVNotifty from '@/components/Traffic/MoveAGVNotify.vue'
+import AGVAlarmMessageDisplay from '@/components/App/AGVAlarmUI/AGVAlarmMessageDisplay.vue'
 
 export default {
   components: {
-    Header, AlarmDisplayVue, SideMenuDrawer, SideMenu, ConnectionState, MoveAGVNotifty
+    Header, AlarmDisplayVue, SideMenuDrawer, SideMenu, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay
   },
   data() {
     return {
       loading: true,
+      isNoPermission: false,
       showMenuToggleIcon: true,
       ShowOKOnlyModal: false,
       okOnlyModalProps: {
@@ -116,12 +120,48 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        this.OpenLoading();
-        if (newValue == "/alarm") {
-          this.router_view_style.paddingTop = '50px';
+        if ((newValue == '/sys_settings' || newValue == '/map') && userStore.getters.level <= 0) {
+          this.$vs.loading.close();
+          this.loading = false;
+          this.isNoPermission = true;
+          this.$swal.fire(
+            {
+              text: '',
+              title: '您沒有足夠的權限訪問此頁面!',
+              icon: 'error',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'full-sweetalert'
+            }).then(() => {
+              window.location.href = '/'
+            })
+          return;
+        } else {
+
+          this.OpenLoading();
+          if (newValue == "/alarm") {
+            this.router_view_style.paddingTop = '50px';
+          }
+          else
+            this.router_view_style.paddingTop = '150px';
+
+          setTimeout(async () => {
+            var result = await userStore.dispatch('user_route_change', newValue);
+            console.log(result)
+
+            if (newValue == '/map' && result.isOtherUserEditingMap) {
+              this.$swal.fire(
+                {
+                  text: '',
+                  title: '注意!目前有其他使用者正在地圖編輯頁面',
+                  icon: 'warning',
+                  showCancelButton: false,
+                  confirmButtonText: 'OK',
+                  customClass: 'my-sweetalert'
+                })
+            }
+          }, 100)
         }
-        else
-          this.router_view_style.paddingTop = '150px';
       }
     )
     setTimeout(() => {

@@ -120,12 +120,20 @@
         </template>
       </el-table-column>
       <el-table-column sortable label="Tag" prop="Tag" width="80" align="center"></el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" label="設備狀態" prop="TransferStatus">
+      <el-table-column v-if="show_lduld_state" align="center" label="設備狀態" prop="MainStatus">
         <template #default="scope">
           <el-tag
             style="width:220px"
-            :type="GetTransferStatusTagtype(scope.row.TransferStatus)"
-            effect="dark">{{ GetTransferStatusStr(scope.row.TransferStatus) }}</el-tag>
+            :type="GetMainStatusTagtype(scope.row.MainStatus, scope.row.IsConnected)"
+            effect="dark">{{ GetMainStatusStr(scope.row.MainStatus, scope.row.IsConnected) }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="show_lduld_state" align="center" label="移載狀態" prop="TransferStatus">
+        <template #default="scope">
+          <el-tag
+            style="width:220px"
+            :type="GetTransferStatusTagtype(scope.row.TransferStatus, scope.row.IsConnected)"
+            effect="dark">{{ GetTransferStatusStr(scope.row.TransferStatus, scope.row.IsConnected) }}</el-tag>
         </template>
       </el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
@@ -175,7 +183,7 @@
         prop="Eqp_Status_Down"
         :width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">Status</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">Down</div>
         </template>
       </el-table-column>
       <el-table-column
@@ -324,34 +332,69 @@ export default {
         return;
       SetAGVHandshakeIO(eqname, signal_name, state)
     },
-    GetTransferStatusStr(status_int) {
+    GetMainStatusStr(status_int, connected) {
+      if (!connected)
+        return '斷線';
+      switch (status_int) {
+        case 0:
+          return '當機'
+        case 1:
+          return '生產中'
+        case 2:
+          return '閒置'
+        case 3:
+          return '-'
+        default:
+          return status_int + ''
+      }
+    },
+    GetTransferStatusStr(status_int, connected) {
+      if (!connected)
+        return '斷線';
       switch (status_int) {
         case 0:
           return '斷線'
         case 1:
-          return '當機'
+          return '可收料'
         case 2:
-          return 'BUSY'
+          return '可出料'
         case 3:
-          return '可移入'
-        case 4:
-          return '可移出'
+          return 'No-Request'
         default:
           return status_int + ''
       }
     },
     /**'success' | 'info' | 'warning' | 'danger' | '' */
-    GetTransferStatusTagtype(status_int) {
+    GetTransferStatusTagtype(status_int, connected) {
+      if (!connected)
+        return 'danger';
       switch (status_int) {
         case 0:
           return 'info'
         case 1:
-          return 'danger'
+          return 'warning'
         case 2:
           return 'warning'
         case 3:
-          return 'success'
+          return 'info'
         case 4:
+          return 'success'
+        default:
+          break;
+      }
+    },
+    /**'success' | 'info' | 'warning' | 'danger' | '' */
+    GetMainStatusTagtype(status_int, connected) {
+      if (!connected)
+        return 'danger';
+      switch (status_int) {
+        case 0:
+          return 'danger'
+        case 1:
+          return 'success'
+        case 2:
+          return 'warning'
+        case 3:
           return 'success'
         default:
           break;

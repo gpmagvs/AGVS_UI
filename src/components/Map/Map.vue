@@ -1842,7 +1842,7 @@ export default {
     },
     ChangeLDULDStatus(tagNumber, status) {
       try {
-        var ld_uld_state = status == 3 ? 'load' : 'unload'
+        var ld_uld_state = status == 1 ? 'load' : 'unload'
         var features = this.EQLDULDStatusLayer.getSource().getFeatures();
         var _feature = features.find(ft => ft.get('data').TagNumber == tagNumber);
         if (!_feature)
@@ -1855,13 +1855,13 @@ export default {
           return;
 
         var status_text = ''
-        if (status == 3 || status == 4) {
-          status_text = status == 3 ? ' 入料請求' : '出料請求'
+        if (status == 1 || status == 2) {
+          status_text = status == 1 ? ' 入料請求' : '出料請求'
         }
         text.setText(status_text);
 
         text.setBackgroundFill(new Fill({
-          color: status == 3 ? 'orange' : 'blue'
+          color: status == 1 ? 'orange' : 'blue'
         }))
         // text.setFill(new Fill({
         //   color: status == 3 ? 'black' : 'white'

@@ -1,5 +1,5 @@
 import { createStore } from 'vuex'
-import { Login, StoreToLocalStorage } from '@/api/UserAPI';
+import { Login, StoreToLocalStorage, UserRouteChange } from '@/api/UserAPI';
 import MapAPI from '@/api/MapAPI'
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 
@@ -90,7 +90,9 @@ export const agvs_settings_store = createStore({
 /**用戶狀態管理 */
 export const userStore = createStore({
   state: {
-    user: null
+    user: null,
+    current_route: '',
+    web_user_id: ''
   },
   mutations: {
     setUser(state, user) {
@@ -100,7 +102,15 @@ export const userStore = createStore({
       } else {
         localStorage.removeItem('user')
       }
-    }
+    },
+    setUserID(state, user_id) {
+      state.web_user_id = user_id;
+      console.log(user_id);
+    },
+    setRoute(state, route) {
+      state.current_route = route;
+      console.log(route);
+    },
   },
   actions: {
     async login({ commit }, user) {
@@ -116,6 +126,11 @@ export const userStore = createStore({
 
     logout({ commit }) {
       commit('setUser', null)
+    },
+    async user_route_change({ commit, state }, route) {
+      commit('setRoute', route);
+      var result = await UserRouteChange(state.web_user_id, route)
+      return result
     }
   },
   getters: {
@@ -140,6 +155,9 @@ export const userStore = createStore({
       if (state.user.Role != 2 && state.user.Role != 3)
         return false;
       return true;
+    },
+    WebUserID: state => {
+      return state.web_user_id;
     }
   },
 })

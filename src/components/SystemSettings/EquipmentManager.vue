@@ -76,7 +76,7 @@
         </template>
       </el-table-column>
       <el-table-column label="連線參數" width="120">
-        <el-table-column label="IP" prop="ConnOptions.IP" width="220">
+        <el-table-column label="IP" prop="ConnOptions.IP" width="150">
           <template #default="scope">
             <el-input
               :disabled="scope.row.ConnOptions.ConnMethod == 1"
@@ -101,7 +101,7 @@
           </template>
         </el-table-column>
       </el-table-column>
-      <el-table-column label="操作" min-width="220" fixed="right">
+      <el-table-column label="操作" min-width="270" fixed="right">
         <template #default="scope">
           <div>
             <el-button :size="cell_item_size" type="danger" @click="RemoveHandle(scope.row)">移除</el-button>
@@ -111,12 +111,74 @@
               @click="ConnectTestHandle(scope.row)">通訊測試</el-button>
             <el-button
               :size="cell_item_size"
-              type="default"
+              type="primary"
               @click="IOCheckBtnHandle(scope.row)">IO點檢</el-button>
           </div>
         </template>
       </el-table-column>
     </el-table>
+    <el-drawer v-model="io_check_drawer" direction="btt">
+      <div class="hs-signals d-flex">
+        <div class="mx-3">交握訊號-EQ</div>
+        <div
+          class="di-status"
+          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_L_REQ)">L_REQ</div>
+        <div
+          class="di-status"
+          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_U_REQ)">U_REQ</div>
+        <div
+          class="di-status"
+          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'READY', !scope.row.HS_EQ_READY)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_READY)">READY</div>
+        <div
+          class="di-status"
+          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'UP_READY', !scope.row.HS_EQ_UP_READY)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_UP_READY)">UP_READY</div>
+        <div
+          class="di-status"
+          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'LOW_READY', !scope.row.HS_EQ_LOW_READY)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_LOW_READY)">LOW_READY</div>
+        <div
+          v-if="false"
+          class="di-status"
+          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_BUSY)">BUSY</div>
+      </div>
+      <div class="hs-signals d-flex">
+        <div class="mx-3">交握訊號-AGV</div>
+        <div
+          class="di-status"
+          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'To_EQ_Up', !scope.row.To_EQ_Up)"
+          v-bind:style="signalOn(selected_eq_io_data.To_EQ_Up)">To_EQ_Up</div>
+        <div
+          class="di-status"
+          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'To_EQ_Low', !scope.row.To_EQ_Low)"
+          v-bind:style="signalOn(selected_eq_io_data.To_EQ_Low)">To_EQ_Low</div>
+        <div
+          class="di-status"
+          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'VALID', !scope.row.HS_AGV_VALID)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_VALID)">VALID</div>
+        <div
+          class="di-status"
+          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'TR_REQ', !scope.row.HS_AGV_TR_REQ)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_TR_REQ)">TR_REQ</div>
+        <div
+          class="di-status"
+          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'BUSY', !scope.row.HS_AGV_BUSY)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_BUSY)">BUSY</div>
+        <div
+          v-if="false"
+          class="di-status"
+          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'READY', !scope.row.HS_AGV_READY)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_READY)">READY</div>
+        <div
+          class="di-status"
+          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'COMPT', !scope.row.HS_AGV_COMPT)"
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_COMPT)">COMPT</div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -124,6 +186,7 @@
 import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import { MapStore } from '../Map/store';
+import { EqStore } from '@/store'
 import { ElNotification } from 'element-plus';
 import { duration } from 'moment';
 export default {
@@ -133,6 +196,7 @@ export default {
   data() {
     return {
       cell_item_size: '',
+      io_check_drawer: false,
       EqDatas: [
         // {
         //   Name: "123",
@@ -158,6 +222,7 @@ export default {
         var same_name_row = this.EqDatas.filter(d => d.Name == row_.Name)
         return same_name_row.length == 1 && name != '';
       },
+      selected_eq: {}
 
     }
   },
@@ -219,7 +284,8 @@ export default {
       this.EqDatas = remains;
     },
     async IOCheckBtnHandle(row) {
-
+      this.selected_eq = row;
+      this.io_check_drawer = true;
     },
     async ConnectTestHandle(row) {
       var ret = await ConnectTest(row.ConnOptions)
@@ -291,6 +357,12 @@ export default {
   computed: {
     EqNames() {
       return this.EqDatas.map(ep => ep.Name);
+    },
+    eq_data() {
+      return EqStore.getters.EQData
+    },
+    selected_eq_io_data() {
+      return this.eq_data.find(eq => eq.EQName == this.selected_eq.EQName)
     }
   },
 }

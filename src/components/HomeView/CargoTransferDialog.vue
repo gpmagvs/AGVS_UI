@@ -119,10 +119,15 @@ export default {
             var EQ = this.eq_status_data.find(eq => eq.Tag == TagID);
             if (this.action == 'load') {
                 //來源機台必須 U_REQ ON and 下點位 and Status down 
-                return EQ.Unload_Request && EQ.Up_Pose && EQ.IsConnected && EQ.Eqp_Status_Down
+                if (EQ.EqType == 0)
+                    return EQ.Unload_Request && EQ.Up_Pose && EQ.IsConnected && EQ.Eqp_Status_Down
+                else if (EQ.EqType == 1)
+                    return EQ.Unload_Request && EQ.IsConnected && EQ.Eqp_Status_Idle
             } else {
-                return EQ.Load_Request && EQ.Down_Pose && EQ.IsConnected && EQ.Eqp_Status_Down
-
+                if (EQ.EqType == 0)
+                    return EQ.Load_Request && EQ.Down_Pose && EQ.IsConnected && EQ.Eqp_Status_Down
+                else if (EQ.EqType == 1)
+                    return EQ.Load_Request && EQ.IsConnected && EQ.Eqp_Status_Idle
             }
         },
         GetNoTransferActionReason(TagID) {
@@ -132,19 +137,25 @@ export default {
             var action = this.action == 'load' ? 'unload' : 'load';
             if (!EQ.IsConnected)
                 return `${EQ.EQName} 機台尚未連線`
-            if (!EQ.Eqp_Status_Down)
+
+
+            if (!EQ.Eqp_Status_Down && EQ.EqType == 0)
+                return `${EQ.EQName} 機台狀態異常(Eqp_Status_Down)`
+
+
+            if (EQ.Eqp_Status_Down && EQ.EqType == 1)
                 return `${EQ.EQName} 機台狀態異常(Eqp_Status_Down)`
 
             if (action == 'load') {
                 if (!EQ.Load_Request)
                     return `${EQ.EQName} 機台未發起載入請求(Load_Request)`
-                if (!EQ.Down_Pose)
+                if (!EQ.Down_Pose && EQ.EqType == 0)
                     return `${EQ.EQName} 設備機構位置錯誤(Down_Pose)`
             }
             if (action == 'unload') {
                 if (!EQ.Unload_Request)
                     return `${EQ.EQName} 機台未發起移出請求(Unload_Request)`
-                if (!EQ.Up_Pose)
+                if (!EQ.Up_Pose && EQ.EqType == 0)
                     return `${EQ.EQName} 設備機構位置錯誤(Up_Pose)`
             }
             return ""
