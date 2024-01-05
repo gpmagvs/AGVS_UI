@@ -20,7 +20,7 @@ export const MapStore = createStore({
             'purple',
         ],
         worker: new Worker(''),
-        mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://192.168.0.1:5216' : `${window.location.protocol}//${window.location.host}`
+        mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' : `${window.location.protocol}//${window.location.host}`
     },
     getters: {
         MapBackednAxios: state => {

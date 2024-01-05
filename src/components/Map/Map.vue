@@ -1049,9 +1049,9 @@ export default {
         this.station_name_display_mode = settings.station_name_display_mode
         this.map_display_mode = this.editable ? 'router' : settings.mode
         this.zoom = settings.zoom;
-        this.center = settings.center
-        this.zoom_route = settings.zoom_route;
-        this.center_route = settings.center_route
+        //this.center = settings.center
+        //this.zoom_route = settings.zoom_route;
+        //this.center_route = settings.center_route
       }
     },
 
@@ -1631,8 +1631,8 @@ export default {
         target: this.id,
         view: new View({
           projection: projection,
-          center: this.map_display_mode == 'coordination' ? this.center : this.center_route,
-          zoom: this.map_display_mode == 'coordination' ? this.zoom : this.zoom_route,
+          center: [0, 0],
+          zoom: 1,
           maxZoom: 20
         })
       })

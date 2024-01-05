@@ -1,5 +1,5 @@
 <template>
-  <div class="eq-status">
+  <div class="eq-status" ref="eq-status-container">
     <div class="text-start border-bottom p-2 my-2 d-flex flex-row justify-content-space">
       <div class="d-flex">
         <div class="p-1">
@@ -31,17 +31,15 @@
     </div>-->
     <el-table
       class="px-1"
-      style="height:600px"
-      v-bind:style="{
-        width: show_lduld_state ? '920px' : '950px'
-      }"
       border
+      siz="small"
+      style="height:68vh"
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="display_data"
       :row-style="{ fontWeight: 'bold' }"
       :row-class-name="eq_connection_status"
       row-key="EQName">
-      <el-table-column type="expand" width="40">
+      <el-table-column type="expand" max-width="40">
         <template #default="scope">
           <div class="hs-signals d-flex">
             <div class="mx-3">交握訊號-EQ</div>
@@ -142,7 +140,7 @@
         v-if="!show_lduld_state"
         label="可移入"
         prop="Load_Request"
-        :width="column_width">
+        :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Load_Request)">可移入</div>
         </template>
@@ -151,7 +149,7 @@
         v-if="!show_lduld_state"
         label="可移出"
         prop="Unload_Request"
-        :width="column_width">
+        :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">可移出</div>
         </template>
@@ -160,9 +158,9 @@
         v-if="!show_lduld_state"
         label="貨物在席"
         prop="Port_Exist"
-        :width="column_width">
+        :min-width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">貨物在席</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">在席</div>
         </template>
       </el-table-column>
       <!-- 轉換架之類的 -->
@@ -181,25 +179,26 @@
         v-if="!show_lduld_state"
         label="Down"
         prop="Eqp_Status_Down"
-        :width="column_width">
+        :min-width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">Down</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">{{ scope.row.EqType == 0 ? 'Normal' : 'Down' }}</div>
         </template>
       </el-table-column>
       <el-table-column
         v-if="!show_lduld_state"
         label="Run"
         prop="Eqp_Status_Run"
-        :width="column_width">
+        :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Run)">Run</div>
         </template>
       </el-table-column>
       <el-table-column
         v-if="!show_lduld_state"
+        fixed="right"
         label="Idle"
         prop="Eqp_Status_Idle"
-        :width="column_width">
+        :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Idle)">Idle</div>
         </template>
@@ -226,7 +225,7 @@ export default {
   },
   data() {
     return {
-      column_width: 115,
+      column_width: 103,
       // eq_data: [
       //   {
       //     IsConnected: true,
@@ -407,6 +406,7 @@ export default {
 <style lang="scss" >
 .eq-status {
   height: 100%;
+  width: 50vw;
 
   .legend {
     div {
@@ -448,7 +448,7 @@ export default {
     padding: 0;
     margin: 0;
     text-align: center;
-    font-size: 8px;
+    font-size: 12px;
     border-radius: 4px;
     cursor: pointer;
   }
