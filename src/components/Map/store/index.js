@@ -12,7 +12,7 @@ export const MapStore = createStore({
         ControledPathesBySystem: {},
         AGVLocUpload: {},
         agv_colors: [
-            '#42c2f5',
+            'rgb(13, 110, 253)',
             'limegreen',
             'orange',
             'pink',

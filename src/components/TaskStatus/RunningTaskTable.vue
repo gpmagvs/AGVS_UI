@@ -9,7 +9,7 @@
       empty-text="沒有任務"
       border
       :height="height">
-      <el-table-column label="任務名稱" prop="TaskName" width="170"></el-table-column>
+      <el-table-column label="任務名稱" prop="TaskName" width="180"></el-table-column>
       <el-table-column label="執行AGV" prop="DesignatedAGVName"></el-table-column>
       <el-table-column label="接收時間" prop="RecieveTime_Formated" width="80"></el-table-column>
       <el-table-column label="任務狀態" prop="StateName" width="80">

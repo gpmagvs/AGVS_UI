@@ -1,7 +1,8 @@
 <template>
     <div class="task-dispatch-new-ui">
         <div class="bg-primary text-light d-flex flex-row">
-            <div class="w-100 title-text"> 任務派送</div> <i @click="Leave" class="close-btn mx-2 bi bi-x-circle"></i>
+            <div class="w-100 title-text"> 任務派送</div>
+            <i @click="Leave" class="close-btn mx-2 bi bi-x-circle"></i>
         </div>
         <div v-if="IsShowBackTo" class="back-to-last-step px-2" @click="HandleBackToPush">返回 [{{ lastProgressDisplay }}]</div>
         <div v-show="current_progress == 'select-action'" class="page-pnl">
@@ -358,18 +359,28 @@ export default {
     top: 137px;
     width: 45%;
     border: 2px solid gray;
-    background: rgb(194, 229, 255);
+    background: white;
     border-radius: 7px;
     opacity: 0.97;
+    box-shadow: -5rem 107px 15px 6rem gray;
 
     .title-text {
         font-size: 40px;
         font-weight: bold;
+        text-align: left;
+        padding-left: 1rem;
     }
 
     .close-btn {
-        font-size: 40px;
+        font-size: 36px;
         cursor: pointer;
+    }
+
+    .close-btn:hover {
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-size: 43px;
     }
 
     .back-to-last-step {
@@ -437,7 +448,8 @@ export default {
             justify-content: center;
 
             .action {
-                background: rgb(248, 248, 248);
+                background: rgb(21 115 253);
+                color: white;
                 width: 300px;
                 height: 70px;
                 margin: 6px auto;
@@ -450,6 +462,11 @@ export default {
                     cursor: pointer;
                 }
 
+            }
+
+            .action:hover {
+                background: white;
+                color: black;
             }
         }
 
