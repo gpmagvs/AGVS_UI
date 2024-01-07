@@ -55,6 +55,19 @@ export default {
       var mapData = JSON.parse(JSON.stringify(MapStore.getters.MapData))
       mapData.Points = mapDataSave.Points;
       mapData.Segments = mapDataSave.Pathes;
+      var _check_result = this.CheckMapContentHasAnyError(mapData);
+      if (!_check_result.correct) {
+        this.$swal.fire(
+          {
+            text: _check_result.message,
+            title: '',
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+        return;
+      }
       this.map_saving = true;
       this.$swal.fire(
         {
@@ -90,6 +103,27 @@ export default {
           customClass: 'my-sweetalert',
         })
       }
+    },
+    CheckMapContentHasAnyError(mapData) {
+      var _tags_settings = Object.values(mapData.Points).map(pt => { return pt.TagNumber })
+      var non_repeat_tags = [...new Set(_tags_settings)]
+      if (non_repeat_tags.length != _tags_settings.length) {
+        const duplicatesTags = []
+        const seen = {}
+        _tags_settings.forEach((item, index) => {
+          if (seen.hasOwnProperty(item)) {
+            duplicatesTags.push(item)
+          } else {
+            seen[item] = index
+          }
+        });
+        var _error_set = [...new Set(duplicatesTags)].map(tag => {
+          var _points_same_tag = Object.values(mapData.Points).filter(pt => pt.TagNumber == tag);
+          return `Tag-${tag}於 ${_points_same_tag.map(pt => { return pt.Graph.Display }).join("、")}重複設置`
+        })
+        return { correct: false, message: `${_error_set.join(";")} ，\n請再檢查圖資設定` }
+      }
+      return { correct: true, message: '' }
     },
     async GetPathPlanedFromServer() {
       var result = {}

@@ -21,6 +21,8 @@ class clsAGVStateDto {
       this.IsCharging = false
       this.IP = '127.0.0.1'
       this.Port = 7025
+      this.TaskSourceStationName = ""
+      this.TaskDestineStationName = ""
     } else {
       this.AGV_Name = dto.AGV_Name
       this.AGV_Description = dto.AGV_Description
@@ -41,6 +43,8 @@ class clsAGVStateDto {
       this.IsCharging = dto.IsCharging
       this.IP = dto.IP
       this.Port = dto.Port
+      this.TaskSourceStationName = dto.TaskSourceStationName
+      this.TaskDestineStationName = dto.TaskDestineStationName
     }
   }
 }

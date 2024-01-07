@@ -260,6 +260,18 @@ export default {
     },
 
     SaveBtnClickHandle() {
+      // if (this.CheckTagRepeat()) {
+      //   this.$swal.fire(
+      //     {
+      //       text: '',
+      //       title: `$Tag {this.pointData_editing.TagNumber}已被其他暫ㄉ點設置`,
+      //       icon: 'warning',
+      //       showCancelButton: false,
+      //       confirmButtonText: 'OK',
+      //       customClass: 'my-sweetalert'
+      //     })
+      //   return;
+      // }
       this.ResetRegistPointIndexData();
       this.$emit('OnPointSettingChanged', { index: this.index, pointData: this.pointData_editing })
       ElNotification({
@@ -268,6 +280,14 @@ export default {
         duration: 1000
       })
       this.pointData = this.pointData_editing;
+    },
+    CheckTagRepeat() {
+      if (this.pointData_editing.TagNumber == this.pointData.TagNumber) {
+        return false;
+      }
+      var _sameTagCount = this.pointsOptions.filter(pt => pt.tag + '' == this.pointData_editing.TagNumber + '')
+      alert(JSON.stringify(_sameTagCount))
+      return _sameTagCount.length == 1;
     },
     CancelBtnClickHandle() {
       if (this.hasAnyChange) {

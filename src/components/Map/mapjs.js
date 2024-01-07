@@ -93,6 +93,35 @@ var rack_station_icon = new Icon({
     opacity: 1,
     color: 'white'
 })
+
+
+var rack_charge_station_icon = new Icon({
+    src: '/images/rack_charge_station.png', // 设置PNG图像的路径
+    scale: 0.5,
+    anchor: [0.5, 0.5],
+    size: [64, 64],
+    opacity: 1,
+    color: 'yellow'
+})
+
+var stocker_icon = new Icon({
+    src: '/images/stk_.jpg', // 设置PNG图像的路径
+    scale: 0.45,
+    anchor: [0.5, 0.5],
+    size: [64, 64],
+    opacity: 1,
+    color: 'white'
+})
+
+var lifter_icon = new Icon({
+    src: '/images/lifter_icon.png', // 设置PNG图像的路径
+    scale: 0.35,
+    anchor: [0.5, 0.5],
+    size: [128, 128],
+    opacity: 1,
+    color: 'white'
+})
+
 const loc_icon = new Icon({
     src: '/images/location.png', // 设置PNG图像的路径
     offset: [-25, -5],
@@ -131,18 +160,15 @@ function normal_station_image(map_data = {}) {
                     }),
                     stroke: stroke,
                     points: 3,
-                    radius: 8,
+                    radius: 6,
                     angle: 0,
                 })
             }
         }
 
     }
-
-
-
     return new Circle({
-        radius: 6,
+        radius: 4,
         fill: new Fill({
             color: fillColor,
         }),
@@ -168,11 +194,20 @@ export function GetStationStyle(text = '', station_type = 0, map_data = {}) {
     else if (station_type == 1) {
         image = eq_station_icon
     }
-    else if (station_type == 2) {
+    else if (station_type == 2 || station_type == 12 || station_type == 22) {
+        image = stocker_icon
+    }
+    else if (station_type == 4) {
         image = rack_station_icon
+    }
+    else if (station_type == 5 || station_type == 6) {
+        image = rack_charge_station_icon;
     }
     else if (station_type == 3) {
         image = charge_station_icon
+    }
+    else if (station_type == 100 || station_type == 201) {
+        image = lifter_icon
     }
 
     var textStyle = new Style({
@@ -183,11 +218,11 @@ export function GetStationStyle(text = '', station_type = 0, map_data = {}) {
             offsetX: 14,
             offsetY: -22,
             fill: new Fill({
-                color: 'gold',//PointColorSelect(station_type)
+                color: station_type == 0 ? 'gold' : 'rgb(87, 203, 87)',//PointColorSelect(station_type)
             }),
             stroke: new Stroke({
                 color: 'black',
-                width: 3,
+                width: 2,
             }),
         }),
     })
@@ -233,10 +268,10 @@ export function CreateStationPathStyles(feature, color = undefined) {
                     geometry: new Point(end),
                     image: new Icon({
                         src: 'arrow.png',
-                        anchor: [1.6, 0.5],
+                        anchor: [1.2, 0.5],
                         rotateWithView: true,
                         rotation: -rotation,
-                        scale: 0.22,
+                        scale: 0.20,
                         color: isPathClose ? 'red' : pathColor
                     }),
                 })

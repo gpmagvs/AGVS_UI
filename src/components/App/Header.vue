@@ -645,7 +645,7 @@ export default {
   .matain-mode-notify {
     font-weight: bold;
     font-size: 20px;
-    animation: blink 3s linear infinite;
+    animation: blink 2s infinite;
     position: absolute;
     left: 200px;
     border-radius: 3px;
@@ -655,17 +655,16 @@ export default {
   }
 
   @keyframes blink {
-    0% {
+
+    0%,
+    100% {
       background-color: red;
     }
 
     50% {
-      background-color: red;
-    }
-
-    100% {
       background-color: grey;
     }
+
   }
 
   .page-name-display {

@@ -144,12 +144,12 @@ export const MapStore = createStore({
         },
         AllChargeStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 3).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 3 || pt.StationType == 5 || pt.StationType == 6)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllExangeBatteryStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 16 | pt.StationType == 3)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 16 || pt.StationType == 3)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllParkingStationOptions: state => {
