@@ -453,6 +453,7 @@ export default {
         position: 'bottom-right',
         time: 1400
       })
+      this.system_alarms = [''];
       this.system_alrm_text = "";
     },
     async ResetEqpAlarmsHandler() {

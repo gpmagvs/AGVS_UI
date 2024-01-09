@@ -49,23 +49,6 @@ export default {
 
     this.ConnectionCheck(undefined, '/ws/VMSAliveCheck', 0);
     this.ConnectionCheck(param.vms_ws_host, '/ws/VMSAliveCheck', 1);
-
-    // var vms_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck', param.vms_ws_host);
-    // vms_alive_check_ws.Connect();
-    // vms_alive_check_ws.onclose = (ev) => this.Connections[1].connected = false
-    // vms_alive_check_ws.onopen = (ev) => {
-    //   console.info('vms connected');
-    //   this.Connections[1].connected = true;
-
-    // }
-    // var agvs_alive_check_ws = new WebSocketHelp('/ws/VMSAliveCheck');
-    // agvs_alive_check_ws.Connect();
-    // agvs_alive_check_ws.onclose = (ev) => this.Connections[0].connected = false
-    // agvs_alive_check_ws.onopen = (ev) => {
-    //   console.info('agvs connected');
-    //   this.Connections[0].connected = true;
-
-    // }
   },
   methods: {
     ConnectionCheck(host, ws_url, index) {
