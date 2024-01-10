@@ -7,7 +7,7 @@
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="500px"></TaskStatusVue>
       </div>
-      <b-tabs v-bind:style="{ width: '60%' }" @activate-tab="TabActiveHandle">
+      <b-tabs v-bind:style="{ width: '60%' }" :model-value="right_side_tabSelected" @activate-tab="TabActiveHandle">
         <b-tab title="地圖">
           <div style="height:800px" class="border">
             <HomeMap></HomeMap>
@@ -38,7 +38,9 @@
       </div>
     </div>
     <TaskDispatchNewUI class="new-dispatch-pnl" v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'" @close="() => { show_new_dispatch_panel = false }" v-show="show_new_dispatch_panel"></TaskDispatchNewUI>
-    <TaskDispathActionButton @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
+    <TaskDispathActionButton @onTaskDispatch="() => {
+      right_side_tabSelected = 0;
+    }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
   </div>
 </template>
 
@@ -52,20 +54,26 @@ import EQStatus from '@/components/HomeView/EQStatus.vue'
 import TaskStatusVue from '@/components/HomeView/TaskStatus.vue';
 import TaskAllocationVue from '@/components/HomeView/TaskAllocation.vue';
 import bus from '@/event-bus.js'
-import store from '@/store';
+import { userStore, agvs_settings_store } from '@/store';
 export default {
   components: {
     AGVStatusVue, TaskStatusVue, HomeMap, TaskAllocationVue, EQStatus, LMap, TaskDispathActionButton, TaskDispatchNewUI
   },
   methods: {
-    TabActiveHandle(tab) {
+    TabActiveHandle(tabIndex) {
+      this.right_side_tabSelected = tabIndex
     }
+  },
+  computed: {
+    IsRunMode() { return agvs_settings_store.getters.IsRunMode; },
+    IsLogin() { return userStore.getters.IsLogin; },
   },
   data() {
     return {
       isEasyMode: false,
       loading: false,
-      show_new_dispatch_panel: false
+      show_new_dispatch_panel: false,
+      right_side_tabSelected: 0,
     }
   },
   mounted() {

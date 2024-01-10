@@ -3,6 +3,10 @@
     <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
     <div class="d-flex h-100">
       <div class="flex-fill d-flex flex-column">
+        <div class="w-100 bg-primary text-light rounded p-2 select-mode" v-if="IsSelectAGVMode">選擇 AGV</div>
+        <div class="w-100 text-light rounded p-2 select-mode"
+          v-if="IsSelectEQStationMode"
+          v-bind:class="SelectActionType == 'charge' ? 'bg-warning' : 'bg-primary'">{{ SelectActionType == 'charge' ? '選擇[充電站]' : `${TransferDirection == 'source' ? '選擇[來源]設備' : '選擇[終點]設備'}` }}</div>
         <!-- 編輯選項 -->
         <div
           v-if="editable"
@@ -485,7 +489,12 @@ export default {
           width: 8
         })
       }),
-      PathesSegmentsForEdit: []
+      PathesSegmentsForEdit: [],
+      IsSelectAGVMode: false,
+      IsSelectEQStationMode: false,
+      SelectActionType: '',
+      TransferDirection: '',
+      TextChangedOriFeatureStyle: []
     }
   },
   computed: {
@@ -517,6 +526,9 @@ export default {
       } else {
         return this.PointRouteLayer.getSource().getFeatures();
       }
+    },
+    AGVMapFeatures() {
+      return this.AGVLocLayer.getSource().getFeatures();
     },
     ShowWarningNotify() {
       return this.EditorOption.EditMode != "view" && this.map_display_mode == "coordination";
@@ -823,6 +835,18 @@ export default {
               //this_vue.map_stations.push(station)
             } else
               return false;
+          } else {
+            var _featureType = feature.get('feature_type')
+            console.log(_featureType);
+            if (this_vue.IsSelectAGVMode && _featureType == 'agv') {
+              var _agvname = feature.get('agvname');
+              bus.emit('/map/agv_selected', _agvname)
+            }
+            if (this_vue.IsSelectEQStationMode && _featureType == 'station') {
+              var _station_data = feature.get('data');
+              bus.emit('/map/station_selected', _station_data)
+            }
+
           }
 
 
@@ -900,8 +924,11 @@ export default {
 
         /**滑鼠點擊後放開事件 */
         handleUpEvent: function (ev) {
-          if (this_vue.EditorOption.EditMode == 'view')
+
+          if (this_vue.EditorOption.EditMode == 'view') {
+
             return;
+          }
           var currentAction = this_vue.EditorOption.EditAction;
           if (currentAction != 'add-path' && currentAction != 'remove-path') {
             if (ev.originalEvent.button == 2) {//滑鼠右鍵
@@ -1498,7 +1525,6 @@ export default {
       first = map_stations_copy[0]
       last = map_stations_copy[map_stations_copy.length - 1]
       var mid_y = (last.graph[1] + first.graph[1]) / 2
-      console.log(mid_x, mid_y)
       return [mid_x, mid_y]
     },
     GetMidPointOfCoordinationMode() {
@@ -1711,6 +1737,7 @@ export default {
     },
     HighLightFeaturesByStationType(station_type = 0, color = 'red') {
       // feature.set('station_type', ptdata.StationType)
+
       var features = this.StationPointsFeatures.filter(ft => ft.get('station_type') == station_type)
       this.HighLightFeatureSelected(features, color)
 
@@ -1981,6 +2008,81 @@ export default {
       this.map.render();
 
 
+    },
+    /**地圖變更為選擇AGV模式 */
+    ChangeToSelectAGVMode() {
+      this.AGVLocLayer.setVisible(true);
+      this.RestoredFillColorOfChangedFeature();
+      //把設備圖層Feature變為不明顯
+      this.ChangeFeaturesAsIgnoreStyle(this.StationPointsFeatures, 'rgb(222, 222, 222)');
+
+      this.IsSelectAGVMode = true;
+      this.IsSelectEQStationMode = false;
+
+    },
+    /**地圖變更為選擇設備站點模式 */
+    ChangeToSelectEQStationMode() {
+      this.AGVLocLayer.setVisible(false);
+      this.RestoredFillColorOfChangedFeature();
+      //把AGV圖層Feature變為不明顯
+      this.ChangeFeaturesAsIgnoreStyle(this.AGVMapFeatures, 'rgb(222, 222, 222)');
+      if (this.SelectActionType == 'charge') {
+        //再把非充電站的Feature變為不明顯
+        var non_charge_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge)
+        this.ChangeFeaturesAsIgnoreStyle(non_charge_features, 'rgb(222, 222, 222)');
+      } else {
+        //再把充電站的Feature變為不明顯
+        var charge_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsCharge)
+        this.ChangeFeaturesAsIgnoreStyle(charge_features, 'rgb(222, 222, 222)');
+      }
+      this.IsSelectAGVMode = false;
+      this.IsSelectEQStationMode = true;
+    },
+    ChangeToNormalViewMode() {
+      this.AGVLocLayer.setVisible(true);
+      this.RestoredFillColorOfChangedFeature();
+      this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
+
+    },
+    RestoredFillColorOfChangedFeature() {
+      this.TextChangedOriFeatureStyle.forEach(_object => {
+        if (_object.feature)
+          _object.feature.setStyle(_object.style)
+      })
+      this.TextChangedOriFeatureStyle = [];
+    },
+    ChangeFeaturesAsIgnoreStyle(features, color) {
+      let _tmp = []
+      features.forEach(feature => {
+        var style = feature.getStyle()
+        if (style) {
+          _tmp.push({ feature: feature, style: style });
+          try {
+
+            var newStyle = style.clone()
+            var oriImage = newStyle.getImage();
+            if (oriImage) {
+              var newImage = oriImage.clone();
+              newImage.setOpacity(.5)
+              newStyle.setImage(newImage);
+            }
+            var text = newStyle.getText();
+            if (text) {
+              var fill = text.getFill()
+              if (fill) {
+                var newfill = fill.clone();
+                newfill.setColor(color)
+                text.setFill(newfill)
+                feature.setStyle(newStyle)
+              }
+            }
+          } catch {
+
+          }
+        }
+      });
+      this.TextChangedOriFeatureStyle = [...this.TextChangedOriFeatureStyle, ..._tmp]
+      console.info(this.TextChangedOriFeatureStyle)
     }
   },
 
@@ -2027,7 +2129,23 @@ export default {
             }
           }, { deep: true, immediate: true }
         )
-
+        bus.on('change_to_select_agv_mode', () => {
+          if (this.editable)
+            return;
+          this.ChangeToSelectAGVMode();
+        })
+        bus.on('change_to_select_eq_station_mode', (data) => {
+          if (this.editable)
+            return;
+          this.SelectActionType = data.action_type;
+          this.TransferDirection = data.direction;
+          this.ChangeToSelectEQStationMode();
+        })
+        bus.on('change_to_normal_view_mode', () => {
+          if (this.editable)
+            return;
+          this.ChangeToNormalViewMode();
+        })
         document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
           ev.preventDefault()
         })
@@ -2042,6 +2160,24 @@ export default {
 .map-component {
   width: 100%;
   height: 100%;
+
+  .select-mode {
+    //animation: mode_flick 1s infinite;
+  }
+
+  @keyframes mode_flick {
+
+    0%,
+    100% {
+      background-color: rgb(13, 110, 253);
+      color: white
+    }
+
+    50% {
+      background-color: rgb(235, 235, 235);
+      color: rgb(13, 110, 253);
+    }
+  }
 
   .tab-open {
     width: 500px;

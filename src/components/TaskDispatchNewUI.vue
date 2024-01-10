@@ -8,9 +8,9 @@
         <div v-show="current_progress == 'select-action'" class="page-pnl">
             <div class="head-text">請選擇任務動作</div>
             <div class="actions-btn-conatiner">
-                <div @click="SelectActionHandle('move')" class="action"> <label>移動</label> </div>
-                <div @click="SelectActionHandle('unload')" class="action"> <label>取貨</label> </div>
-                <div @click="SelectActionHandle('load')" class="action"> <label>放貨</label> </div>
+                <div v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('move')" class="action"> <label>移動</label> </div>
+                <div v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('unload')" class="action"> <label>取貨</label> </div>
+                <div v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('load')" class="action"> <label>放貨</label> </div>
                 <div @click="SelectActionHandle('carry')" class="action"> <label>搬運</label> </div>
                 <div @click="SelectActionHandle('charge')" class="action"> <label>充電</label> </div>
             </div>
@@ -264,6 +264,9 @@ export default {
         }
     },
     computed: {
+        IsRunMode() {
+            return agvs_settings_store.getters.IsRunMode;
+        },
         IsShowBackTo() {
             return this.current_progress != 'select-action'
         },
@@ -305,7 +308,7 @@ export default {
         },
         AgvNameList() {
             var namelist = [];
-            if (agvs_settings_store.getters.IsRunMode) {
+            if (this.IsRunMode) {
                 namelist.push({ value: '', label: '自動選車' });
                 if (this.IsDeveloper)
                     createdAgvNameOptions(namelist);

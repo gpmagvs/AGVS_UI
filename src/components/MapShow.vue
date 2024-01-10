@@ -485,7 +485,9 @@ export default {
       },
       path_store: {
 
-      }
+      },
+      IsSelectAGVMode: false,
+      IsSelectEQStationMode: false
     }
   },
   async mounted() {
@@ -1534,7 +1536,7 @@ export default {
         source.addFeatures(features)
       }
       source.changed();
-    }
+    },
   },
 };
 </script>

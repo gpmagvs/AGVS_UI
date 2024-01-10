@@ -610,7 +610,9 @@ export default {
   }
 
   @keyframes alarm_blink {
-    0% {
+
+    0%,
+    100% {
       background-color: rgb(242, 76, 76);
       color: white;
     }
@@ -619,15 +621,12 @@ export default {
       background-color: rgb(255, 229, 234);
       color: red;
     }
-
-    100% {
-      background-color: rgb(242, 76, 76);
-      color: white;
-    }
   }
 
   @keyframes warning_blink {
-    0% {
+
+    0%,
+    100% {
       background-color: rgb(231, 197, 85);
       color: white;
     }
@@ -635,11 +634,6 @@ export default {
     50% {
       background-color: rgb(255, 229, 234);
       color: black;
-    }
-
-    100% {
-      background-color: rgb(231, 197, 85);
-      color: white;
     }
   }
 
@@ -674,5 +668,4 @@ export default {
   }
 
   .user-account {}
-}
-</style>
+}</style>
