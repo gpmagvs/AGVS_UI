@@ -159,13 +159,21 @@
               <div class="w-100" style="position: absolute; top:0;left:0">
                 <el-row class="h-50">
                   <el-col :span="3">
-                    <div class="h-100 border p-2 text-center  bg-light">ID</div>
+                    <div class="h-100 border p-2 text-center  bg-light">狀態</div>
                   </el-col>
                   <el-col :span="21">
                     <div class="h-100 border p-1">
-                      <b>{{ scope.row.TaskName }}</b>
+                      <b>{{ GetTransferProcessDescription(scope.row, scope.row.TransferProcess) }} {{ scope.row.TaskName == '' ? '' : `(${scope.row.TaskName})` }}</b>
                     </div>
                   </el-col>
+                  <!-- <el-col :span="3">
+                    <div class="h-100 border p-2 text-center  bg-light">ID</div>
+                  </el-col>
+                  <el-col :span="12">
+                    <div class="h-100 border p-1">
+                      <b>{{ scope.row.TaskName }}</b>
+                    </div>
+                  </el-col> -->
                 </el-row>
                 <el-row class="h-50">
                   <el-col :span="3">
@@ -565,6 +573,28 @@ export default {
         return "當機"
       else if (status_code == 4)
         return "充電中"
+      else
+        return "Unknown"
+    },
+    GetTransferProcessDescription(agv_data, status_code) {
+      if (agv_data.MainStatus != 2 || status_code == 0 || status_code == 9)
+        return ""
+      else if (status_code == 1)
+        return "前往來源設備"
+      else if (status_code == 2)
+        return "取貨中"
+      else if (status_code == 3)
+        return "前往終點設備"
+      else if (status_code == 4)
+        return "放貨中"
+      else if (status_code == 5)
+        return "退出充電站/WIP"
+      else if (status_code == 6)
+        return "移動中"
+      else if (status_code == 7)
+        return "前往充電站"
+      else if (status_code == 8)
+        return "停車-充電站"
       else
         return "Unknown"
     },

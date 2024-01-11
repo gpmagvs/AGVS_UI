@@ -17,8 +17,8 @@
                             <el-col :span="5">
                                 <div class="item-name">動作</div>
                             </el-col>
-                            <el-col class="item-value" :span="8">{{ selected_action_display }}</el-col>
-                            <el-col class="item-actions" :span="11">
+                            <el-col class="item-value" :span="12">{{ selected_action_display }}</el-col>
+                            <el-col class="item-actions" :span="7">
                                 <b-button size="sm" variant="link" @click="() => {
                                     HandleCancelBtnClick();
                                     action_menu_visible = true;
@@ -28,34 +28,59 @@
                             <el-col :span="5">
                                 <div class="item-name">車輛</div>
                             </el-col>
-                            <el-col class="item-value" :span="8">{{ IsAutoSelectAGV ? '自動選車' : selected_agv }}</el-col>
-                            <el-col class="item-actions" :span="11">
+                            <el-col class="item-value" :span="12">
+                                <el-select placeholder="從地圖或選單選擇車輛" @click="HandleSelectAGVFromMapBtnClick" size="large" v-model="selected_agv">
+                                    <el-option v-for="obj in AgvNameList" :key="obj.value" :label="obj.label"></el-option>
+                                </el-select>
+                            </el-col>
+                            <!-- <el-col class="item-value" :span="12">{{ IsAutoSelectAGV ? '自動選車' : selected_agv }}</el-col> -->
+                            <el-col class="item-actions" :span="7">
                                 <!-- <b-button size="sm" variant="link" @click="HandleSelectAGVFromMapBtnClick">從地圖選取</b-button> -->
-                                <b-button size="sm" variant="link" @click="() => { current_progress = 'select-agv'; is_reselecting_flag = true }">列表選取</b-button>
+                                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-agv'; is_reselecting_flag = true }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
                         <el-row v-if="selected_action == 'carry'" class="order-row" v-bind:style="source_select_row_class" @click="HandleSelectSoureStationFromMapBtnClick">
                             <el-col :span="5">
                                 <div class="item-name">來源</div>
                             </el-col>
-                            <el-col class="item-value" :span="8">{{ selected_source ? selected_source.Graph.Display : '' }}</el-col>
-                            <el-col class="item-actions" :span="11">
+                            <el-col class="item-value" :span="12">
+                                <el-select placeholder="從地圖或選單選擇來源"
+                                    @change="HandleFromSelectChanged"
+                                    @click="HandleSelectSoureStationFromMapBtnClick" size="large" v-model="selected_source.TagNumber">
+                                    <el-option v-for="tag in FromStationOptions" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
+                                </el-select>
+                                <!-- {{ selected_source ? selected_source.Graph.Display : '' }} -->
+                            </el-col>
+                            <el-col class="item-actions" :span="7">
                                 <!-- <b-button size="sm" variant="link" @click="HandleSelectSoureStationFromMapBtnClick">從地圖選取</b-button> -->
-                                <b-button size="sm" variant="link" @click="() => { current_progress = 'select-source'; is_reselecting_flag = false }">列表選取</b-button>
+                                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-source'; is_reselecting_flag = false }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
                         <el-row class="order-row" v-bind:style="destine_select_row_class" @click="HandleSelectDestineStationFromMapBtnClick">
                             <el-col :span="5">
                                 <div class="item-name">目的地</div>
                             </el-col>
-                            <el-col class="item-value" :span="8">{{ selected_destine ? selected_destine.Graph.Display : '' }}</el-col>
-                            <el-col class="item-actions" :span="11">
+                            <el-col class="item-value" :span="12">
+                                <el-select placeholder="從地圖或選單選擇目的地" @click="HandleSelectDestineStationFromMapBtnClick" size="large" v-model="selected_destine.TagNumber">
+                                    <el-option
+                                        v-for="tag in DetermineDestinOptions()"
+                                        :key="tag.tag"
+                                        :label="tag.name_display"
+                                        :value="tag.tag"></el-option>
+                                </el-select>
+                                <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
+                            </el-col>
+                            <el-col class="item-actions" :span="7">
                                 <!-- <b-button size="sm" variant="link" @click="HandleSelectDestineStationFromMapBtnClick">從地圖選取</b-button> -->
-                                <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button>
+                                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
                             <b-button @click="HandleConfirmBtnClicked" :disabled="!task_dispatch_btn_pushable" class="w-50 mx-1" variant="primary">確認派送</b-button>
+                            <b-button class="w-50 mx-1" variant="light" @click="() => {
+                                order_info_visible = false;
+                                action_menu_visible = true;
+                            }">返回選擇動作</b-button>
                             <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">取消</b-button>
                         </div>
                     </div>
@@ -86,10 +111,70 @@ import bus from '@/event-bus.js'
 import Notifier from '@/api/NotifyHelper';
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store, agvs_settings_store } from '@/store';
+import { GetEQOptions } from '@/api/EquipmentAPI'
+import { MapPointModel } from '@/components/Map/mapjs';
+import { MapStore } from '@/components/Map/store'
+
 export default {
+    data() {
+        return {
+            action_menu_visible: false,
+            order_info_visible: false,
+            selected_action: '',
+            selected_agv: '',
+            selected_source: {
+                Graph: {
+                    Display: ''
+                }
+            },
+            selected_destine: {
+                Graph: {
+                    Display: ''
+                }
+            },
+            Cst_ID_Input: '',
+            order_info_style: {
+                backgroundColor: 'rgba(255, 255, 255,.8)'
+            },
+            source_select_row_class: '',
+            destine_select_row_class: '',
+            agv_select_row_class: '',
+            map_events_bus: {
+                agv_selected: '/map/agv_selected',
+                station_selected: '/map/station_selected'
+            },
+            bypass_eq_status_check: false,
+            equipments_options: [],
+            downstream_tags: []
+        }
+    },
     computed: {
         IsRunMode() {
             return agvs_settings_store.getters.IsRunMode;
+        },
+        IsDeveloper() {
+            return userStore.getters.IsDeveloperLogining;
+        },
+        AgvNameList() {
+            var namelist = [];
+            if (this.IsRunMode) {
+                namelist.push({ value: '', label: '自動選車' });
+                if (this.IsDeveloper)
+                    createdAgvNameOptions(namelist);
+            }
+            else {
+                createdAgvNameOptions(namelist);
+            }
+
+            function createdAgvNameOptions(namelist) {
+                agv_states_store.getters.AGVNameList.forEach(element => {
+                    namelist.push({
+                        value: element,
+                        label: element
+                    });
+                });
+            }
+            return namelist;
         },
         IsShowBackTo() {
             return this.current_progress != 'select-action'
@@ -120,28 +205,28 @@ export default {
                 return (this.selected_agv != '' || this.IsAutoSelectAGV) && this.selected_source != undefined && this.selected_destine != undefined;
             else
                 return (this.selected_agv != '' || this.IsAutoSelectAGV) && this.selected_destine != undefined;
-        }
-    },
-    data() {
-        return {
-            action_menu_visible: false,
-            order_info_visible: false,
-            selected_action: '',
-            selected_agv: '',
-            selected_source: undefined,
-            selected_destine: undefined,
-            Cst_ID_Input: '',
-            order_info_style: {
-                backgroundColor: 'rgba(255, 255, 255,.8)'
-            },
-            source_select_row_class: '',
-            destine_select_row_class: '',
-            agv_select_row_class: '',
-            map_events_bus: {
-                agv_selected: '/map/agv_selected',
-                station_selected: '/map/station_selected'
-            },
-            bypass_eq_status_check: false
+        },
+        EQStations() {
+            return MapStore.getters.AllEqStation
+        },
+        bay_names() {
+
+            var bay_data = MapStore.getters.BaysData;
+            return Object.keys(bay_data).map(bay_name => ({
+                tag: bay_name,
+                name: bay_name
+            }))
+
+        },
+        FromStationOptions() {
+            var _agvOptions = agv_states_store.getters.AGVNameList.map(name => {
+                return {
+                    tag: name,
+                    name_display: name
+                }
+            })
+            var _stations = [...this.EQStations, ..._agvOptions];
+            return _stations;
         }
     },
     methods: {
@@ -153,7 +238,7 @@ export default {
             this.order_info_visible = true;
             if (action == 'carry' || action == 'unload') {
 
-                this.selected_agv = '';
+                this.selected_agv = '自動選車';
                 if (action == 'carry') {
                     this.HandleSelectSoureStationFromMapBtnClick();
                 } else {
@@ -169,7 +254,9 @@ export default {
                 this.destine_select_row_class =
                 this.agv_select_row_class = '';
             var selectedStyle = {
-                backgroundColor: 'pink'
+                backgroundColor: 'rgb(13, 110, 253)',
+                color: 'white',
+                borderRadius: '1px solid black'
             }
             if (action == 'select-agv')
                 this.agv_select_row_class = selectedStyle;
@@ -217,6 +304,7 @@ export default {
                         return;
 
                     this.selected_source = _station_data;
+                    this.HandleFromSelectChanged(this.selected_source.TagNumber);
                     this.HandleSelectDestineStationFromMapBtnClick();
                     this.HandleActionSelected('select-destine')
                 }
@@ -244,7 +332,7 @@ export default {
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
             this.order_info_visible = false;
-            this.selected_source = this.selected_destine = undefined;
+            this.selected_source = this.selected_destine = { Graph: { Display: '' } };
             this.source_select_row_class = this.destine_select_row_class = this.agv_select_row_class = '';
             bus.emit('change_to_normal_view_mode');
 
@@ -277,7 +365,7 @@ export default {
             var response = { confirm: true, message: '' }
             var _destinTag = this.selected_destine ? this.selected_destine.TagNumber : -1;
             var _sourceTag = this.selected_source ? this.selected_source.TagNumber : -1;
-            var _selected_agv = this.selected_agv;
+            var _selected_agv = this.selected_agv == '自動選車' || this.selected_agv == '' ? '' : this.selected_agv;
             if (this.selected_action == 'move') {
                 response = await TaskAllocation.MoveTask(new clsMoveTaskData(_selected_agv, _destinTag, 50));
             }
@@ -342,6 +430,45 @@ export default {
             }
 
         },
+        async HandleFromSelectChanged(source_tag) {
+
+            this.selected_destine = { TagNumber: undefined }
+            console.log(source_tag)
+
+            this.downstream_tags = [];
+            this.equipments_options = await GetEQOptions();
+            var source_eq = this.equipments_options.find(eq => eq.TagID == source_tag)
+            if (source_eq) {
+                var downstream_eq_names = source_eq.ValidDownStreamEndPointNames
+                console.info(downstream_eq_names)
+                var downstread_eq_options = this.equipments_options.filter(eq => downstream_eq_names.includes(eq.Name))
+                console.info(downstread_eq_options)
+                Object.values(downstread_eq_options).forEach(element => {
+                    this.downstream_tags.push({
+                        tag: element.TagID,
+                        name: `${element.Name}(Tag=${element.TagID})`,
+                        name_display: element.Name
+                    })
+                });
+            }
+        },
+        DetermineDestinOptions() {
+            if (this.selected_action == 'measure')
+                return this.bay_names;
+            else if (this.selected_action == 'move')
+                return MapStore.getters.AllNormalStationOptions;
+            else if (this.selected_action == 'load' || this.selected_action == 'unload')
+                return MapStore.getters.AllEqStation;
+            else if (this.selected_action == 'charge')
+                return MapStore.getters.AllChargeStation;
+            else if (this.selected_action == 'carry')
+                return this.downstream_tags;
+            else if (this.selected_action == 'exchange_battery')
+                return MapStore.getters.AllExangeBatteryStation;
+            else
+                return this.tags;
+
+        },
     }
 }
 </script>
@@ -362,7 +489,7 @@ export default {
 }
 
 .order-row {
-    height: 40px;
+    height: 52px;
     margin: 2px auto;
     //background-color: whitesmoke;
     font-size: 20px;
@@ -370,13 +497,18 @@ export default {
     padding-top: 7px;
     font-weight: bold;
     border-radius: 8px;
+    cursor: pointer;
 
     .item-name {
-        font-size: 16px
+        font-size: 22px
     }
 
     .item-value {
         color: rgb(13, 110, 253);
+
+        input {
+            color: rgb(13, 110, 253);
+        }
     }
 
     .item-actions {
@@ -386,6 +518,10 @@ export default {
             margin: auto 2px;
         }
     }
+}
+
+.order-row:hover {
+    background-color: rgb(235, 235, 235);
 }
 
 .selected-div {

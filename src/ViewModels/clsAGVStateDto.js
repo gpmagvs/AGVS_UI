@@ -23,6 +23,8 @@ class clsAGVStateDto {
       this.Port = 7025
       this.TaskSourceStationName = ""
       this.TaskDestineStationName = ""
+      this.TransferProcess = 0
+      this.OrderAction = 0
     } else {
       this.AGV_Name = dto.AGV_Name
       this.AGV_Description = dto.AGV_Description
@@ -45,6 +47,8 @@ class clsAGVStateDto {
       this.Port = dto.Port
       this.TaskSourceStationName = dto.TaskSourceStationName
       this.TaskDestineStationName = dto.TaskDestineStationName
+      this.TransferProcess = dto.TransferProcess
+      this.OrderAction = dto.OrderAction
     }
   }
 }
