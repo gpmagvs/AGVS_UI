@@ -8,6 +8,7 @@
     <el-table
       :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '16px' }"
       :data="EqDatas"
+      row-key="TagID"
       size="small"
       border
       height="680"
@@ -183,7 +184,7 @@
 </template>
 
 <script>
-import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
+import { SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import { MapStore } from '../Map/store';
 import { EqStore } from '@/store'
@@ -251,7 +252,7 @@ export default {
     async DownloadEQOptions() {
       this.EqDatas = [];
 
-      var datas = await GetEQOptions()
+      var datas = EqStore.getters.EqOptions;
       for (let index = 0; index < datas.length; index++) {
         const element = datas[index];
         element.index = index;
@@ -351,8 +352,9 @@ export default {
     }
   },
   mounted() {
-
-    this.DownloadEQOptions();
+    setTimeout(() => {
+      this.DownloadEQOptions();
+    }, 1000);
   },
   computed: {
     EqNames() {

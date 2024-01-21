@@ -19,6 +19,7 @@ export const MapStore = createStore({
             'red',
             'purple',
         ],
+        RegionOptions: null,
         worker: new Worker(''),
         mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' : `${window.location.protocol}//${window.location.host}`
     },
@@ -171,7 +172,9 @@ export const MapStore = createStore({
             })
             return options
         },
-        ControledPathesBySystem: state => state.ControledPathesBySystem
+        ControledPathesBySystem: state => state.ControledPathesBySystem,
+        RegionOptions: state => state.RegionOptions
+
     },
     mutations: {
         setMapData(state, mapdata) {
@@ -192,7 +195,11 @@ export const MapStore = createStore({
         },
         setControledPathesBySystem(state, ControledPathesBySystem) {
             state.ControledPathesBySystem = ControledPathesBySystem
+        },
+        RegionOptions(state, options) {
+            state.RegionOptions = options;
         }
+
     },
     actions: {
         async DownloadMapData({ commit, getters }) {

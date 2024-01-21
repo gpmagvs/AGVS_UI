@@ -16,14 +16,21 @@
           height="93%"
           empty-text="沒有AGV"
           :row-class-name="connected_class"
-          highlight-current-row
           style="width:100%"
+          row-key="AGV_Name"
           border
-          class="border"
           @row-click="HandleRowClick">
-          <el-table-column label="車輛名稱" prop="AGV_Name" align="center" min-width="80px" type="index">
+          <el-table-column label="車輛名稱" prop="AGV_Name" align="center" min-width="100px" type="index">
             <template #default="scope">
-              <b>{{ scope.row.AGV_Name.toUpperCase() }}</b>
+              <div class="">
+                <b>{{ scope.row.AGV_Name.toUpperCase() }}</b>
+                <b-button v-if="!IsRunMode"
+                  class="w-20 my-1 mx-2"
+                  @click="ShowAGVChargeConfirmDialog(scope.row)"
+                  size="sm"
+                  variant="warning">
+                  <i class="bi bi-lightning-charge-fill"></i> {{ group.group == 3 ? '交換電池' : '充電' }} </b-button>
+              </div>
             </template>
           </el-table-column>
           <!-- <el-table-column label="AGV ID" prop="AGV_ID"></el-table-column> -->
@@ -81,7 +88,7 @@
                     <div class="h-100 border px-1 py-2 text-center  bg-light">電量</div>
                   </el-col>
                   <el-col :span="21">
-                    <div class="h-100 border px-2 py-3 d-flex">
+                    <div class="h-100 border px-2 py-1 d-flex">
                       <b-progress class="flex-fill" :max="100" :min="0" animated>
                         <i
                           v-if="scope.row.IsCharging"
@@ -117,63 +124,18 @@
               </div>
             </template>
           </el-table-column>
-          <!-- <el-table-column label="上線狀態" prop="OnlineStatus" align="center" width="80">
-            <template #default="scope">
-              <div class="online-status-div">
-                <el-tag
-                  effect="dark"
-                  @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
-                  :type="scope.row.OnlineStatus == 0 ? 'danger' : 'success'">
-                  <b>{{ scope.row.OnlineStatus == 1 ? '已上線' : '離線中' }}</b>
-                </el-tag>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="運轉狀態"
-            prop="MainStatus"
-            :formatter="AGVStatusFormatter"
-            align="center"
-            width="80">
-            <template #default="scope">
-              <div>
-                <el-tag effect="dark" :type="AGV_Status_TagType(scope.row.MainStatus)">
-                  <b>{{ AGVStatusFormatter(scope.row) }}</b>
-                </el-tag>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="位置" prop="StationName" align="left">
-            <template #default="scope">
-              <div>
-                <i
-                  class="bi bi-geo-alt-fill"
-                  style="font-size:20px;cursor:pointer"
-                  @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
-                <b>{{ scope.row.StationName }}</b>
-              </div>
-            </template>
-          </el-table-column> -->
           <el-table-column label="任務狀態" align="left" min-width="420">
             <template #default="scope">
               <div class="w-100" style="position: absolute; top:0;left:0">
                 <el-row class="h-50">
                   <el-col :span="3">
-                    <div class="h-100 border p-2 text-center  bg-light">狀態</div>
+                    <div class="h-100 border p-2 text-center  bg-light">ID</div>
                   </el-col>
                   <el-col :span="21">
                     <div class="h-100 border p-1">
-                      <b>{{ GetTransferProcessDescription(scope.row, scope.row.TransferProcess) }} {{ scope.row.TaskName == '' ? '' : `(${scope.row.TaskName})` }}</b>
+                      <b>{{ scope.row.TaskName }} </b>
                     </div>
                   </el-col>
-                  <!-- <el-col :span="3">
-                    <div class="h-100 border p-2 text-center  bg-light">ID</div>
-                  </el-col>
-                  <el-col :span="12">
-                    <div class="h-100 border p-1">
-                      <b>{{ scope.row.TaskName }}</b>
-                    </div>
-                  </el-col> -->
                 </el-row>
                 <el-row class="h-50">
                   <el-col :span="3">
@@ -201,84 +163,26 @@
                 </el-row>
                 <el-row class="h-50">
                   <el-col :span="3">
-                    <div class="h-100 border px-1 py-2 text-center  bg-light">操作</div>
+                    <div class="h-100 border px-1 py-2 text-center  bg-light">動作</div>
                   </el-col>
-                  <el-col :span="21">
+                  <el-col :span="9">
                     <div class="h-100 border p-1 d-flex">
-                      <b-button
-                        class="w-50 my-1 mx-2"
-                        @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
-                        size="sm"
-                        :variant="scope.row.OnlineStatus == 1 ? 'danger' : 'success'"> {{ scope.row.OnlineStatus == 1 ? '下線' : '請求上線' }} </b-button>
-                      <b-button v-if="!IsRunMode"
-                        class="w-50 my-1 mx-2"
-                        @click="ShowTaskAllocationView(scope.row)"
-                        size="sm"
-                        variant="primary">
-                        <i class="bi bi-bus-front"></i>任務 </b-button>
-                      <b-button v-if="!IsRunMode"
-                        class="w-50 my-1 mx-2"
-                        @click="ShowAGVChargeConfirmDialog(scope.row)"
-                        size="sm"
-                        variant="warning">
-                        <i class="bi bi-lightning-charge-fill"></i> {{ group.group == 3 ? '交換電池' : '充電' }} </b-button>
+                      <el-tag class="h-100 w-100 "
+                        effect="light">
+                        <b> {{ GetTransferProcessDescription(scope.row, scope.row.TransferProcess) }}</b>
+                      </el-tag>
                     </div>
+                  </el-col>
+                  <el-col :span="3">
+                    <div class="h-100 border px-1 py-2 text-center  bg-light">時間</div>
+                  </el-col>
+                  <el-col :span="9">
+                    <div class="h-100 border px-1 py-2 text-center  bg-light">{{ scope.row.TaskName == '' ? '' : '預計抵達時間:' + Timeformat(scope.row.TaskETA, 'HH:mm:ss') }}</div>
                   </el-col>
                 </el-row>
               </div>
             </template>
           </el-table-column>
-          <!-- <el-table-column prop="TaskName" label="任務名稱" /> -->
-          <!-- <el-table-column label="任務">
-            <el-table-column prop="TaskName" label="名稱" />
-            <el-table-column prop="TaskRunStatus" label="狀態">
-              <template #default="scope">
-                <div
-                  v-show="scope.row.TaskName!=''"
-                >{{ this.GetTaskRunStatusString(scope.row.TaskRunStatus) }}</div>
-              </template>
-            </el-table-column>
-          </el-table-column>
-          -->
-          <!-- <el-table-column
-            v-if="group.group == 0 || group.group == 1"
-            label="載物ID"
-            prop="CurrentCarrierID"></el-table-column> -->
-          <!-- <el-table-column label="電量" prop="BatteryLevel" min-width="120">
-            <template #default="scope">
-              <div>
-                <b-progress class="flex-fill" :max="100" :min="0" animated>
-                  <i
-                    v-if="scope.row.IsCharging"
-                    v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)"
-                    style="color:white"
-                    class="bi bi-lightning-charge battery-icon"></i>
-                  <b-progress-bar
-                    :animated="true"
-                    v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)"
-                    :value="scope.row.BatteryLevel_1"
-                    :label="`${((scope.row.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
-                </b-progress>
-                <b-progress
-                  v-if="scope.row.BatteryLevel_2 != -1.0"
-                  class="flex-fill my-1"
-                  :max="100"
-                  :min="0"
-                  animated>
-                  <i
-                    v-if="scope.row.IsCharging"
-                    v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)"
-                    style="color:white"
-                    class="bi bi-lightning-charge battery-icon"></i>
-                  <b-progress-bar
-                    :animated="true"
-                    v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)"
-                    :value="scope.row.BatteryLevel_2"
-                    :label="`${((scope.row.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
-                </b-progress>
-              </div>
-            </template>
-          </el-table-column> -->
           <el-table-column width="1">
             <template #default="scope">
               <div v-bind:style="{ height: IsRunMode ? '110px' : '125px' }" class="d-flex flex-column">
@@ -386,6 +290,7 @@ import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
 import { userStore, agvs_settings_store, agv_states_store } from '@/store'
+import moment from 'moment'
 export default {
   mounted() {
   },
@@ -408,6 +313,9 @@ export default {
     },
   },
   methods: {
+    Timeformat(time, format = 'YYYY/MM/DD HH:mm:ss') {
+      return moment(time).format(format)
+    },
     HandleRowClick(row, row_) {
       //alert(row.IP + `:${row.Port}`)
     },

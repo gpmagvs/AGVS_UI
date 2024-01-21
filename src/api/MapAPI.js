@@ -14,7 +14,9 @@ export async function GetValidRegionOptions() {
   return await axios_entity
     .get('api/Map/RegionOptions')
     .then((ret) => {
-      return ret.data
+      var data = ret.data;
+      MapStore.commit('RegionOptions', data)
+      return data
     })
     .catch((err) => {
       return undefined

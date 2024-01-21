@@ -172,7 +172,8 @@ export const UIStore = createStore({
 export const EqStore = createStore({
   state: {
     EQ: [],
-    ChargeStation: {}
+    ChargeStation: {},
+    EqOptions: []
   },
   getters: {
     EQData: state => {
@@ -180,12 +181,16 @@ export const EqStore = createStore({
     },
     ChargeStationData: state => {
       return state.ChargeStation;
-    }
+    },
+    EqOptions: state => state.EqOptions,
   },
   mutations: {
     setData(state, data) {
       state.EQ = data.EQPData
       state.ChargeStation = data.ChargeStationData
+    },
+    EqOptions(state, option) {
+      state.EqOptions = option
     }
   },
   actions: {
