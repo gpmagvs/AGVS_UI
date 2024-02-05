@@ -61,7 +61,7 @@
                                 <div class="item-name">目的地</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇目的地" @click="HandleSelectDestineStationFromMapBtnClick" size="large" v-model="selected_destine.TagNumber">
+                                <el-select placeholder="從地圖或選單選擇目的地" @change="HandleDestineSelectChanged" @click="HandleSelectDestineStationFromMapBtnClick" size="large" v-model="selected_destine.TagNumber">
                                     <el-option
                                         v-for="tag in DetermineDestinOptions()"
                                         :key="tag.tag"
@@ -110,9 +110,7 @@
 import bus from '@/event-bus.js'
 import Notifier from '@/api/NotifyHelper';
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
-import { userStore, agv_states_store, agvs_settings_store } from '@/store';
-import { GetEQOptions } from '@/api/EquipmentAPI'
-import { MapPointModel } from '@/components/Map/mapjs';
+import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
 import { MapStore } from '@/components/Map/store'
 
 export default {
@@ -145,7 +143,7 @@ export default {
             },
             bypass_eq_status_check: false,
             equipments_options: [],
-            downstream_tags: []
+            downstream_options: []
         }
     },
     computed: {
@@ -276,10 +274,12 @@ export default {
             this.is_reselecting_flag = true;
             bus.on(this.map_events_bus.agv_selected, (agv_name) => {
                 this.selected_agv = agv_name;
-                if (this.selected_action == 'carry') {
+
+
+                if (this.selected_action == 'carry' && this.selected_source.Graph.Display == '') {
                     this.HandleSelectSoureStationFromMapBtnClick();
                     this.HandleActionSelected('select-source')
-                } else {
+                } else if (this.selected_destine.Graph.Display == '') {
                     this.HandleSelectDestineStationFromMapBtnClick();
                     this.HandleActionSelected('select-destine')
                 }
@@ -288,23 +288,37 @@ export default {
 
         },
         HandleSelectSoureStationFromMapBtnClick() {
+
+            this.selected_source = {
+                Graph: {
+                    Display: ''
+                }
+            };
             this.HandleActionSelected("select-source");
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
+
             bus.emit('change_to_select_eq_station_mode', { action_type: this.selected_action, direction: 'source' });
 
             this.current_progress = 'select-source';
             this.is_reselecting_flag = false;
 
+            this.selected_destine = {
+                Graph: {
+                    Display: ''
+                }
+            };
+
             bus.on(this.map_events_bus.station_selected, (_station_data) => {
                 console.info(_station_data);
-                if (_station_data.IsEquipment) {
+                if (_station_data.IsEquipment || _station_data.StationType == 4) {
 
                     if (_station_data == this.selected_destine)
                         return;
 
                     this.selected_source = _station_data;
                     this.HandleFromSelectChanged(this.selected_source.TagNumber);
+                    bus.emit('mark_as_start_station', this.selected_source.TagNumber);
                     this.HandleSelectDestineStationFromMapBtnClick();
                     this.HandleActionSelected('select-destine')
                 }
@@ -314,19 +328,37 @@ export default {
             this.HandleActionSelected("select-destine");
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
-            bus.emit('change_to_select_eq_station_mode', { action_type: this.selected_action, direction: 'destine' });
+
+            var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
+            console.info('_destine_options:', _destine_options);
+            let map_options = {
+                action_type: this.selected_action,
+                direction: 'destine',
+                stations_to_show: _destine_options
+            }
+            bus.emit('change_to_select_eq_station_mode', map_options);
             this.current_progress = 'select-destine';
             this.is_reselecting_flag = true;
             bus.on(this.map_events_bus.station_selected, (_station_data) => {
                 console.info(_station_data);
                 if (this.selected_action == 'charge' && !_station_data.IsCharge)
                     return;
-                if ((this.selected_action == 'load' || this.selected_action == 'unload' || this.selected_action == 'carry') && !_station_data.IsEquipment)
+                if ((this.selected_action == 'load' || this.selected_action == 'unload' || this.selected_action == 'carry') && (!_station_data.IsEquipment && _station_data.StationType != 4))
                     return;
-                if (this.selected_action == 'carry' && _station_data == this.selected_source)
-                    return;
+                if (this.selected_action == 'carry') {
+                    if (_station_data == this.selected_source)
+                        return;
+                    if (!this.downstream_options.some(st => st.tag == _station_data.TagNumber))
+                        return
+                }
+                console.log(this.downstream_options)
+                bus.emit('mark_as_destine_station', _station_data.TagNumber);
                 this.selected_destine = _station_data;
             })
+        },
+        async HandleDestineSelectChanged(tag) {
+            // alert(tag)
+            this.selected_destine = await MapStore.dispatch('GetMapPointByTag', tag)
         },
         HandleCancelBtnClick() {
             bus.off(this.map_events_bus.agv_selected)
@@ -432,25 +464,30 @@ export default {
         },
         async HandleFromSelectChanged(source_tag) {
 
+            this.selected_source = await MapStore.dispatch('GetMapPointByTag', source_tag)
             this.selected_destine = { TagNumber: undefined }
-            console.log(source_tag)
-
-            this.downstream_tags = [];
-            this.equipments_options = await GetEQOptions();
-            var source_eq = this.equipments_options.find(eq => eq.TagID == source_tag)
+            //console.log(source_tag)
+            this.downstream_options = this.GetDownStreamEQOptions(source_tag);
+        },
+        GetDownStreamEQOptions(sourceTag) {
+            var _results = [];
+            var _eq_options = EqStore.getters.EqOptions;
+            var source_eq = _eq_options.find(eq => eq.TagID == sourceTag)
             if (source_eq) {
+
                 var downstream_eq_names = source_eq.ValidDownStreamEndPointNames
-                console.info(downstream_eq_names)
-                var downstread_eq_options = this.equipments_options.filter(eq => downstream_eq_names.includes(eq.Name))
-                console.info(downstread_eq_options)
+                var isAllEqIsSelectable = downstream_eq_names.includes('ALL')
+                var downstread_eq_options = isAllEqIsSelectable ? _eq_options : _eq_options.filter(eq => downstream_eq_names.includes(eq.Name))
+
                 Object.values(downstread_eq_options).forEach(element => {
-                    this.downstream_tags.push({
+                    _results.push({
                         tag: element.TagID,
                         name: `${element.Name}(Tag=${element.TagID})`,
                         name_display: element.Name
                     })
                 });
             }
+            return _results;
         },
         DetermineDestinOptions() {
             if (this.selected_action == 'measure')
@@ -462,7 +499,7 @@ export default {
             else if (this.selected_action == 'charge')
                 return MapStore.getters.AllChargeStation;
             else if (this.selected_action == 'carry')
-                return this.downstream_tags;
+                return this.downstream_options;
             else if (this.selected_action == 'exchange_battery')
                 return MapStore.getters.AllExangeBatteryStation;
             else

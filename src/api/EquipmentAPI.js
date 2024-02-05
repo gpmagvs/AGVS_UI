@@ -10,7 +10,11 @@ export async function GetEQOptions() {
   var ret = await axios_entity.get(`/api/Equipment/GetEQOptions`)
   return ret.data;
 }
-
+/**GetEQSettings */
+export async function GetWIPOptions() {
+  var ret = await axios_entity.get(`/api/Equipment/GetWIPOptions`)
+  return ret.data;
+}
 /**GetEQSettings */
 export async function SaveEQOptions(options) {
   var ret = await axios_entity.post(`/api/Equipment/SaveEQOptions`, options)
@@ -61,6 +65,15 @@ export const EmuAPI = {
   }
 
 }
+
+export const RackEmuAPI = {
+  async SetSensorState(rack_name, port_id, cargo_type, sensor_number, state) {
+    var url = `/api/WIPEmu/SetSensorState?rack_id=${rack_name}&port_id=${port_id}&cargo_type=${cargo_type}&sensor_number=${sensor_number}&state=${state}`;
+    var ret = await axios_entity.get(url)
+    return ret.data;
+  }
+}
+
 
 export const ChargerAPI = {
   async SetCurveSetting(charge_station_name, item, value) {

@@ -12,6 +12,7 @@
       size="small"
       border
       height="680"
+      table-layout="fixed"
       style="width:1800px">
       <el-table-column label="Index" prop="index" width="80" align="center" fixed="left" />
       <el-table-column label="設備名稱" prop="Name" width="250" fixed="left">
@@ -51,73 +52,65 @@
           <RegionsSelector v-model="scope.row.Region"></RegionsSelector>
         </template>
       </el-table-column>
-      <el-table-column label="下游設備" width="550">
+      <el-table-column label="下游設備" width="950px">
         <template #default="scope">
-          <el-select
-            v-model="scope.row.ValidDownStreamEndPointNames"
-            multiple
-            placeholder="Select"
-            style="width: 500px">
-            <el-option
-              v-for="eq_name in GetAvaluableEqNameList(scope.row.Name)"
-              :key="eq_name"
-              :label="eq_name"
-              :value="eq_name" />
-          </el-select>
+          <div class="w-100 d-flex flex-row">
+            <el-select
+              v-model="scope.row.ValidDownStreamEndPointNames"
+              multiple
+              placeholder="Select"
+              style="width: 1000px">
+              <el-option
+                v-for="eq_name in GetAvaluableEqNameList(scope.row.Name)"
+                :key="eq_name"
+                :label="eq_name"
+                :value="eq_name" />
+            </el-select>
+            <el-button type="info" @click="() => { scope.row.ValidDownStreamEndPointNames = GetAvaluableEqNameList(scope.row.Name) }">使用所有設備</el-button>
+            <el-button type="danger" @click="() => { scope.row.ValidDownStreamEndPointNames = [] }">清除</el-button>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="連線方式" prop="ConnOptions.ConnMethod" width="140">
-        <template #default="scope">
-          <el-select v-model="scope.row.ConnOptions.ConnMethod" :size="cell_item_size">
-            <el-option label="Modbus TCP" :value="0"></el-option>
-            <el-option label="Modbus RTU" :value="1"></el-option>
-            <el-option label="TCP/IP" :value="2"></el-option>
-            <el-option label="Serial Port" :value="3"></el-option>
-          </el-select>
-        </template>
-      </el-table-column>
-      <el-table-column label="連線參數" width="120">
-        <el-table-column label="IP" prop="ConnOptions.IP" width="150">
-          <template #default="scope">
-            <el-input
-              :disabled="scope.row.ConnOptions.ConnMethod == 1"
-              v-model="scope.row.ConnOptions.IP"
-              :size="cell_item_size"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column label="Port" prop="ConnOptions.Port" width="120">
-          <template #default="scope">
-            <el-input
-              :disabled="scope.row.ConnOptions.ConnMethod == 1"
-              v-model.number="scope.row.ConnOptions.Port"
-              :size="cell_item_size"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column label="ComPort" prop="ConnOptions.ComPort" width="120">
-          <template #default="scope">
-            <el-input
-              :disabled="scope.row.ConnOptions.ConnMethod == 0"
-              v-model="scope.row.ConnOptions.ComPort"
-              :size="cell_item_size"></el-input>
-          </template>
-        </el-table-column>
-      </el-table-column>
-      <el-table-column label="操作" min-width="270" fixed="right">
+      <el-table-column label="操作" min-width="170" fixed="right">
         <template #default="scope">
           <div>
-            <el-button :size="cell_item_size" type="danger" @click="RemoveHandle(scope.row)">移除</el-button>
             <el-button
               :size="cell_item_size"
               type="default"
-              @click="ConnectTestHandle(scope.row)">通訊測試</el-button>
+              @click="ConnectionSettingBtnHandle(scope.row)">連線設定</el-button>
             <el-button
               :size="cell_item_size"
               type="primary"
               @click="IOCheckBtnHandle(scope.row)">IO點檢</el-button>
+            <el-button :size="cell_item_size" type="danger" @click="RemoveHandle(scope.row)">移除</el-button>
           </div>
         </template>
       </el-table-column>
     </el-table>
+    <el-drawer v-model="connection_setting_drawer" :title="`${selected_eq.Name}-連線設定`">
+      <div class="w-100">
+        <el-form label-position="left" label-width="100">
+          <el-form-item label="通訊方式">
+            <el-select v-model="selected_eq.ConnOptions.ConnMethod">
+              <el-option label="Modbus TCP" :value="0"></el-option>
+              <el-option label="Modbus RTU" :value="1"></el-option>
+              <el-option label="TCP/IP" :value="2"></el-option>
+              <el-option label="Serial Port" :value="3"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="IP"> <el-input
+              :disabled="selected_eq.ConnOptions.ConnMethod == 1"
+              v-model="selected_eq.ConnOptions.IP"></el-input></el-form-item>
+          <el-form-item label="PORT"> <el-input
+              :disabled="selected_eq.ConnOptions.ConnMethod == 1"
+              v-model.number="selected_eq.ConnOptions.Port"></el-input></el-form-item>
+          <el-form-item label="COMPORT"> <el-input
+              :disabled="selected_eq.ConnOptions.ConnMethod == 0"
+              v-model="selected_eq.ConnOptions.ComPort"></el-input></el-form-item>
+        </el-form>
+        <el-button type="default" @click="ConnectTestHandle(selected_eq)">通訊測試</el-button>
+      </div>
+    </el-drawer>
     <el-drawer v-model="io_check_drawer" direction="btt">
       <div class="hs-signals d-flex">
         <div class="mx-3">交握訊號-EQ</div>
@@ -198,6 +191,7 @@ export default {
     return {
       cell_item_size: '',
       io_check_drawer: false,
+      connection_setting_drawer: false,
       EqDatas: [
         // {
         //   Name: "123",
@@ -229,7 +223,9 @@ export default {
   },
   methods: {
     GetAvaluableEqNameList(expect_name) {
-      return this.EqNames.filter(name => name != expect_name);
+      var othersEqName = this.EqNames.filter(name => name != expect_name);
+
+      return ["ALL", ...othersEqName];
     },
     async SaveSettingHandler() {
       var ret = await SaveEQOptions(this.EqDatas);
@@ -287,6 +283,10 @@ export default {
     async IOCheckBtnHandle(row) {
       this.selected_eq = row;
       this.io_check_drawer = true;
+    },
+    async ConnectionSettingBtnHandle(row) {
+      this.selected_eq = row;
+      this.connection_setting_drawer = true;
     },
     async ConnectTestHandle(row) {
       var ret = await ConnectTest(row.ConnOptions)

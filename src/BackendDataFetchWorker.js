@@ -2,7 +2,7 @@ import { EqStore, agv_states_store, userStore } from "./store";
 import { MapStore } from '@/components/Map/store'
 import param from "./gpm_param";
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
-import { GetEQOptions } from '@/api/EquipmentAPI.js';
+import { GetEQOptions, GetWIPOptions } from '@/api/EquipmentAPI.js';
 
 function generateRandomUserID(length) {
     var result = '';
@@ -18,6 +18,7 @@ var user_id = generateRandomUserID(10);
 userStore.commit('setUserID', user_id);
 
 GetEQOptions().then(option => EqStore.commit('EqOptions', option));
+GetWIPOptions().then(option => EqStore.commit('WIPOptions', option));
 
 
 /**VMS數據 */

@@ -6,7 +6,7 @@
         <div class="w-100 bg-primary text-light rounded p-2 select-mode" v-if="IsSelectAGVMode">選擇 AGV</div>
         <div class="w-100 text-light rounded p-2 select-mode"
           v-if="IsSelectEQStationMode"
-          v-bind:class="SelectActionType == 'charge' ? 'bg-warning' : 'bg-primary'">{{ SelectActionType == 'charge' ? '選擇[充電站]' : `${TransferDirection == 'source' ? '選擇[來源]設備' : '選擇[終點]設備'}` }}</div>
+          v-bind:class="TaskDispatchOptions.action_type == 'charge' ? 'bg-warning' : 'bg-primary'">{{ TaskDispatchOptions.action_type == 'charge' ? '選擇[充電站]' : `${TaskDispatchOptions.direction == 'source' ? '選擇[來源]設備' : '選擇[終點]設備'}` }}</div>
         <!-- 編輯選項 -->
         <div
           v-if="editable"
@@ -328,7 +328,7 @@ import { Vector as VectorLayer } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel, clsAGVDisplay } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark } from './mapjs';
 import { MapStore } from './store'
 import { EqStore } from '@/store'
 import { Fill, Stroke, Style, Circle } from 'ol/style';
@@ -448,6 +448,14 @@ export default {
           }
         )
       }),
+      TransferTaskIconLayer: new VectorLayer({
+        source: new VectorSource(
+          {
+            features: []
+          }
+        ),
+        zIndex: 22
+      }),
       AGVFeatures: {},
       MouseCoordination: undefined,
       FeatureKeys: {
@@ -492,9 +500,11 @@ export default {
       PathesSegmentsForEdit: [],
       IsSelectAGVMode: false,
       IsSelectEQStationMode: false,
-      SelectActionType: '',
-      TransferDirection: '',
-      TextChangedOriFeatureStyle: []
+      TaskDispatchOptions: {
+        action_type: '',
+        direction: '',
+        stations_to_show: []
+      },
     }
   },
   computed: {
@@ -586,6 +596,7 @@ export default {
       this.PathLayerForRouter.getSource().clear();
       this.PointRouteLayer.getSource().clear();
       this.PointLayer.getSource().clear();
+      this.TransferTaskIconLayer.getSource().clear();
     },
     HandlePathRemoveBtnClick(path_data) {
       var index = this.PathesSegmentsForEdit.indexOf(path_data);
@@ -838,11 +849,17 @@ export default {
           } else {
             var _featureType = feature.get('feature_type')
             console.log(_featureType);
-            if (this_vue.IsSelectAGVMode && _featureType == 'agv') {
+
+            var _isAGVSelected = () => this_vue.IsSelectAGVMode && _featureType == 'agv';
+            var _isEquipmentSelected = () => this_vue.IsSelectEQStationMode && _featureType == 'station';
+
+
+            if (_isAGVSelected()) {
               var _agvname = feature.get('agvname');
               bus.emit('/map/agv_selected', _agvname)
             }
-            if (this_vue.IsSelectEQStationMode && _featureType == 'station') {
+
+            if (_isEquipmentSelected()) {
               var _station_data = feature.get('data');
               bus.emit('/map/station_selected', _station_data)
             }
@@ -1502,17 +1519,17 @@ export default {
       this.PathLayerForCoordination.setVisible(isShowSlamCoordi);
       this.PathLayerForRouter.setVisible(!isShowSlamCoordi);
 
+      this.UpdateEQLDULDFeature();
+      this.UpdateAGVLocLocation();
+      // this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
+      this.map.getView().setCenter(isShowSlamCoordi ? this.GetMidPointOfCoordinationMode() : this.GetMidPointOfRouterMode());
+      //this.SaveSettingsToLocalStorage();
+    },
+    UpdateAGVLocLocation() {
 
       this.agvs_info.AGVDisplays.forEach(agv_information => {
         this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
       })
-      this.UpdateEQLDULDFeature();
-      //路網模式
-      //this._map_stations
-
-      // this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
-      this.map.getView().setCenter(isShowSlamCoordi ? this.GetMidPointOfCoordinationMode() : this.GetMidPointOfRouterMode());
-      //this.SaveSettingsToLocalStorage();
     },
     GetMidPointOfRouterMode() {
       var map_stations_copy = [...this._map_stations]
@@ -1653,7 +1670,7 @@ export default {
         source: vectorSource,
       })
       this.map = new Map({
-        layers: [this.ImageLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
+        layers: [this.ImageLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
         target: this.id,
         view: new View({
           projection: projection,
@@ -2011,29 +2028,66 @@ export default {
     },
     /**地圖變更為選擇AGV模式 */
     ChangeToSelectAGVMode() {
-      this.AGVLocLayer.setVisible(true);
       this.RestoredFillColorOfChangedFeature();
       //把設備圖層Feature變為不明顯
       this.ChangeFeaturesAsIgnoreStyle(this.StationPointsFeatures, 'rgb(222, 222, 222)');
-
       this.IsSelectAGVMode = true;
       this.IsSelectEQStationMode = false;
+      this.AGVLocLayer.setVisible(true);
 
     },
     /**地圖變更為選擇設備站點模式 */
     ChangeToSelectEQStationMode() {
+
+      if (this.TaskDispatchOptions.direction == 'source') {
+        this.RestoredFillColorOfChangedFeature();
+        this.TransferTaskIconLayer.getSource().clear();
+      }
+      var charge_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsCharge)
+      var non_charge_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge);
+      var eq_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge && ft.get('data').StationType != 0);
+      var normal_pt_features = this.StationPointsFeatures.filter(ft => ft.get('data').StationType == 0);
+
       this.AGVLocLayer.setVisible(false);
       this.RestoredFillColorOfChangedFeature();
       //把AGV圖層Feature變為不明顯
-      this.ChangeFeaturesAsIgnoreStyle(this.AGVMapFeatures, 'rgb(222, 222, 222)');
-      if (this.SelectActionType == 'charge') {
+      this.ChangeFeaturesAsIgnoreStyle(this.AGVMapFeatures);
+      if (this.TaskDispatchOptions.action_type == 'charge') {
         //再把非充電站的Feature變為不明顯
-        var non_charge_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge)
-        this.ChangeFeaturesAsIgnoreStyle(non_charge_features, 'rgb(222, 222, 222)');
-      } else {
-        //再把充電站的Feature變為不明顯
-        var charge_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsCharge)
-        this.ChangeFeaturesAsIgnoreStyle(charge_features, 'rgb(222, 222, 222)');
+        this.ChangeFeaturesAsIgnoreStyle(non_charge_features);
+        console.info(charge_features);
+        this.ChangeFeaturesAsCandicatingStyle(charge_features);
+      }
+      else {
+        //把充電站的Feature變為不明顯
+        this.ChangeFeaturesAsIgnoreStyle(charge_features);
+        var _isMoveOrder = this.TaskDispatchOptions.action_type == 'move';
+        var _isOnlyLoadOrder = this.TaskDispatchOptions.action_type == 'load';
+        var _isOnlyUnloadOrder = this.TaskDispatchOptions.action_type == 'unload';
+        var _isChargeOrder = this.TaskDispatchOptions.action_type == 'charge';
+        var _isCarryOrder = this.TaskDispatchOptions.action_type == 'carry';
+        var _isChoiseDestine = this.TaskDispatchOptions.direction == 'destine';
+
+        if (this.TaskDispatchOptions.stations_to_show && this.TaskDispatchOptions.stations_to_show.length != 0) {
+          var tags_to_show = this.TaskDispatchOptions.stations_to_show.map((st) => st.tag);
+          var _hidden_stations_features = this.StationPointsFeatures.filter(ft => !tags_to_show.includes(ft.get('data').TagNumber));
+          var _show_stations_features = this.StationPointsFeatures.filter(ft => tags_to_show.includes(ft.get('data').TagNumber));
+          this.ChangeFeaturesAsIgnoreStyle(_hidden_stations_features);
+          this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
+        } else if (_isChoiseDestine) {
+          if (_isMoveOrder) {
+            this.ChangeFeaturesAsIgnoreStyle(eq_features);
+          } else if (_isOnlyUnloadOrder || _isOnlyLoadOrder) {
+            this.ChangeFeaturesAsIgnoreStyle(charge_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
+          } else if (_isChargeOrder) {
+            this.ChangeFeaturesAsIgnoreStyle(eq_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
+          } else {
+
+            this.ChangeFeaturesAsIgnoreStyle(this.StationPointsFeatures);
+          }
+        }
       }
       this.IsSelectAGVMode = false;
       this.IsSelectEQStationMode = true;
@@ -2042,23 +2096,28 @@ export default {
       this.AGVLocLayer.setVisible(true);
       this.RestoredFillColorOfChangedFeature();
       this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
+      this.TransferTaskIconLayer.getSource().clear();
 
     },
     RestoredFillColorOfChangedFeature() {
-      this.TextChangedOriFeatureStyle.forEach(_object => {
-        if (_object.feature)
-          _object.feature.setStyle(_object.style)
+      this.StationPointsFeatures.forEach(feature => {
+        if (feature.get('oriStyle')) {
+          feature.setStyle(feature.get('oriStyle'))
+        }
       })
-      this.TextChangedOriFeatureStyle = [];
+      this.AGVLocLayer.getSource().getFeatures().forEach(feature => {
+        if (feature.get('oriStyle')) {
+          feature.setStyle(feature.get('oriStyle'))
+        }
+      })
     },
-    ChangeFeaturesAsIgnoreStyle(features, color) {
-      let _tmp = []
+    ChangeFeaturesAsIgnoreStyle(features, color = 'rgb(222, 222, 222)') {
       features.forEach(feature => {
+        feature.set('isSelectable', false)
         var style = feature.getStyle()
         if (style) {
-          _tmp.push({ feature: feature, style: style });
+          feature.set('oriStyle', style)
           try {
-
             var newStyle = style.clone()
             var oriImage = newStyle.getImage();
             if (oriImage) {
@@ -2081,8 +2140,73 @@ export default {
           }
         }
       });
-      this.TextChangedOriFeatureStyle = [...this.TextChangedOriFeatureStyle, ..._tmp]
-      console.info(this.TextChangedOriFeatureStyle)
+
+    },
+    ChangeFeaturesAsCandicatingStyle(features, color = 'rgb(222,180,9)') {
+      features.forEach(feature => {
+        var style = feature.getStyle()
+        if (style) {
+          feature.set('oriStyle', style)
+          try {
+            var newStyle = style.clone()
+            var oriImage = newStyle.getImage();
+            if (oriImage) {
+              var newImage = oriImage.clone();
+              newImage.setScale(0.7)
+              newStyle.setImage(newImage);
+            }
+            var text = newStyle.getText();
+            if (text) {
+              text.setFont('bold 18px Calibri,sans-serif')
+              var fill = text.getFill()
+              if (fill) {
+                var newfill = fill.clone();
+                newfill.setColor(color)
+                text.setFill(newfill)
+                feature.setStyle(newStyle)
+              }
+            }
+          } catch (exception) {
+            console.info(exception);
+          }
+        }
+      });
+
+    },
+    CreateDestineMarkIcon(tagNumber) {
+      if (this.editable)
+        return;
+
+
+      var _displayText = () => {
+        var _map = {
+          'move': '目的地',
+          'carry': '搬運終點',
+          'load': '目標放貨設備',
+          'unload': '目標取貨設備',
+          'charge': '目標充電站',
+
+        }
+        return _map[this.TaskDispatchOptions.action_type];
+      }
+
+      if (this.TaskDispatchOptions.action_type != 'carry') {
+        this.TransferTaskIconLayer.getSource().clear();
+      } else {
+        var features = this.TransferTaskIconLayer.getSource().getFeatures();
+        this.TransferTaskIconLayer.getSource().removeFeature(features[1])
+      }
+      this.AddMarkIconWithText(tagNumber, _displayText());
+    },
+    AddMarkIconWithText(tagNumber, text) {
+      var station_feature = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == tagNumber);
+      if (!station_feature)
+        return;
+      var coordination = station_feature.getGeometry().getCoordinates()
+      var layerSource = this.TransferTaskIconLayer.getSource();
+      var _newFeature = CreateTransTaskMark(coordination, text);
+      layerSource.addFeature(_newFeature);
+
     }
   },
 
@@ -2134,11 +2258,11 @@ export default {
             return;
           this.ChangeToSelectAGVMode();
         })
-        bus.on('change_to_select_eq_station_mode', (data) => {
+        bus.on('change_to_select_eq_station_mode', (option) => {
           if (this.editable)
             return;
-          this.SelectActionType = data.action_type;
-          this.TransferDirection = data.direction;
+          this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
+          console.info('TaskDispatchOptions:', this.TaskDispatchOptions)
           this.ChangeToSelectEQStationMode();
         })
         bus.on('change_to_normal_view_mode', () => {
@@ -2146,9 +2270,21 @@ export default {
             return;
           this.ChangeToNormalViewMode();
         })
+        bus.on('mark_as_start_station', (tagNumber) => {
+          if (this.editable)
+            return;
+          this.TransferTaskIconLayer.getSource().clear();
+          this.AddMarkIconWithText(tagNumber, '搬運起點');
+        })
+        bus.on('mark_as_destine_station', (tagNumber) => {
+          this.CreateDestineMarkIcon(tagNumber);
+        })
         document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
           ev.preventDefault()
         })
+        setTimeout(() => {
+          this.UpdateAGVLocLocation();
+        }, 500);
         this.loading = false;
       })
     }, 500)

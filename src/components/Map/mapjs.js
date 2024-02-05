@@ -59,68 +59,82 @@ const station_colors = {
 }
 
 /**路徑顏色 */
-var pathColor = 'rgb(166, 166, 166)'
+
+var pathColor = 'rgb(222,222,222)';
 
 export function SetPathColor(color) {
     pathColor = color;
 }
 
-const eq_station_icon = new Icon({
-    src: '/images/eq-icon.png', // 设置PNG图像的路径
-    scale: 0.45,
-    anchor: [0.5, 0.5],
-    size: [64, 64],
-    opacity: 1,
-    color: 'transparent',
+function eq_station_icon(image) {
+    return new Icon({
+        src: image == '' ? '/images/eq-icon.png' : image, // 设置PNG图像的路径
+        scale: 0.45,
+        anchor: [0.5, 0.5],
+        size: [64, 64],
+        opacity: 1,
+        color: 'transparent',
 
-})
+    })
+}
 
-const charge_station_icon = new Icon({
-    src: '/images/charging-station.png', // 设置PNG图像的路径
-    scale: 0.5,
-    anchor: [0.5, 0.5],
-    size: [64, 64],
-    opacity: 1,
-    color: 'transparent'
+function charge_station_icon(image) {
+    return new Icon({
+        src: image == '' ? '/images/charging-station.png' : image, // 设置PNG图像的路径
+        scale: 0.5,
+        anchor: [0.5, 0.5],
+        size: [64, 64],
+        opacity: 1,
+        color: 'transparent'
 
-})
+    })
+}
 
-var rack_station_icon = new Icon({
-    src: '/images/rack_station.png', // 设置PNG图像的路径
-    scale: 0.45,
-    anchor: [0.5, 0.5],
-    size: [64, 64],
-    opacity: 1,
-    color: 'white'
-})
+function rack_station_icon(image) {
+    return new Icon({
+        src: image == '' ? '/images/rack.png' : image, // 设置PNG图像的路径
+        scale: 0.45,
+        anchor: [0.5, 0.5],
+        size: [64, 64],
+        opacity: 1,
+        color: 'white'
+    })
+}
 
 
-var rack_charge_station_icon = new Icon({
-    src: '/images/rack_charge_station.png', // 设置PNG图像的路径
-    scale: 0.5,
-    anchor: [0.5, 0.5],
-    size: [64, 64],
-    opacity: 1,
-    color: 'yellow'
-})
+function rack_charge_station_icon(image) {
+    return new Icon({
+        src: image == '' ? '/images/rack_charge_station.png' : image, // 设置PNG图像的路径
+        scale: 0.5,
+        anchor: [0.5, 0.5],
+        size: [64, 64],
+        opacity: 1,
+        color: 'yellow'
+    })
 
-var stocker_icon = new Icon({
-    src: '/images/stk_.jpg', // 设置PNG图像的路径
-    scale: 0.45,
-    anchor: [0.5, 0.5],
-    size: [64, 64],
-    opacity: 1,
-    color: 'white'
-})
+}
 
-var lifter_icon = new Icon({
-    src: '/images/lifter_icon.png', // 设置PNG图像的路径
-    scale: 0.35,
-    anchor: [0.5, 0.5],
-    size: [128, 128],
-    opacity: 1,
-    color: 'white'
-})
+function stocker_icon(image) {
+    return new Icon({
+        src: image == '' ? '/images/stk_.jpg' : image, // 设置PNG图像的路径
+        scale: 0.45,
+        anchor: [0.5, 0.5],
+        size: [64, 64],
+        opacity: 1,
+        color: 'white'
+    })
+}
+
+function lifter_icon(image) {
+    return new Icon({
+        src: image == '' ? '/images/lifter_icon.png' : image, // 设置PNG图像的路径
+        scale: 0.35,
+        anchor: [0.5, 0.5],
+        size: [128, 128],
+        opacity: 1,
+        color: 'white'
+    })
+}
 
 const loc_icon = new Icon({
     src: '/images/location.png', // 设置PNG图像的路径
@@ -129,6 +143,14 @@ const loc_icon = new Icon({
     size: [180, 180]
 
 })
+
+const source_station_mark = new Icon({
+    src: '/images/location.png', // 设置PNG图像的路径
+    offset: [-120, -40],
+    scale: 0.6,
+    size: [300, 300]
+})
+
 /**一般點位 */
 function normal_station_image(map_data = {}) {
     var fillColor = 'orange'
@@ -176,38 +198,77 @@ function normal_station_image(map_data = {}) {
     })
 }
 
-export function CreateLocIcon(coordinate, isStart = true) {
+export function CreateTransTaskMark(coordinate, text = '') {
+    let iconFeture = new Feature({
+        geometry: new Point(coordinate),
+    })
+    iconFeture.setStyle(new Style({
+        image: source_station_mark,
+        text: new Text({
+            text: text,
+            font: 'bold 18px Calibri,sans-serif',
+            offsetX: -7,
+            offsetY: -82,
+            fill: new Fill({
+                color: 'gold'
+            }),
+            stroke: new Stroke({
+                color: 'black',
+                width: 2,
+            }),
+            backgroundFill: new Fill({
+                color: 'black'
+            })
+        })
+    }))
+    return iconFeture;
+}
+export function CreateLocIcon(coordinate, isStart = true, text = '') {
     let iconFeture = new Feature({
         geometry: new Point(coordinate),
     })
     iconFeture.setStyle(new Style({
         image: isStart ? loc_icon : loc_icon,
+        text: new Text({
+            text: text,
+            font: 'bold 16px Calibri,sans-serif',
+            offsetX: 14,
+            offsetY: -22,
+            fill: new Fill({
+                color: 'gold'
+            }),
+            stroke: new Stroke({
+                color: 'black',
+                width: 2,
+            }),
+        })
     }))
     return iconFeture;
 }
 
-export function GetStationStyle(text = '', station_type = 0, map_data = {}) {
+export function GetStationStyle(text = '', station_type = 0, map_data) {
     var image = normal_station_image(map_data)
+
     if (station_type == 0) {
         image = normal_station_image(map_data)
     }
     else if (station_type == 1) {
-        image = eq_station_icon
+        image = eq_station_icon(map_data.Graph.ImageName)
     }
     else if (station_type == 2 || station_type == 12 || station_type == 22) {
-        image = stocker_icon
+        image = stocker_icon(map_data.Graph.ImageName)
     }
     else if (station_type == 4) {
-        image = rack_station_icon
+        image = rack_station_icon(map_data.Graph.ImageName)
     }
     else if (station_type == 5 || station_type == 6) {
-        image = rack_charge_station_icon;
+        image = rack_charge_station_icon(map_data.Graph.ImageName)
     }
     else if (station_type == 3) {
-        image = charge_station_icon
+        image = charge_station_icon(map_data.Graph.ImageName)
     }
     else if (station_type == 100 || station_type == 201) {
-        image = lifter_icon
+        image = lifter_icon(map_data.Graph.ImageName)
     }
 
     var textStyle = new Style({
@@ -240,7 +301,9 @@ export function CreateLocusPathStyles(color = 'red', width = 1) {
     ];
     return styles;
 }
+/**道路 */
 export function CreateStationPathStyles(feature, color = undefined) {
+    var _color = MapStore.getters.Settings.pathColor;
     var data = feature.get('data');
     var isEQLink = feature.get('isEqLink')
     var isPathClose = feature.get('isClose');
@@ -248,7 +311,7 @@ export function CreateStationPathStyles(feature, color = undefined) {
     const styles = [
         new Style({
             stroke: new Stroke({
-                color: isPathClose ? 'red' : pathColor,
+                color: isPathClose ? 'red' : _color,
                 width: 2.7,
                 lineDash: isEQLink ? [4, 11] : null // 虛線模式（設定虛線段的長度和間隔）
             }),
@@ -268,11 +331,11 @@ export function CreateStationPathStyles(feature, color = undefined) {
                     geometry: new Point(end),
                     image: new Icon({
                         src: 'arrow.png',
-                        anchor: [1.2, 0.5],
+                        anchor: isEQLink ? [1.8, 0.5] : [1.2, 0.5],
                         rotateWithView: true,
                         rotation: -rotation,
                         scale: 0.20,
-                        color: isPathClose ? 'red' : pathColor
+                        color: isPathClose ? 'red' : _color
                     }),
                 })
             );
@@ -281,7 +344,6 @@ export function CreateStationPathStyles(feature, color = undefined) {
                 const dx = end[0] - start[0];
                 const dy = end[1] - start[1];
                 const rotation = Math.atan2(dy, dx);
-                // arrows
                 styles.push(
                     new Style({
                         geometry: new Point(start),
@@ -358,6 +420,7 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
         return iconFeature;
 
     var _style = new Style({
+        image: undefined,
         text: new Text({
             text: "",
             font: 'bold 12px Calibri,sans-serif',
@@ -562,6 +625,7 @@ export class clsMap {
     constructor() {
         this.Version = 1;
         this.Name = undefined;
+        this.Options = new clsMapOptions();
         this.Note = '';
         this.PointIndex = 0;
         this.Map_Image_Size = [400, 400];
@@ -573,6 +637,14 @@ export class clsMap {
         this.Bays = {};
 
 
+    }
+}
+export class clsMapOptions {
+    constructor() {
+        this.pathColor = 'rgb(45,42,46)';
+        this.fontSizeOfDisplayName = 12;
+        this.fontSizeOfAsCandicates = 16;
+        this.EQIcons = []
     }
 }
 /**後端圖資模型 */
@@ -603,6 +675,7 @@ export class MapPointModel {
             Display: "",
             X: 0,
             Y: 0,
+            ImageName: '',
             IsBezierCurvePoint: false,
             BezierCurveID: ''
         }

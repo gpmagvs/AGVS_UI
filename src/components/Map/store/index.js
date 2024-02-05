@@ -20,6 +20,9 @@ export const MapStore = createStore({
             'purple',
         ],
         RegionOptions: null,
+        Settings: {
+            path_color: 'red'
+        },
         worker: new Worker(''),
         mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' : `${window.location.protocol}//${window.location.host}`
     },
@@ -50,6 +53,7 @@ export const MapStore = createStore({
         MapName: state => {
             return state.MapData == null ? "Unkown" : state.MapData.Name
         },
+        Settings: state => state.MapData.Options,
         BezierCurves: state => {
             return state.MapData == null ? {} : state.MapData.BezierCurves
         },
@@ -140,7 +144,7 @@ export const MapStore = createStore({
         },
         AllEqStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 1).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 1 || pt.StationType == 4)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllChargeStation: state => {
@@ -173,7 +177,8 @@ export const MapStore = createStore({
             return options
         },
         ControledPathesBySystem: state => state.ControledPathesBySystem,
-        RegionOptions: state => state.RegionOptions
+        RegionOptions: state => state.RegionOptions,
+        EqIcons: state => state.MapData.Options.EQIcons
 
     },
     mutations: {
@@ -246,6 +251,9 @@ export const MapStore = createStore({
             } else {
                 state.worker.postMessage({ command: 'disconnect' })
             }
+        },
+        DeleteIcon({ commit, state, getters, actions }, path) {
+            getters.MapBackednAxios.delete(`api/Map/DeleteIcon?filePath=${path}`)
         }
 
     }

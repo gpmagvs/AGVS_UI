@@ -1,7 +1,7 @@
 <template>
   <div class="rack-status-view custom-tabs-head p-1">
     <b-tabs>
-      <b-tab v-for="Rack in RacksData" :key="Rack.Name" :title="Rack.Name">
+      <b-tab v-for="Rack in WIPData" :key="Rack.WIPName" :title="Rack.WIPName">
         <div class="rack-container d-flex flex-row justify-content-center">
           <RackStatus :rack_info="Rack"></RackStatus>
         </div>
@@ -12,6 +12,7 @@
 
 <script>
 import RackStatus from '@/components/RacksStatusView/RackStatus.vue'
+import { EqStore } from '@/store'
 export default {
   components: {
     RackStatus,
@@ -20,7 +21,7 @@ export default {
     return {
       RacksData: [
         {
-          Name: "Rack-1",
+          WIPName: "Rack-1",
           Columns: 3,
           Rows: 3,
           Ports: [
@@ -30,7 +31,7 @@ export default {
           ]
         },
         {
-          Name: "Rack-2",
+          WIPName: "Rack-2",
           Columns: 4,
           Rows: 3,
           Ports: [
@@ -40,7 +41,7 @@ export default {
           ]
         },
         {
-          Name: "Rack-3",
+          WIPName: "Rack-3",
           Columns: 2,
           Rows: 3,
           Ports: [
@@ -52,10 +53,14 @@ export default {
       ]
     }
   },
+  computed: {
+    WIPData() {
+      return EqStore.getters.WIPData
+    },
+  }
 }
 </script>
 
 <style lang="scss" >
-.rack-status-view {
-}
+.rack-status-view {}
 </style>

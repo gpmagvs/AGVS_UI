@@ -15,16 +15,16 @@
         </div>
       </template>
       <div class="draw-content w-100 px-2">
-        <div class="text-start py-2">
+        <div class="text-start py-2  d-flex">
           <!-- <b-button variant="danger" @click="CancelBtnClickHandle">離開</b-button> -->
           <b-button variant="danger" @click="CancelBtnClickHandle">離開</b-button>
           <b-button variant="primary" @click="SaveBtnClickHandle">儲存</b-button>
-        </div>
-        <div class="settings px-2">
-          <div v-show="true" class="text-start">
+          <div v-show="true" class="text-start d-flex">
             <b-button size="sm" variant="primary" @click="Regist">註冊</b-button>
             <b-button size="sm" variant="danger" @click="Unregist">解註冊</b-button>
           </div>
+        </div>
+        <div class="settings px-2">
           <el-collapse v-model="activeNames">
             <el-collapse-item title="基本設定" name="1">
               <el-form label-width="120px" label-position="left">
@@ -39,6 +39,44 @@
                     <el-button
                       v-show="IsEQPoint"
                       @click="pointData_editing.Graph.Display = BindingEQInfo.Name">使用繫連的EQ名稱</el-button>
+                  </div>
+                </el-form-item>
+                <el-form-item v-if="IsEQPoint" label="顯示圖示">
+                  <div class="d-flex mx-1 bg-light" style="flex-wrap:wrap">
+                    <div class="icon-container" style="width:64px;height:84px" v-for="path in EqIcons" :key="path">
+                      <el-image
+                        v-bind:style="{
+                          border: path == pointData_editing.Graph.ImageName ? '3px solid rgb(49, 132, 253)' : ''
+                        }"
+                        style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer"
+                        :src="path"
+                        :zoom-rate="1.2"
+                        :max-scale="7"
+                        :min-scale="0.2"
+                        fit="cover"
+                        @click="HandleImageClick(path)">
+                        <template #error>
+                          <div class="image-slot"> 錯誤 </div>
+                        </template>
+                      </el-image>
+                      <b-button squared class="delete-btn" style="position:relative;bottom:26px;width:100%;" variant="danger" size="sm"
+                        @click="HandleIconDelete(path)">刪除</b-button>
+                    </div>
+                    <!-- Upload images preview2-->
+                    <el-image
+                      v-for="path in fileList" :key="path"
+                      v-bind:style="{
+                        border: path.url == pointData_editing.Graph.ImageName ? '3px solid rgb(49, 132, 253)' : ''
+                      }"
+                      style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer;border:1px dashed red"
+                      :src="path.url"
+                      :zoom-rate="1.2"
+                      :max-scale="7"
+                      :min-scale="0.2"
+                      fit="cover"
+                      @click="HandleImageClick(path)" />
+                    <el-upload v-model:file-list="fileList" :action="icon_upload_url" list-type="picture-card" :auto-upload="true" :on-success="OnIconUploadSuccess" :show-file-list="false"> 上傳圖示 </el-upload>
+                    <!-- <div v-for="path in IconGroup.EqIcons" :key="path">{{ path }}</div> -->
                   </div>
                 </el-form-item>
                 <el-form-item label="Tag">
@@ -165,7 +203,6 @@ import RegionsSelector from '@/components/RegionsSelector.vue'
 import MapAPI from '@/api/MapAPI'
 import { ElNotification } from 'element-plus'
 
-
 export default {
   components: {
     RegionsSelector
@@ -194,7 +231,8 @@ export default {
         },
         Name: "LDULD#2",
         TagID: 2
-      }
+      },
+      fileList: []
     }
   },
   mounted() {
@@ -216,7 +254,14 @@ export default {
     },
     pointsOptions() {
       return MapStore.getters.AllPointsOptions;
-    }
+    },
+    icon_upload_url() {
+      return 'http://localhost:5216/api/map/IconUpload'
+    },
+    EqIcons() {
+      return MapStore.getters.EqIcons;
+    },
+
   },
   methods: {
     async Show(ptObj) {
@@ -378,6 +423,24 @@ export default {
         }).then(() => {
           this.show = true
         })
+    },
+    HandleImageClick(path) {
+      this.pointData_editing.Graph.ImageName = path;
+    },
+    HandleUploadIconBtnClick() {
+
+    },
+    OnIconUploadPreview(file) {
+      console.info(file)
+    },
+    OnIconUploadSuccess(response, uploadFile, uploadFiles) {
+      console.info(response);
+      this.fileList = [];
+      MapStore.dispatch('DownloadMapData')
+    },
+    HandleIconDelete(path) {
+      MapStore.dispatch('DeleteIcon', path);
+      MapStore.dispatch('DownloadMapData')
     }
 
   },
@@ -391,6 +454,23 @@ export default {
   }
 
   z-index: 2;
+
+
+
+  .icon-container {
+    .delete-btn {
+      opacity: 0;
+    }
+  }
+
+  .icon-container:hover {
+    border: 1px solid blue;
+    border-radius: 5px;
+
+    .delete-btn {
+      opacity: 0.8;
+    }
+  }
 
   .draw-content {
     top: 67px;

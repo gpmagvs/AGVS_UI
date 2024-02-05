@@ -1,19 +1,19 @@
 <template>
   <div class="rack-status rounded m-3 p-1">
-    <h3>{{ rack_info.Name }}</h3>
+    <h3>{{ rack_info.WIPName }}</h3>
     <div class="my-1 d-flex flex-row">
       <div class="p-1">
         <b>水位</b>
       </div>
       <div class="flex-fill p-2">
-        <el-progress stroke-width="18" :percentage="Level" text-inside>
-          <span>{{this.HasCstPortNum }}/{{this.TotalPorts }}</span>
+        <el-progress :stroke-width="18" :percentage="Level" text-inside>
+          <span>{{ this.HasCstPortNum }}/{{ this.TotalPorts }}</span>
         </el-progress>
       </div>
     </div>
-    <div class="d-flex flex-row" v-for="row in rack_info.Rows" :key="'row-'+row">
-      <div class="d-flex flex-column" v-for="col in rack_info.Columns" :key="'col-'+col">
-        <RackPort :rack_name="rack_info.Name" :port_info="rack_info.Ports[row-1][col-1]"></RackPort>
+    <div class="d-flex flex-row" v-for="row in RowsArray(rack_info.Rows)" :key="'row-' + row">
+      <div class="d-flex flex-column" v-for="col in rack_info.Columns" :key="'col-' + col">
+        <RackPort :rack_name="rack_info.WIPName" :port_info="GetPortByColRow(col - 1, row - 1)"></RackPort>
       </div>
     </div>
   </div>
@@ -25,24 +25,53 @@ export default {
   components: {
     RackPort,
   },
+  methods: {
+    GetPortByColRow(col, row) {
+      var _ports = this.rack_info.Ports;
+      return _ports.find(port => port.Properties.Row == row && port.Properties.Column == col);
+    },
+    RowsArray(n) {
+      let arr = []
+      for (var i = n; i >= 1; i--)
+        arr.push(i)
+      return arr;
+    }
+  },
   props: {
     rack_info: {
       type: Object,
       default() {
         return {
-          Name: "Rack-1",
+          WIPName: "Rack-1",
           Rows: 3,
           Columns: 3,
           Ports: [
-            [{ Name: '7', CstExist: true }, { Name: '8', CstExist: true }, { Name: '9', CstExist: true }],
-            [{ Name: '4', CstExist: true }, { Name: '5', CstExist: true }, { Name: '6', CstExist: true }],
-            [{ Name: '1', CstExist: true }, { Name: '2', CstExist: true }, { Name: '3', CstExist: true }],
+            {
+              CargoExist: false,
+              CarrierID: null,
+              ExistSensorStates: {
+                TRAY_1: false,
+                TRAY_2: true,
+                RACK_1: false,
+                RACK_2: false
+              },
+              InstallTime: "0001-01-01T00:00:00",
+              Properties: {
+                ID: "0-0",
+                Row: 0,
+                Column: 0,
+                IOLocation: { Tray_Sensor1: 0, Tray_Sensor2: 1, Box_Sensor1: 2, Box_Sensor2: 3 },
+              },
+              RackPlacementState: 0,
+              TrayPlacementState: 0
+            },
           ]
         }
       }
     },
   },
   computed: {
+
     TotalPorts() {
       return this.rack_info.Rows * this.rack_info.Columns;
     },
@@ -50,10 +79,8 @@ export default {
       //統計有貨物的Port數量
       let count = 0;
       for (let i = 0; i < this.rack_info.Ports.length; i++) {
-        for (let j = 0; j < this.rack_info.Ports[i].length; j++) {
-          if (this.rack_info.Ports[i][j].CstExist === true) {
-            count++;
-          }
+        if (this.rack_info.Ports[i].CargoExist === true) {
+          count++;
         }
       }
       return count;
