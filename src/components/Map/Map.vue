@@ -37,6 +37,7 @@
                 v-bind:style="radio_group_style"
                 :disabled="EditorOption.EditMode != 'edit'"
                 v-model="EditorOption.EditAction"
+                @change="() => { ; RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction() }"
                 size="large">
                 <el-radio-button size="small" label="none">無</el-radio-button>
                 <el-radio-button size="small" label="add-station">新增點位[1]</el-radio-button>
@@ -48,7 +49,7 @@
                   class="mx-1"
                   :disabled="EditorOption.EditMode != 'edit'"
                   v-model="EditorOption.EditAction"
-                  @change="() => { PathEditTempStore = [] }"
+                  @change="() => { PathEditTempStore = []; RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction(); }"
                   size="large">
                   <el-radio-button size="small" label="add-path">新增路徑[4]</el-radio-button>
                   <el-radio-button size="small" label="edit-path">編輯路徑[5]</el-radio-button>
@@ -58,10 +59,29 @@
                   v-show="EditorOption.EditAction == 'add-path'"
                   class="mx-1 my-1"
                   v-model="EditorOption.AddPathMode.Direction"
-                  @change="() => { }"
+                  @change="() => { RemoveInteraction(draw_forbid_regions_interaction); }"
                   size="large">
                   <el-radio-button size="small" label="one-direction">單向</el-radio-button>
                   <el-radio-button size="small" label="bi-direction">雙向</el-radio-button>
+                </el-radio-group>
+              </div>
+              <div class="d-flex flex-column">
+                <el-radio-group
+                  class="mx-1"
+                  :disabled="EditorOption.EditMode != 'edit'"
+                  v-model="EditorOption.EditAction"
+                  size="large">
+                  <el-radio-button @click="HandleAddForbidRegionClicked(EditorOption.AddRegionMode.Mode)" size="small" label="add-forbid-region">新增管制區[7]</el-radio-button>
+                  <el-radio-button @click="HandleEditForbidRegionClicked" size="small" label="edit-forbid-region">編輯管制區[8]</el-radio-button>
+                  <el-radio-button @click="HandleDeleteForbidRegionClicked" size="small" label="remove-forbid-region">移除管制區[9]</el-radio-button>
+                </el-radio-group>
+                <el-radio-group
+                  v-show="EditorOption.EditAction == 'add-forbid-region'"
+                  class="mx-1 my-1"
+                  v-model="EditorOption.AddRegionMode.Mode"
+                  size="large">
+                  <el-radio-button @click="HandleAddForbidRegionClicked('forbid')" size="small" label="forbid">禁制區</el-radio-button>
+                  <el-radio-button @click="HandleAddForbidRegionClicked('passible')" size="small" label="passible">通行區</el-radio-button>
                 </el-radio-group>
               </div>
             </div>
@@ -142,6 +162,18 @@
             v-bind:style="{ height: canva_height, marginTop: editable ? marginTop : '0px' }"
             class="agv_map flex-fll"
             @contextmenu="showContextMenu($event)">
+            <!--提示-->
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-station'" title="使用滑鼠[右鍵]點擊地圖新增點位" type="success" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-station'" title="使用滑鼠[右鍵]選擇欲編輯之點位" type="success" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-station'" title="使用滑鼠[左鍵]選擇欲刪除之點位" type="error" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-path' && EditorOption.AddPathMode.Direction == 'one-direction'" title="使用滑鼠[左鍵]點擊地圖上任意兩個點位以新增一條單行道" type="success" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-path' && EditorOption.AddPathMode.Direction == 'bi-direction'" title="使用滑鼠[左鍵]點擊地圖上任意兩個點位以新增一條雙向道" type="success" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-path'" title="使用滑鼠[右鍵]選擇欲編輯之路徑" type="success" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-path'" title="使用滑鼠[左鍵]選擇欲刪除之路徑" type="error" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-forbid-region'" :title="`使用滑鼠[左鍵/右鍵]在地圖上繪製[${EditorOption.AddRegionMode.Mode == 'forbid' ? '禁制' : '通行'}]區(按下[ESC]可取消繪製)`" type="success" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-forbid-region'" title="使用滑鼠[左鍵]在地圖上選取欲編輯之管制區)" type="success" />
+            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-forbid-region'" title="使用滑鼠[左鍵]在地圖上點擊欲刪除之管制區" type="error" />
+            <!--  -->
             <div v-if="true" class="ol-control custom-buttons">
               <button @click="HandleSettingBtnClick">
                 <i class="bi bi-sliders"></i>
@@ -235,6 +267,20 @@
               HideNormalStations(!visible);
             }"></el-switch>
         </div>
+        <div>
+          <span class="mx-1">管制區顯示</span>
+          <el-switch
+            :disabled="map_display_mode != 'coordination'"
+            v-model="regionsVisible"
+            inactive-text="隱藏"
+            active-text="顯示"
+            inline-prompt
+            inactive-color="rgb(146, 148, 153)"
+            width="70"
+            @change="(visible) => {
+              RegionLayer.setVisible(visible && map_display_mode == 'coordination');
+            }"></el-switch>
+        </div>
         <div v-if="editable" class="rounded">
           <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
             <span class="mx-1">AGV上報點位模式</span>
@@ -266,6 +312,10 @@
       HandlePathTbRowClick(SelectedPathData);
 
     }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
+    <MapRegionEditDrawer @closed="HandleForbidRegionEditDrawerClosed" ref="forbid_region_editor"
+      :SettingsChangedHandler="() => {
+
+      }"></MapRegionEditDrawer>
     <el-dialog @closed="() => {
       if (selected_path_feature) {
         RestoreOriginalPathStyle(selected_path_feature)
@@ -318,7 +368,7 @@ import Point from 'ol/geom/Point.js';
 import VectorSource from 'ol/source/Vector.js';
 import LineString from 'ol/geom/LineString';
 import { Pointer } from 'ol/interaction'
-
+import Draw from 'ol/interaction/Draw.js';
 import Projection from 'ol/proj/Projection.js';
 import Static from 'ol/source/ImageStatic.js';
 import { getCenter } from 'ol/extent.js';
@@ -327,20 +377,25 @@ import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
-import { clsMapStation, MapPointModel, clsAGVDisplay } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark } from './mapjs';
+import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon } from './mapjs';
 import { MapStore } from './store'
 import { EqStore } from '@/store'
-import { Fill, Stroke, Style, Circle } from 'ol/style';
+import { Fill, Stroke, Style, Circle, Text } from 'ol/style';
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import MapPathSettingDrawer from './MapPathSettingDrawer.vue'
+import MapRegionEditDrawer from './MapRegionEditDrawer.vue';
 import QuicklyAction from './QuicklyActionMenu.vue'
+import { noModifierKeys } from 'ol/events/condition';
+import { ElNotification } from 'element-plus'
+
+
 
 export default {
   components: {
-    QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer
+    QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer
   },
   props: {
     editable: {
@@ -456,6 +511,14 @@ export default {
         ),
         zIndex: 22
       }),
+      RegionLayer: new VectorLayer({
+        source: new VectorSource(
+          {
+            features: []
+          }
+        ),
+        zIndex: 22
+      }),
       AGVFeatures: {},
       MouseCoordination: undefined,
       FeatureKeys: {
@@ -473,6 +536,9 @@ export default {
         EditAction: 'none',
         AddPathMode: {
           Direction: 'one-direction'
+        },
+        AddRegionMode: {
+          Mode: 'forbid' //forbid;passible
         }
       },
       /**顯示模式 : coordination 實際座標 ; router 整齊的路網*/
@@ -486,6 +552,7 @@ export default {
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
       routePathsVisible: true,
+      regionsVisible: true,
       contextMenuTop: 0,
       contextMenuLeft: 0,
       contextMenuOptions: new MapContextMenuOptions(),
@@ -505,6 +572,10 @@ export default {
         direction: '',
         stations_to_show: []
       },
+      draw_forbid_regions_interaction: undefined,
+      delete_forbid_regions_interaction: undefined,
+      edit_forbid_regions_interaction: undefined,
+      mapEditsInteraction: undefined
     }
   },
   computed: {
@@ -561,7 +632,7 @@ export default {
     },
     radio_group_style() {
       //position: relative;top: -11px;
-      if (this.EditorOption.EditAction == 'add-path')
+      if (this.EditorOption.EditAction == 'add-path' || this.EditorOption.EditAction == 'add-forbid-region')
         return {
           position: 'relative',
           top: '-15px'
@@ -569,12 +640,12 @@ export default {
       return {}
     },
     marginTop() {
-      if (this.EditorOption.EditAction == 'add-path')
+      if (this.EditorOption.EditAction == 'add-path' || this.EditorOption.EditAction == 'add-forbid-region')
         return '106px'
       return '86px';
     },
     path_view_style() {
-      if (this.EditorOption.EditAction == 'add-path')
+      if (this.EditorOption.EditAction == 'add-path' || this.EditorOption.EditAction == 'add-forbid-region')
         return {
           paddingTop: '116px'
         }
@@ -717,6 +788,14 @@ export default {
       EQLDULDStatusLayerSource.clear();
       EQLDULDStatusLayerSource.addFeatures(eqLDULDFeatures);
     },
+    UpdateForbidPointLayer() {
+      this.RegionLayer.getSource().clear();
+      var _regions = MapStore.getters.Regions;
+      _regions.forEach(element => {
+        var _RegionObj = CreateRegionPolygon(element.Name, element.PolygonCoordinations, element.RegionType);
+        this.RegionLayer.getSource().addFeatures([_RegionObj.region_feature, _RegionObj.text_feature])
+      });
+    },
     UpdateAGVLayer() {
       if (this.agv_display != 'visible')
         return;
@@ -817,7 +896,84 @@ export default {
     /**事件處理 */
     InitMapEventHandler() {
       var this_vue = this;
-      var dragInteraction = new Pointer({
+
+      this.map.on('pointermove', (event) => {
+        this.MouseCoordination = event.coordinate
+
+        var feature = this.map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
+          return feature;
+        });
+
+        if (feature) {
+          this.map.getTargetElement().style.cursor = 'pointer';
+        } else
+          this.map.getTargetElement().style.cursor = '';
+
+      })
+      this.map.on('pointerup', (e) => {
+        if (this.EditorOption.EditAction == 'add-station')
+          this.map.getTargetElement().style.cursor = 'crosshair';
+        else
+          this.map.getTargetElement().style.cursor = 'default';
+      })
+      this.map.on('pointerdown', (e) => {
+        this.map.getTargetElement().style.cursor = 'grabbing';
+      })
+      this.map.on('moveend', event => {
+        this.SaveSettingsToLocalStorage();
+
+      })
+
+
+    },
+    /**切換為刪除禁制區模式 */
+    HandleDeleteForbidRegionClicked() {
+      var _RemoveInteractions = () => {
+        this.RemoveInteraction(this.draw_forbid_regions_interaction);
+        this.RemoveInteraction(this.mapEditsInteraction);
+        this.RemoveInteraction(this.edit_forbid_regions_interaction);
+      }
+      //移除事件
+      _RemoveInteractions();
+
+      var _displayModeChanged = this.map_display_mode != 'coordination'
+      this.map_display_mode = 'coordination'
+      this.MapDisplayModeOptHandler(_displayModeChanged);
+      this.AddRemoveForbidRegionInteraction();
+
+    },
+    /**切換為編輯禁制區模式 */
+    HandleEditForbidRegionClicked() {
+      var _RemoveInteractions = () => {
+        this.RemoveInteraction(this.draw_forbid_regions_interaction);
+        this.RemoveInteraction(this.delete_forbid_regions_interaction);
+        this.RemoveInteraction(this.mapEditsInteraction);
+      }
+
+      _RemoveInteractions();
+      var _displayModeChanged = this.map_display_mode != 'coordination'
+      this.map_display_mode = 'coordination'
+      this.MapDisplayModeOptHandler(_displayModeChanged);
+      this.AddEditForbidRegionInteraction();
+    },
+    /**切換為繪製禁制區模式 */
+    HandleAddForbidRegionClicked(type) {
+      var _RemoveInteractions = () => {
+        this.RemoveInteraction(this.mapEditsInteraction);
+        this.RemoveInteraction(this.delete_forbid_regions_interaction);
+        this.RemoveInteraction(this.edit_forbid_regions_interaction);
+      }
+      _RemoveInteractions();
+      var _displayModeChanged = this.map_display_mode != 'coordination'
+      this.map_display_mode = 'coordination'
+      this.MapDisplayModeOptHandler(_displayModeChanged);
+      this.AddDrawForbidActionInteraction(type)
+
+    },
+    AddEditMapInteraction() {
+      this.RemoveForbidRegionOperationInteractions();
+      var this_vue = this;
+      this.mapEditsInteraction = new Pointer({
         /**滑鼠點下事件 */
         handleDownEvent: function (event) {
           const isRightClick = event.originalEvent.button == 2
@@ -828,6 +984,7 @@ export default {
           var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) {
             return feature;
           });
+
           this.coordinate_ = event.coordinate;
           var currentAction = this_vue.EditorOption.EditAction;
 
@@ -847,8 +1004,10 @@ export default {
             } else
               return false;
           } else {
+
+            if (feature.get('type') == 'polygon' || feature.get('type') == 'text')
+              return false;
             var _featureType = feature.get('feature_type')
-            console.log(_featureType);
 
             var _isAGVSelected = () => this_vue.IsSelectAGVMode && _featureType == 'agv';
             var _isEquipmentSelected = () => this_vue.IsSelectEQStationMode && _featureType == 'station';
@@ -1009,37 +1168,132 @@ export default {
 
         }
       });
-      this.map.addInteraction(dragInteraction);
-      this.map.on('pointermove', (event) => {
-        this.MouseCoordination = event.coordinate
-
-        var feature = this.map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-          return feature;
+      this.map.addInteraction(this.mapEditsInteraction);
+    },
+    AddDrawForbidActionInteraction(region_type = "forbid|passible") {
+      this.RemoveInteraction(this.draw_forbid_regions_interaction);
+      const value = 'Polygon';
+      var that = this;
+      var _isForbidRegion = region_type == 'forbid';
+      var _fillColor = _isForbidRegion ? 'rgba(255, 0, 0,0.5)' : 'rgba(116, 249, 42,0.5)';
+      var _strokeColor = _isForbidRegion ? 'red' : 'seagreen';
+      if (value !== 'None') {
+        this.draw_forbid_regions_interaction = new Draw({
+          source: this.RegionLayer.getSource(),
+          type: value,
+          condition: noModifierKeys,
+          style: new Style({
+            fill: new Fill({
+              color: _fillColor
+            }),
+            stroke: new Stroke({
+              color: 'blue',
+              width: 1
+            })
+          })
         });
+        ///繪製完成後的事件觸發
+        this.draw_forbid_regions_interaction.on('drawend', (event) => {
+          var currnetForbidRegionCount = _isForbidRegion ? that.GetForbidRegionCount() : that.GetPassibleRegionCount();
 
-        if (feature) {
-          this.map.getTargetElement().style.cursor = 'pointer';
-        } else
-          this.map.getTargetElement().style.cursor = '';
+          var _name = _isForbidRegion ? `禁制區-${currnetForbidRegionCount + 1}` : `通行區-${currnetForbidRegionCount + 1}`;
+          const feature = event.feature; // 獲取繪製的多邊形要素
+          feature.set('type', 'polygon')
+          feature.set('name', _name)
+          feature.set('region_type', region_type)
+          const center = feature.getGeometry().getInteriorPoint().getCoordinates();
+          console.info(center)
+          feature.setStyle(new Style({
+            fill: new Fill({
+              color: _fillColor
+            }),
+            stroke: new Stroke({
+              color: _strokeColor,
+              width: 1 // 邊框寬度,
+            })
+          }));
 
+          // 新增文字要素
+          const textFeature = new Feature({
+            geometry: new Point(center), // 文字的位置為多邊形中心點
+          });
+          textFeature.set('type', 'text')
+          textFeature.set('name', _name)
+          textFeature.set('region_type', region_type)
+
+          // 定義文字樣式
+          textFeature.setStyle(new Style({
+            text: new Text({
+              text: _name, // 使用文字內容
+              scale: 1.2, // 文字標籤的縮放比例
+              fill: new Fill({
+                color: 'black' // 文字顏色
+              })
+            })
+          }));
+          that.RegionLayer.getSource().addFeature(textFeature);
+
+
+        })
+        this.map.addInteraction(this.draw_forbid_regions_interaction);
+      }
+    },
+    AddRemoveForbidRegionInteraction() {
+      this.RemoveInteraction(this.delete_forbid_regions_interaction);
+      var _forbidRegion_source = this.RegionLayer.getSource();
+      this.delete_forbid_regions_interaction = new Pointer({
+        handleDownEvent: function (event) {
+          var _map = event.map;
+          var feature = _map.forEachFeatureAtPixel(event.pixel, function (feature) {
+            return feature;
+          });
+
+          if (!feature)
+            return;
+          var _forbidRegionName = feature.get('name');
+          _forbidRegion_source.removeFeature(feature);
+          var _textFeature = _forbidRegion_source.getFeatures().find(f => f.get('name') == _forbidRegionName);
+          _forbidRegion_source.removeFeature(_textFeature);
+          //alert(_forbidRegionName)
+          ElNotification({
+            title: '管制區修改',
+            message: `管制區-${_forbidRegionName} 已刪除`,
+            position: 'bottom-right',
+            duration: 1000,
+          })
+        }
       })
-      this.map.on('pointerup', (e) => {
-        if (this.EditorOption.EditAction == 'add-station')
-          this.map.getTargetElement().style.cursor = 'crosshair';
-        else
-          this.map.getTargetElement().style.cursor = 'default';
-      })
-      this.map.on('pointerdown', (e) => {
-        this.map.getTargetElement().style.cursor = 'grabbing';
-      })
-      this.map.on('moveend', event => {
-        this.SaveSettingsToLocalStorage();
-
-      })
-
-
+      this.map.addInteraction(this.delete_forbid_regions_interaction)
     },
 
+    AddEditForbidRegionInteraction() {
+      this.RemoveInteraction(this.edit_forbid_regions_interaction);
+      var _forbid_region_editor = this.$refs['forbid_region_editor'];
+      var _remove_keyboard_press_event_listner = this.RemoveKeyboardPressEventListener;
+      this.edit_forbid_regions_interaction = new Pointer({
+        handleDownEvent: function (event) {
+          var _map = event.map;
+          var feature = _map.forEachFeatureAtPixel(event.pixel, function (feature) {
+            return feature;
+          });
+          if (!feature || feature.get('type') != 'polygon')
+            return;
+
+          var _forbidRegionName = feature.get('name');
+          _remove_keyboard_press_event_listner();
+          _forbid_region_editor.Show(_forbidRegionName);
+        }
+      })
+      this.map.addInteraction(this.edit_forbid_regions_interaction)
+    },
+    /**移除指定的滑鼠事件 */
+    RemoveInteraction(interaction) {
+      if (interaction)
+        this.map.removeInteraction(interaction);
+    },
+    RemoveKeyboardPressEventListener() {
+      document.removeEventListener('keydown', this.EditModeKeybordEvents)
+    },
     HideNormalStations(hide) {
       var normalPtFeatures = this.StationPointsFeatures.filter(feature => feature.get('station_type') == 0)
       normalPtFeatures.forEach(feature => {
@@ -1510,7 +1764,7 @@ export default {
       }
       this.ImageLayer.setVisible(this.map_image_display == 'visible')
     },
-    MapDisplayModeOptHandler() {
+    MapDisplayModeOptHandler(setViewCenter = true) {
       var isShowSlamCoordi = this.map_display_mode == "coordination";
       this.UpdateStationPathLayer()
       this.StationNameDisplayOptHandler();
@@ -1518,12 +1772,14 @@ export default {
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
       this.PathLayerForCoordination.setVisible(isShowSlamCoordi);
       this.PathLayerForRouter.setVisible(!isShowSlamCoordi);
+      this.RegionLayer.setVisible(isShowSlamCoordi);
 
       this.UpdateEQLDULDFeature();
       this.UpdateAGVLocLocation();
-      // this.map.getView().setZoom(isShowSlamCoordi ? 4 : 1)
-      this.map.getView().setCenter(isShowSlamCoordi ? this.GetMidPointOfCoordinationMode() : this.GetMidPointOfRouterMode());
-      //this.SaveSettingsToLocalStorage();
+
+      if (setViewCenter)
+        this.map.getView().setCenter(isShowSlamCoordi ? this.GetMidPointOfCoordinationMode() : this.GetMidPointOfRouterMode());
+
     },
     UpdateAGVLocLocation() {
 
@@ -1608,12 +1864,14 @@ export default {
       })
       var mapDataSave = {
         Points: Points,
-        Pathes: this.PathesSegmentsForEdit
+        Pathes: this.PathesSegmentsForEdit,
+        Regions: this.GetRegionsDataFromLayer()
       }
       this.$emit('save', mapDataSave)
     },
+
     HandlePtSettingBtnClick() {
-      document.removeEventListener('keydown', this.EditModeKeybordEvents)
+      this.RemoveKeyboardPressEventListener();
       this.editModeContextMenuVisible = false;
       this.$refs.ptsetting.Show({
         index: this.previousSelectedFeature.get('index'),
@@ -1670,7 +1928,7 @@ export default {
         source: vectorSource,
       })
       this.map = new Map({
-        layers: [this.ImageLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
+        layers: [this.ImageLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.RegionLayer],
         target: this.id,
         view: new View({
           projection: projection,
@@ -1693,6 +1951,47 @@ export default {
       this.InitMapEventHandler();
 
     },
+    GetForbidRegionCount() {
+      var _features = this.RegionLayer.getSource().getFeatures()
+      var _polygons = _features.filter(f => f.get('type') == 'polygon' && f.get('region_type') == 'forbid')
+      return _polygons.length;
+    },
+    GetPassibleRegionCount() {
+      var _features = this.RegionLayer.getSource().getFeatures()
+      var _polygons = _features.filter(f => f.get('type') == 'polygon' && f.get('region_type') == 'passible')
+      return _polygons.length;
+    },
+    GetRegionsDataFromLayer() {
+      let output = [];
+      var _features = this.RegionLayer.getSource().getFeatures()
+
+      var _polygons = _features.filter(f => f.get('type') == 'polygon')
+
+      _polygons.forEach(polygon_feature => {
+        var _name = polygon_feature.get('name')
+        var _regionType = polygon_feature.get('region_type')
+        var flatCoordinates = polygon_feature.getGeometry().flatCoordinates;
+
+        function createPolygons(coordinates) {
+          const polygons = [];
+          let currentPolygon = [];
+          for (let i = 0; i < coordinates.length; i++) {
+            currentPolygon.push(coordinates[i]);
+            if (i % 2 === 1) {
+              // 當經過每一個頂點時，將當前多邊形的頂點數組存入多邊形陣列
+              polygons.push(currentPolygon);
+              currentPolygon = [];
+            }
+          }
+          return polygons;
+        }
+        let coordinate_list = createPolygons(flatCoordinates);
+        output.push(new MapRegion(_name ? _name : `禁制區-${GetForbidRegionCount() + 1}`, coordinate_list, _regionType == 'forbid' ? 0 : 1))
+      })
+      console.log(output)
+      return output;
+    },
+
     ResetMapCenterViaAGVLoc(agv_name) {
       //Get AGV Coordination
       var agvfeatures = this.AGVFeatures[agv_name]
@@ -1816,6 +2115,7 @@ export default {
       }
     },
     HandlePtSettingDrawerLeaved() {
+      this.RemoveKeyboardPressEventListener();
       document.addEventListener('keydown', this.EditModeKeybordEvents)
     },
     PointSettingChangedHandle(data_dto) {
@@ -1939,9 +2239,18 @@ export default {
       this.DeepClonePathSegmentData();
       this.UpdateStationPointLayer();
       this.UpdateStationPathLayer();
-      this.MapDisplayModeOptHandler();
+      this.MapDisplayModeOptHandler(false);
+      this.UpdateForbidPointLayer();
+    },
+    /**移除有關禁制區編輯的地圖交互事件們 */
+    RemoveForbidRegionOperationInteractions() {
+
+      this.RemoveInteraction(this.draw_forbid_regions_interaction);
+      this.RemoveInteraction(this.edit_forbid_regions_interaction);
+      this.RemoveInteraction(this.delete_forbid_regions_interaction);
     },
     EditModeKeybordEvents(event) {
+
       var name = event.key.toLowerCase();
       console.info(name)
       if (name == 'e') {
@@ -1951,23 +2260,46 @@ export default {
       }
       if (this.EditorOption.EditMode != 'edit')
         return;
+      if (name == 'escape') {
+
+        if (this.draw_forbid_regions_interaction)
+          this.draw_forbid_regions_interaction.abortDrawing();
+
+      }
       if (name == '1') {
+        this.RemoveForbidRegionOperationInteractions();
         this.EditorOption.EditAction = 'add-station'
+        this.AddEditMapInteraction();
       }
       if (name == '2') {
+        this.RemoveForbidRegionOperationInteractions();
         this.EditorOption.EditAction = 'edit-station'
+        this.AddEditMapInteraction();
       }
       if (name == '3') {
+        this.RemoveForbidRegionOperationInteractions();
         this.EditorOption.EditAction = 'remove-station'
+        this.AddEditMapInteraction();
       }
       if (name == '4') {
+        this.RemoveForbidRegionOperationInteractions();
         this.EditorOption.EditAction = 'add-path'
+        this.AddEditMapInteraction();
       }
       if (name == '5') {
+        this.RemoveForbidRegionOperationInteractions();
         this.EditorOption.EditAction = 'edit-path'
+        this.AddEditMapInteraction();
       }
       if (name == '6') {
+        this.RemoveForbidRegionOperationInteractions();
         this.EditorOption.EditAction = 'remove-path'
+        this.AddEditMapInteraction();
+      }
+      if (name == '7') {
+        this.EditorOption.EditAction = 'add-forbid-region'
+        this.RemoveInteraction(this.mapEditsInteraction);
+        this.AddDrawForbidActionInteraction(this.EditorOption.AddRegionMode.Mode);
       }
     },
     OpenPath_editor(feature = new Feature()) {
@@ -2002,6 +2334,10 @@ export default {
       if (this.selected_path_feature) {
         this.RestoreOriginalPathStyle(this.selected_path_feature)
       }
+    },
+    HandleForbidRegionEditDrawerClosed() {
+      document.addEventListener('keydown', this.EditModeKeybordEvents)
+
     },
     SetPathesAsBeControledStyle() {
       var path_ids = Object.keys(this.ControledPathesBySystem)
@@ -2211,8 +2547,10 @@ export default {
   },
 
   mounted() {
-    if (this.editable)
+    if (this.editable) {
+      this.RemoveKeyboardPressEventListener();
       document.addEventListener('keydown', this.EditModeKeybordEvents)
+    }
 
     this.loading = true;
     setTimeout(() => {
@@ -2225,7 +2563,7 @@ export default {
         this.RestoreSettingsFromLocalStorage();
         this.DeepClonePathSegmentData();
         this.InitMap();
-
+        this.AddEditMapInteraction();
         watch(
           () => this.map_station_data, (newval, oldval) => {
             if (!newval)
@@ -2287,7 +2625,7 @@ export default {
         }, 500);
         this.loading = false;
       })
-    }, 500)
+    }, 1000)
   },
 }
 </script>
@@ -2296,6 +2634,12 @@ export default {
 .map-component {
   width: 100%;
   height: 100%;
+
+  .notify-text {
+    .el-alert__title {
+      font-size: 20px;
+    }
+  }
 
   .select-mode {
     //animation: mode_flick 1s infinite;

@@ -66,7 +66,7 @@
                 :label="eq_name"
                 :value="eq_name" />
             </el-select>
-            <el-button type="info" @click="() => { scope.row.ValidDownStreamEndPointNames = GetAvaluableEqNameList(scope.row.Name) }">使用所有設備</el-button>
+            <el-button type="default" @click="() => { scope.row.ValidDownStreamEndPointNames = GetAvaluableEqNameList(scope.row.Name) }">使用所有設備</el-button>
             <el-button type="danger" @click="() => { scope.row.ValidDownStreamEndPointNames = [] }">清除</el-button>
           </div>
         </template>
@@ -78,10 +78,10 @@
               :size="cell_item_size"
               type="default"
               @click="ConnectionSettingBtnHandle(scope.row)">連線設定</el-button>
-            <el-button
+            <!-- <el-button
               :size="cell_item_size"
               type="primary"
-              @click="IOCheckBtnHandle(scope.row)">IO點檢</el-button>
+              @click="IOCheckBtnHandle(scope.row)">IO點檢</el-button> -->
             <el-button :size="cell_item_size" type="danger" @click="RemoveHandle(scope.row)">移除</el-button>
           </div>
         </template>

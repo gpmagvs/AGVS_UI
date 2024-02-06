@@ -55,6 +55,7 @@ export default {
       var mapData = JSON.parse(JSON.stringify(MapStore.getters.MapData))
       mapData.Points = mapDataSave.Points;
       mapData.Segments = mapDataSave.Pathes;
+      mapData.Regions = mapDataSave.Regions;
       var _check_result = this.CheckMapContentHasAnyError(mapData);
       if (!_check_result.correct) {
         this.$swal.fire(

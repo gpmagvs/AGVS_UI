@@ -97,6 +97,12 @@ export const MapStore = createStore({
             else
                 return {}
         },
+        Regions: (state) => {
+            if (state.MapData.Regions)
+                return state.MapData.Regions
+            else
+                return []
+        },
         AGVDynamicPathInfo: state => {
 
             return state.AGVDynamicPathInfo
@@ -254,8 +260,11 @@ export const MapStore = createStore({
         },
         DeleteIcon({ commit, state, getters, actions }, path) {
             getters.MapBackednAxios.delete(`api/Map/DeleteIcon?filePath=${path}`)
+        },
+        GetRegionByName({ state, getters }, name) {
+            var _forbid_regions = getters.Regions
+            return _forbid_regions.find(reg => reg.Name == name)
         }
-
     }
 }
 )

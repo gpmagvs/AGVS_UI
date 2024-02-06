@@ -1,6 +1,7 @@
 
 import { Circle, Fill, Icon, Stroke, Style, Text, RegularShape } from 'ol/style.js';
 import Point from 'ol/geom/Point.js';
+import { Polygon } from 'ol/geom';
 import Feature from 'ol/Feature';
 import { Rectangle } from 'leaflet';
 import { MapStore } from './store';
@@ -443,6 +444,50 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
 }
 
 
+/**生成禁制區 */
+export function CreateRegionPolygon(name = "禁制區", polygon_coordinations = [], region_type = 0 | 1) {
+
+    var _isForbidRegion = region_type == 0;
+    var _fillColor = _isForbidRegion ? 'rgba(255, 0, 0,0.5)' : 'rgba(116, 249, 42,0.5)';
+    var _strokeColor = _isForbidRegion ? 'red' : 'seagreen';
+    var _region_type = _isForbidRegion ? 'forbid' : 'passible';
+    var polygon = new Feature(
+        new Polygon([polygon_coordinations])
+    );
+    polygon.setStyle(new Style({
+        fill: new Fill({
+            color: _fillColor
+        }),
+        stroke: new Stroke({
+            color: _strokeColor,
+            width: 1 // 邊框寬度,
+        })
+    }));
+    polygon.set('type', "polygon")
+    polygon.set('name', name)
+    polygon.set('region_type', _region_type)
+    const center = polygon.getGeometry().getInteriorPoint().getCoordinates();
+    // 新增文字標籤
+    var text = new Feature({
+        geometry: new Point(center),
+        name: name
+    });
+    text.set('type', "text")
+    text.set('name', name)
+    text.set('region_type', _region_type)
+
+    text.setStyle(new Style({
+        text: new Text({
+            text: text.get('name'),
+            scale: 1.2,
+            fill: new Fill({
+                color: 'black'
+            })
+        })
+    }));
+    return { region_feature: polygon, text_feature: text }
+}
+
 function GetCargoIcon(cargo_type, exist = false) {
     if (!exist)
         return null
@@ -635,8 +680,7 @@ export class clsMap {
         this.Pathes = [];
         this.Segments = [];
         this.Bays = {};
-
-
+        this.Regions = [new MapRegion()]
     }
 }
 export class clsMapOptions {
@@ -708,6 +752,13 @@ export class MapPointModel {
     }
 }
 
+export class MapRegion {
+    constructor(name, coordinations, region_type = 0 | 1) {
+        this.Name = name
+        this.PolygonCoordinations = coordinations
+        this.RegionType = region_type
+    }
+}
 export class MapContextMenuOptions {
     constructor() {
         this.title = 'title'
