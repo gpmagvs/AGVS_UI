@@ -342,6 +342,8 @@ export default {
     HandleEqNameChange(row, newName) {
       var tagid = row.TagID;
       var oriOptions = this.EqDatas_Orignal.find(d => d.TagID == tagid);
+      if (!oriOptions)
+        return;
       var oriName = oriOptions.Name;
       var useOriNameOptionsList = this.EqDatas.filter(eq => eq.ValidDownStreamEndPointNames.includes(oriName));
       useOriNameOptionsList.forEach(option => {
