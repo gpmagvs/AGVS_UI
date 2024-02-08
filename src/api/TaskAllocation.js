@@ -174,6 +174,10 @@ export var TaskAllocation = {
   async ChargeTask(clsChargeTaskData) {
     return await CallAPI('/api/Task/Charge', clsChargeTaskData)
   },
+  async CancelChargeTask(agv_name) {
+    var response = await axios_entity.get(`/api/Task/CancelChargeTask?agv_name=${agv_name}`)
+    return response.data;
+  },
   async ExangeBatteryTask(clsExangeBatteryTaskData) {
     return await CallAPI('/api/Task/ExangeBattery', clsExangeBatteryTaskData)
   },

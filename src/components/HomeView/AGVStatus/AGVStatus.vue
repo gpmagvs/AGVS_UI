@@ -445,8 +445,54 @@ export default {
           }
         })
     },
-    AGVChargeTask() {
-      TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))
+    async AGVChargeTask() {
+      var result = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))
+      console.log(result)
+      this.HandleChargeTaskDispatchResult(result);
+    },
+    HandleChargeTaskDispatchResult(result) {
+      if (!result.data.confirm) {
+        if (result.data.alarm_code == 82) {
+          this.$swal.fire(
+            {
+              text: '是否要改為指派新的充電任務',
+              title: result.data.message,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            }).then(async (response) => {
+              if (response.isConfirmed) {
+                var _result = await TaskAllocation.CancelChargeTask(this.Agv_Selected);
+                if (!_result.confirm) {
+                  this.$swal.fire(
+                    {
+                      text: '',
+                      title: _result.message,
+                      icon: 'error',
+                      showCancelButton: false,
+                      confirmButtonText: 'OK',
+                      customClass: 'my-sweetalert'
+                    })
+                }
+                else {
+                  this.AGVChargeTask()
+                }
+              }
+            })
+        } else {
+          this.$swal.fire(
+            {
+              text: result.data.alarm_code,
+              title: result.data.message,
+              icon: 'error',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            })
+        }
+
+      }
     },
     AGV_Status_TagType(status_code) {
       if (status_code == 1)
