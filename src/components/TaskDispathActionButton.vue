@@ -1,12 +1,13 @@
 <template>
     <el-popover
-        placement="left-start"
-        :visible="action_menu_visible"
+        placement="right"
+        :visible="action_menu_visible && !order_info_visible"
         :width="200"
+        effect="dark"
         content="">
         <template #reference>
             <div class="task-dispatch-btn-container">
-                <el-popover :popper-style="order_info_style" :visible="order_info_visible" placement="left-start" :width="475">
+                <el-popover :show-arrow="false" :popper-style="order_info_style" :visible="order_info_visible" placement="right-start" :width="435">
                     <template #reference>
                         <span></span>
                     </template>
@@ -85,7 +86,7 @@
                         </div>
                     </div>
                 </el-popover>
-                <b-button squared variant="primary" @click="() => {
+                <b-button v-show="!order_info_visible" squared variant="primary" @click="() => {
                     // $emit('on-click');
                     if (action_menu_visible) {
                         action_menu_visible = false;
@@ -132,7 +133,7 @@ export default {
             },
             Cst_ID_Input: '',
             order_info_style: {
-                backgroundColor: 'rgba(255, 255, 255,.8)'
+                // backgroundColor: 'rgba(255, 255, 255,.8)'
             },
             source_select_row_class: '',
             destine_select_row_class: '',
@@ -514,22 +515,22 @@ export default {
 .task-dispatch-btn-container {
     position: fixed;
     bottom: 40px;
-    right: 15px;
+    left: 68px;
     z-index: 10;
 
     button {
-        font-size: 40px;
+        font-size: 30px;
     }
 
-    box-shadow: -3px 0px 24px 3px rgb(61, 61, 61);
+    box-shadow: 4px -1px 14px 1px rgb(61, 61, 61);
 
 }
 
 .order-row {
-    height: 52px;
+    height: 53px;
     margin: 2px auto;
     //background-color: whitesmoke;
-    font-size: 20px;
+    font-size: 15px;
     padding-left: 12px;
     padding-top: 7px;
     font-weight: bold;
@@ -537,7 +538,7 @@ export default {
     cursor: pointer;
 
     .item-name {
-        font-size: 22px
+        font-size: 17px
     }
 
     .item-value {

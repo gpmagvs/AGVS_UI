@@ -142,7 +142,7 @@ export default {
         if (response != undefined) {
           if (response.confirm) {
             this.dialogVisible = false;
-            this.$swal.fire({ title: '登入成功!', icon: 'success', timer: 3000 })
+            this.$swal.fire({ title: '登入成功!', icon: 'success', timer: 2000 })
           } else {
             this.message = response.message;
           }
@@ -161,7 +161,7 @@ export default {
         bus.emit('/logout', undefined);
         this.$emit('RoleChanged', 0);
         this.UserName = this.Password = '';
-        this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 3000 })
+        this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 2000 })
         setTimeout(() => {
           //this.dialogVisible = this.isLogin = false;
           if (this.$route.meta.isAdminUse) {

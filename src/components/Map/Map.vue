@@ -1,7 +1,6 @@
 <template>
   <div id="map" class="map-component">
-    <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
-    <div class="d-flex h-100">
+    <div class="d-flex flex-row h-100">
       <div class="flex-fill d-flex flex-column">
         <div class="w-100 bg-primary text-light rounded p-2 select-mode" v-if="IsSelectAGVMode">選擇 AGV</div>
         <div class="w-100 text-light rounded p-2 select-mode"
@@ -10,12 +9,12 @@
         <!-- 編輯選項 -->
         <div
           v-if="editable"
-          class="editor-option fixed-top bg-light"
-          style="margin-top:49px;margin-left:70px">
+          class="editor-option bg-light"
+          style="margin-top:24px">
           <div class="edit-block action-buttons">
-            <b-button variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
-            <b-button variant="danger" @click="ReloadMap">重新載入</b-button>
-            <b-button variant="danger" @click="ClearMap">清除資料</b-button>
+            <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
+            <b-button size="sm" variant="danger" @click="ReloadMap">重新載入</b-button>
+            <b-button size="sm" variant="danger" @click="ClearMap">重置圖資</b-button>
           </div>
           <div class="d-flex">
             <div class="edit-block">
@@ -95,8 +94,7 @@
           <div
             v-if="EditorOption.EditMode == 'edit' && editable"
             v-bind:class="left_tab_class_name"
-            class="border bg-light"
-            v-bind:style="path_view_style">
+            class="border bg-light">
             <div class="p-0 m-0 w-100" v-if="left_tab_class_name == 'tab-close'">
               <i
                 @click="() => {
@@ -156,144 +154,146 @@
               </b-tabs>
             </div>
           </div>
-          <!-- map render -->
-          <div
-            :id="id"
-            v-bind:style="{ height: canva_height, marginTop: editable ? marginTop : '0px' }"
-            class="agv_map flex-fll"
-            @contextmenu="showContextMenu($event)">
-            <!--提示-->
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-station'" title="使用滑鼠[右鍵]點擊地圖新增點位" type="success" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-station'" title="使用滑鼠[右鍵]選擇欲編輯之點位" type="success" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-station'" title="使用滑鼠[左鍵]選擇欲刪除之點位" type="error" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-path' && EditorOption.AddPathMode.Direction == 'one-direction'" title="使用滑鼠[左鍵]點擊地圖上任意兩個點位以新增一條單行道" type="success" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-path' && EditorOption.AddPathMode.Direction == 'bi-direction'" title="使用滑鼠[左鍵]點擊地圖上任意兩個點位以新增一條雙向道" type="success" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-path'" title="使用滑鼠[右鍵]選擇欲編輯之路徑" type="success" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-path'" title="使用滑鼠[左鍵]選擇欲刪除之路徑" type="error" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-forbid-region'" :title="`使用滑鼠[左鍵/右鍵]在地圖上繪製[${EditorOption.AddRegionMode.Mode == 'forbid' ? '禁制' : '通行'}]區(按下[ESC]可取消繪製)`" type="success" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-forbid-region'" title="使用滑鼠[左鍵]在地圖上選取欲編輯之管制區)" type="success" />
-            <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-forbid-region'" title="使用滑鼠[左鍵]在地圖上點擊欲刪除之管制區" type="error" />
-            <!--  -->
-            <div v-if="true" class="ol-control custom-buttons">
-              <button @click="HandleSettingBtnClick">
-                <i class="bi bi-sliders"></i>
-              </button>
-              <button @click="HandleSettingBtnClick">?</button>
-              <!-- <button>2</button> -->
+          <div class="w-100 d-flex flex-row">
+            <!-- Map Render -->
+            <div
+              :id="id"
+              v-bind:style="{ height: canva_height }"
+              class="agv_map flex-fll"
+              @contextmenu="showContextMenu($event)">
+              <!--提示-->
+              <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-station'" title="使用滑鼠[右鍵]點擊地圖新增點位" type="success" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-station'" title="使用滑鼠[右鍵]選擇欲編輯之點位" type="success" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-station'" title="使用滑鼠[左鍵]選擇欲刪除之點位" type="error" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-path' && EditorOption.AddPathMode.Direction == 'one-direction'" title="使用滑鼠[左鍵]點擊地圖上任意兩個點位以新增一條單行道" type="success" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-path' && EditorOption.AddPathMode.Direction == 'bi-direction'" title="使用滑鼠[左鍵]點擊地圖上任意兩個點位以新增一條雙向道" type="success" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-path'" title="使用滑鼠[右鍵]選擇欲編輯之路徑" type="success" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-path'" title="使用滑鼠[左鍵]選擇欲刪除之路徑" type="error" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-forbid-region'" :title="`使用滑鼠[左鍵/右鍵]在地圖上繪製[${EditorOption.AddRegionMode.Mode == 'forbid' ? '禁制' : '通行'}]區(按下[ESC]可取消繪製)`" type="success" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-forbid-region'" title="使用滑鼠[左鍵]在地圖上選取欲編輯之管制區)" type="success" />
+              <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-forbid-region'" title="使用滑鼠[左鍵]在地圖上點擊欲刪除之管制區" type="error" />
+              <!--  -->
+              <div v-if="true" class="ol-control custom-buttons">
+                <button @click="HandleSettingBtnClick">
+                  <i class="bi bi-sliders"></i>
+                </button>
+                <button @click="HandleSettingBtnClick">?</button>
+                <!-- <button>2</button> -->
+              </div>
+              <div class="ol-control cursour-coordination-show">
+                <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
+              </div>
+              <!-- <QuicklyAction></QuicklyAction> -->
             </div>
-            <div class="ol-control cursour-coordination-show">
-              <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
+            <!-- 設定 -->
+            <div
+              class="options bg-light border-start text-start px-1 py-3">
+              <div v-if="station_show" class="rounded d-flex flex-column">
+                <span class="border-bottom">顯示名稱</span>
+                <el-radio-group
+                  v-model="station_name_display_mode"
+                  @change="StationNameDisplayOptHandler">
+                  <el-radio label="index" size="large">Index</el-radio>
+                  <el-radio label="name" size="large">Name</el-radio>
+                  <el-radio label="tag" size="large">Tag</el-radio>
+                </el-radio-group>
+              </div>
+              <div>
+                <span class="mx-1">地圖模式</span>
+                <el-switch
+                  @change="MapDisplayModeOptHandler"
+                  inactive-value="router"
+                  active-value="coordination"
+                  width="70"
+                  v-model="map_display_mode"
+                  inline-prompt
+                  inactive-text="路網"
+                  active-text="Slam"
+                  inactive-color="seagreen"></el-switch>
+              </div>
+              <div v-if="agv_show">
+                <span class="mx-1">AGV 顯示</span>
+                <el-switch
+                  @change="AgvDisplayOptHandler"
+                  inactive-value="none"
+                  active-value="visible"
+                  width="70"
+                  v-model="agv_display"
+                  inline-prompt
+                  inactive-text="隱藏"
+                  active-text="顯示"
+                  inactive-color="rgb(146, 148, 153)"></el-switch>
+              </div>
+              <div>
+                <span class="mx-1">地圖背景</span>
+                <el-switch
+                  v-model="map_image_display"
+                  inactive-value="none"
+                  inactive-text="隱藏"
+                  active-value="visible"
+                  active-text="顯示"
+                  inactive-color="rgb(146, 148, 153)"
+                  inline-prompt
+                  width="70"
+                  @change="SlamImageDisplayOptHandler"></el-switch>
+              </div>
+              <div>
+                <span class="mx-1">路網顯示</span>
+                <el-switch
+                  v-model="routePathsVisible"
+                  inactive-text="隱藏"
+                  active-text="顯示"
+                  inline-prompt
+                  inactive-color="rgb(146, 148, 153)"
+                  width="70"
+                  @change="(visible) => {
+                    if (visible) {
+                      if (map_display_mode == 'router') {
+                        PathLayerForCoordination.setVisible(false);
+                        PathLayerForRouter.setVisible(true);
+                      } else {
+                        PathLayerForCoordination.setVisible(true);
+                        PathLayerForRouter.setVisible(false);
+                      }
+                    } else {
+                      PathLayerForCoordination.setVisible(false);
+                      PathLayerForRouter.setVisible(false);
+                    }
+                    HideNormalStations(!visible);
+                  }"></el-switch>
+              </div>
+              <div>
+                <span class="mx-1">管制區顯示</span>
+                <el-switch
+                  :disabled="map_display_mode != 'coordination'"
+                  v-model="regionsVisible"
+                  inactive-text="隱藏"
+                  active-text="顯示"
+                  inline-prompt
+                  inactive-color="rgb(146, 148, 153)"
+                  width="70"
+                  @change="(visible) => {
+                    RegionLayer.setVisible(visible && map_display_mode == 'coordination');
+                  }"></el-switch>
+              </div>
+              <div v-if="editable" class="rounded">
+                <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
+                  <span class="mx-1">AGV上報點位模式</span>
+                </el-tooltip>
+                <el-switch
+                  class="my-2"
+                  inactive-text="OFF"
+                  active-text="ON"
+                  inline-prompt
+                  width="70"
+                  v-model="agv_upload_coordination_mode"
+                  @change="HandleAGVUploadCorrdinationChanged"></el-switch>
+              </div>
             </div>
-            <!-- <QuicklyAction></QuicklyAction> -->
           </div>
         </div>
         <MapSettingsDialog ref="settings"></MapSettingsDialog>
-      </div>
-      <!-- 設定 -->
-      <div
-        class="options bg-light border-start text-start px-1 py-3"
-        v-bind:style="{ marginTop: editable ? marginTop : '0px' }">
-        <div v-if="station_show" class="rounded d-flex flex-column">
-          <span class="border-bottom">顯示名稱</span>
-          <el-radio-group
-            v-model="station_name_display_mode"
-            @change="StationNameDisplayOptHandler">
-            <el-radio label="index" size="large">Index</el-radio>
-            <el-radio label="name" size="large">Name</el-radio>
-            <el-radio label="tag" size="large">Tag</el-radio>
-          </el-radio-group>
-        </div>
-        <div>
-          <span class="mx-1">地圖模式</span>
-          <el-switch
-            @change="MapDisplayModeOptHandler"
-            inactive-value="router"
-            active-value="coordination"
-            width="70"
-            v-model="map_display_mode"
-            inline-prompt
-            inactive-text="路網"
-            active-text="Slam"
-            inactive-color="seagreen"></el-switch>
-        </div>
-        <div v-if="agv_show">
-          <span class="mx-1">AGV 顯示</span>
-          <el-switch
-            @change="AgvDisplayOptHandler"
-            inactive-value="none"
-            active-value="visible"
-            width="70"
-            v-model="agv_display"
-            inline-prompt
-            inactive-text="隱藏"
-            active-text="顯示"
-            inactive-color="rgb(146, 148, 153)"></el-switch>
-        </div>
-        <div>
-          <span class="mx-1">地圖背景</span>
-          <el-switch
-            v-model="map_image_display"
-            inactive-value="none"
-            inactive-text="隱藏"
-            active-value="visible"
-            active-text="顯示"
-            inactive-color="rgb(146, 148, 153)"
-            inline-prompt
-            width="70"
-            @change="SlamImageDisplayOptHandler"></el-switch>
-        </div>
-        <div>
-          <span class="mx-1">路網顯示</span>
-          <el-switch
-            v-model="routePathsVisible"
-            inactive-text="隱藏"
-            active-text="顯示"
-            inline-prompt
-            inactive-color="rgb(146, 148, 153)"
-            width="70"
-            @change="(visible) => {
-              if (visible) {
-                if (map_display_mode == 'router') {
-                  PathLayerForCoordination.setVisible(false);
-                  PathLayerForRouter.setVisible(true);
-                } else {
-                  PathLayerForCoordination.setVisible(true);
-                  PathLayerForRouter.setVisible(false);
-                }
-              } else {
-                PathLayerForCoordination.setVisible(false);
-                PathLayerForRouter.setVisible(false);
-              }
-              HideNormalStations(!visible);
-            }"></el-switch>
-        </div>
-        <div>
-          <span class="mx-1">管制區顯示</span>
-          <el-switch
-            :disabled="map_display_mode != 'coordination'"
-            v-model="regionsVisible"
-            inactive-text="隱藏"
-            active-text="顯示"
-            inline-prompt
-            inactive-color="rgb(146, 148, 153)"
-            width="70"
-            @change="(visible) => {
-              RegionLayer.setVisible(visible && map_display_mode == 'coordination');
-            }"></el-switch>
-        </div>
-        <div v-if="editable" class="rounded">
-          <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
-            <span class="mx-1">AGV上報點位模式</span>
-          </el-tooltip>
-          <el-switch
-            class="my-2"
-            inactive-text="OFF"
-            active-text="ON"
-            inline-prompt
-            width="70"
-            v-model="agv_upload_coordination_mode"
-            @change="HandleAGVUploadCorrdinationChanged"></el-switch>
-        </div>
       </div>
     </div>
     <PointContextMenu
@@ -390,12 +390,10 @@ import MapRegionEditDrawer from './MapRegionEditDrawer.vue';
 import QuicklyAction from './QuicklyActionMenu.vue'
 import { noModifierKeys } from 'ol/events/condition';
 import { ElNotification } from 'element-plus'
-
-
-
 export default {
   components: {
-    QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer
+    QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer,
+
   },
   props: {
     editable: {
@@ -639,20 +637,7 @@ export default {
         }
       return {}
     },
-    marginTop() {
-      if (this.EditorOption.EditAction == 'add-path' || this.EditorOption.EditAction == 'add-forbid-region')
-        return '106px'
-      return '86px';
-    },
-    path_view_style() {
-      if (this.EditorOption.EditAction == 'add-path' || this.EditorOption.EditAction == 'add-forbid-region')
-        return {
-          paddingTop: '116px'
-        }
-      return {
-        paddingTop: '86px'
-      }
-    }
+
   },
   methods: {
     GetPointName(index) {
@@ -662,12 +647,26 @@ export default {
       }
     },
     ClearMap() {
-      this.PathesSegmentsForEdit = [];
-      this.PathLayerForCoordination.getSource().clear();
-      this.PathLayerForRouter.getSource().clear();
-      this.PointRouteLayer.getSource().clear();
-      this.PointLayer.getSource().clear();
-      this.TransferTaskIconLayer.getSource().clear();
+      this.$swal.fire(
+        {
+          text: '地圖資料將會被清空，變成空白地圖',
+          title: '確定要重置地圖?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (!res.isConfirmed)
+            return;
+          this.PathesSegmentsForEdit = [];
+          this.PathLayerForCoordination.getSource().clear();
+          this.PathLayerForRouter.getSource().clear();
+          this.PointRouteLayer.getSource().clear();
+          this.PointLayer.getSource().clear();
+          this.TransferTaskIconLayer.getSource().clear();
+        })
+
     },
     HandlePathRemoveBtnClick(path_data) {
       var index = this.PathesSegmentsForEdit.indexOf(path_data);
@@ -1248,7 +1247,7 @@ export default {
             return feature;
           });
 
-          if (!feature)
+          if (!feature || feature.get('type') != 'polygon')
             return;
           var _forbidRegionName = feature.get('name');
           _forbidRegion_source.removeFeature(feature);

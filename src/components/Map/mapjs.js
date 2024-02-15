@@ -173,7 +173,11 @@ function normal_station_image(map_data = {}) {
 
             if (map_data.IsVirtualPoint) {
                 fillColor = 'grey'
-            } else {
+            }
+            else if (map_data.IsTrafficCheckPoint) {
+                fillColor = 'rgb(13, 110, 253)'
+            }
+            else {
                 fillColor = 'orange'
             }
             if (map_data.IsAvoid) {
@@ -191,7 +195,7 @@ function normal_station_image(map_data = {}) {
 
     }
     return new Circle({
-        radius: 4,
+        radius: 5,
         fill: new Fill({
             color: fillColor,
         }),
@@ -748,6 +752,7 @@ export class MapPointModel {
         this.IsEQLink = false
         this.IsCross = false
         this.IsRegisted = false
+        this.IsTrafficCheckPoint = false
         this.RegistInfo = null
     }
 }

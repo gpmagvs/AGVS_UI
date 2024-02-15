@@ -6,7 +6,7 @@
       <b-button squared @click="ReloadSettingsHandler">重新載入</b-button>
     </p>
     <el-table
-      :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '16px' }"
+      :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '12px' }"
       :data="EqDatas"
       row-key="TagID"
       size="small"
@@ -52,10 +52,10 @@
           <RegionsSelector v-model="scope.row.Region"></RegionsSelector>
         </template>
       </el-table-column>
-      <el-table-column label="下游設備" width="950px">
+      <el-table-column label="下游設備" width="610">
         <template #default="scope">
           <div class="w-100 d-flex flex-row">
-            <el-select
+            <el-select size="small"
               v-model="scope.row.ValidDownStreamEndPointNames"
               multiple
               placeholder="Select"
@@ -66,23 +66,38 @@
                 :label="eq_name"
                 :value="eq_name" />
             </el-select>
-            <el-button type="default" @click="() => { scope.row.ValidDownStreamEndPointNames = GetAvaluableEqNameList(scope.row.Name) }">使用所有設備</el-button>
-            <el-button type="danger" @click="() => { scope.row.ValidDownStreamEndPointNames = [] }">清除</el-button>
+            <el-button size="small" type="default" @click="() => { scope.row.ValidDownStreamEndPointNames = GetAvaluableEqNameList(scope.row.Name) }">使用所有設備</el-button>
+            <el-button size="small" type="danger" @click="() => { scope.row.ValidDownStreamEndPointNames = [] }">清除</el-button>
           </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="允入車款" width="200">
+        <template #default="scope">
+          <el-select size="small" v-model="scope.row.Accept_AGV_Type">
+            <el-option :value="0" label="0-不限"></el-option>
+            <el-option :value="1" label="1-叉車AGV"></el-option>
+            <el-option :value="2" label="2-潛盾AGV"></el-option>
+          </el-select>
+        </template>
+      </el-table-column>
+      <el-table-column label="空框/實框 訊號檢查" width="100" align="center">
+        <template #default="scope">
+          <el-checkbox v-model="scope.row.RackCapcityCheck">
+          </el-checkbox>
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="170" fixed="right">
         <template #default="scope">
           <div>
             <el-button
-              :size="cell_item_size"
+              size="small"
               type="default"
               @click="ConnectionSettingBtnHandle(scope.row)">連線設定</el-button>
             <!-- <el-button
               :size="cell_item_size"
               type="primary"
               @click="IOCheckBtnHandle(scope.row)">IO點檢</el-button> -->
-            <el-button :size="cell_item_size" type="danger" @click="RemoveHandle(scope.row)">移除</el-button>
+            <el-button size="small" type="danger" @click="RemoveHandle(scope.row)">移除</el-button>
           </div>
         </template>
       </el-table-column>

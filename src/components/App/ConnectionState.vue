@@ -1,6 +1,9 @@
 <template>
   <div
-    class="connection-state d-flex flex-row justify-content-between fixed-bottom text-dark text-start">
+    class="connection-state d-flex flex-row justify-content-between fixed-bottom bg-light border-top text-start"
+    v-bind:style="{
+      marginLeft: marginLeft
+    }">
     <div class="d-flex flex-row">
       <i class="bi bi-three-dots-vertical"></i>
       <div
@@ -73,21 +76,31 @@ export default {
       })
     }
   },
+  props: {
+    IsMenuExpanded: {
+      type: Boolean,
+      default: false
+    },
+  },
+  computed: {
+    marginLeft(delay = 200) {
+
+      return this.IsMenuExpanded ? '202px' : '69px';
+    }
+  },
 }
 </script>
 
 <style lang="scss" scoped>
 .connection-state {
-  background-color: rgb(49, 49, 49);
-  // border-block: 3px solid rgb(187, 187, 187);
-  padding: 5px;
-  padding-left: 70px;
+  padding: 5px 25px 5px 1px;
+  opacity: .9;
+  border-top-right-radius: 22px;
 
   i,
   .sys-time {
     font-weight: bold;
     font-family: monospace;
-    color: #ffffff;
   }
 
   .conn-block {
@@ -95,7 +108,6 @@ export default {
     padding: auto 5px;
 
     label {
-      color: rgb(255, 255, 255);
       margin: auto 5px;
     }
 

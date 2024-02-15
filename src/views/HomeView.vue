@@ -5,7 +5,7 @@
     }" class="d-flex flex-row ">
       <div class="left-col border-right flex-fill">
         <AGVStatusVue></AGVStatusVue>
-        <TaskStatusVue height="500px"></TaskStatusVue>
+        <TaskStatusVue height="330px"></TaskStatusVue>
       </div>
       <b-tabs v-bind:style="{ width: '60%' }" :model-value="right_side_tabSelected" @activate-tab="TabActiveHandle">
         <b-tab title="地圖">
@@ -25,14 +25,14 @@
     <div v-bind:style="{
       visibility: isEasyMode ? 'visible' : 'hidden',
       position: 'absolute',
-      top: '140px',
+      top: '70px',
       width: '100%',
       height: '82vh'
     }" class="easy_mode d-flex">
       <div>
         <AGVStatusVue :IsEasyMode="true"></AGVStatusVue>
       </div>
-      <div style="width:100%;padding-right:50px" class="border">
+      <div style="width:100%;" class="border">
         <HomeMap id="homemap-easymode"></HomeMap>
         <!-- <LMap></LMap> -->
       </div>

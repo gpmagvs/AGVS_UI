@@ -41,7 +41,7 @@
                       @click="pointData_editing.Graph.Display = BindingEQInfo.Name">使用繫連的EQ名稱</el-button>
                   </div>
                 </el-form-item>
-                <el-form-item v-if="IsEQPoint" label="顯示圖示">
+                <el-form-item v-if="IsWorkStation" label="顯示圖示">
                   <div class="d-flex mx-1 bg-light" style="flex-wrap:wrap">
                     <div class="icon-container" style="width:64px;height:84px" v-for="path in EqIcons" :key="path">
                       <el-image
@@ -133,6 +133,7 @@
             <el-collapse-item title="功能設定" name="2">
               <div class="d-flex flex-column">
                 <el-checkbox v-model="pointData_editing.Enable" label="啟用"></el-checkbox>
+                <el-checkbox v-model="pointData_editing.IsTrafficCheckPoint" label="交管檢查點"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsStandbyPoint" label="停駐點"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsSegment" label="二次定位點"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsParking" label="可停車點"></el-checkbox>
@@ -245,6 +246,9 @@ export default {
     },
     IsEQPoint() {
       return this.pointData_editing.StationType == 1;
+    },
+    IsWorkStation() {
+      return this.pointData_editing.StationType != 0;
     },
     stationTypes() {
       return pointTypes;

@@ -118,18 +118,18 @@
         </template>
       </el-table-column>
       <el-table-column sortable label="Tag" prop="Tag" width="60" align="center"></el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" label="主狀態" prop="MainStatus">
+      <el-table-column v-if="show_lduld_state" align="center" width="110" label="主狀態" prop="MainStatus">
         <template #default="scope">
           <el-tag
-            style="width:150px"
+            style="width:80px"
             :type="GetMainStatusTagtype(scope.row.MainStatus, scope.row.IsConnected)"
             effect="dark">{{ GetMainStatusStr(scope.row.MainStatus, scope.row.IsConnected) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" label="移載狀態" prop="TransferStatus">
+      <el-table-column v-if="show_lduld_state" align="center" width="110" label="移載狀態" prop="TransferStatus">
         <template #default="scope">
           <el-tag
-            style="width:150px"
+            style="width:80px"
             :type="GetTransferStatusTagtype(scope.row.TransferStatus, scope.row.IsConnected)"
             effect="dark">{{ GetTransferStatusStr(scope.row.TransferStatus, scope.row.IsConnected) }}</el-tag>
         </template>

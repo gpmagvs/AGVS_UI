@@ -24,8 +24,10 @@ class clsAGVStateDto {
       this.TaskSourceStationName = ""
       this.TaskDestineStationName = ""
       this.TransferProcess = 0
+      this.CurrentAction = 0
       this.OrderAction = 0
       this.TaskETA = ""
+      this.IsExecutingOrder = false
     } else {
       this.AGV_Name = dto.AGV_Name
       this.AGV_Description = dto.AGV_Description
@@ -49,8 +51,10 @@ class clsAGVStateDto {
       this.TaskSourceStationName = dto.TaskSourceStationName
       this.TaskDestineStationName = dto.TaskDestineStationName
       this.TransferProcess = dto.TransferProcess
+      this.CurrentAction = dto.CurrentAction
       this.OrderAction = dto.OrderAction
       this.TaskETA = dto.TaskETA
+      this.IsExecutingOrder = dto.IsExecutingOrder
     }
   }
 }

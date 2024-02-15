@@ -1,7 +1,7 @@
 <template>
   <div class="charge-station-setup" style="height:100%">
     <el-tabs tab-position="top">
-      <el-tab-pane v-for="(data,name) in charge_station_data" :key="name" :label="name">
+      <el-tab-pane v-for="(data, name) in charge_station_data" :key="name" :label="name">
         <div class="charger-states border rounded text-start">
           <h3 class="px-2">{{ name }}</h3>
           <div class="d-flex w-100">
@@ -11,14 +11,12 @@
                 <el-form-item label="連線狀態">
                   <el-tag
                     effect="dark"
-                    :type="data.Connected?'primary':'danger'"
-                  >{{ data.Connected?'Connected':'Disconnect' }}</el-tag>
+                    :type="data.Connected ? 'success' : 'danger'">{{ data.Connected ? 'Connected' : 'Disconnect' }}</el-tag>
                 </el-form-item>
                 <el-form-item label="狀態">
                   <el-tag
                     effect="dark"
-                    :type="GetTagType(data)"
-                  >{{!data.Connected?'Disconnect': data.ErrorCodes.length==0?'Normal':'Warning' }}</el-tag>
+                    :type="GetTagType(data)">{{ !data.Connected ? 'Disconnect' : data.ErrorCodes.length == 0 ? 'Normal' : 'Warning' }}</el-tag>
                 </el-form-item>
                 <el-form-item label="異常碼">
                   <div class="row" style="width:390px;padding-left:12px">
@@ -27,8 +25,7 @@
                       class="col-sm-3"
                       v-for="error_code in data.ErrorCodes"
                       :key="error_code"
-                      type="danger"
-                    >{{ error_code}}</el-tag>
+                      type="danger">{{ error_code }}</el-tag>
                   </div>
                 </el-form-item>
                 <el-form-item label="輸入電壓">
@@ -50,8 +47,7 @@
                     <el-input :precision="2" disabled v-model="data.CC"></el-input>
                     <el-button
                       :disabled="!IsLogin"
-                      @click="HandleSettingBtnClick(name,'cc',data.CC)"
-                    >設定</el-button>
+                      @click="HandleSettingBtnClick(name, 'cc', data.CC)">設定</el-button>
                   </div>
                 </el-form-item>
                 <el-form-item label="CV">
@@ -59,8 +55,7 @@
                     <el-input :precision="2" disabled v-model="data.CV"></el-input>
                     <el-button
                       :disabled="!IsLogin"
-                      @click="HandleSettingBtnClick(name,'cv',data.CV)"
-                    >設定</el-button>
+                      @click="HandleSettingBtnClick(name, 'cv', data.CV)">設定</el-button>
                   </div>
                 </el-form-item>
                 <el-form-item label="FV">
@@ -68,8 +63,7 @@
                     <el-input :precision="2" disabled v-model="data.FV"></el-input>
                     <el-button
                       :disabled="!IsLogin"
-                      @click="HandleSettingBtnClick(name,'fv',data.FV)"
-                    >設定</el-button>
+                      @click="HandleSettingBtnClick(name, 'fv', data.FV)">設定</el-button>
                   </div>
                 </el-form-item>
                 <el-form-item label="TC">
@@ -77,8 +71,7 @@
                     <el-input :precision="2" disabled v-model="data.TC"></el-input>
                     <el-button
                       :disabled="!IsLogin"
-                      @click="HandleSettingBtnClick(name,'tc',data.TC)"
-                    >設定</el-button>
+                      @click="HandleSettingBtnClick(name, 'tc', data.TC)">設定</el-button>
                   </div>
                 </el-form-item>
               </el-form>
@@ -88,8 +81,7 @@
           </div>
         </div>
         <div class="text-start" style="font-size: 14px;">
-          <span>更新時間</span>
-          {{ FormatTime(data.UpdateTime) }}
+          <span>更新時間</span> {{ FormatTime(data.UpdateTime) }}
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -97,16 +89,15 @@
       draggable
       :title="`${DialogData.EqName}-${DialogData.Item.toUpperCase()} 設定`"
       width="300px"
-      v-model="SettingDialogVisible"
-    >
+      v-model="SettingDialogVisible">
       <el-form class="border-top py-2" label-width="60px">
         <el-form-item :label="DialogData.Item.toUpperCase()">
           <el-input-number :step="0.1" :precision="2" v-model="DialogData.Value"></el-input-number>
         </el-form-item>
       </el-form>
       <div class="d-flex justify-content-end w-100 border-top py-2">
-        <el-button type="primary" @click="HandleConfirmClick">確定</el-button>
-        <el-button type="danger" @click="SettingDialogVisible=false">取消</el-button>
+        <el-button type="success" @click="HandleConfirmClick">確定</el-button>
+        <el-button type="danger" @click="SettingDialogVisible = false">取消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -208,25 +199,30 @@ export default {
   .state {
     width: 30%;
   }
+
   .title {
     font-weight: bold;
     width: 100%;
     border-bottom: 1px solid grey;
   }
+
   .el-form-item__label {
     font-size: 16px;
     font-weight: bold;
     letter-spacing: 4px;
   }
+
   .el-tag {
     width: 120px;
     height: 35px;
     margin: 3px;
   }
+
   .el-tag,
   input {
     font-size: 18px;
   }
+
   input {
     width: 100px;
     text-align: center;

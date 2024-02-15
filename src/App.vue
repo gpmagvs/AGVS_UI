@@ -6,17 +6,23 @@
     element-loading-text="GPM AGVS"
     element-loading-svg-view-box="-10, -10, 50, 50"
     element-loading-background="rgba(31, 31, 31, 0.9)">
-    <div>
-      <Header v-show="!loading" @onMenuToggleClicked="ToggleMenu"></Header>
-    </div>
-    <SideMenu></SideMenu>
-    <div class="flex-fill" v-bind:style="router_view_style">
-      <router-view v-show="!loading" v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </router-view>
-    </div>
+    <el-container>
+      <el-aside class="border" style="width:auto">
+        <el-scrollbar>
+          <Menu :isCollapse="menu_collapse"></Menu>
+        </el-scrollbar>
+      </el-aside>
+      <el-container>
+        <el-header style="padding:0;">
+          <Header :MenuExpanded="menu_collapse" v-show="!loading" @onMenuToggleClicked="ToggleMenu"></Header>
+        </el-header>
+        <el-main style="padding:0;overflow-y: hidden;" v-bind:style="router_view_style"><router-view v-show="!loading" v-slot="{ Component }">
+            <keep-alive>
+              <component :is="Component" />
+            </keep-alive>
+          </router-view></el-main>
+      </el-container>
+    </el-container>
     <b-modal
       v-model="ShowOKOnlyModal"
       :title="`${okOnlyModalProps.title}`"
@@ -29,13 +35,14 @@
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
     <MoveAGVNotifty></MoveAGVNotifty>
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
-    <ConnectionState></ConnectionState>
+    <ConnectionState :IsMenuExpanded="!menu_collapse"></ConnectionState>
   </div>
   <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
 </template>
 
 <script>
 import SideMenuDrawer from '@/views/SideMenuDrawer.vue'
+import Menu from '@/components/Menu.vue'
 import SideMenu from '@/views/SideMenu.vue'
 import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
@@ -50,7 +57,8 @@ import AGVAlarmMessageDisplay from '@/components/App/AGVAlarmUI/AGVAlarmMessageD
 
 export default {
   components: {
-    Header, AlarmDisplayVue, SideMenuDrawer, SideMenu, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay
+    Header, Menu, AlarmDisplayVue, SideMenuDrawer, SideMenu, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay,
+
   },
   data() {
     return {
@@ -58,18 +66,15 @@ export default {
       isNoPermission: false,
       showMenuToggleIcon: true,
       ShowOKOnlyModal: false,
+      menu_collapse: true,
       okOnlyModalProps: {
         title: '',
         content: '',
         title_variant: 'primary'
       },
       router_view_style: {
-        //style="height:100vh;padding-top:150px;"
         position: 'relative',
-        height: '100vh',
-        paddingTop: '140px',
-        paddingRight: '95px',
-        left: '70px'
+        paddingTop: '78px',
       }
     }
   },
@@ -82,8 +87,8 @@ export default {
       }, 400);
     },
     ToggleMenu() {
-      this.showMenuToggleIcon = false;
-      this.$refs.side_menu.Show();
+      this.menu_collapse = !this.menu_collapse;
+      // this.$refs.side_menu.Show();
     },
     SideMenuCloseHandler() {
       this.showMenuToggleIcon = true;
@@ -139,11 +144,11 @@ export default {
         } else {
 
           this.OpenLoading();
-          if (newValue == "/alarm") {
-            this.router_view_style.paddingTop = '50px';
-          }
-          else
-            this.router_view_style.paddingTop = '150px';
+          // if (newValue == "/alarm") {
+          //   this.router_view_style.paddingTop = '50px';
+          // }
+          // else
+          //   this.router_view_style.paddingTop = '150px';
 
           setTimeout(async () => {
             var result = await userStore.dispatch('user_route_change', newValue);
@@ -192,14 +197,6 @@ window.ResizeObserver = class ResizeObserver extends _ResizeObserver {
 </script>
 
 <style lang="scss">
-.menu-toggle-icon {
-  position: absolute;
-  left: 0;
-  font-size: 26px;
-  z-index: 3100;
-  cursor: pointer;
-}
-
 #app {
   //font-family: Avenir, Helvetica, Arial, sans-serif;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,

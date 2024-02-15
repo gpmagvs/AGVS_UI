@@ -43,7 +43,28 @@ const routes = [
   {
     path: '/sys_settings',
     name: 'sys_settings',
-    component: SystemSettings,
+    children: [
+      {
+        path: 'AGV_Battery_Setting',
+        name: 'AGV_Battery_Setting',
+        component: () => import('@/components/SystemSettings/AGVBatterySetting.vue')
+      },
+      {
+        path: 'Equipment_Setting',
+        name: 'Equipment_Setting',
+        component: () => import('@/components/SystemSettings/EquipmentManager.vue')
+      },
+      {
+        path: 'User_Setting',
+        name: 'User_Setting',
+        component: () => import('@/components/SystemSettings/UserManager.vue')
+      },
+      {
+        path: 'Charge_Station_Setting',
+        name: 'Charge_Station_Setting',
+        component: () => import('@/views/ChargeStation/ChargeStationHomeView.vue')
+      }
+    ],
     meta: {
       isAdminUse: true
     }
@@ -51,7 +72,33 @@ const routes = [
   {
     path: '/data',
     name: 'data',
-    component: DataVue,
+    children: [
+      {
+        path: 'task_history',
+        name: 'task_history',
+        component: () => import('@/components/DataView/TaskQuery.vue')
+      },
+      {
+        path: 'alarm_history',
+        name: 'alarm_history',
+        component: () => import('@/components/DataView/AlarmQuery.vue')
+      },
+      {
+        path: 'agv_locus',
+        name: 'agv_locus',
+        component: () => import('@/components/DataView/AGVLocus.vue')
+      },
+      {
+        path: 'InstrumentMeasureQuery',
+        name: 'InstrumentMeasureQuery',
+        component: () => import('@/components/DataView/InstrumentMeasureQuery.vue')
+      },
+      {
+        path: 'Avalibility',
+        name: 'Avalibility',
+        component: () => import('@/components/DataView/AvalibilityQuery.vue')
+      }
+    ]
   },
   {
     path: '/alarm',

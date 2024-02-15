@@ -148,6 +148,6 @@ export default {
 .map-view {
   position: absolute;
   top: 50px;
-  width: 96%;
+  width: 100%;
 }
 </style>

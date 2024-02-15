@@ -1,21 +1,34 @@
 <template>
-  <div class="app-header bg-primary text-light border-bottom border-left fixed-top">
-    <div class="d-flex flex-row py-1">
-      <!-- <i @click="ToggleMenu" class="bi bi-list menu-toggle-icon text-light px-2"></i>
+  <div class="app-header bg-primary text-light border-bottom border-left">
+    <div class="d-flex flex-row py-1" style="z-index:5001">
+      <i @click="ToggleMenu" class="menu-toggle-icon text-light px-2">
+        <el-icon>
+          <MenuExpandIcon class="menu-icon" v-if="MenuExpanded" />
+          <MenuFoldIcon class="menu-icon" v-else />
+        </el-icon>
+      </i>
+      <!-- <el-breadcrumb separator="/">
+        <el-breadcrumb-item :to="{ path: '/' }">homepage</el-breadcrumb-item>
+        <el-breadcrumb-item><a href="/">promotion management</a></el-breadcrumb-item>
+        <el-breadcrumb-item>promotion list</el-breadcrumb-item>
+        <el-breadcrumb-item>promotion detail</el-breadcrumb-item>
+      </el-breadcrumb> -->
+      <!--
       <h3 @click="LogoClickHandler">
         <b>GPM AGVS</b>
       </h3>-->
-      <div
+      <!-- <div
         v-if="!modes.system_operation_mode.actived"
-        class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。</div>
+        class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。
+      </div>
       <b-button
         v-else
         class="mx-2"
         @click="HandleAutoDispatchBtnClick"
         style="width:100px;font-weight: bold; font-size:large;text-decoration: underline;"
         variant="light"
-        size="sm">自動派工</b-button>
-      <div class="page-name-display mx-2">{{ current_route_info.route_display_name }}</div>
+        size="sm">自動派工</b-button> -->
+      <!-- <div class="page-name-display mx-2">{{ current_route_info.route_display_name }}</div> -->
       <div class="flex-fill"></div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
@@ -53,7 +66,8 @@
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" class="mx-1" variant="light"> 中文 <i class="bi bi-caret-down-fill"></i>
+              <b-button class="mx-1" style="border: none;background-color: transparent;color:white">
+                <el-icon><i class="bi bi-translate"></i></el-icon> 中文 <i class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
@@ -67,7 +81,9 @@
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
-              <b-button size="sm" variant="light"> {{ UserName }} <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
+              <b-button style="border: none;background-color: transparent;color:white">
+                <el-icon> <i class="bi bi-person-circle"></i>
+                </el-icon> {{ UserName }} <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
@@ -98,7 +114,7 @@
             <b-button
               v-if="current_user_role != 0"
               @click="ResetSysAlarmsHandler"
-              class="mb-2"
+              class="mb-0"
               size="sm"
               variant="danger">警報復歸</b-button>
           </div>
@@ -138,9 +154,11 @@ import moment from 'moment'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { agvs_settings_store, userStore } from '@/store'
+import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@element-plus/icons-vue'
+
 export default {
   components: {
-    Login
+    Login, MenuExpandIcon, MenuFoldIcon, UserFilled
   },
   data() {
     return {
@@ -194,6 +212,12 @@ export default {
       isEasyMode: false
     }
   },
+  props: {
+    MenuExpanded: {
+      type: Boolean,
+      default: false
+    },
+  },
   computed: {
     IsLogin() {
       return userStore.getters.IsLogin;
@@ -245,7 +269,7 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        this.showAlarm = newValue != "/alarm" && newValue != "/map" && newValue != "/sys_settings" && newValue != "/data";
+        //this.showAlarm = newValue != "/alarm" && newValue != "/map" && newValue != "/sys_settings" && newValue != "/data";
       }
     )
 
@@ -467,7 +491,7 @@ export default {
       })
     },
     CreateAlarmDisplayText(alarm) {
-      return `${moment(alarm.Time).format('yyyy/MM/DD HH:mm:ss')} |${alarm.AlarmCode}|${alarm.Equipment_Name}|-${alarm.Description_Zh}(${alarm.Description_En})`
+      return `${moment(alarm.Time).format('yyyy/MM/DD HH:mm:ss')} |Code:${alarm.AlarmCode}|Source:${alarm.Equipment_Name}|-${alarm.Description_Zh}(${alarm.Description_En})`
     },
     AlarmDisplayHandler() {
       var sys_alarm_inx = 0;
@@ -522,7 +546,6 @@ export default {
 <style scoped lang="scss">
 .app-header {
   z-index: 2;
-  padding-left: 70px;
 
   h3 {
     margin-left: 40px;
@@ -532,14 +555,20 @@ export default {
     cursor: pointer;
   }
 
+  .menu-toggle-icon {
+    font-size: 26px;
+    z-index: 3100;
+    cursor: pointer;
+  }
+
   .alarm {
-    height: 48px;
+    height: 44px;
 
     .alarm-container {
       display: flex;
       flex-direction: row;
-      background-color: rgb(255, 229, 234);
-      border: 2px solid rgb(248, 195, 195);
+      background-color: rgb(254, 199, 210);
+      border: 1px solid rgb(255, 255, 255);
 
       .type-text,
       .alarm-text {
@@ -549,25 +578,27 @@ export default {
       }
 
       .type-text {
-        width: 99px;
-        border-radius: 13px;
-        background-color: rgb(255, 62, 62);
+        width: 85px;
+        border-radius: 3px;
+        background-color: rgb(255, 90, 90);
         color: white;
         margin-top: 4px;
+        font-size: 14px;
         text-align: center;
         // text-decoration: underline;
       }
 
       .alarm-text {
-        padding: 3px;
+        padding: 2px;
         font-weight: bold;
-        font-size: 18px;
+        font-size: 15px;
       }
 
       .opt {
         padding-inline: 3px;
         display: flex;
         flex-direction: row;
+        z-index: 1;
 
         div {
           width: 85px;
@@ -613,7 +644,7 @@ export default {
 
     0%,
     100% {
-      background-color: rgb(242, 76, 76);
+      background-color: rgb(254, 199, 210);
       color: white;
     }
 
@@ -668,4 +699,5 @@ export default {
   }
 
   .user-account {}
-}</style>
+}
+</style>

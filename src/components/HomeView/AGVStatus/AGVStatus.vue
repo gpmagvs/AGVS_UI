@@ -168,8 +168,7 @@
                   <el-col :span="9">
                     <div class="h-100 border p-1 d-flex">
                       <el-tag class="h-100 w-100 "
-                        effect="light">
-                        <b> {{ GetTransferProcessDescription(scope.row, scope.row.TransferProcess) }}</b>
+                        effect="light"> <b> {{ GetTransferProcessDescription(scope.row, scope.row.TransferProcess, scope.row.CurrentAction, scope.row.TaskRunAction) }}</b>
                       </el-tag>
                     </div>
                   </el-col>
@@ -530,25 +529,35 @@ export default {
       else
         return "Unknown"
     },
-    GetTransferProcessDescription(agv_data, status_code) {
-      if (agv_data.MainStatus != 2 || status_code == 0 || status_code == 9)
+    GetTransferProcessDescription(agv_data, status_code, CurrentAction = 0, TaskRunAction = 0) {
+      if (!agv_data.IsExecutingOrder || status_code == 0 || status_code == 500)
         return ""
       else if (status_code == 1)
-        return "前往來源設備"
-      else if (status_code == 2)
-        return "取貨中"
-      else if (status_code == 3)
-        return "前往終點設備"
-      else if (status_code == 4)
-        return "放貨中"
-      else if (status_code == 5)
-        return "退出充電站/WIP"
-      else if (status_code == 6)
         return "移動中"
-      else if (status_code == 7)
-        return "前往充電站"
-      else if (status_code == 8)
+      else if (status_code == 2)
+        return "前往來源設備"
+      else if (status_code == 3) {
+        if (TaskRunAction == 8)
+          return "前往充電站"
+        else if (TaskRunAction == 7 || TaskRunAction == 9)
+          return "前往終點設備放貨"
+        else if (TaskRunAction == 1)
+          return "前往終點設備取貨"
+      }
+      else if (status_code == 4)
+        return "取貨中"
+      else if (status_code == 5) {
+        if (CurrentAction == 7)
+          return "放貨中"
+        else if (CurrentAction == 1)
+          return "取貨中"
+      }
+      else if (status_code == 6)
         return "停車-充電站"
+      else if (status_code == 7)
+        return "退出設備中"
+      else if (status_code == 8)
+        return "退出停車點/充電站"
       else
         return "Unknown"
     },
