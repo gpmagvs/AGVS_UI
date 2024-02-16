@@ -181,8 +181,9 @@
                 <button @click="HandleSettingBtnClick">?</button>
                 <!-- <button>2</button> -->
               </div>
-              <div class="ol-control cursour-coordination-show">
+              <div class="ol-control cursour-coordination-show d-flex flex-column">
                 <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
+                <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
               </div>
               <!-- <QuicklyAction></QuicklyAction> -->
             </div>
@@ -375,20 +376,22 @@ import { getCenter } from 'ol/extent.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
+import { Fill, Stroke, Style, Circle as CircleStyle, Text } from 'ol/style';
+import Circle from 'ol/geom/Circle';
+
+import { noModifierKeys } from 'ol/events/condition';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon } from './mapjs';
 import { MapStore } from './store'
 import { EqStore } from '@/store'
-import { Fill, Stroke, Style, Circle, Text } from 'ol/style';
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import MapPathSettingDrawer from './MapPathSettingDrawer.vue'
 import MapRegionEditDrawer from './MapRegionEditDrawer.vue';
 import QuicklyAction from './QuicklyActionMenu.vue'
-import { noModifierKeys } from 'ol/events/condition';
 import { ElNotification } from 'element-plus'
 export default {
   components: {
@@ -637,7 +640,9 @@ export default {
         }
       return {}
     },
-
+    MapGridSize() {
+      return MapStore.getters.GridSize
+    }
   },
   methods: {
     GetPointName(index) {
@@ -824,6 +829,7 @@ export default {
           }
           agvfeatures.agv_feature.setGeometry(new Point(coordination))
           agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
+          agvfeatures.safty_region_feture.getGeometry().setCenter(coordination)
           var style = agvfeatures.agv_feature.getStyle();
           var image = style.getImage()
 
@@ -852,6 +858,15 @@ export default {
           var _agvfeature = new Feature({
             geometry: new Point(agv_information.Coordination)
           })
+
+          const _agvSaftyCircle = new Circle(agv_information.Coordination, 0.7)
+          const _agvSaftyRegionFeature = new Feature(_agvSaftyCircle)
+          _agvSaftyRegionFeature.setStyle(new Style({
+            fill: new Fill({ color: 'rgba(255,192,203,0.4)' }),
+            stroke: new Stroke({
+              color: 'red', width: 1, lineDash: [5, 2]
+            })
+          }))
           _agvfeature.setStyle(AGVPointStyle(agv_information.AgvName, agv_information.TextColor))
           _agvfeature.set('agvname', agv_information.AgvName)
           _agvfeature.set("feature_type", this.FeatureKeys.agv)
@@ -869,13 +884,15 @@ export default {
           this.AGVFeatures[agv_information.AgvName] = {
             agv_feature: _agvfeature,
             path_feature: nav_path_feature,
-            cargo_icon_feature: _cargo_icon_feature
+            cargo_icon_feature: _cargo_icon_feature,
+            safty_region_feture: _agvSaftyRegionFeature
           };
 
           var source = this.AGVLocLayer.getSource();
 
           source.addFeature(_cargo_icon_feature);
           source.addFeature(_agvfeature);
+          source.addFeature(_agvSaftyRegionFeature);
           source.addFeature(nav_path_feature);
 
         }
@@ -993,7 +1010,7 @@ export default {
             return;
           }
 
-          if (!feature) {
+          if (!feature || feature.get('grid_line')) {
 
             this_vue.IsDragging = false;
             if (currentAction == 'add-station' && isRightClick) {
@@ -1072,6 +1089,9 @@ export default {
           if (edit_action == 'add-path' || edit_action == 'edit-path' || edit_action == 'remove-path')
             return;
 
+          if (this.feature_.get('feature_type') === 'path')
+            return;
+
           var deltaX = event.coordinate[0] - this.coordinate_[0];
           var deltaY = event.coordinate[1] - this.coordinate_[1];
           var geometry = this.feature_.getGeometry();
@@ -1116,6 +1136,7 @@ export default {
                 }
                 catch (error) {//若該座標已經有新增feature會跳錯=>變成顯示設定面板
                   console.error(error);
+
                   this_vue.HandlePtSettingBtnClick();
                 }
               }
@@ -1144,18 +1165,21 @@ export default {
           });
           var cursor = ''
           if (feature) {
-            var featureType = feature.get('feature_type');
-            if (currentAction == "add-path" && featureType != this_vue.FeatureKeys.Station) {
-              cursor = 'not-allowed'
+            var isGridFeature = feature.get('grid_line')
+            if (isGridFeature) {
+              return;
             }
-            else if (currentAction == "remove-station" && featureType != this_vue.FeatureKeys.Station)
-              cursor = 'not-allowed'
-
-            else if (currentAction == "remove-path" && featureType != this_vue.FeatureKeys.path)
-              cursor = 'not-allowed'
-            else
-              cursor = 'pointer'
-
+            var featureType = feature.get('feature_type');
+            var allowedActions = {
+              "add-path": this_vue.FeatureKeys.Station,
+              "remove-station": this_vue.FeatureKeys.Station,
+              "remove-path": this_vue.FeatureKeys.path
+            };
+            cursor = 'pointer';
+            // 检查当前操作是否在允许的动作列表中，且特征类型不匹配
+            if (allowedActions[currentAction] && featureType != allowedActions[currentAction]) {
+              cursor = 'not-allowed';
+            }
           }
           else {
             if (currentAction == "add-station") {
@@ -1304,7 +1328,7 @@ export default {
             stroke: new Stroke({
               color: 'rgba(0, 0, 0, 0)' // 透明边界颜色
             }),
-            image: new Circle({
+            image: new CircleStyle({
               radius: 0 // 半径为0，不显示 
             })
           });
@@ -1901,6 +1925,33 @@ export default {
       this.PathesSegmentsForEdit = JSON.parse(JSON.stringify(this.PathesSegments))
     },
     InitMap() {
+
+      var initGrid = (_map, _extent = [-20, -20, 20, 20]) => {
+        const extent = _extent.map(val => val * 10);
+        const interval = this.MapGridSize; // 間隔:單位公尺
+        const vectorSource = new VectorSource();
+        for (let x = extent[0]; x <= extent[2]; x += interval) {
+          const lineFeature = new Feature(new LineString([[x, extent[1]], [x, extent[3]]]));
+          lineFeature.set("grid_line", true)
+          vectorSource.addFeature(lineFeature);
+        }
+        for (let y = extent[1]; y <= extent[3]; y += interval) {
+          const lineFeature = new Feature(new LineString([[extent[0], y], [extent[2], y]]));
+          lineFeature.set("grid_line", true)
+          vectorSource.addFeature(lineFeature);
+        }
+        const gridLayer = new VectorLayer({
+          source: vectorSource,
+          style: new Style({
+            stroke: new Stroke({
+              color: 'rgb(221, 221, 221)',
+              width: 1
+            })
+          })
+        });
+        _map.addLayer(gridLayer);
+
+      }
       const extent = this.map_img_extent;
       const projection = new Projection({
         code: 'xkcd-image',
@@ -1936,6 +1987,7 @@ export default {
           maxZoom: 20
         })
       })
+
       this.AGVLocLayer.setVisible(this.agv_show)
       if (this.editable) {
         this.PointLayer.setVisible(false);
@@ -1948,7 +2000,7 @@ export default {
       }
       this.EQLDULDStatusLayer.setVisible(!this.editable)
       this.InitMapEventHandler();
-
+      initGrid(this.map, extent)
     },
     GetForbidRegionCount() {
       var _features = this.RegionLayer.getSource().getFeatures()
@@ -2249,9 +2301,7 @@ export default {
       this.RemoveInteraction(this.delete_forbid_regions_interaction);
     },
     EditModeKeybordEvents(event) {
-
       var name = event.key.toLowerCase();
-      console.info(name)
       if (name == 'e') {
         this.EditorOption.EditMode = 'edit'
       } if (name == 'v') {
@@ -2711,13 +2761,18 @@ export default {
 }
 
 .cursour-coordination-show {
-  z-index: 0;
-  padding-left: 37px;
+  z-index: 1;
   margin-top: 10px;
-  width: 120px;
+  width: 140px;
+  text-align: right;
+  font-weight: bold;
+  position: absolute;
+  right: 112px;
+  letter-spacing: 2px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
-  span {
-    font-weight: bold;
+  .grid-size-text {
+    font-size: small;
   }
 }
 
@@ -2726,6 +2781,8 @@ export default {
   position: absolute;
   background-color: transparent;
   display: flex;
+  z-index: 2;
+
 }
 
 .options {

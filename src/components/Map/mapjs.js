@@ -692,7 +692,8 @@ export class clsMapOptions {
         this.pathColor = 'rgb(45,42,46)';
         this.fontSizeOfDisplayName = 12;
         this.fontSizeOfAsCandicates = 16;
-        this.EQIcons = []
+        this.EQIcons = [];
+        this.gridSize = 1;
     }
 }
 /**後端圖資模型 */

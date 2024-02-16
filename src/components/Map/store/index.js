@@ -184,7 +184,8 @@ export const MapStore = createStore({
         },
         ControledPathesBySystem: state => state.ControledPathesBySystem,
         RegionOptions: state => state.RegionOptions,
-        EqIcons: state => state.MapData.Options.EQIcons
+        EqIcons: state => state.MapData.Options.EQIcons,
+        GridSize: state => state.MapData.Options.gridSize
 
     },
     mutations: {
