@@ -3,14 +3,15 @@
     <div v-bind:style="{
       visibility: isEasyMode ? 'hidden' : 'visible'
     }" class="d-flex flex-row ">
-      <div class="left-col border-right flex-fill">
+      <div class="left-col  border-right left-panel" v-bind:style="LeftColStyle">
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="330px"></TaskStatusVue>
       </div>
-      <b-tabs v-bind:style="{ width: '60%' }" :model-value="right_side_tabSelected" @activate-tab="TabActiveHandle">
+      <div class="resizer bg-light"></div>
+      <b-tabs class="right-panel" :model-value="right_side_tabSelected" @activate-tab="TabActiveHandle">
         <b-tab title="地圖">
           <div style="height:800px" class="border">
-            <HomeMap></HomeMap>
+            <HomeMap style="width:100%"></HomeMap>
             <!-- <LMap></LMap> -->
           </div>
         </b-tab>
@@ -73,6 +74,8 @@ export default {
       loading: false,
       show_new_dispatch_panel: false,
       right_side_tabSelected: 0,
+      LeftColStyle: {
+      }
     }
   },
   mounted() {
@@ -84,17 +87,43 @@ export default {
       }, 300)
 
     });
+
+    const resizer = this.$el.querySelector('.resizer');
+    const leftPanel = this.$el.querySelector('.left-panel');
+    const rightPanel = this.$el.querySelector('.right-panel');
+    let isDragging = false;
+    var window_width = leftPanel.parentElement.offsetWidth;
+    rightPanel.style.width = `50vw`;
+    resizer.addEventListener('mousedown', e => {
+      isDragging = true;
+      let startX = e.pageX;
+
+      const onMove = (e) => {
+        if (!isDragging) return;
+        const dx = e.pageX - startX;
+        const newLeftWidth = leftPanel.offsetWidth + dx;
+        var newRightWidth = window_width - newLeftWidth;
+
+        leftPanel.style.width = `${newLeftWidth}px`;
+        rightPanel.style.width = `${newRightWidth}px`;
+        startX = e.pageX;
+      };
+
+      const onUp = () => {
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+        isDragging = false;
+      };
+
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    });
   },
 }
 </script>
 
 <style lang="scss" >
 .home-view {
-
-  .left-col {
-    overflow-y: scroll;
-  }
-
   .dispatch-show {
     animation: slideInFromLeft 0.2s ease-out forwards;
 
@@ -110,6 +139,12 @@ export default {
     100% {
       transform: translateX(0);
     }
+  }
+
+  .resizer {
+    height: 99vh;
+    width: 10px;
+    cursor: ew-resize;
   }
 
 }
