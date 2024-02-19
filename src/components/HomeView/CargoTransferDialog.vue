@@ -100,6 +100,8 @@ export default {
             var source_tag = source_station.TagNumber
             GetEQOptions().then(options => {
                 var source = options.find(opt => opt.TagID == source_tag)
+                if (!source)
+                    return;
                 var downstreamEqNames = source.ValidDownStreamEndPointNames
                 this.EQOptions = options
                 if (action == 'unload')

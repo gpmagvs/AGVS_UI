@@ -34,7 +34,6 @@
       </div>
       <div style="width:100%;" class="border">
         <HomeMap id="homemap-easymode"></HomeMap>
-        <!-- <LMap></LMap> -->
       </div>
     </div>
     <TaskDispatchNewUI class="new-dispatch-pnl" v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'" @close="() => { show_new_dispatch_panel = false }" v-show="show_new_dispatch_panel"></TaskDispatchNewUI>
@@ -47,7 +46,6 @@
 <script>
 import AGVStatusVue from '@/components/HomeView/AGVStatus/AGVStatus.vue'
 import HomeMap from '@/components/HomeView/HomeMap.vue';
-import LMap from '@/components/NavMap/AGVMap.vue'
 import TaskDispathActionButton from '@/components/TaskDispathActionButton.vue'
 import TaskDispatchNewUI from '@/components/TaskDispatchNewUI.vue'
 import EQStatus from '@/components/HomeView/EQStatus.vue'
@@ -55,9 +53,10 @@ import TaskStatusVue from '@/components/HomeView/TaskStatus.vue';
 import TaskAllocationVue from '@/components/HomeView/TaskAllocation.vue';
 import bus from '@/event-bus.js'
 import { userStore, agvs_settings_store } from '@/store';
+
 export default {
   components: {
-    AGVStatusVue, TaskStatusVue, HomeMap, TaskAllocationVue, EQStatus, LMap, TaskDispathActionButton, TaskDispatchNewUI
+    AGVStatusVue, TaskStatusVue, HomeMap, TaskAllocationVue, EQStatus, TaskDispathActionButton, TaskDispatchNewUI
   },
   methods: {
     TabActiveHandle(tabIndex) {

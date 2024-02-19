@@ -431,6 +431,9 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
             font: 'bold 12px Calibri,sans-serif',
             offsetX: 14,
             offsetY: -52,
+            stroke: new Stroke({
+                color: null
+            }),
             fill: new Fill({
                 color: 'white',//PointColorSelect(station_type)
             }),
@@ -694,6 +697,7 @@ export class clsMapOptions {
         this.fontSizeOfAsCandicates = 16;
         this.EQIcons = [];
         this.gridSize = 1;
+        this.defaultShowBackgroudImage = true
     }
 }
 /**後端圖資模型 */

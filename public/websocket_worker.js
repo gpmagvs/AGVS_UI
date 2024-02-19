@@ -7,13 +7,9 @@ function initWebsocket(ws_url) {
     socket = new WebSocket(ws_url)
     socket.onopen = () => { }
     socket.onmessage = (ev) => {
-        setTimeout(() => {
-            var data_json = ev.data;
-            if (data_json != previous_data_json) {
-                self.postMessage(JSON.parse(ev.data))
-                previous_data_json = ev.data
-            }
-        }, 100)
+        var data_json = ev.data;
+        self.postMessage(JSON.parse(data_json))
+
     }
     socket.onclose = (ev) => {
         if (auto_reconnect)

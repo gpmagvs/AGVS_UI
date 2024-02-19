@@ -1,19 +1,19 @@
 <template>
   <div class="map-view h-100 d-flex flex-row my-1">
     <div></div>
-    <MapShow
+    <Map
       id="editable_map"
       :agv_upload_coordi_data="agv_upload_data"
       @save="SaveMapClickHandle"
       :editable="true"
       :agv_show="true"
       canva_height="750px"
-      ref="map_editing"></MapShow>
+      ref="map_editing"></Map>
   </div>
 </template>
 
 <script>
-import MapShow from '@/components/Map/Map.vue';
+import Map from '@/components/Map/Map.vue';
 import MapAPI from '@/api/MapAPI';
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus.js'
@@ -21,7 +21,7 @@ import { MapStore } from '@/components/Map/store'
 
 export default {
   components: {
-    MapShow,
+    Map,
   },
   async mounted() {
     this.tags = await MapAPI.GetMapTags();

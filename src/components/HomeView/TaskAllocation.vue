@@ -118,7 +118,6 @@
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
-import MapShowVue from '../MapShow.vue';
 import Map from '@/components/Map/Map.vue'
 import { MapStore } from '@/components/Map/store'
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
@@ -127,7 +126,7 @@ import { MapPointModel } from '@/components/Map/mapjs';
 import { GetEQOptions } from '@/api/EquipmentAPI'
 export default {
   components: {
-    MapShowVue, Map
+    Map
   },
   data() {
     return {
@@ -318,7 +317,7 @@ export default {
       this.$swal.fire(
         {
           title: '確定要派送此任務?',
-          text: `${this.selectedAGVName} 執行 ${this.selectedAction.toUpperCase()} 任務,終點:${destinName}`,//TODO 完整的名稱
+          text: `${this.selectedAGVName} 執行 ${this.selectedAction.toUpperCase()} 任務,終點:${destinName}`,
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: '確定',

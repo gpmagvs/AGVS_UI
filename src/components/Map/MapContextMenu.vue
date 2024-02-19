@@ -2,48 +2,44 @@
   <div class="map-menu border" v-bind:style="menu_style">
     <div
       class="title border-bottom"
-      v-bind:class="station_data.Enable?'text-primary':'text-danger'"
-    >{{ options.title + (station_data.Enable?'':'(已禁用)')}}</div>
-
+      v-bind:class="station_data.Enable ? 'text-primary' : 'text-danger'">{{ options.title + (station_data.Enable ? '' : '(已禁用)') }}</div>
     <div v-if="options.show_task_dispatch" class="menu task">
-      <span>站點類型 : {{ station_data.IsVirtualPoint?'虛擬點': options.task_options.StationType }}</span>
-      <div v-if="station_type==0 &&!station_data.IsVirtualPoint">
+      <span>站點類型 : {{ station_data.IsVirtualPoint ? '虛擬點' : options.task_options.StationType }}</span>
+      <div v-if="station_type == 0 && !station_data.IsVirtualPoint">
         <!-- 一般點位可指派之任務 -->
         <b-button
           variant="primary"
-          @click="()=>{$emit('OnTaskBtnClick',{action:'move',station_data:station_data})}"
-        >移動</b-button>
+          @click="() => { $emit('OnTaskBtnClick', { action: 'move', station_data: station_data }) }">移動</b-button>
       </div>
-      <div v-if="station_type==1|station_type==2" class="d-flex flex-column">
+      <div v-if="station_type == 1 || station_type == 2 || station_type == 4 || station_type == 5" class="d-flex flex-column">
         <!-- EQ可指派之任務 -->
         <b-button
           variant="primary"
-          @click="()=>{$emit('OnTaskBtnClick',{action:'unload',station_data:station_data})}"
-        >取貨</b-button>
+          @click="() => { $emit('OnTaskBtnClick', { action: 'unload', station_data: station_data }) }">取貨</b-button>
         <b-button
           variant="primary"
-          @click="()=>{$emit('OnTaskBtnClick',{action:'load',station_data:station_data})}"
-        >放貨</b-button>
+          @click="() => { $emit('OnTaskBtnClick', { action: 'load', station_data: station_data }) }">放貨</b-button>
         <b-button
           variant="primary"
-          @click="()=>{$emit('OnTaskBtnClick',{action:'carry',station_data:station_data})}"
-        >搬運</b-button>
+          @click="() => { $emit('OnTaskBtnClick', { action: 'carry', station_data: station_data }) }">搬運</b-button>
+        <b-button v-if="station_type == 5"
+          variant="primary"
+          @click="() => { $emit('OnTaskBtnClick', { action: 'charge', station_data: station_data }) }">充電</b-button>
       </div>
-      <div v-if="station_type==3">
+      <div v-if="station_type == 3">
         <b-button
           variant="primary"
-          @click="()=>{$emit('OnTaskBtnClick',{action:'charge',station_data:station_data})}"
-        >充電</b-button>
+          @click="() => { $emit('OnTaskBtnClick', { action: 'charge', station_data: station_data }) }">充電</b-button>
       </div>
-      <div v-if="station_data.IsParking&&!station_data.IsVirtualPoint">
+      <!-- buffer and charge -->
+      <div v-if="station_data.IsParking && !station_data.IsVirtualPoint">
         <b-button
           variant="primary"
-          @click="()=>{$emit('OnTaskBtnClick',{action:'park',station_data:station_data})}"
-        >停車</b-button>
+          @click="() => { $emit('OnTaskBtnClick', { action: 'park', station_data: station_data }) }">停車</b-button>
       </div>
     </div>
     <div v-else class="menu edit">
-      <b-button variant="primary" @click="()=>{$emit('OnPtSettingBtnClick','')}">設定點位</b-button>
+      <b-button variant="primary" @click="() => { $emit('OnPtSettingBtnClick', '') }">設定點位</b-button>
     </div>
   </div>
 </template>
@@ -113,11 +109,13 @@ export default {
       margin: 2px auto;
       width: 130px;
     }
+
     button:hover {
       background-color: limegreen;
       color: white;
     }
   }
+
   .task {
     span {
       font-size: 10px;

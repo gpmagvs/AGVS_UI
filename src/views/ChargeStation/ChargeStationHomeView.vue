@@ -76,7 +76,7 @@
                 </el-form-item>
               </el-form>
               <h6>充電曲線參考圖示</h6>
-              <img class="border rounded p-3" src="images/charger_curve.png" alt />
+              <img class="border rounded p-3" src="/images/charger_curve.png" alt />
             </div>
           </div>
         </div>

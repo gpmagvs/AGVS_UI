@@ -5,9 +5,9 @@
   createMemoryHistory,
 } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import SystemSettings from '../views/SystemSettings.vue'
 import DataVue from '../views/DataView.vue'
 import AlarmView from '@/views/AlarmView.vue'
+import ChargeStationView from '@/views/ChargeStation/ChargeStationHomeView.vue'
 const routes = [
   {
     path: '/',
@@ -30,7 +30,7 @@ const routes = [
   {
     path: '/map',
     name: 'map',
-    component: () => import('../views/MapView.vue'),
+    component: () => import('../views/MapManager.vue'),
     meta: {
       isAdminUse: true
     }
@@ -62,7 +62,7 @@ const routes = [
       {
         path: 'Charge_Station_Setting',
         name: 'Charge_Station_Setting',
-        component: () => import('@/views/ChargeStation/ChargeStationHomeView.vue')
+        component: ChargeStationView
       }
     ],
     meta: {
@@ -141,7 +141,7 @@ export const tsmc_routes = [
   {
     path: '/map',
     name: 'map',
-    component: () => import('../views/MapView.vue'),
+    component: () => import('../views/MapManager.vue'),
   },
   {
     path: '/alarm',

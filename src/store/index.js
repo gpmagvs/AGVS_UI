@@ -33,7 +33,14 @@ export const agv_states_store = createStore({
     AGVNameList: state => {
       return state.agv_states.map(agv => agv.AGV_Name)
     },
-    HotRunStates: state => state.hotrun_states
+    HotRunStates: state => state.hotrun_states,
+    VehicleSize: state => (name) => {
+      var agv = state.agv_states.find(agv => agv.AGV_Name == name);
+      if (agv)
+        return [agv.VehicleLength, agv.VehicleWidth]
+      else
+        return [0, 0]
+    }
   },
   mutations: {
     storeAgvStates(state, data) {
@@ -172,7 +179,7 @@ export const UIStore = createStore({
 export const EqStore = createStore({
   state: {
     EQ: [],
-    ChargeStation: {},
+    ChargeStation: { 'charge1': {} },
     EqOptions: [],
     WIPOptions: [],
     WIPsData: []

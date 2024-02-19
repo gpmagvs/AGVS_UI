@@ -161,7 +161,9 @@
               v-bind:style="{ height: canva_height }"
               class="agv_map flex-fll"
               @contextmenu="showContextMenu($event)">
-              <!--提示-->
+            </div>
+            <!--提示-->
+            <div class="notifiers" style="position:absolute;width:100%">
               <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-station'" title="使用滑鼠[右鍵]點擊地圖新增點位" type="success" />
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-station'" title="使用滑鼠[右鍵]選擇欲編輯之點位" type="success" />
@@ -173,19 +175,16 @@
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-forbid-region'" :title="`使用滑鼠[左鍵/右鍵]在地圖上繪製[${EditorOption.AddRegionMode.Mode == 'forbid' ? '禁制' : '通行'}]區(按下[ESC]可取消繪製)`" type="success" />
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-forbid-region'" title="使用滑鼠[左鍵]在地圖上選取欲編輯之管制區)" type="success" />
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-forbid-region'" title="使用滑鼠[左鍵]在地圖上點擊欲刪除之管制區" type="error" />
-              <!--  -->
-              <div v-if="true" class="ol-control custom-buttons">
-                <button @click="HandleSettingBtnClick">
-                  <i class="bi bi-sliders"></i>
-                </button>
-                <button @click="HandleSettingBtnClick">?</button>
-                <!-- <button>2</button> -->
-              </div>
-              <div class="ol-control cursour-coordination-show d-flex flex-column">
-                <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
-                <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
-              </div>
-              <!-- <QuicklyAction></QuicklyAction> -->
+            </div>
+            <div v-if="false" class="ol-control custom-buttons">
+              <button @click="HandleSettingBtnClick">
+                <i class="bi bi-sliders"></i>
+              </button>
+              <button @click="HandleSettingBtnClick">?</button>
+            </div>
+            <div v-if="true" class="cursour-coordination-show d-flex flex-column">
+              <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
+              <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
             </div>
             <!-- 設定 -->
             <div
@@ -372,12 +371,12 @@ import { Pointer } from 'ol/interaction'
 import Draw from 'ol/interaction/Draw.js';
 import Projection from 'ol/proj/Projection.js';
 import Static from 'ol/source/ImageStatic.js';
-import { getCenter } from 'ol/extent.js';
+import { ZoomSlider } from 'ol/control.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
 import { Fill, Stroke, Style, Circle as CircleStyle, Text } from 'ol/style';
-import Circle from 'ol/geom/Circle';
+import { Circle, Polygon } from 'ol/geom';
 
 import { noModifierKeys } from 'ol/events/condition';
 import { watch } from 'vue'
@@ -385,7 +384,7 @@ import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon } from './mapjs';
 import { MapStore } from './store'
-import { EqStore } from '@/store'
+import { EqStore, agv_states_store } from '@/store'
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
@@ -393,6 +392,7 @@ import MapPathSettingDrawer from './MapPathSettingDrawer.vue'
 import MapRegionEditDrawer from './MapRegionEditDrawer.vue';
 import QuicklyAction from './QuicklyActionMenu.vue'
 import { ElNotification } from 'element-plus'
+import { Throttle } from '@/api/Common/UtilityTools.js'
 export default {
   components: {
     QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer,
@@ -800,10 +800,45 @@ export default {
         this.RegionLayer.getSource().addFeatures([_RegionObj.region_feature, _RegionObj.text_feature])
       });
     },
-    UpdateAGVLayer() {
+    //TODO UpdateAGVLayer
+    UpdateAGVLayer: Throttle(function () {
       if (this.agv_display != 'visible')
         return;
+
+
+      var _CalculateAGVPolygonCoordination = (coordination, length, width, theta) => {
+        let radians = theta * Math.PI / 180; // 將角度轉換為弧度
+        let cosTheta = Math.cos(radians);
+        let sinTheta = Math.sin(radians);
+        // 中心點
+        let [a, b] = coordination;
+        // 未旋轉矩形的角點座標
+        let corners = [
+          [a - length / 2, b - width / 2],
+          [a + length / 2, b - width / 2],
+          [a + length / 2, b + width / 2],
+          [a - length / 2, b + width / 2]
+        ];
+        // 旋轉角點座標
+        let rotated_corners = corners.map(corner => {
+          let [x, y] = corner;
+          let x_relative = x - a;
+          let y_relative = y - b;
+          let x_rotated = x_relative * cosTheta - y_relative * sinTheta + a;
+          let y_rotated = x_relative * sinTheta + y_relative * cosTheta + b;
+
+          return [x_rotated, y_rotated];
+        });
+        var olPolygonCoords = [rotated_corners.map(coord => [coord[0], coord[1]])];
+        return olPolygonCoords;
+      }
       this.agvs_info.AGVDisplays.forEach(agv_information => {
+
+        const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
+        const vehicleLength = vehicleSize[0] / 100.0; //unit:m
+        const vehicleWidth = vehicleSize[1] / 100.0;//unit:m
+        const vehicleSaftyRotationRadious = Math.sqrt(Math.pow(vehicleLength / 2, 2) + Math.pow(vehicleWidth / 2, 2));//unit:m
+        const _polygon_coordinations = _CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
 
         var agvfeatures = this.AGVFeatures[agv_information.AgvName]
         if (agvfeatures) {  //以新增
@@ -817,17 +852,24 @@ export default {
               coordination = ft.getGeometry().getCoordinates()
             }
             var pts = this.PointLayer.getSource().getFeatures();
-            for (let index = 0; index < agv_information.NavPathCoordinationList.length; index++) {
-              const coor = agv_information.NavPathCoordinationList[index];
-              var ft = pts.find(feature => feature.getGeometry().getCoordinates()[0] == coor[0] &&
-                feature.getGeometry().getCoordinates()[1] == coor[1])
-
-              var feature_ = this.StationPointsFeatures.find(feature => feature.get('index') == ft.get('index'))
-              path_coordinations.push(feature_.getGeometry().getCoordinates())
+            const pathLength = agv_information.NavPathCoordinationList.length;
+            const isPathEmpty = pathLength == 0;
+            const isAGVLocNoChange = false;
+            if (!isPathEmpty) {
+              for (let index = 0; index < pathLength; index++) {
+                const coor = agv_information.NavPathCoordinationList[index];
+                var ft = pts.find(feature => feature.getGeometry().getCoordinates()[0] == coor[0] &&
+                  feature.getGeometry().getCoordinates()[1] == coor[1])
+                var feature_ = this.StationPointsFeatures.find(feature => feature.get('index') == ft.get('index'))
+                path_coordinations.push(feature_.getGeometry().getCoordinates())
+              }
             }
 
           }
+
+
           agvfeatures.agv_feature.setGeometry(new Point(coordination))
+          agvfeatures.agv_body_feture.setGeometry(new Polygon(_polygon_coordinations))
           agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
           agvfeatures.safty_region_feture.getGeometry().setCenter(coordination)
           var style = agvfeatures.agv_feature.getStyle();
@@ -850,7 +892,7 @@ export default {
           agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_information.CargoStatus)
-
+          console.log('update ')
           //this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
         }
         else {//動態新增AGV Feature
@@ -858,16 +900,39 @@ export default {
           var _agvfeature = new Feature({
             geometry: new Point(agv_information.Coordination)
           })
+          //ERROR dsljfas
 
-          const _agvSaftyCircle = new Circle(agv_information.Coordination, 0.7)
+          //AGV車體與迴轉半徑顯示
+          const _agvSaftyCircle = new Circle(agv_information.Coordination, vehicleSaftyRotationRadious) //TODO 車輛安全區域半徑數據取得
+          console.info(_polygon_coordinations)
+          const _agvBodyPolygon = new Polygon(_polygon_coordinations)
+          // 構造一個新的 RGBA 字串
+
+          var nameFillColor = this.convertColorNameToRGBA(agv_information.TextColor, 1);
+          var bodyColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.6);
+          var safyRegionColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.2);
           const _agvSaftyRegionFeature = new Feature(_agvSaftyCircle)
           _agvSaftyRegionFeature.setStyle(new Style({
-            fill: new Fill({ color: 'rgba(255,192,203,0.4)' }),
+            fill: new Fill({ color: safyRegionColor }),
             stroke: new Stroke({
               color: 'red', width: 1, lineDash: [5, 2]
+            }),
+            text: new Text({
+              text: "",
             })
           }))
-          _agvfeature.setStyle(AGVPointStyle(agv_information.AgvName, agv_information.TextColor))
+
+          //AGV車體顯示
+          const _agvBodyFeature = new Feature(_agvBodyPolygon)
+          _agvBodyFeature.setStyle(new Style({
+            fill: new Fill({ color: bodyColor }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 1
+            })
+          }))
+
+          _agvfeature.setStyle(AGVPointStyle(agv_information.AgvName, nameFillColor))
           _agvfeature.set('agvname', agv_information.AgvName)
           _agvfeature.set("feature_type", this.FeatureKeys.agv)
 
@@ -875,7 +940,7 @@ export default {
           var nav_path_feature = new Feature({
             geometry: new LineString([])
           })
-          nav_path_feature.setStyle(CreateLocusPathStyles(agv_information.TextColor, 5))
+          nav_path_feature.setStyle(CreateLocusPathStyles(bodyColor, 5))
 
 
           var _cargo_icon_feature = _agvfeature.clone()
@@ -885,7 +950,8 @@ export default {
             agv_feature: _agvfeature,
             path_feature: nav_path_feature,
             cargo_icon_feature: _cargo_icon_feature,
-            safty_region_feture: _agvSaftyRegionFeature
+            safty_region_feture: _agvSaftyRegionFeature,
+            agv_body_feture: _agvBodyFeature
           };
 
           var source = this.AGVLocLayer.getSource();
@@ -893,11 +959,14 @@ export default {
           source.addFeature(_cargo_icon_feature);
           source.addFeature(_agvfeature);
           source.addFeature(_agvSaftyRegionFeature);
+          source.addFeature(_agvBodyFeature);
           source.addFeature(nav_path_feature);
 
         }
       });
-    },
+
+
+    }, 50),
     /**根據地圖顯示模式變更現有Agv的顯示位置 */
     UpdateAGVLocByMapMode(mode = 'router' || 'coordination', agv_information = new clsAGVDisplay()) {
 
@@ -908,6 +977,22 @@ export default {
       var coordination = currentStationFeature.getGeometry().getCoordinates()
       agvfeature.agv_feature.setGeometry(new Point(coordination))
 
+    },
+    convertColorNameToRGBA(colorName, alpha = 1) {
+      // 創建一個臨時的元素來應用顏色
+      var tempElem = document.createElement("div");
+      tempElem.style.color = colorName;
+      document.body.appendChild(tempElem);
+
+      // 獲取計算後的風格，即實際的 RGB 值
+      var rgbColor = window.getComputedStyle(tempElem).color;
+
+      // 清理臨時元素
+      document.body.removeChild(tempElem);
+
+      // 轉換 RGB 至 RGBA
+      var rgbaColor = rgbColor.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
+      return rgbaColor;
     },
     /**事件處理 */
     InitMapEventHandler() {
@@ -1926,6 +2011,7 @@ export default {
     },
     InitMap() {
 
+      this.map_image_display = MapStore.getters.DefaultShowBackgroundImage ? 'visible' : '';
       var initGrid = (_map, _extent = [-20, -20, 20, 20]) => {
         const extent = _extent.map(val => val * 10);
         const interval = this.MapGridSize; // 間隔:單位公尺
@@ -1971,11 +2057,8 @@ export default {
         visible: this.map_image_display == 'visible'
       })
 
-      const vectorSource = new VectorSource({
-        features: [],
-      });
       this.AGVLocusLayer = new VectorLayer({
-        source: vectorSource,
+        source: new VectorSource({ features: [] }),
       })
       this.map = new Map({
         layers: [this.ImageLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.RegionLayer],
@@ -2001,6 +2084,7 @@ export default {
       this.EQLDULDStatusLayer.setVisible(!this.editable)
       this.InitMapEventHandler();
       initGrid(this.map, extent)
+      // this.map.addControl(new ZoomSlider());
     },
     GetForbidRegionCount() {
       var _features = this.RegionLayer.getSource().getFeatures()
@@ -2432,11 +2516,13 @@ export default {
       var non_charge_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge);
       var eq_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge && ft.get('data').StationType != 0);
       var normal_pt_features = this.StationPointsFeatures.filter(ft => ft.get('data').StationType == 0);
+      var parkable_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsParking || ft.get('data').StationType == 4 || ft.get('data'.StationType == 5))
 
       this.AGVLocLayer.setVisible(false);
       this.RestoredFillColorOfChangedFeature();
       //把AGV圖層Feature變為不明顯
       this.ChangeFeaturesAsIgnoreStyle(this.AGVMapFeatures);
+
       if (this.TaskDispatchOptions.action_type == 'charge') {
         //再把非充電站的Feature變為不明顯
         this.ChangeFeaturesAsIgnoreStyle(non_charge_features);
@@ -2446,10 +2532,12 @@ export default {
       else {
         //把充電站的Feature變為不明顯
         this.ChangeFeaturesAsIgnoreStyle(charge_features);
+
         var _isMoveOrder = this.TaskDispatchOptions.action_type == 'move';
         var _isOnlyLoadOrder = this.TaskDispatchOptions.action_type == 'load';
         var _isOnlyUnloadOrder = this.TaskDispatchOptions.action_type == 'unload';
         var _isChargeOrder = this.TaskDispatchOptions.action_type == 'charge';
+        var _isParkOrder = this.TaskDispatchOptions.action_type == 'park';
         var _isCarryOrder = this.TaskDispatchOptions.action_type == 'carry';
         var _isChoiseDestine = this.TaskDispatchOptions.direction == 'destine';
 
@@ -2468,6 +2556,11 @@ export default {
           } else if (_isChargeOrder) {
             this.ChangeFeaturesAsIgnoreStyle(eq_features);
             this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
+          } else if (_isParkOrder) {
+            this.ChangeFeaturesAsIgnoreStyle(eq_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
+            this.ChangeFeaturesAsCandicatingStyle(parkable_features);
+
           } else {
 
             this.ChangeFeaturesAsIgnoreStyle(this.StationPointsFeatures);
@@ -2736,112 +2829,112 @@ export default {
       color: white;
     }
   }
-}
 
-.custom-buttons {
-  // top: 133px;
-  text-align: right;
-  z-index: 1;
-  flex-direction: column;
-  margin-top: 55px;
-  padding-left: 7px;
-  height: 300px;
-
-  button {
-    border: 1px solid #d5d5d5;
-    border-radius: 3px;
-    height: 22px;
-    width: 24px;
-  }
-
-  button:hover {
-    cursor: pointer;
-    border: 0.01rem solid black;
-  }
-}
-
-.cursour-coordination-show {
-  z-index: 1;
-  margin-top: 10px;
-  width: 140px;
-  text-align: right;
-  font-weight: bold;
-  position: absolute;
-  right: 112px;
-  letter-spacing: 2px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-
-  .grid-size-text {
-    font-size: small;
-  }
-}
-
-.cursour-coordination-show,
-.custom-buttons {
-  position: absolute;
-  background-color: transparent;
-  display: flex;
-  z-index: 2;
-
-}
-
-.options {
-  text-align: left;
-  width: 108px;
-
-  label {
-    width: 100%;
-    margin-right: auto;
-    height: 25px;
-  }
-
-  div {
-    display: flex;
+  .custom-buttons {
+    // top: 133px;
+    text-align: right;
+    z-index: 1;
     flex-direction: column;
-    margin-bottom: 6px;
-    padding: 3px;
+    margin-top: 55px;
+    padding-left: 7px;
+    height: 300px;
 
-    span {
-      border-bottom: 1px solid gainsboro;
-      font-weight: bold;
-    }
-  }
-
-  .el-switch {
-    position: relative;
-    top: 6px;
-  }
-}
-
-.editor-option {
-  width: 100%;
-  border-radius: 3px;
-  border: 1px solid rgb(218, 218, 218);
-  padding: 3px;
-  margin-inline: 2px;
-
-  .action-buttons {
     button {
-      width: 120px;
-      margin-right: 5px;
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      height: 22px;
+      width: 24px;
+    }
+
+    button:hover {
+      cursor: pointer;
+      border: 0.01rem solid black;
     }
   }
 
-  .edit-block {
-    font-size: 15px;
+  .cursour-coordination-show {
+    z-index: 1;
+    margin-top: 10px;
+    width: 140px;
+    text-align: right;
     font-weight: bold;
-    display: flex;
-    flex-direction: row;
-    padding: 5px;
+    position: absolute;
+    right: 112px;
+    letter-spacing: 2px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
-    span {
-      text-align: left;
-      margin-right: 10px;
+    .grid-size-text {
+      font-size: small;
     }
   }
-}
 
-.agv_map {
-  width: 100%;
+  .cursour-coordination-show,
+  .custom-buttons {
+    position: absolute;
+    background-color: transparent;
+    display: flex;
+    z-index: 2;
+
+  }
+
+  .options {
+    text-align: left;
+    width: 108px;
+
+    label {
+      width: 100%;
+      margin-right: auto;
+      height: 25px;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 6px;
+      padding: 3px;
+
+      span {
+        border-bottom: 1px solid gainsboro;
+        font-weight: bold;
+      }
+    }
+
+    .el-switch {
+      position: relative;
+      top: 6px;
+    }
+  }
+
+  .editor-option {
+    width: 100%;
+    border-radius: 3px;
+    border: 1px solid rgb(218, 218, 218);
+    padding: 3px;
+    margin-inline: 2px;
+
+    .action-buttons {
+      button {
+        width: 120px;
+        margin-right: 5px;
+      }
+    }
+
+    .edit-block {
+      font-size: 15px;
+      font-weight: bold;
+      display: flex;
+      flex-direction: row;
+      padding: 5px;
+
+      span {
+        text-align: left;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .agv_map {
+    width: 100%;
+  }
 }
 </style>

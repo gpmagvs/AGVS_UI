@@ -98,6 +98,7 @@
         </template>
         <div class="actions-btn-conatiner">
             <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('move')"> 移動</b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('park')"> 停車</b-button>
             <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('unload')"> 取貨 </b-button>
             <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('load')"> 放貨 </b-button>
             <b-button class="w-100 my-1" variant="primary" @click="SelectActionHandle('carry')"> 搬運 </b-button>
@@ -194,6 +195,9 @@ export default {
             }
             if (_action == 'charge') {
                 return '充電'
+            }
+            if (_action == 'park') {
+                return '停車'
             }
         },
         IsAutoSelectAGV() {
@@ -374,7 +378,7 @@ export default {
             this.$swal.fire(
                 {
                     title: '確定要派送此任務?',
-                    text: `${this.selected_agv} 執行 ${this.selected_action_display} 任務,終點:${this.selected_destine.Graph.Display}`,//TODO 完整的名稱
+                    text: `${this.selected_agv} 執行 ${this.selected_action_display} 任務,終點:${this.selected_destine.Graph.Display}`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: '確定',
@@ -495,6 +499,8 @@ export default {
                 return this.bay_names;
             else if (this.selected_action == 'move')
                 return MapStore.getters.AllNormalStationOptions;
+            else if (this.selected_action == 'park')
+                return MapStore.getters.AllParkingStationOptions;
             else if (this.selected_action == 'load' || this.selected_action == 'unload')
                 return MapStore.getters.AllEqStation;
             else if (this.selected_action == 'charge')
@@ -515,7 +521,7 @@ export default {
 .task-dispatch-btn-container {
     position: fixed;
     bottom: 40px;
-    left: 68px;
+    right: 28px;
     z-index: 10;
 
     button {

@@ -19,3 +19,17 @@ export function CopyText(text) {
         clipboard.destroy();
     });
 }
+
+
+/**節流確保一個函數在一定時間內只執行一次，不管它被呼叫了多少次。這適用於例如滾動事件的處理，可以限制事件處理的頻率。 */
+export function Throttle(func, limit) {
+    let inThrottle;
+    return function () {
+        const context = this, args = arguments;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => (inThrottle = false), limit);
+        }
+    };
+}

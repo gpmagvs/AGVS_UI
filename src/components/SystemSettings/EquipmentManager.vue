@@ -337,7 +337,7 @@ export default {
         var row = this.EqDatas.find(eq => eq.TagID == tag);
         var _name = mapPoint.Graph.Display;
         row.Name = _name;
-        this.HandleEqNameChange(row, mapPoint.Name);
+        this.HandleEqNameChange(row, _name);
         ElNotification({
           message: `Get Display Name From Map Success(Tag ${tag} = ${_name})`,
           duration: 1000,

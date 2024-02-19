@@ -165,7 +165,7 @@ export default {
             this.$swal.fire(
                 {
                     title: '確定要派送此任務?',
-                    text: `${this.selected_agv} 執行 ${this.selected_action_display} 任務,終點:${this.selected_destine.name_display}`,//TODO 完整的名稱
+                    text: `${this.selected_agv} 執行 ${this.selected_action_display} 任務,終點:${this.selected_destine.name_display}`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: '確定',
