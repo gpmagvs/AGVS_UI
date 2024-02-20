@@ -281,10 +281,13 @@ export function GetStationStyle(text = '', station_type = 0, map_data) {
         text: new Text({
             text: text,
             font: 'bold 16px Calibri,sans-serif',
-            offsetX: 14,
             offsetY: -22,
             fill: new Fill({
-                color: station_type == 0 ? 'gold' : 'rgb(87, 203, 87)',//PointColorSelect(station_type)
+                color: station_type == 0 ? 'gold' : 'lime',//PointColorSelect(station_type)
+
+            }),
+            backgroundFill: station_type == 0 ? undefined : new Fill({
+                color: 'rgba(152, 209, 224,.5)'
             }),
             stroke: new Stroke({
                 color: 'black',

@@ -11,12 +11,12 @@
           v-if="editable"
           class="editor-option bg-light"
           style="margin-top:24px">
-          <div class="edit-block action-buttons">
-            <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
-            <b-button size="sm" variant="danger" @click="ReloadMap">重新載入</b-button>
-            <b-button size="sm" variant="danger" @click="ClearMap">重置圖資</b-button>
-          </div>
           <div class="d-flex">
+            <div class="edit-block action-buttons">
+              <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
+              <b-button size="sm" variant="danger" @click="ReloadMap">重新載入</b-button>
+              <b-button size="sm" variant="danger" @click="ClearMap">重置圖資</b-button>
+            </div>
             <div class="edit-block">
               <span>
                 <i class="bi bi-three-dots-vertical"></i>模式 </span>
@@ -801,44 +801,17 @@ export default {
       });
     },
     //TODO UpdateAGVLayer
-    UpdateAGVLayer: Throttle(function () {
+    UpdateAGVLayer() {
       if (this.agv_display != 'visible')
         return;
 
-
-      var _CalculateAGVPolygonCoordination = (coordination, length, width, theta) => {
-        let radians = theta * Math.PI / 180; // 將角度轉換為弧度
-        let cosTheta = Math.cos(radians);
-        let sinTheta = Math.sin(radians);
-        // 中心點
-        let [a, b] = coordination;
-        // 未旋轉矩形的角點座標
-        let corners = [
-          [a - length / 2, b - width / 2],
-          [a + length / 2, b - width / 2],
-          [a + length / 2, b + width / 2],
-          [a - length / 2, b + width / 2]
-        ];
-        // 旋轉角點座標
-        let rotated_corners = corners.map(corner => {
-          let [x, y] = corner;
-          let x_relative = x - a;
-          let y_relative = y - b;
-          let x_rotated = x_relative * cosTheta - y_relative * sinTheta + a;
-          let y_rotated = x_relative * sinTheta + y_relative * cosTheta + b;
-
-          return [x_rotated, y_rotated];
-        });
-        var olPolygonCoords = [rotated_corners.map(coord => [coord[0], coord[1]])];
-        return olPolygonCoords;
-      }
       this.agvs_info.AGVDisplays.forEach(agv_information => {
 
         const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
         const vehicleLength = vehicleSize[0] / 100.0; //unit:m
         const vehicleWidth = vehicleSize[1] / 100.0;//unit:m
         const vehicleSaftyRotationRadious = Math.sqrt(Math.pow(vehicleLength / 2, 2) + Math.pow(vehicleWidth / 2, 2));//unit:m
-        const _polygon_coordinations = _CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
+        var _polygon_coordinations = this.CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
 
         var agvfeatures = this.AGVFeatures[agv_information.AgvName]
         if (agvfeatures) {  //以新增
@@ -850,11 +823,11 @@ export default {
             var ft = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == agv_information.Tag)
             if (ft) {
               coordination = ft.getGeometry().getCoordinates()
+              _polygon_coordinations = this.CalculateAGVPolygonCoordination(coordination, vehicleLength, vehicleWidth, agv_information.Theta)
             }
             var pts = this.PointLayer.getSource().getFeatures();
             const pathLength = agv_information.NavPathCoordinationList.length;
             const isPathEmpty = pathLength == 0;
-            const isAGVLocNoChange = false;
             if (!isPathEmpty) {
               for (let index = 0; index < pathLength; index++) {
                 const coor = agv_information.NavPathCoordinationList[index];
@@ -864,14 +837,12 @@ export default {
                 path_coordinations.push(feature_.getGeometry().getCoordinates())
               }
             }
-
           }
 
-
           agvfeatures.agv_feature.setGeometry(new Point(coordination))
-          agvfeatures.agv_body_feture.setGeometry(new Polygon(_polygon_coordinations))
           agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
           agvfeatures.safty_region_feture.getGeometry().setCenter(coordination)
+          agvfeatures.agv_body_feture.setGeometry(new Polygon(_polygon_coordinations))
           var style = agvfeatures.agv_feature.getStyle();
           var image = style.getImage()
 
@@ -915,7 +886,7 @@ export default {
           _agvSaftyRegionFeature.setStyle(new Style({
             fill: new Fill({ color: safyRegionColor }),
             stroke: new Stroke({
-              color: 'red', width: 1, lineDash: [5, 2]
+              color: safyRegionColor, width: 1, lineDash: [5, 2]
             }),
             text: new Text({
               text: "",
@@ -940,7 +911,7 @@ export default {
           var nav_path_feature = new Feature({
             geometry: new LineString([])
           })
-          nav_path_feature.setStyle(CreateLocusPathStyles(bodyColor, 5))
+          nav_path_feature.setStyle(CreateLocusPathStyles(nameFillColor, 7))
 
 
           var _cargo_icon_feature = _agvfeature.clone()
@@ -966,7 +937,34 @@ export default {
       });
 
 
-    }, 50),
+
+    },
+    CalculateAGVPolygonCoordination(coordination, length, width, theta) {
+      let radians = theta * Math.PI / 180; // 將角度轉換為弧度
+      let cosTheta = Math.cos(radians);
+      let sinTheta = Math.sin(radians);
+      // 中心點
+      let [a, b] = coordination;
+      // 未旋轉矩形的角點座標
+      let corners = [
+        [a - length / 2, b - width / 2],
+        [a + length / 2, b - width / 2],
+        [a + length / 2, b + width / 2],
+        [a - length / 2, b + width / 2]
+      ];
+      // 旋轉角點座標
+      let rotated_corners = corners.map(corner => {
+        let [x, y] = corner;
+        let x_relative = x - a;
+        let y_relative = y - b;
+        let x_rotated = x_relative * cosTheta - y_relative * sinTheta + a;
+        let y_rotated = x_relative * sinTheta + y_relative * cosTheta + b;
+
+        return [x_rotated, y_rotated];
+      });
+      var olPolygonCoords = [rotated_corners.map(coord => [coord[0], coord[1]])];
+      return olPolygonCoords;
+    },
     /**根據地圖顯示模式變更現有Agv的顯示位置 */
     UpdateAGVLocByMapMode(mode = 'router' || 'coordination', agv_information = new clsAGVDisplay()) {
 
@@ -976,21 +974,19 @@ export default {
       var currentStationFeature = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == agv_information.Tag)
       var coordination = currentStationFeature.getGeometry().getCoordinates()
       agvfeature.agv_feature.setGeometry(new Point(coordination))
+      agvfeature.safty_region_feture.getGeometry().setCenter(coordination)
+      const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
+      const vehicleLength = vehicleSize[0] / 100.0; //unit:m
+      const vehicleWidth = vehicleSize[1] / 100.0;//unit:m
+      agvfeature.agv_body_feture.setGeometry(new Polygon(this.CalculateAGVPolygonCoordination(coordination, vehicleLength, vehicleWidth)))
 
     },
     convertColorNameToRGBA(colorName, alpha = 1) {
-      // 創建一個臨時的元素來應用顏色
       var tempElem = document.createElement("div");
       tempElem.style.color = colorName;
       document.body.appendChild(tempElem);
-
-      // 獲取計算後的風格，即實際的 RGB 值
       var rgbColor = window.getComputedStyle(tempElem).color;
-
-      // 清理臨時元素
       document.body.removeChild(tempElem);
-
-      // 轉換 RGB 至 RGBA
       var rgbaColor = rgbColor.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
       return rgbaColor;
     },
@@ -1873,6 +1869,7 @@ export default {
       this.ImageLayer.setVisible(this.map_image_display == 'visible')
     },
     MapDisplayModeOptHandler(setViewCenter = true) {
+
       var isShowSlamCoordi = this.map_display_mode == "coordination";
       this.UpdateStationPathLayer()
       this.StationNameDisplayOptHandler();
@@ -2914,7 +2911,8 @@ export default {
 
     .action-buttons {
       button {
-        width: 120px;
+        width: 90px;
+        height: 30px;
         margin-right: 5px;
       }
     }

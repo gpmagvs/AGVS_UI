@@ -73,13 +73,12 @@ export default {
     AdjustSizeOfRightSideFullPage() {
       const rightPanel = this.$el.querySelector('.right-panel');
       var container_width = rightPanel.parentElement.offsetWidth;
-      this.previousLeftSideWidth = `${container_width - rightPanel.offsetWidth}`
+      this.previousLeftSideWidth = container_width - rightPanel.offsetWidth
       rightPanel.style.width = `${container_width}px`;
     },
     RestoreSizeOfRightSide() {
       const rightPanel = this.$el.querySelector('.right-panel');
       const leftPanel = this.$el.querySelector('.left-panel');
-      var container_width = rightPanel.parentElement.offsetWidth;
       leftPanel.style.width = `${this.previousLeftSideWidth}px`;
     }
   },
@@ -114,6 +113,7 @@ export default {
     var window_width = leftPanel.parentElement.offsetWidth;
     leftPanel.style.width = `50vw`;
     rightPanel.style.width = `50vw`;
+    var _this = this;
     resizer.addEventListener('mousedown', e => {
       isDragging = true;
       let startX = e.pageX;
@@ -126,6 +126,7 @@ export default {
 
         leftPanel.style.width = `${newLeftWidth}px`;
         rightPanel.style.width = `${newRightWidth}px`;
+        _this.previousLeftSideWidth = newLeftWidth
         startX = e.pageX;
       };
 
