@@ -3,11 +3,16 @@
     <div v-bind:style="{
       visibility: isEasyMode ? 'hidden' : 'visible'
     }" class="d-flex flex-row ">
-      <div class="left-col  border-right left-panel" v-bind:style="LeftColStyle">
+      <div v-show="MenuExpanded" class="left-col  border-right left-panel" v-bind:style="LeftColStyle">
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="330px"></TaskStatusVue>
       </div>
-      <div class="resizer bg-light"></div>
+      <div class="resizer bg-light">
+        <div class="">
+          <MenuExpandIcon @click="() => { MenuExpanded = true; RestoreSizeOfRightSide() }" class="menu-icon" v-if="!MenuExpanded" />
+          <MenuFoldIcon @click="() => { MenuExpanded = false; AdjustSizeOfRightSideFullPage(); }" class="menu-icon" v-else />
+        </div>
+      </div>
       <b-tabs class="right-panel" :model-value="right_side_tabSelected" @activate-tab="TabActiveHandle">
         <b-tab title="地圖">
           <div style="height:800px" class="border">
@@ -54,14 +59,28 @@ import TaskStatusVue from '@/components/HomeView/TaskStatus.vue';
 import TaskAllocationVue from '@/components/HomeView/TaskAllocation.vue';
 import bus from '@/event-bus.js'
 import { userStore, agvs_settings_store } from '@/store';
+import { DArrowRight as MenuExpandIcon, DArrowLeft as MenuFoldIcon } from '@element-plus/icons-vue'
 
 export default {
   components: {
-    AGVStatusVue, TaskStatusVue, HomeMap, TaskAllocationVue, EQStatus, TaskDispathActionButton, TaskDispatchNewUI
+    AGVStatusVue, TaskStatusVue, HomeMap, TaskAllocationVue, EQStatus, TaskDispathActionButton, TaskDispatchNewUI,
+    MenuExpandIcon, MenuFoldIcon
   },
   methods: {
     TabActiveHandle(tabIndex) {
       this.right_side_tabSelected = tabIndex
+    },
+    AdjustSizeOfRightSideFullPage() {
+      const rightPanel = this.$el.querySelector('.right-panel');
+      var container_width = rightPanel.parentElement.offsetWidth;
+      this.previousLeftSideWidth = `${container_width - rightPanel.offsetWidth}`
+      rightPanel.style.width = `${container_width}px`;
+    },
+    RestoreSizeOfRightSide() {
+      const rightPanel = this.$el.querySelector('.right-panel');
+      const leftPanel = this.$el.querySelector('.left-panel');
+      var container_width = rightPanel.parentElement.offsetWidth;
+      leftPanel.style.width = `${this.previousLeftSideWidth}px`;
     }
   },
   computed: {
@@ -74,8 +93,8 @@ export default {
       loading: false,
       show_new_dispatch_panel: false,
       right_side_tabSelected: 0,
-      LeftColStyle: {
-      }
+      MenuExpanded: true,
+      previousLeftSideWidthStyle: ''
     }
   },
   mounted() {
@@ -93,6 +112,7 @@ export default {
     const rightPanel = this.$el.querySelector('.right-panel');
     let isDragging = false;
     var window_width = leftPanel.parentElement.offsetWidth;
+    leftPanel.style.width = `50vw`;
     rightPanel.style.width = `50vw`;
     resizer.addEventListener('mousedown', e => {
       isDragging = true;
@@ -143,8 +163,13 @@ export default {
 
   .resizer {
     height: 99vh;
-    width: 10px;
+    width: 20px;
     cursor: ew-resize;
+
+    .menu-icon {
+      cursor: pointer;
+      font-weight: bold;
+    }
   }
 
 }
