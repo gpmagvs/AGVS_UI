@@ -1,5 +1,5 @@
 <template>
-  <div class="map-view h-100 d-flex flex-row my-1">
+  <div class="map-view h-100 d-flex flex-row my-1" v-bind:style="StyleBiding">
     <div></div>
     <Map
       id="editable_map"
@@ -18,6 +18,7 @@ import MapAPI from '@/api/MapAPI';
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus.js'
 import { MapStore } from '@/components/Map/store'
+import { UIStore } from '@/store'
 
 export default {
   components: {
@@ -36,6 +37,25 @@ export default {
     }
   },
   computed: {
+    StyleBiding() {
+
+      var _sysAlarmShowing = UIStore.getters.SystemAlarmShowState;
+      var _eqpAlarmShowing = UIStore.getters.EqpAlarmShowState;
+
+      if (!_sysAlarmShowing && !_eqpAlarmShowing)
+        return {
+          top: '-30px'
+        }
+      else if (_sysAlarmShowing && _eqpAlarmShowing)
+        return {
+          top: '50px'
+        }
+      else {
+        return {
+          top: '12px'
+        }
+      }
+    },
     IsEditable() {
       return this.mode_selected == '編輯'
     },
@@ -147,7 +167,6 @@ export default {
 <style lang="scss" scoped>
 .map-view {
   position: absolute;
-  top: 50px;
   width: 100%;
 }
 </style>

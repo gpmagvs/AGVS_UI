@@ -172,7 +172,21 @@ export const userStore = createStore({
 export const UIStore = createStore({
   state: {
     locus: {
+    },
+    EqpAlarmShowState: false,
+    SystemAlarmShowState: false
+  },
+  mutations: {
+    IsSystemAlarmShowing(state, show) {
+      state.SystemAlarmShowState = show
+    },
+    IsEqpAlarmShowing(state, show) {
+      state.EqpAlarmShowState = show
     }
+  },
+  getters: {
+    SystemAlarmShowState: state => state.SystemAlarmShowState,
+    EqpAlarmShowState: state => state.EqpAlarmShowState,
   }
 })
 

@@ -567,6 +567,16 @@ export function AGVPointStyle(agv_name, color) {
     })
 }
 
+export function convertColorNameToRGBA(colorName, alpha = 1) {
+    var tempElem = document.createElement("div");
+    tempElem.style.color = colorName;
+    document.body.appendChild(tempElem);
+    var rgbColor = window.getComputedStyle(tempElem).color;
+    document.body.removeChild(tempElem);
+    var rgbaColor = rgbColor.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
+    return rgbaColor;
+}
+
 function PointColorSelect(station_type) {
     if (station_type == 0)
         return station_colors.normal
@@ -804,5 +814,12 @@ export class BezierCurve {
         this.ID = ID
         this.Rank = Rank
         this.MidPointCoordination = MidPointCoordination
+    }
+}
+
+export class AgvDisplayProps {
+    constructor() {
+        this.DisplayText = "RRRR"
+        this.DisplayColor = "Green"
     }
 }

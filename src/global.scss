@@ -8,7 +8,7 @@
   margin: 3px;
   background-color: white;
   padding: 2px;
-
+  height: auto;
   .title {
     text-align: left;
     font-weight: bold;
@@ -85,4 +85,13 @@
   /* 设置宽度为100px，您可以根据需要进行调整 */
   height: 64px;
   /* 设置高度为100px，您可以根据需要进行调整 */
+}
+
+.el-tabs--border-card {
+  .el-tabs__content{
+    font-size: 12px;
+    padding: 1px;
+    // background: red;
+    height: 100%;
+  }
 }

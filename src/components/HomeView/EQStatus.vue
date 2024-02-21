@@ -30,10 +30,10 @@
       <b-button class="mx-2" variant="light" @click="EmuAllBusy">ALL Busy</b-button>
     </div>-->
     <el-table
-      class="px-1"
+      class="eq-status-table px-1"
       border
       siz="small"
-      style="height:68vh"
+      v-bind:style="tableStyle"
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="display_data"
       :row-style="{ fontWeight: 'bold' }"
@@ -272,7 +272,8 @@ export default {
       // ],
       selected_region: "all",
       display_mode: 'lduld_state',
-      previous_eq_data: []
+      previous_eq_data: [],
+      zoomRatio: 1
     }
   },
   computed: {
@@ -291,7 +292,12 @@ export default {
     },
     show_lduld_state() {
       return this.display_mode == 'lduld_state'
-    }
+    },
+    tableStyle() {
+      return this.zoomRatio > 0.9 ? {
+        height: `${window.innerHeight * 0.75}px`
+      } : {}
+    },
   },
   mounted() {
     //this.WsConnect();
@@ -305,7 +311,13 @@ export default {
       });
 
     })
-
+    // 監聽 document 的 wheel 事件來檢測滾輪動作
+    document.addEventListener('wheel', (event) => {
+      // 檢查是否按下了 Ctrl 鍵，這是瀏覽器縮放的常見方式
+      if (event.ctrlKey) {
+        this.zoomRatio = window.devicePixelRatio
+      }
+    }, { passive: false }); // 使用 passive: false 以允許 preventDefault()
   },
   methods: {
     userStoreTest() {
@@ -436,7 +448,7 @@ export default {
 <style lang="scss" >
 .eq-status {
   height: 100%;
-  width: 50vw;
+  width: 99%;
 
   .legend {
     div {

@@ -8,24 +8,26 @@
         <TaskStatusVue height="330px"></TaskStatusVue>
       </div>
       <div class="resizer bg-light">
-        <div class="">
-          <MenuExpandIcon @click="() => { MenuExpanded = true; RestoreSizeOfRightSide() }" class="menu-icon" v-if="!MenuExpanded" />
-          <MenuFoldIcon @click="() => { MenuExpanded = false; AdjustSizeOfRightSideFullPage(); }" class="menu-icon" v-else />
+        <div class="menu-icon">
+          <el-icon v-if="!MenuExpanded">
+            <MenuExpandIcon @click="() => { MenuExpanded = true; RestoreSizeOfRightSide() }" />
+          </el-icon>
+          <el-icon v-else>
+            <MenuFoldIcon @click="() => { MenuExpanded = false; AdjustSizeOfRightSideFullPage(); }" />
+          </el-icon>
         </div>
       </div>
-      <b-tabs class="right-panel" :model-value="right_side_tabSelected" @activate-tab="TabActiveHandle">
-        <b-tab title="地圖">
-          <div style="height:800px" class="border">
+      <div class="right-panel flex-fill">
+        <!-- <HomeMap style="width:100%"></HomeMap> -->
+        <el-tabs v-model="right_side_tabSelected" tab-position="top" style="height: 100%" type="border-card">
+          <el-tab-pane name="map" label="地圖">
             <HomeMap style="width:100%"></HomeMap>
-            <!-- <LMap></LMap> -->
-          </div>
-        </b-tab>
-        <b-tab title="設備狀態">
-          <div class="border w-100">
+          </el-tab-pane>
+          <el-tab-pane label="設備狀態">
             <EQStatus></EQStatus>
-          </div>
-        </b-tab>
-      </b-tabs>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
       <TaskAllocationVue></TaskAllocationVue>
     </div>
     <div v-bind:style="{
@@ -44,7 +46,7 @@
     </div>
     <TaskDispatchNewUI class="new-dispatch-pnl" v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'" @close="() => { show_new_dispatch_panel = false }" v-show="show_new_dispatch_panel"></TaskDispatchNewUI>
     <TaskDispathActionButton @onTaskDispatch="() => {
-      right_side_tabSelected = 0;
+      right_side_tabSelected = 'map';
     }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
   </div>
 </template>
@@ -67,9 +69,6 @@ export default {
     MenuExpandIcon, MenuFoldIcon
   },
   methods: {
-    TabActiveHandle(tabIndex) {
-      this.right_side_tabSelected = tabIndex
-    },
     AdjustSizeOfRightSideFullPage() {
       const rightPanel = this.$el.querySelector('.right-panel');
       var container_width = rightPanel.parentElement.offsetWidth;
@@ -91,7 +90,7 @@ export default {
       isEasyMode: false,
       loading: false,
       show_new_dispatch_panel: false,
-      right_side_tabSelected: 0,
+      right_side_tabSelected: 'map',
       MenuExpanded: true,
       previousLeftSideWidthStyle: ''
     }
@@ -164,12 +163,14 @@ export default {
 
   .resizer {
     height: 99vh;
-    width: 20px;
+    width: 30px;
+    text-align: center;
     cursor: ew-resize;
 
     .menu-icon {
       cursor: pointer;
       font-weight: bold;
+      font-size: 30px;
     }
   }
 

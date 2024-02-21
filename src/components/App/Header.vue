@@ -7,28 +7,6 @@
           <MenuFoldIcon class="menu-icon" v-else />
         </el-icon>
       </i>
-      <!-- <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ path: '/' }">homepage</el-breadcrumb-item>
-        <el-breadcrumb-item><a href="/">promotion management</a></el-breadcrumb-item>
-        <el-breadcrumb-item>promotion list</el-breadcrumb-item>
-        <el-breadcrumb-item>promotion detail</el-breadcrumb-item>
-      </el-breadcrumb> -->
-      <!--
-      <h3 @click="LogoClickHandler">
-        <b>GPM AGVS</b>
-      </h3>-->
-      <!-- <div
-        v-if="!modes.system_operation_mode.actived"
-        class="matain-mode-notify py-2 px-3">維護模式:自動派車、充電功能已關閉。
-      </div>
-      <b-button
-        v-else
-        class="mx-2"
-        @click="HandleAutoDispatchBtnClick"
-        style="width:100px;font-weight: bold; font-size:large;text-decoration: underline;"
-        variant="light"
-        size="sm">自動派工</b-button> -->
-      <!-- <div class="page-name-display mx-2">{{ current_route_info.route_display_name }}</div> -->
       <div class="flex-fill"></div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
@@ -153,7 +131,7 @@ import moment from 'moment'
 
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { agvs_settings_store, userStore } from '@/store'
+import { agvs_settings_store, userStore, UIStore } from '@/store'
 import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@element-plus/icons-vue'
 
 export default {
@@ -265,9 +243,11 @@ export default {
   watch: {
     HasSystemAlarm(newVal) {
       this.$emit('update:HasSystemAlarm', newVal)
+      UIStore.commit('IsSystemAlarmShowing', newVal)
     },
     HasEqpAlarm(newVal) {
       this.$emit('update:HasEqpAlarm', newVal)
+      UIStore.commit('IsEqpAlarmShowing', newVal)
     }
   },
   mounted() {
