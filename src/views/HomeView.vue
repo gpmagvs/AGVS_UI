@@ -3,7 +3,7 @@
     <div v-bind:style="{
       visibility: isEasyMode ? 'hidden' : 'visible'
     }" class="d-flex flex-row ">
-      <div v-show="MenuExpanded" class="left-col  border-right left-panel" v-bind:style="LeftColStyle">
+      <div v-show="MenuExpanded" class="left-col  border-right left-panel">
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="330px"></TaskStatusVue>
       </div>

@@ -8,16 +8,16 @@
     element-loading-background="rgba(31, 31, 31, 0.9)">
     <el-container>
       <el-aside class="border" style="width:auto">
-        <el-scrollbar>
-          <Menu :isCollapse="menu_collapse"></Menu>
-        </el-scrollbar>
+        <Menu :isCollapse="menu_collapse"></Menu>
       </el-aside>
       <el-container>
         <el-header style="padding:0;">
-          <Header :MenuExpanded="menu_collapse" v-show="!loading" @onMenuToggleClicked="ToggleMenu"></Header>
+          <Header ref="header" :MenuExpanded="menu_collapse" v-show="!loading"
+            @update:HasSystemAlarm="(val) => { HeaderShowSysAlarm = val; }"
+            @update:HasEqpAlarm="(val) => { HeaderShowEqpAlarm = val; }"
+            @onMenuToggleClicked="ToggleMenu"></Header>
         </el-header>
-        <el-main style="padding:0;overflow-y: hidden;" v-bind:style="router_view_style"><router-view v-show="!loading" v-slot="{ Component }">
-            <keep-alive>
+        <el-main style="padding:0;overflow-y: hidden;" v-bind:style="router_view_style"><router-view v-show="!loading" v-slot="{ Component }"> <keep-alive>
               <component :is="Component" />
             </keep-alive>
           </router-view></el-main>
@@ -72,9 +72,24 @@ export default {
         content: '',
         title_variant: 'primary'
       },
-      router_view_style: {
+      HeaderShowSysAlarm: false,
+      HeaderShowEqpAlarm: false
+    }
+  },
+  computed: {
+    router_view_style() {
+
+      var _paddingTop = '18px';
+      if (this.HeaderShowEqpAlarm && this.HeaderShowSysAlarm)
+        _paddingTop = '60px'
+      else if (!this.HeaderShowEqpAlarm && !this.HeaderShowSysAlarm)
+        _paddingTop = '1px';
+      else
+        _paddingTop = '30px';
+
+      return {
         position: 'relative',
-        paddingTop: '78px',
+        paddingTop: _paddingTop,
       }
     }
   },

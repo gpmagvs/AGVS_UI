@@ -18,9 +18,6 @@ import 'vuesax3/dist/vuesax.css'
 import VueApexCharts from 'vue3-apexcharts'
 import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
-
-import 'vuefinder/dist/style.css'
-import VueFinder from 'vuefinder/dist/vuefinder'
 import './BackendDataFetchWorker.js'
 import './idling_detector.js'
 
@@ -41,16 +38,11 @@ const Sweetalert_options = {
 }
 
 const app = createApp(App)
-app.config.globalProperties.$ = app.config.globalProperties
-
-Modal.install(app)
-
 // 合併 store
 const mergedStore = { ...store, ...userStore };
 
 app.use(mergedStore);
 app.use(VueApexCharts)
-
 app.use(Vuesax)
 app.use(mergedStore)
 app.use(router)
@@ -58,5 +50,4 @@ app.use(BootstrapVue3)
 app.use(ElementPlus)
 app.use(i18n)
 app.use(VueSweetalert2, Sweetalert_options)
-app.use(VueFinder)
 app.mount('#app')

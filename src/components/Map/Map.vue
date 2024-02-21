@@ -972,13 +972,15 @@ export default {
       if (!agvfeature)
         return;
       var currentStationFeature = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == agv_information.Tag)
-      var coordination = currentStationFeature.getGeometry().getCoordinates()
-      agvfeature.agv_feature.setGeometry(new Point(coordination))
-      agvfeature.safty_region_feture.getGeometry().setCenter(coordination)
-      const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
-      const vehicleLength = vehicleSize[0] / 100.0; //unit:m
-      const vehicleWidth = vehicleSize[1] / 100.0;//unit:m
-      agvfeature.agv_body_feture.setGeometry(new Polygon(this.CalculateAGVPolygonCoordination(coordination, vehicleLength, vehicleWidth)))
+      if (currentStationFeature) {
+        var coordination = currentStationFeature.getGeometry().getCoordinates()
+        agvfeature.agv_feature.setGeometry(new Point(coordination))
+        agvfeature.safty_region_feture.getGeometry().setCenter(coordination)
+        const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
+        const vehicleLength = vehicleSize[0] / 100.0; //unit:m
+        const vehicleWidth = vehicleSize[1] / 100.0;//unit:m
+        agvfeature.agv_body_feture.setGeometry(new Polygon(this.CalculateAGVPolygonCoordination(coordination, vehicleLength, vehicleWidth)))
+      }
 
     },
     convertColorNameToRGBA(colorName, alpha = 1) {

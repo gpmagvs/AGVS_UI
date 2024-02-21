@@ -510,7 +510,7 @@ export default {
             else if (this.selected_action == 'exchange_battery')
                 return MapStore.getters.AllExangeBatteryStation;
             else
-                return this.tags;
+                return [];
 
         },
     }

@@ -66,13 +66,11 @@
 
 <script>
 import { userStore } from '@/store'
-import KeyBoard from '@/components/Tools/SimpleKeyboard.vue'
 import bus from '@/event-bus.js';
 import { ClearLoginCookie, IsLoginLastTime } from '@/api/AuthHelper.js'
 // import { OkModal, OkCancelModal } from '@/components/ModalHelper.js'
 export default {
   components: {
-    KeyBoard,
   },
   data() {
     return {

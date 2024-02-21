@@ -103,7 +103,7 @@
     </div>
     <!--Alarm-->
     <div v-show="showAlarm" class="alarm text-dark">
-      <div class="alarm-container" v-bind:class="system_alarms">
+      <div v-if="system_alrm_text != ''" class="alarm-container" v-bind:class="system_alarms">
         <div class="flex-fill">
           <span class="type-text">
             <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 系統警報 </span>
@@ -121,7 +121,7 @@
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
       </div>
-      <div class="alarm-container" v-bind:class="equipment_alarms">
+      <div v-if="eq_alrm_text != ''" class="alarm-container" v-bind:class="equipment_alarms">
         <div class="flex-fill">
           <span class="type-text">
             <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 設備警報 </span>
@@ -254,8 +254,21 @@ export default {
         return [];
       return this.unchecked_alarms.filter(alarm => alarm.Source == 1)
     },
+    HasSystemAlarm() {
+      return this.system_alrm_text != '';
+    },
+    HasEqpAlarm() {
+      return this.eq_alrm_text != '';
+    }
 
-
+  },
+  watch: {
+    HasSystemAlarm(newVal) {
+      this.$emit('update:HasSystemAlarm', newVal)
+    },
+    HasEqpAlarm(newVal) {
+      this.$emit('update:HasEqpAlarm', newVal)
+    }
   },
   mounted() {
     this.DownloadSystemOperationsSettings();
@@ -562,7 +575,6 @@ export default {
   }
 
   .alarm {
-    height: 44px;
 
     .alarm-container {
       display: flex;
