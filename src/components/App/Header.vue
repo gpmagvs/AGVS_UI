@@ -12,34 +12,16 @@
         <i class="bi bi-three-dots-vertical pt-2"></i>
         <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="key">
           <span class="mx-1">{{ mode.name }}</span>
-          <el-switch
-            v-model="mode.actived"
-            active-color="rgb(95, 171, 80)"
-            inactive-color="red"
-            :active-text="mode.active_text"
-            :inactive-text="mode.inactive_text"
-            border-color="grey"
-            inline-prompt
-            :before-change="mode.beforeChangeHandler"
-            :loading="mode.loading"
-            size="large"
-            width="75px"></el-switch>
+          <el-switch v-model="mode.actived" active-color="rgb(95, 171, 80)" inactive-color="red"
+            :active-text="mode.active_text" :inactive-text="mode.inactive_text" border-color="grey" inline-prompt
+            :before-change="mode.beforeChangeHandler" :loading="mode.loading" size="large" width="75px"></el-switch>
         </div>
         <!-- <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container"> -->
         <div class="op-mode-switch-container">
           <span class="mx-1">檢視模式</span>
-          <el-switch
-            v-model="isEasyMode"
-            @change="HandleViewModeChanged"
-            :before-change="CheckUserLoginState"
-            active-color="rgb(95, 171, 80)"
-            inactive-color="red"
-            active-text="簡易模式"
-            inactive-text="工程模式"
-            border-color="grey"
-            inline-prompt
-            size="large"
-            width="80px"></el-switch>
+          <el-switch v-model="isEasyMode" @change="HandleViewModeChanged" :before-change="CheckUserLoginState"
+            active-color="rgb(95, 171, 80)" inactive-color="red" active-text="簡易模式" inactive-text="工程模式"
+            border-color="grey" inline-prompt size="large" width="80px"></el-switch>
         </div>
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
@@ -68,9 +50,7 @@
               <div class="d-flex flex-column">
                 <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">登入</b-button>
                 <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">登出</b-button>
-                <b-button
-                  v-if="IsLogin"
-                  class="my-1 bg-light text-dark"
+                <b-button v-if="IsLogin" class="my-1 bg-light text-dark"
                   @click="LoginClickHandler('switch')">切換使用者</b-button>
               </div>
             </template>
@@ -89,11 +69,7 @@
         </div>
         <div class="opt">
           <div>
-            <b-button
-              v-if="current_user_role != 0"
-              @click="ResetSysAlarmsHandler"
-              class="mb-0"
-              size="sm"
+            <b-button v-if="current_user_role != 0" @click="ResetSysAlarmsHandler" class="mb-0" size="sm"
               variant="danger">警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
@@ -107,12 +83,7 @@
         </div>
         <div class="opt">
           <div>
-            <b-button
-              v-if="false"
-              @click="ResetEqpAlarmsHandler"
-              class="mb-2"
-              size="sm"
-              variant="danger">警報復歸</b-button>
+            <b-button v-if="false" @click="ResetEqpAlarmsHandler" class="mb-2" size="sm" variant="danger">警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -337,9 +308,11 @@ export default {
 
     },
     async TransferModeChangeRequest() {
-
+      if(this.modes.system_operation_mode.actived==false) // 操作模式手動不可換派工模式
+        return
       if (!this.CheckUserLoginState())
-        return false;
+        return false;      
+
       var response = await TransferMode(this.modes.transfer_mode.actived ? 0 : 1);
       var success = response.confirm;
       var mode_req_text = '搬運模式切換'
@@ -379,6 +352,9 @@ export default {
         this.ModeRequestSuccessHandler(mode_req_text);
       }
       this.modes.system_operation_mode.loading = false;
+      if (this.modes.system_operation_mode.actived) {
+        this.modes.transfer_mode.actived = false
+      }
       return success
     },
     /**This function handles the change of the host connection mode.  */
