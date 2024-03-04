@@ -865,7 +865,6 @@ export default {
           agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_information.CargoStatus)
-          console.log('update ')
           //this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
         }
         else {//動態新增AGV Feature
@@ -2875,10 +2874,6 @@ export default {
     .el-alert__title {
       font-size: 20px;
     }
-  }
-
-  .select-mode {
-    //animation: mode_flick 1s infinite;
   }
 
   @keyframes mode_flick {

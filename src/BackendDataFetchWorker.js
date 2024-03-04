@@ -19,7 +19,7 @@ const throttledUpdateAGVNavingData = Throttle(function (event) {
     if (event.data != 'error' && event.data != 'closed') {
         MapStore.commit('setAGVDynamicPathInfo', event.data);
     }
-}, 50);
+}, 10);
 
 const throttledUpdateDynamicTrafficData = Throttle(function (event) {
     if (event.data != 'error' && event.data != 'closed') {
@@ -32,14 +32,14 @@ const throttledUpdateAgvStatesData = Throttle(function (event) {
         var data = Object.values(event.data).map(d => new clsAGVStateDto(d));
         agv_states_store.commit('storeAgvStates', data)
     }
-}, 100);
+}, 10);
 
 
 const throttledUpdateEquipmentStatesData = Throttle(function (event) {
     if (event.data != 'error' && event.data != 'closed') {
         EqStore.commit('setData', event.data)
     }
-}, 100);
+}, 10);
 
 
 var user_id = generateRandomUserID(10);

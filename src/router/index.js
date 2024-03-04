@@ -105,6 +105,11 @@ const routes = [
     name: 'alarm',
     component: AlarmView,
   },
+  {
+    path: '/developing',
+    name: 'dev_ui',
+    component: () => import('../components/Map/AGVDesigner/AGVDisplaySettings.vue'),
+  },
 ]
 
 export const tsmc_routes = [
