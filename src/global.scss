@@ -97,19 +97,30 @@
 }
 
 .ol-zoom{
-  // background-color: black;
   width: 40px;
   position: absolute;
   display:  flex;
   flex-direction: column;
   z-index: -1;
+  padding: 10px;
   button{
+    opacity: .7;
     font-size: 26px;
     width: 35px;
     border-radius: 3px;
     margin:2px;
     border: 1px solid grey;
     background-color: white;
+    font-weight: bolder;
+  }
+  button:hover{
+    opacity: 1;
+    background-color: rgb(13, 110, 253);
+    color: white;
+  }
+  button:active{
+    background-color: grey;
+    color: white;
   }
 }
 
