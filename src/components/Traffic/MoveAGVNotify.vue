@@ -14,7 +14,7 @@
           <el-table-column label="被阻車輛" prop="AgvName"></el-table-column>
           <el-table-column label="當前地點" prop="AgvName">
             <template #default="scope">
-              <div>{{GetCurrentLocInfoByTag(scope.row.Tag)}}</div>
+              <div>{{ GetCurrentLocInfoByTag(scope.row.Tag) }}</div>
             </template>
           </el-table-column>
           <el-table-column label="被阻地點" prop="AgvName">
@@ -27,7 +27,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import { MapStore } from '@/components/Map/store'
 import { ElNotification } from 'element-plus'
@@ -68,13 +67,13 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .move_agv_notify {
   position: fixed;
-  bottom: 43px;
-  right: 23px;
-  z-index: 9990;
+  bottom: 106px;
+  right: 35px;
+  z-index: 300;
+
   .item {
     font-size: 14px;
   }
