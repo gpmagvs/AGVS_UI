@@ -30,7 +30,18 @@ const routes = [
   {
     path: '/map',
     name: 'map',
-    component: () => import('../views/MapManager.vue'),
+    children: [
+      {
+        path: 'map_editor',
+        name: 'map_editor',
+        component: () => import('../views/MapManager.vue'),
+      },
+      {
+        path: 'agv_display',
+        name: 'agv_display',
+        component: () => import('../components/Map/AGVDesigner/AGVDisplaySettings.vue'),
+      }
+    ],
     meta: {
       isAdminUse: true
     }

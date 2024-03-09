@@ -1,8 +1,8 @@
 <template>
   <div class="home-view h-100 custom-tabs-head" v-loading="loading">
     <div v-bind:style="{
-      visibility: isEasyMode ? 'hidden' : 'visible'
-    }" class="d-flex flex-row ">
+    visibility: isEasyMode ? 'hidden' : 'visible'
+  }" class="d-flex flex-row ">
       <div v-show="MenuExpanded" class="left-col  border-right left-panel">
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="330px"></TaskStatusVue>
@@ -31,12 +31,12 @@
       <TaskAllocationVue></TaskAllocationVue>
     </div>
     <div v-bind:style="{
-      visibility: isEasyMode ? 'visible' : 'hidden',
-      position: 'absolute',
-      top: '70px',
-      width: '100%',
-      height: '82vh'
-    }" class="easy_mode d-flex">
+    visibility: isEasyMode ? 'visible' : 'hidden',
+    position: 'absolute',
+    top: '70px',
+    width: '100%',
+    height: '82vh'
+  }" class="easy_mode d-flex">
       <div>
         <AGVStatusVue :IsEasyMode="true"></AGVStatusVue>
       </div>
@@ -46,11 +46,10 @@
     </div>
     <TaskDispatchNewUI class="new-dispatch-pnl" v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'" @close="() => { show_new_dispatch_panel = false }" v-show="show_new_dispatch_panel"></TaskDispatchNewUI>
     <TaskDispathActionButton @onTaskDispatch="() => {
-      right_side_tabSelected = 'map';
-    }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
+    right_side_tabSelected = 'map';
+  }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
   </div>
 </template>
-
 <script>
 import AGVStatusVue from '@/components/HomeView/AGVStatus/AGVStatus.vue'
 import HomeMap from '@/components/HomeView/HomeMap.vue';
@@ -141,8 +140,7 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" >
+<style lang="scss">
 .home-view {
   .dispatch-show {
     animation: slideInFromLeft 0.2s ease-out forwards;

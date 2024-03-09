@@ -95,3 +95,24 @@
     height: 100%;
   }
 }
+
+.ol-zoom{
+  // background-color: black;
+  width: 40px;
+  position: absolute;
+  display:  flex;
+  flex-direction: column;
+  z-index: -1;
+  button{
+    font-size: 26px;
+    width: 35px;
+    border-radius: 3px;
+    margin:2px;
+    border: 1px solid grey;
+    background-color: white;
+  }
+}
+
+.ol-rotate{
+  visibility: hidden;
+}

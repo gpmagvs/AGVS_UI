@@ -31,13 +31,27 @@
                 </el-icon>
                 <template #title>帳籍管理</template>
             </el-menu-item>
-            <el-menu-item v-if="IsAdmin" index="/map">
-                <el-icon>
-                    <map_icon :color="IconColor" />
-                </el-icon>
-                <template #title>圖資管理</template>
-            </el-menu-item>
-            <el-sub-menu>
+            <el-sub-menu v-if="IsAdmin" index="/map">
+                <template #title>
+                    <el-icon>
+                        <map_icon :color="IconColor" />
+                    </el-icon>
+                    <span>地圖與顯示</span>
+                </template>
+                <el-menu-item index="/map/map_editor">
+                    <el-icon>
+                        <map_icon :color="IconColor" />
+                    </el-icon>
+                    <template #title>圖資管理</template>
+                </el-menu-item>
+                <el-menu-item index="/map/agv_display">
+                    <el-icon>
+                        <map_icon :color="IconColor" />
+                    </el-icon>
+                    <template #title>AGV 顯示</template>
+                </el-menu-item>
+            </el-sub-menu>
+            <el-sub-menu index="/data">
                 <template #title>
                     <el-icon>
                         <DataAnalysis :color="IconColor" />
@@ -110,8 +124,7 @@
         </el-menu>
     </div>
 </template>
-  
-<script >
+<script>
 import {
     Document,
     Menu as IconMenu,
@@ -174,7 +187,6 @@ export default {
     }
 }
 </script>
-  
 <style lang="scss" scoped>
 .menu {
 
@@ -208,4 +220,3 @@ export default {
     }
 }
 </style>
-  

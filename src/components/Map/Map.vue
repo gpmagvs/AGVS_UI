@@ -99,15 +99,15 @@
             <div class="p-0 m-0 w-100" v-if="left_tab_class_name == 'tab-close'">
               <i
                 @click="() => {
-                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-                }"
+          left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+        }"
                 class="bi bi-chevron-double-right"></i>
             </div>
             <div v-else class="tab-open">
               <i
                 @click="() => {
-                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-                }"
+          left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+        }"
                 class="bi bi-chevron-double-left"></i>
               <b-tabs class="p-1">
                 <b-tab title="點位">
@@ -157,11 +157,6 @@
           </div>
           <div class="w-100 h-100 d-flex ">
             <!-- Map Render -->
-            <div
-              :id="id"
-              class="agv_map flex-fll"
-              @contextmenu="showContextMenu($event)">
-            </div>
             <!--提示-->
             <div class="notifiers" style="position:absolute;width:100%">
               <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
@@ -176,15 +171,14 @@
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-forbid-region'" title="使用滑鼠[左鍵]在地圖上選取欲編輯之管制區)" type="success" />
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'remove-forbid-region'" title="使用滑鼠[左鍵]在地圖上點擊欲刪除之管制區" type="error" />
             </div>
-            <div v-if="false" class="ol-control custom-buttons">
-              <button @click="HandleSettingBtnClick">
-                <i class="bi bi-sliders"></i>
-              </button>
-              <button @click="HandleSettingBtnClick">?</button>
-            </div>
             <div v-if="true" class="cursour-coordination-show d-flex flex-column">
               <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
               <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
+            </div>
+            <div
+              :id="id"
+              class="agv_map flex-fll"
+              @contextmenu="showContextMenu($event)">
             </div>
             <!-- 設定 -->
             <div
@@ -248,20 +242,20 @@
                   inactive-color="rgb(146, 148, 153)"
                   width="70"
                   @change="(visible) => {
-                    if (visible) {
-                      if (map_display_mode == 'router') {
-                        PathLayerForCoordination.setVisible(false);
-                        PathLayerForRouter.setVisible(true);
-                      } else {
-                        PathLayerForCoordination.setVisible(true);
-                        PathLayerForRouter.setVisible(false);
-                      }
-                    } else {
-                      PathLayerForCoordination.setVisible(false);
-                      PathLayerForRouter.setVisible(false);
-                    }
-                    HideNormalStations(!visible);
-                  }"></el-switch>
+          if (visible) {
+            if (map_display_mode == 'router') {
+              PathLayerForCoordination.setVisible(false);
+              PathLayerForRouter.setVisible(true);
+            } else {
+              PathLayerForCoordination.setVisible(true);
+              PathLayerForRouter.setVisible(false);
+            }
+          } else {
+            PathLayerForCoordination.setVisible(false);
+            PathLayerForRouter.setVisible(false);
+          }
+          HideNormalStations(!visible);
+        }"></el-switch>
               </div>
               <div>
                 <span class="mx-1">管制區顯示</span>
@@ -274,8 +268,8 @@
                   inactive-color="rgb(146, 148, 153)"
                   width="70"
                   @change="(visible) => {
-                    RegionLayer.setVisible(visible && map_display_mode == 'coordination');
-                  }"></el-switch>
+          RegionLayer.setVisible(visible && map_display_mode == 'coordination');
+        }"></el-switch>
               </div>
               <div v-if="editable" class="rounded">
                 <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
@@ -308,19 +302,19 @@
       @OnLeve="HandlePtSettingDrawerLeaved"
       @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
     <MapPathSettingDrawer :SettingsChangedHandler="() => {
-      UpdateStationPathLayer();
-      HandlePathTbRowClick(SelectedPathData);
+          UpdateStationPathLayer();
+          HandlePathTbRowClick(SelectedPathData);
 
-    }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
+        }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
     <MapRegionEditDrawer @closed="HandleForbidRegionEditDrawerClosed" ref="forbid_region_editor"
       :SettingsChangedHandler="() => {
 
-      }"></MapRegionEditDrawer>
+        }"></MapRegionEditDrawer>
     <el-dialog @closed="() => {
-      if (selected_path_feature) {
-        RestoreOriginalPathStyle(selected_path_feature)
-      }
-    }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
+          if (selected_path_feature) {
+            RestoreOriginalPathStyle(selected_path_feature)
+          }
+        }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
       <div class="bg-light text-start d-flex py-2">
         <b-button size="sm" variant="success" @click="() => {
           PathesCandicats.forEach(path_setting => {
@@ -359,7 +353,6 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
 
 import Feature from 'ol/Feature.js';
@@ -371,7 +364,6 @@ import { Pointer } from 'ol/interaction'
 import Draw from 'ol/interaction/Draw.js';
 import Projection from 'ol/proj/Projection.js';
 import Static from 'ol/source/ImageStatic.js';
-import { ZoomSlider } from 'ol/control.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
@@ -2864,7 +2856,6 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .map-component {
   width: 100%;
