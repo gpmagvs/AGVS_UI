@@ -17,8 +17,12 @@
       @row-click="HandleRowClick">
       <el-table-column label="車輛名稱" prop="AGV_Name" align="center" min-width="100px" type="index">
         <template #default="scope">
-          <div class="">
-            <b>{{ scope.row.AGV_Name.toUpperCase() }}</b>
+          <div class="d-flex flex-column">
+            <div>
+              <!-- <b>{{ scope.row.AGV_Name.toUpperCase() }}</b> -->
+              <b>{{ GetDisplayName(scope.row.AGV_Name) }}</b>
+            </div>
+            <div class="agv-color-display" v-bind:style="StyleOfAGVDisplayColor(scope.row.AGV_Name)"></div>
             <b-button v-if="!IsRunMode"
               class="w-20 my-1 mx-2"
               @click="ShowAGVChargeConfirmDialog(scope.row)"
@@ -274,7 +278,6 @@
     </b-modal>
   </div>
 </template>
-
 <script>
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
@@ -283,6 +286,7 @@ import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
 import { userStore, agvs_settings_store, agv_states_store } from '@/store'
 import moment from 'moment'
+import { MapStore } from '@/components/Map/store';
 export default {
   mounted() {
   },
@@ -305,6 +309,14 @@ export default {
     },
   },
   methods: {
+    StyleOfAGVDisplayColor(agv_name) {
+      return {
+        backgroundColor: MapStore.getters.CustomAGVStyles[agv_name].DisplayColor
+      }
+    },
+    GetDisplayName(agv_name) {
+      return MapStore.getters.CustomAGVStyles[agv_name].DisplayText
+    },
     Timeformat(time, format = 'YYYY/MM/DD HH:mm:ss') {
       return moment(time).format(format)
     },
@@ -627,8 +639,7 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" >
+<style lang="scss">
 .agv-status {
   .easy-mode {
     font-size: 18px;
@@ -641,6 +652,12 @@ export default {
         font-size: small;
       }
     }
+  }
+
+  .agv-color-display {
+    height: 6px;
+    border-radius: 3px;
+    border: 1px solid grey;
   }
 
   .online-status-div:hover {
