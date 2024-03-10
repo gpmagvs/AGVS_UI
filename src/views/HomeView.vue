@@ -7,7 +7,7 @@
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="330px"></TaskStatusVue>
       </div>
-      <div class="resizer bg-light">
+      <div class="resizer text-primary d-flex flex-column">
         <div class="menu-icon">
           <el-icon v-if="!MenuExpanded">
             <MenuExpandIcon @click="() => { MenuExpanded = true; RestoreSizeOfRightSide() }" />
@@ -15,6 +15,9 @@
           <el-icon v-else>
             <MenuFoldIcon @click="() => { MenuExpanded = false; AdjustSizeOfRightSideFullPage(); }" />
           </el-icon>
+        </div>
+        <div class="flex-fill d-flex flex-column justify-content-center">
+          <i class=" bi bi-three-dots-vertical"></i>
         </div>
       </div>
       <div class="right-panel flex-fill">
@@ -161,15 +164,23 @@ export default {
 
   .resizer {
     height: 99vh;
-    width: 30px;
+    width: 25px;
     text-align: center;
     cursor: ew-resize;
 
     .menu-icon {
       cursor: pointer;
       font-weight: bold;
-      font-size: 30px;
+      font-size: 20px;
     }
+  }
+
+  .resizer:hover {
+    background-color: rgb(223, 223, 223);
+  }
+
+  .resizer:active {
+    background-color: rgb(223, 237, 247);
   }
 
 }
