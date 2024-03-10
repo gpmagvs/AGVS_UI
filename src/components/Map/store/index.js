@@ -1,6 +1,6 @@
 import { createStore } from "vuex";
 import axios from 'axios'
-import { AGVOption, clsMap, clsAGVDisplay, clsMapStation, StationSelectOptions } from '../mapjs';
+import { AGVOption, clsMap, clsAGVDisplay, clsMapStation, StationSelectOptions, AgvDisplayProps } from '../mapjs';
 
 /**圖資狀態儲存 */
 export const MapStore = createStore({
@@ -32,6 +32,19 @@ export const MapStore = createStore({
                 baseURL: state.mapBackendServer
             })
             return axio
+        },
+
+        CustomAGVStyles: state => {
+            var jsonStr = localStorage.getItem('custom-agv-styles');
+            if (jsonStr) {
+                return JSON.parse(jsonStr);
+            }
+            return {
+                "AGV_001": new AgvDisplayProps('rgb(13, 110, 253)', "AGV_001"),
+                "AGV_002": new AgvDisplayProps('limegreen', "AGV_002"),
+                "AGV_003": new AgvDisplayProps('orange', "AGV_003"),
+                "AGV_004": new AgvDisplayProps('pink', "AGV_004"),
+            }
         },
         MapData: state => {
             var localStore = localStorage.getItem('mapData')
@@ -136,7 +149,17 @@ export const MapStore = createStore({
                 if (data.currentCoordication) {
                     coordination = [data.currentCoordication.X, data.currentCoordication.Y]
                 }
-                agvDataLs.push(new clsAGVDisplay(name, state.agv_colors[index], coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states))
+                var _agv_style_custom = getters.CustomAGVStyles[name];
+                var _agv_color = 'black'
+                var _agv_display_text = name
+                if (_agv_style_custom) {
+                    _agv_color = _agv_style_custom.DisplayColor;
+                    _agv_display_text = _agv_style_custom.DisplayText;
+
+                } else {
+                    _agv_color = state.agv_colors[index];
+                }
+                agvDataLs.push(new clsAGVDisplay(name, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text))
                 index += 1;
             })
             var _AGVOption = new AGVOption(agv_num, agvDataLs)
@@ -215,6 +238,15 @@ export const MapStore = createStore({
         setMapGridSize(state, grid_size) {
             state.MapData.Options.gridSize = grid_size;
             console.log(state.MapData.Options.gridSize);
+        },
+        SaveAGVStyle(state, payload) {
+            var jsonStr = localStorage.getItem('custom-agv-styles');
+            var _savedObject = {}
+            if (jsonStr) {
+                _savedObject = JSON.parse(jsonStr);
+            }
+            _savedObject[payload.agvname] = payload.style;
+            localStorage.setItem('custom-agv-styles', JSON.stringify(_savedObject));
         }
 
     },

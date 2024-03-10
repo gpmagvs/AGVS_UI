@@ -39,7 +39,6 @@
   </div>
   <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
 </template>
-
 <script>
 import SideMenuDrawer from '@/views/SideMenuDrawer.vue'
 import Menu from '@/components/Menu.vue'
@@ -167,8 +166,6 @@ export default {
 
           setTimeout(async () => {
             var result = await userStore.dispatch('user_route_change', newValue);
-            console.log(result)
-
             if (newValue == '/map' && result.isOtherUserEditingMap) {
               this.$swal.fire(
                 {
@@ -210,7 +207,6 @@ window.ResizeObserver = class ResizeObserver extends _ResizeObserver {
   }
 }
 </script>
-
 <style lang="scss">
 #app {
   //font-family: Avenir, Helvetica, Arial, sans-serif;

@@ -3,6 +3,9 @@ import { Login, StoreToLocalStorage, UserRouteChange } from '@/api/UserAPI';
 import MapAPI from '@/api/MapAPI'
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 
+var cachesKeyMap = {
+  agvStates: 'agv_states'
+}
 
 export default createStore({
 
@@ -27,9 +30,7 @@ export const agv_states_store = createStore({
   state: {
     agv_states: undefined,
     hotrun_states: [],
-    cachesKeyMap: {
-      agvStates: 'agv_states'
-    }
+
   },
   getters: {
     AGVStatesData: state => {
@@ -38,7 +39,7 @@ export const agv_states_store = createStore({
         return state.agv_states;
       }
       else {
-        var _cache = localStorage.getItem(state.cachesKeyMap.agvStates)
+        var _cache = localStorage.getItem(cachesKeyMap.agvStates)
         if (_cache != null) {
           var cacheData = JSON.parse(_cache)
 
@@ -66,7 +67,7 @@ export const agv_states_store = createStore({
     storeAgvStates(state, data) {
       state.agv_states = data;
       if (data.length > 0)
-        localStorage.setItem(state.cachesKeyMap.agvStates, JSON.stringify(data));
+        localStorage.setItem(cachesKeyMap.agvStates, JSON.stringify(data));
     },
     setHotRunStates(state, data) {
       state.hotrun_states = data

@@ -39,7 +39,6 @@
         </el-container>
     </div>
 </template>
-
 <script>
 
 import Map from 'ol/Map.js';
@@ -53,6 +52,8 @@ import { AGVPointStyle, AgvDisplayProps, convertColorNameToRGBA } from '../mapjs
 import { Circle, Polygon } from 'ol/geom';
 import { Fill, Stroke, Style, Circle as CircleStyle, Text } from 'ol/style';
 
+import { MapStore } from '../store';
+import bus from '@/event-bus';
 
 
 export default {
@@ -73,6 +74,7 @@ export default {
         raw_props: {
             type: AgvDisplayProps,
             default() {
+
                 var _props = new AgvDisplayProps()
                 return _props
             }
@@ -147,12 +149,16 @@ export default {
             this.SetFeatureFillColor(this.agv_feature, color, true);
             this.SetFeatureFillColor(this._agvBodyFeature, convertColorNameToRGBA(color, 0.6));
             this.SetFeatureFillColor(this._agvSaftyRegionFeature, convertColorNameToRGBA(color, 0.2));
+
+            this.SaveToLocalStorage(true);
         },
         ChangeTextOfAGV(str) {
             var style = this.agv_feature.getStyle();
             var text = style.getText();
             text.setText(str);
-            this.agv_feature.setStyle(style)
+            this.agv_feature.setStyle(style);
+
+            this.SaveToLocalStorage();
         },
         SetFeatureFillColor(feature, color, isTextBg = false) {
             var style = feature.getStyle();
@@ -167,16 +173,30 @@ export default {
                 style.setFill(fill);
             }
             feature.setStyle(style)
+        },
+        SaveToLocalStorage(isChangedColor = false) {
+            MapStore.commit('SaveAGVStyle', { agvname: this.agv_name, style: this.props })
+            if (isChangedColor)
+                setTimeout(() => {
+                    bus.emit('/rerender_agv_layer')
+                }, 500)
         }
 
     },
     mounted() {
         this.MapInit();
-        this.props = JSON.parse(JSON.stringify(this.raw_props))
+
+        var localStyleStore = MapStore.getters.CustomAGVStyles;
+        if (localStyleStore[this.agv_name]) {
+            this.props = localStyleStore[this.agv_name]
+        } else
+            this.props = JSON.parse(JSON.stringify(this.raw_props))
+
+        this.ChangeTextOfAGV(this.props.DisplayText)
+        this.ChangeColorOfAGV(this.props.DisplayColor)
     },
 }
 </script>
-
 <style lang="scss" scoped>
 .agv_draw_setting {
     height: 215px;

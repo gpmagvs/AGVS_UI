@@ -638,7 +638,7 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates()) {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "") {
         this.AgvName = AgvName
         this.TextColor = TextColor
         this.Coordination = initCoordination;
@@ -649,6 +649,7 @@ export class clsAGVDisplay {
         this.WaitingInfo = WaitingInfo
         this.CurrentAction = AgvStates.is_executing_task ? GetActionName(CurrentAction, CargoStatus) : ""
         this.AgvStates = AgvStates
+        this.DisplayText = DisplayText == "" ? AgvName : DisplayText
 
     }
 }
@@ -818,8 +819,8 @@ export class BezierCurve {
 }
 
 export class AgvDisplayProps {
-    constructor() {
-        this.DisplayText = "RRRR"
-        this.DisplayColor = "Green"
+    constructor(color = "pink", text = "RRRR") {
+        this.DisplayText = text
+        this.DisplayColor = color
     }
 }

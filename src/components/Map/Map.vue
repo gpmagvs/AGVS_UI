@@ -866,7 +866,7 @@ export default {
 
           var actionString = agv_information.CurrentAction
           var text = style.getText();
-          var agvText = agv_information.AgvName + (actionString == '' ? '' : `(${actionString})`);
+          var agvText = agv_information.DisplayText + (actionString == '' ? '' : `(${actionString})`);
           agvText += agv_information.WaitingInfo.IsWaiting ? '\r\n' + agv_information.WaitingInfo.Descrption : '';
           text.setText(agvText);
 
@@ -887,7 +887,6 @@ export default {
 
           //AGV車體與迴轉半徑顯示
           const _agvSaftyCircle = new Circle(agv_information.Coordination, vehicleSaftyRotationRadious) //TODO 車輛安全區域半徑數據取得
-          console.info(_polygon_coordinations)
           const _agvBodyPolygon = new Polygon(_polygon_coordinations)
           // 構造一個新的 RGBA 字串
 
@@ -915,7 +914,7 @@ export default {
             })
           }))
 
-          _agvfeature.setStyle(AGVPointStyle(agv_information.AgvName, nameFillColor))
+          _agvfeature.setStyle(AGVPointStyle(agv_information.DisplayText, nameFillColor))
           _agvfeature.set('agvname', agv_information.AgvName)
           _agvfeature.set("feature_type", this.FeatureKeys.agv)
 
@@ -2852,6 +2851,12 @@ export default {
           this.ResetMapCenterViaAGVLoc(agv_name)
         })
 
+        bus.on('/rerender_agv_layer', () => {
+          console.log('rerender_agv_layer');
+          this.AGVLocLayer.getSource().clear();
+          this.AGVFeatures = {};
+        })
+
         watch(
           () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
             if (this.agv_upload_coordination_mode) {
@@ -2868,7 +2873,6 @@ export default {
           if (this.editable)
             return;
           this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
-          console.info('TaskDispatchOptions:', this.TaskDispatchOptions)
           this.ChangeToSelectEQStationMode();
         })
         bus.on('change_to_normal_view_mode', () => {

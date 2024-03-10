@@ -43,7 +43,6 @@ export function IsExpires() {
   if (user_state) {
     var loginTime = moment(user_state.LoginTime).add(1, 'day')
     var isExpire = Date.now() > loginTime
-    console.log(isExpire)
     return isExpire
   } else return true
 }
