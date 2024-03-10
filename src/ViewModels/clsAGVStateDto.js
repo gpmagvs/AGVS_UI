@@ -30,6 +30,9 @@ class clsAGVStateDto {
       this.IsExecutingOrder = false
       this.VehicleLength = 145
       this.VehicleWidth = 70
+      this.UIOptions = {
+
+      }
     } else {
       this.AGV_Name = dto.AGV_Name
       this.AGV_Description = dto.AGV_Description
@@ -59,6 +62,7 @@ class clsAGVStateDto {
       this.IsExecutingOrder = dto.IsExecutingOrder
       this.VehicleLength = dto.VehicleLength
       this.VehicleWidth = dto.VehicleWidth
+      this.UIOptions = dto.UIOptions
     }
   }
 }

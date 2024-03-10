@@ -7,40 +7,33 @@
     <div class="d-flex flex-row">
       <i class="bi bi-three-dots-vertical"></i>
       <div
-        class="conn-block px-1 border-end"
-        v-for="connection in Connections"
-        :key="connection.name">
-        <label>{{ connection.name }}</label>
+        class="conn-block px-1 border-end">
+        <label>VMS</label>
         <el-tag
           effect="dark"
-          :type="connection.connected ? 'success' : 'danger'">{{ connection.connected ? '已連線' : '斷線' }}</el-tag>
+          :type="VMSAlive ? 'success' : 'danger'">{{ VMSAlive ? '已連線' : '斷線' }}</el-tag>
       </div>
     </div>
     <div @dblclick="handleTimeDoubleClick" class="sys-time">{{ sys_time }}</div>
   </div>
 </template>
-
 <script>
-import WebSocketHelp from '@/api/WebSocketHepler'
-import param from '@/gpm_param'
 import moment from 'moment'
-import { userStore } from '@/store'
+import { userStore, UIStore } from '@/store'
 export default {
   data() {
     return {
       Connections: [
         {
           name: "SERVER",
-          connected: false,
+          connected: true,
         },
         {
           name: "VMS",
-          connected: false,
+          connected: () => {
+            return UIStore.getters.VMSAlive
+          },
         },
-        // {
-        //   name: "DB",
-        //   connected: false,
-        // },
       ],
       sys_time: ''
     }
@@ -50,25 +43,9 @@ export default {
       this.sys_time = moment(Date.now()).format('yyyy-MM-DD HH:mm:ss')
     }, 1000);
 
-    this.ConnectionCheck(undefined, '/ws/VMSAliveCheck', 0);
-    this.ConnectionCheck(param.vms_ws_host, '/ws/VMSAliveCheck', 1);
   },
   methods: {
-    ConnectionCheck(host, ws_url, index) {
-      var alive_check_ws = new WebSocketHelp(ws_url, host);
-      alive_check_ws.Connect();
-      alive_check_ws.onclose = (ev) => {
-        console.log(ws_url + ' onclose')
-        this.Connections[index].connected = false;
-        setTimeout(() => {
-          this.ConnectionCheck(host, ws_url, index);
-        }, 1000)
 
-      }
-      alive_check_ws.onopen = (ev) => {
-        this.Connections[index].connected = true;
-      }
-    },
     handleTimeDoubleClick() {
       userStore.dispatch('login', {
         UserName: 'dev',
@@ -84,13 +61,14 @@ export default {
   },
   computed: {
     marginLeft(delay = 200) {
-
       return this.IsMenuExpanded ? '202px' : '69px';
+    },
+    VMSAlive() {
+      return UIStore.getters.VMSAlive;
     }
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .connection-state {
   padding: 5px 25px 5px 1px;

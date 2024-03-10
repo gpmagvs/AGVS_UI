@@ -5,7 +5,12 @@ import { Polygon } from 'ol/geom';
 import Feature from 'ol/Feature';
 import { Rectangle } from 'leaflet';
 import { MapStore } from './store';
+import gpm_param from '../../gpm_param'
+function IsDev() {
+    return process.env.NODE_ENV == 'development'
+}
 
+var agv_image_path_default = IsDev() ? `${gpm_param.backend_host}/images/AGVDisplayImage/ForkAGV_Default.png` : '/agv.png'
 
 /**根據Index取得點位物件 */
 export function GetPointByIndex(index) {
@@ -534,18 +539,43 @@ export function ChangeCargoIcon(feature = new Feature(), cargoStates = new clsCa
     var style = AGVCargoIconStyle(cargoStates.cargo_type, cargoStates.cst_id, cargoStates.exist);
     feature.setStyle(style);
 }
-export function AGVPointStyle(agv_name, color) {
-    return new Style({
-        image: new Icon({
-            src: '/agv.png', // 设置PNG图像的路径
-            scale: .5, // 设置PNG图像的缩放比例
-            anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
-            size: [64, 64],// 设置PNG图像的大小
-            opacity: 1,
-            rotateWithView: true,
-            rotation: 0 * Math.PI / 180.0 //3.14 180
 
-        }),
+export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
+    var width = 64;
+    var height = 64;
+
+    var _isblob = imgUrl.substring(0, 4) == 'blob';
+    var _imgUrl = _isblob || !IsDev() ? imgUrl : `${gpm_param.backend_host}/images/AGVDisplayImage/AGV_001-Icon.png`
+    if (ImageSize) {
+        width = ImageSize[0]
+        height = ImageSize[1]
+
+    } else {
+        function delay(ms) {
+            return new Promise(resolve => {
+                setTimeout(resolve, ms)
+            })
+        }
+        var agv_img = new Image();
+        agv_img.src = _imgUrl;
+        delay(200)
+        width = agv_img.width == 0 ? 64 : agv_img.width;
+        height = agv_img.height == 0 ? 64 : agv_img.height;
+    }
+    return new Icon({
+        src: _imgUrl, // 设置PNG图像的路径
+        scale: 32 / width, // 设置PNG图像的缩放比例
+        anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
+        size: [width, height],// 设置PNG图像的大小
+        opacity: 1,
+        rotation: 0 * Math.PI / 180.0 //3.14 180
+
+    })
+}
+
+export function AGVPointStyle(agv_name, color, ImageName = undefined, ImageSize = undefined) {
+    return new Style({
+        image: AGVIcon(ImageName),
         text: new Text({
             text: agv_name,
             offsetX: 0,

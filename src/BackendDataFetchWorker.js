@@ -1,4 +1,4 @@
-import { EqStore, agv_states_store, userStore } from "./store";
+import { EqStore, agv_states_store, userStore, TaskStore, AlarmStore, UIStore } from "./store";
 import { MapStore } from '@/components/Map/store'
 import param from "./gpm_param";
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
@@ -14,67 +14,42 @@ function generateRandomUserID(length) {
     return result;
 }
 
-// 創建一個經過節流處理的函數
-const throttledUpdateAGVNavingData = Throttle(function (event) {
-    if (event.data != 'error' && event.data != 'closed') {
-        MapStore.commit('setAGVDynamicPathInfo', event.data);
-    }
-}, 10);
-
-const throttledUpdateDynamicTrafficData = Throttle(function (event) {
-    if (event.data != 'error' && event.data != 'closed') {
-        MapStore.commit('setControledPathesBySystem', event.data.ControledPathesByTraffic)
-    }
-}, 120);
-
-const throttledUpdateAgvStatesData = Throttle(function (event) {
-    if (event.data != 'error' && event.data != 'closed') {
-        var data = Object.values(event.data).map(d => new clsAGVStateDto(d));
-        agv_states_store.commit('storeAgvStates', data)
-    }
-}, 10);
-
-
-const throttledUpdateEquipmentStatesData = Throttle(function (event) {
-    if (event.data != 'error' && event.data != 'closed') {
-        EqStore.commit('setData', event.data)
-    }
-}, 10);
-
-
 var user_id = generateRandomUserID(10);
 userStore.commit('setUserID', user_id);
 
 GetEQOptions().then(option => EqStore.commit('EqOptions', option));
 GetWIPOptions().then(option => EqStore.commit('WIPOptions', option));
 
+const throttledHandleAGVSData = Throttle(function (event) {
+    if (event.data != 'error' && event.data != 'closed') {
 
-/**VMS數據 */
-const agv_states_data_fetch_worker = new Worker('/websocket_worker.js')
-agv_states_data_fetch_worker.onmessage = (event) => throttledUpdateAgvStatesData(event)
-agv_states_data_fetch_worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + `/ws/VMSStatus?user_id=${user_id}` });
+        if (event.data.VMSStatus) {
+            var data = Object.values(event.data.VMSStatus).map(d => new clsAGVStateDto(d));
+            agv_states_store.commit('storeAgvStates', data)
+        }
 
-/**設備狀態 */
-const worker = new Worker('/websocket_worker.js')
-worker.onmessage = (event) => throttledUpdateEquipmentStatesData(event)
-worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + `/ws/EQStatus` });
+        EqStore.commit('setData', event.data.EQStatus)
+        agv_states_store.commit('setHotRunStates', event.data.HotRun)
+        TaskStore.commit('StoreTaskData', event.data.TaskData);
+        AlarmStore.commit('StoreAlarmData', event.data.UncheckedAlarm);
+        MapStore.commit('setControledPathesBySystem', event.data.ControledPathesByTraffic)
+        UIStore.commit('SetVMSAlive', event.data.VMSAliveCheck);
+    }
+}, 110);
+
+const agvs_websocket_worker = new Worker('/websocket_worker.js')
+agvs_websocket_worker.onmessage = (event) => throttledHandleAGVSData(event)
+agvs_websocket_worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + `/ws?user_id=${user_id}` });
 
 
-/**AGV導航狀態 */
-const worker2 = new Worker('/websocket_worker.js')
-worker2.onmessage = (event) => throttledUpdateAGVNavingData(event)
-worker2.postMessage({ command: 'connect', ws_url: param.vms_ws_host + `/ws/AGVNaviPathsInfo` });
 
-/**HotRun 狀態 */
-const worker_hotrun_data = new Worker('/websocket_worker.js')
-worker_hotrun_data.onmessage = (event) => {
-    if (event.data != 'error' && event.data != 'closed')
-        agv_states_store.commit('setHotRunStates', event.data)
-}
-worker_hotrun_data.postMessage({ command: 'connect', ws_url: param.backend_ws_host + `/ws/HotRun` });
+const throttledHandleVMSData = Throttle(function (event) {
+    if (event.data != 'error' && event.data != 'closed') {
+        MapStore.commit('setAGVDynamicPathInfo', event.data.AGVNaviPathsInfoVM);
 
-/**動態交通狀態數據 */
-const worker_dynamic_traffic_data = new Worker('/websocket_worker.js')
-worker_dynamic_traffic_data.onmessage = (event) => throttledUpdateDynamicTrafficData(event)
-worker_dynamic_traffic_data.postMessage({ command: 'connect', ws_url: param.vms_ws_host + `/ws/DynamicTrafficData` });
+    }
+}, 33);
 
+const vms_websocket_worker = new Worker('/websocket_worker.js')
+vms_websocket_worker.onmessage = (event) => throttledHandleVMSData(event)
+vms_websocket_worker.postMessage({ command: 'connect', ws_url: param.vms_ws_host + `/ws?user_id=${user_id}` });

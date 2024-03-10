@@ -464,46 +464,46 @@ export default {
         source: new VectorSource({
           features: [],
         }),
-        zIndex: 2
+        zIndex: 12
       }),
       /**路網圖層 */
       PointRouteLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
         }),
-        zIndex: 2
+        zIndex: 13
       }),
       /**路網圖層 */
       EQLDULDStatusLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
         }),
-        zIndex: 2
+        zIndex: 4
       }),
       PathLayerForCoordination: new VectorLayer({
         source: new VectorSource({
           features: [],
         }),
-        zIndex: 0
+        zIndex: 5
       }),
       PathLayerForRouter: new VectorLayer({
         source: new VectorSource({
           features: [],
         }),
-        zIndex: 0
+        zIndex: 6
       }),
       //路網(路線)
       AGVLocLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
         }),
-        zIndex: 4
+        zIndex: 17
       }),
       AGVLocusLayer: new VectorLayer({
         source: new VectorSource({
           features: [],
         }),
-        zIndex: 3
+        zIndex: 18
       }), //軌跡圖顯示圖層
       CustomLayer: new VectorLayer({
         source: new VectorSource(
@@ -512,6 +512,7 @@ export default {
           }
         )
       }),
+      gridLayer: new VectorLayer(),
       TransferTaskIconLayer: new VectorLayer({
         source: new VectorSource(
           {
@@ -823,6 +824,7 @@ export default {
         const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
         const vehicleLength = vehicleSize[0] / 100.0; //unit:m
         const vehicleWidth = vehicleSize[1] / 100.0;//unit:m
+        const vehicleImageName = '/images/AGVDisplayImage/' + agv_information.AgvName + '-Icon.png';//[length,width]
         const vehicleSaftyRotationRadious = Math.sqrt(Math.pow(vehicleLength / 2, 2) + Math.pow(vehicleWidth / 2, 2));//unit:m
         var _polygon_coordinations = this.CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
 
@@ -879,70 +881,72 @@ export default {
           //this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
         }
         else {//動態新增AGV Feature
-
-          var _agvfeature = new Feature({
-            geometry: new Point(agv_information.Coordination)
-          })
-          //ERROR dsljfas
-
-          //AGV車體與迴轉半徑顯示
-          const _agvSaftyCircle = new Circle(agv_information.Coordination, vehicleSaftyRotationRadious) //TODO 車輛安全區域半徑數據取得
-          const _agvBodyPolygon = new Polygon(_polygon_coordinations)
-          // 構造一個新的 RGBA 字串
-
-          var nameFillColor = this.convertColorNameToRGBA(agv_information.TextColor, 1);
-          var bodyColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.6);
-          var safyRegionColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.2);
-          const _agvSaftyRegionFeature = new Feature(_agvSaftyCircle)
-          _agvSaftyRegionFeature.setStyle(new Style({
-            fill: new Fill({ color: safyRegionColor }),
-            stroke: new Stroke({
-              color: safyRegionColor, width: 1, lineDash: [5, 2]
-            }),
-            text: new Text({
-              text: "",
+          try {
+            var _agvfeature = new Feature({
+              geometry: new Point(agv_information.Coordination)
             })
-          }))
 
-          //AGV車體顯示
-          const _agvBodyFeature = new Feature(_agvBodyPolygon)
-          _agvBodyFeature.setStyle(new Style({
-            fill: new Fill({ color: bodyColor }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 1
+            //AGV車體與迴轉半徑顯示
+            const _agvSaftyCircle = new Circle(agv_information.Coordination, vehicleSaftyRotationRadious) //TODO 車輛安全區域半徑數據取得
+            const _agvBodyPolygon = new Polygon(_polygon_coordinations)
+            // 構造一個新的 RGBA 字串
+            var nameFillColor = this.convertColorNameToRGBA(agv_information.TextColor, 1);
+            var bodyColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.4);
+            var safyRegionColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.2);
+            const _agvSaftyRegionFeature = new Feature(_agvSaftyCircle)
+            _agvSaftyRegionFeature.setStyle(new Style({
+              fill: new Fill({ color: safyRegionColor }),
+              stroke: new Stroke({
+                color: safyRegionColor, width: 1, lineDash: [5, 2]
+              }),
+              text: new Text({
+                text: "",
+              })
+            }))
+
+            //AGV車體顯示
+            const _agvBodyFeature = new Feature(_agvBodyPolygon)
+            _agvBodyFeature.setStyle(new Style({
+              fill: new Fill({ color: bodyColor }),
+              stroke: new Stroke({
+                color: 'black',
+                width: 1
+              }),
+            }))
+            var _style = AGVPointStyle(agv_information.DisplayText, nameFillColor, vehicleImageName + `?version=${Date.now()}`)
+            _agvfeature.setStyle(_style)
+            _agvfeature.set('agvname', agv_information.AgvName)
+            _agvfeature.set("feature_type", this.FeatureKeys.agv)
+
+            //
+            var nav_path_feature = new Feature({
+              geometry: new LineString([])
             })
-          }))
-
-          _agvfeature.setStyle(AGVPointStyle(agv_information.DisplayText, nameFillColor))
-          _agvfeature.set('agvname', agv_information.AgvName)
-          _agvfeature.set("feature_type", this.FeatureKeys.agv)
-
-          //
-          var nav_path_feature = new Feature({
-            geometry: new LineString([])
-          })
-          nav_path_feature.setStyle(CreateLocusPathStyles(nameFillColor, 7))
+            nav_path_feature.setStyle(CreateLocusPathStyles(nameFillColor, 7))
 
 
-          var _cargo_icon_feature = _agvfeature.clone()
-          _cargo_icon_feature.setStyle(AGVCargoIconStyle())
+            var _cargo_icon_feature = _agvfeature.clone()
+            _cargo_icon_feature.setStyle(AGVCargoIconStyle())
 
-          this.AGVFeatures[agv_information.AgvName] = {
-            agv_feature: _agvfeature,
-            path_feature: nav_path_feature,
-            cargo_icon_feature: _cargo_icon_feature,
-            safty_region_feture: _agvSaftyRegionFeature,
-            agv_body_feture: _agvBodyFeature
-          };
+            this.AGVFeatures[agv_information.AgvName] = {
+              agv_feature: _agvfeature,
+              path_feature: nav_path_feature,
+              cargo_icon_feature: _cargo_icon_feature,
+              safty_region_feture: _agvSaftyRegionFeature,
+              agv_body_feture: _agvBodyFeature
+            };
 
-          var source = this.AGVLocLayer.getSource();
+            var source = this.AGVLocLayer.getSource();
 
-          source.addFeature(_cargo_icon_feature);
-          source.addFeature(_agvfeature);
-          source.addFeature(_agvSaftyRegionFeature);
-          source.addFeature(_agvBodyFeature);
-          source.addFeature(nav_path_feature);
+            source.addFeature(_cargo_icon_feature);
+            source.addFeature(_agvfeature);
+            source.addFeature(_agvSaftyRegionFeature);
+            source.addFeature(_agvBodyFeature);
+            source.addFeature(nav_path_feature);
+
+          } catch {
+            console.log('errror')
+          }
 
         }
       });
@@ -2140,8 +2144,7 @@ export default {
           maxZoom: 20
         })
       })
-
-      this.AGVLocLayer.setVisible(this.agv_show)
+      this.AGVLocLayer.setVisible(this.agv_show);
       if (this.editable) {
         this.PointLayer.setVisible(false);
         this.PathLayerForCoordination.setVisible(false);
@@ -2171,7 +2174,7 @@ export default {
         vectorSource.addFeature(lineFeature);
       }
 
-      const gridLayer = new VectorLayer({
+      this.gridLayer = new VectorLayer({
         source: vectorSource,
         name: 'gridLayer',
         style: new Style({
@@ -2181,7 +2184,8 @@ export default {
           })
         })
       });
-      _map.addLayer(gridLayer);
+
+      _map.addLayer(this.gridLayer);
 
     },
     GetForbidRegionCount() {
@@ -2820,85 +2824,83 @@ export default {
     }
 
     this.loading = true;
-    setTimeout(() => {
-      var element = document.getElementById("map"); // 替换为你要禁用右键菜单的元素的ID
-      if (element)
-        element.addEventListener('contextmenu', function (event) {
-          event.preventDefault();
-        });
-      MapStore.dispatch('DownloadMapData').then(() => {
-        this.RestoreSettingsFromLocalStorage();
-        this.DeepClonePathSegmentData();
-        this.InitMap();
-        this.AddEditMapInteraction();
-        watch(
-          () => this.map_station_data, (newval, oldval) => {
-            if (!newval)
-              return;
-            this.RefreshMap();
-          }, { deep: true, immediate: true }
-        )
-        if (this.eq_lduld_status_show) {
-          this.watch_eq_data_changed();
-        }
-        watch(() => this.agvs_info, (newval, oldval) => {
+    var element = document.getElementById("map"); // 替换为你要禁用右键菜单的元素的ID
+    if (element)
+      element.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+      });
+    MapStore.dispatch('DownloadMapData').then(() => {
+      this.RestoreSettingsFromLocalStorage();
+      this.DeepClonePathSegmentData();
+      this.InitMap();
+      this.AddEditMapInteraction();
+      watch(
+        () => this.map_station_data, (newval, oldval) => {
           if (!newval)
-            return
-          this.UpdateAGVLayer()
-        }, { deep: true, immediate: true })
-        bus.on('/show_agv_at_center', agv_name => {
-          // alert(agv_name)
-          this.ResetMapCenterViaAGVLoc(agv_name)
-        })
-
-        bus.on('/rerender_agv_layer', () => {
-          console.log('rerender_agv_layer');
-          this.AGVLocLayer.getSource().clear();
-          this.AGVFeatures = {};
-        })
-
-        watch(
-          () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
-            if (this.agv_upload_coordination_mode) {
-              this.HandleAGVUploadData(newval)
-            }
-          }, { deep: true, immediate: true }
-        )
-        bus.on('change_to_select_agv_mode', () => {
-          if (this.editable)
             return;
-          this.ChangeToSelectAGVMode();
-        })
-        bus.on('change_to_select_eq_station_mode', (option) => {
-          if (this.editable)
-            return;
-          this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
-          this.ChangeToSelectEQStationMode();
-        })
-        bus.on('change_to_normal_view_mode', () => {
-          if (this.editable)
-            return;
-          this.ChangeToNormalViewMode();
-        })
-        bus.on('mark_as_start_station', (tagNumber) => {
-          if (this.editable)
-            return;
-          this.TransferTaskIconLayer.getSource().clear();
-          this.AddMarkIconWithText(tagNumber, '搬運起點');
-        })
-        bus.on('mark_as_destine_station', (tagNumber) => {
-          this.CreateDestineMarkIcon(tagNumber);
-        })
-        document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
-          ev.preventDefault()
-        })
-        setTimeout(() => {
-          this.UpdateAGVLocLocation();
-        }, 500);
-        this.loading = false;
-        this.MapGridSizeStore = this.MapGridSize;
+          this.RefreshMap();
+        }, { deep: true, immediate: true }
+      )
+      if (this.eq_lduld_status_show) {
+        this.watch_eq_data_changed();
+      }
+      watch(() => this.agvs_info, (newval, oldval) => {
+        if (!newval)
+          return
+        this.UpdateAGVLayer()
+      }, { deep: true, immediate: true })
+      bus.on('/show_agv_at_center', agv_name => {
+        // alert(agv_name)
+        this.ResetMapCenterViaAGVLoc(agv_name)
       })
-    }, 1000)
+
+      bus.on('/rerender_agv_layer', () => {
+        console.log('rerender_agv_layer');
+        this.AGVLocLayer.getSource().clear();
+        this.AGVFeatures = {};
+      })
+
+      watch(
+        () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
+          if (this.agv_upload_coordination_mode) {
+            this.HandleAGVUploadData(newval)
+          }
+        }, { deep: true, immediate: true }
+      )
+      bus.on('change_to_select_agv_mode', () => {
+        if (this.editable)
+          return;
+        this.ChangeToSelectAGVMode();
+      })
+      bus.on('change_to_select_eq_station_mode', (option) => {
+        if (this.editable)
+          return;
+        this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
+        this.ChangeToSelectEQStationMode();
+      })
+      bus.on('change_to_normal_view_mode', () => {
+        if (this.editable)
+          return;
+        this.ChangeToNormalViewMode();
+      })
+      bus.on('mark_as_start_station', (tagNumber) => {
+        if (this.editable)
+          return;
+        this.TransferTaskIconLayer.getSource().clear();
+        this.AddMarkIconWithText(tagNumber, '搬運起點');
+      })
+      bus.on('mark_as_destine_station', (tagNumber) => {
+        this.CreateDestineMarkIcon(tagNumber);
+      })
+      document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
+        ev.preventDefault()
+      })
+      setTimeout(() => {
+        this.UpdateAGVLocLocation();
+      }, 500);
+      this.loading = false;
+      this.MapGridSizeStore = this.MapGridSize;
+    })
   },
 }
 </script>

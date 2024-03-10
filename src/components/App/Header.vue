@@ -91,18 +91,17 @@
     </div>
   </div>
 </template>
-
 <script>
 import Login from '@/views/Login.vue';
 import bus from '@/event-bus.js'
 import { GetOperationStates, RunMode, HostConnMode, HostOperationMode, TransferMode } from '@/api/SystemAPI';
 import { IsLoginLastTime } from '@/api/AuthHelper';
-import { ResetSystemAlarm, ResetEquipmentAlarm, AlarmHelper } from '@/api/AlarmAPI.js'
+import { ResetSystemAlarm, ResetEquipmentAlarm } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { agvs_settings_store, userStore, UIStore } from '@/store'
+import { agvs_settings_store, userStore, UIStore, AlarmStore } from '@/store'
 import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@element-plus/icons-vue'
 
 export default {
@@ -156,7 +155,6 @@ export default {
       equipment_alarms: [''],
       system_alrm_text: '',
       eq_alrm_text: '',
-      unchecked_alarms: [],
       showAlarm: true,
       isEasyMode: false
     }
@@ -191,6 +189,9 @@ export default {
         return `${username}(GOD)`
       else
         return 'VISITOR'
+    },
+    unchecked_alarms() {
+      return AlarmStore.getters.alarms;
     },
     SystemAlarms() {
       if (!this.unchecked_alarms)
@@ -237,7 +238,6 @@ export default {
       }
     )
 
-    var alarmHelper = new AlarmHelper(this.on_alarm_message);
     this.AlarmDisplayHandler();
   },
   methods: {
@@ -269,9 +269,7 @@ export default {
 
       }, delay_ms);
     },
-    on_alarm_message(ev) {
-      this.unchecked_alarms = JSON.parse(ev.data)
-    },
+
     ToggleMenu() {
       this.$emit('onMenuToggleClicked', '')
     },
@@ -308,10 +306,10 @@ export default {
 
     },
     async TransferModeChangeRequest() {
-      if(this.modes.system_operation_mode.actived==false) // 操作模式手動不可換派工模式
+      if (this.modes.system_operation_mode.actived == false) // 操作模式手動不可換派工模式
         return
       if (!this.CheckUserLoginState())
-        return false;      
+        return false;
 
       var response = await TransferMode(this.modes.transfer_mode.actived ? 0 : 1);
       var success = response.confirm;
@@ -511,7 +509,6 @@ export default {
   },
 }
 </script>
-
 <style scoped lang="scss">
 .app-header {
   z-index: 2;

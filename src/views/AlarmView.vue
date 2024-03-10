@@ -50,45 +50,13 @@
     </el-table>
   </div>
 </template>
-
 <script>
-import { AlarmHelper, ResetSystemAlarm } from '@/api/AlarmAPI.js'
+import { ResetSystemAlarm } from '@/api/AlarmAPI.js'
 import moment from 'moment'
-import { userStore } from '@/store'
+import { userStore, AlarmStore } from '@/store'
 export default {
   data() {
     return {
-      alarms: [
-        {
-          Time: '2021/04/17 13:13:44',
-          Level: 'ALARM',
-          Source: 'System',
-          AlarmCode: 2,
-          Description_Zh: '車載管理系統斷線',
-          Description_En: 'VMS Disconnect',
-          OccurLocation: 32,
-          Equipment_Name: 'System',
-          Task_Name: '',
-          Duration: 0,
-          Checked: '',
-          ResetAalrmMemberName: '',
-        },
-        {
-          Time: '2021/04/18 12:23:23',
-          Level: 'WARNING',
-          Source: 'System',
-          AlarmCode: 2,
-          Description_Zh: '車載管理系統斷線',
-          Description_En: 'VMS Disconnect',
-          OccurLocation: 32,
-          Equipment_Name: 'System',
-          Task_Name: '',
-          Duration: 0,
-          Checked: '',
-          ResetAalrmMemberName: '',
-        }
-      ],
-
     }
   },
   computed: {
@@ -100,10 +68,12 @@ export default {
     },
     eq_alarms() {
       return this.alarms.filter(alarm => alarm.Source == 1)
+    },
+    alarms() {
+      return AlarmStore.getters.alarms;
     }
   },
   mounted() {
-    var alarmHelper = new AlarmHelper(this.onmessage);
   },
   methods: {
     ResetSystemAlarm() {
@@ -112,17 +82,13 @@ export default {
     formatTime(time) {
       return moment(time).format('yyyy/MM/DD HH:mm:ss')
     },
-    onmessage(ev) {
-      this.alarms = JSON.parse(ev.data)
-    },
     row_state_class_name({ row, rowIndex }) {
       return row.Level == 1 ? 'ALARM' : 'WARNING';
     }
   },
 }
 </script>
-
-<style lang="scss" >
+<style lang="scss">
 .alarm-view {
   text-align: left;
   padding: 8px;

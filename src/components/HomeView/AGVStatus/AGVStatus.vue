@@ -1,11 +1,14 @@
 <template>
   <div class="agv-status card-like">
-    <div class="title">
-      <i class="bi bi-three-dots-vertical"></i>車輛狀態 STATUS
+    <div class="title d-flex flex-row">
+      <div class="flex-fill">
+        <i class="bi bi-three-dots-vertical"></i>車輛狀態 STATUS
+      </div>
+      <div class="text-danger" v-if="!IsVMSConnect">VMS已斷線</div>
     </div>
     <el-table
       v-if="!IsEasyMode"
-      :header-cell-style="{ color: 'white', border: '1px solid rgb(222, 226, 230)', backgroundColor: 'rgb(13, 110, 253)' }"
+      :header-cell-style="{ color: 'white', border: '1px solid rgb(222, 226, 230)', backgroundColor: IsVMSConnect ? 'rgb(13, 110, 253)' : 'red' }"
       :data="AGVDatas"
       size="small"
       height="93%"
@@ -284,7 +287,7 @@ import bus from '@/event-bus';
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
-import { userStore, agvs_settings_store, agv_states_store } from '@/store'
+import { userStore, agvs_settings_store, agv_states_store, UIStore } from '@/store'
 import moment from 'moment'
 import { MapStore } from '@/components/Map/store';
 export default {
@@ -575,7 +578,7 @@ export default {
     },
     connected_class({ row, rowIndex }) {
       var agv_row_class = this.IsRunMode ? 'agv-row-no-operation' : 'agv-row';
-      return row.Connected ? `${agv_row_class} connect` : `${agv_row_class} disconnect`
+      return row.Connected && this.IsVMSConnect ? `${agv_row_class} connect` : `${agv_row_class} disconnect`
     }
     ,
     BatteryClass(level, isCharging = false) {
@@ -635,6 +638,9 @@ export default {
         agv_name_list.push(agvData.AGV_Name);
       });
       return agv_name_list
+    },
+    IsVMSConnect() {
+      return UIStore.getters.VMSAlive;
     }
   },
 }

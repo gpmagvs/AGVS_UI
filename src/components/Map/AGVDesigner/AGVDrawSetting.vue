@@ -18,7 +18,11 @@
                         <el-form-item label="顏色">
                             <el-color-picker v-model="props.DisplayColor" @active-change="HandleAGVColorClicked"></el-color-picker>
                         </el-form-item>
-                        <el-form-item label="ICON"></el-form-item>
+                        <el-form-item label="ICON">
+                            <div class="">
+                                <ImageUploadButtonVue :backendUrl="iconUploadAPIEndPoint" @OnFileUploaded="HandleImageUploaded"></ImageUploadButtonVue>
+                            </div>
+                        </el-form-item>
                     </el-form>
                     <el-form class="mx-3" label-width="120" label-position="left">
                         <el-form-item label="顯示貨物狀態">
@@ -33,8 +37,7 @@
                 <div class="text-start text-primary mb-3">Preview</div>
                 <div :id="map_id"
                     class="agv-preview-map border w-100"
-                    style="height: 200px;">
-                </div>
+                    style="height: 200px;"> </div>
             </el-main>
         </el-container>
     </div>
@@ -53,17 +56,24 @@ import { Circle, Polygon } from 'ol/geom';
 import { Fill, Stroke, Style, Circle as CircleStyle, Text } from 'ol/style';
 
 import { MapStore } from '../store';
+import { agv_states_store } from '@/store';
 import bus from '@/event-bus';
-
-
+import ImageUploadButtonVue from '@/components/General/ImageUploadButton.vue';
+import param from '@/gpm_param.js'
 export default {
+    components: {
+        ImageUploadButtonVue,
+    },
     data() {
         return {
             map: undefined,
             agv_feature: undefined,
             _agvBodyFeature: undefined,
             _agvSaftyRegionFeature: undefined,
-            props: new AgvDisplayProps()
+            props: new AgvDisplayProps(),
+            imageFile: null, // 存储选定的图像文件
+            imageUrl: null, // 存储图像的URL以供预览
+
         }
     },
     props: {
@@ -78,7 +88,7 @@ export default {
                 var _props = new AgvDisplayProps()
                 return _props
             }
-        }
+        },
     },
     computed: {
         map_id() {
@@ -86,6 +96,10 @@ export default {
         },
         featureStyle() {
             return this.agv_feature.getStyle();
+        },
+        iconUploadAPIEndPoint() {
+            return `${param.backend_host}/api/Map/AGVIconUpload?AGVName=${this.agv_name}`;
+
         }
     },
     methods: {
@@ -99,7 +113,7 @@ export default {
             this.agv_feature = new Feature({
                 geometry: new Point([0, 0])
             })
-            this.agv_feature.setStyle(AGVPointStyle(this.raw_props.DisplayText, this.raw_props.DisplayColor))
+            this.agv_feature.setStyle(AGVPointStyle(this.raw_props.DisplayText, this.raw_props.DisplayColor, '/images/AGVDisplayImage/' + this.agv_name + '-Icon.png'))
 
             //AGV車體顯示
             const _agvBodyPolygon = new Polygon([[[-3, 4], [3, 4], [3, -4], [-3, -4]]])
@@ -147,7 +161,7 @@ export default {
         },
         ChangeColorOfAGV(color) {
             this.SetFeatureFillColor(this.agv_feature, color, true);
-            this.SetFeatureFillColor(this._agvBodyFeature, convertColorNameToRGBA(color, 0.6));
+            this.SetFeatureFillColor(this._agvBodyFeature, convertColorNameToRGBA(color, 0.4));
             this.SetFeatureFillColor(this._agvSaftyRegionFeature, convertColorNameToRGBA(color, 0.2));
 
             this.SaveToLocalStorage(true);
@@ -180,7 +194,19 @@ export default {
                 setTimeout(() => {
                     bus.emit('/rerender_agv_layer')
                 }, 500)
-        }
+        },
+        HandleImageUploaded(payload) {
+            console.info(payload);
+            this.imageFile = payload.imageFile
+            var agv_img = new Image();
+            agv_img.onload = () => {
+                var size = [agv_img.width, agv_img.height]
+                this.agv_feature.setStyle(AGVPointStyle(this.raw_props.DisplayText, this.raw_props.DisplayColor, payload.imageUrl, size))
+            }
+            agv_img.src = payload.imageUrl
+
+        },
+
 
     },
     mounted() {

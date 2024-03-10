@@ -27,11 +27,10 @@
     </el-drawer>
   </div>
 </template>
-
 <script>
 import clsTaskState from '@/ViewModels/TaskState.js'
 import param from '@/gpm_param'
-import { userStore } from '@/store'
+import { userStore, TaskStore } from '@/store'
 import RunningTaskTable from '@/components/TaskStatus/RunningTaskTable.vue'
 import CompletedTaskTable from '@/components/TaskStatus/CompletedTaskTable.vue'
 export default {
@@ -54,10 +53,7 @@ export default {
   },
   data() {
     return {
-      IncompletedTaskList: [
-      ],
-      CompletedTaskList: [
-      ],
+
       showCancelTaskConfirm: false,
       cancelTaskName: '',
       ShowSettingsDrawer: false,
@@ -67,7 +63,6 @@ export default {
     }
   },
   mounted() {
-    this.WsInit();
   },
   computed: {
     taskCancelable() {
@@ -86,25 +81,18 @@ export default {
         return this.CompletedTaskList
 
     },
-  },
-  methods: {
-
-    WsInit() {
-      const worker = new Worker('websocket_worker.js')
-      worker.onmessage = (event) => {
-        var parsedArray = event.data;
-        this.IncompletedTaskList = parsedArray.incompleteds.map(task => new clsTaskState(task));
-        this.CompletedTaskList = parsedArray.completeds.map(task => new clsTaskState(task));
-      }
-      worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + '/ws/TaskData' });
+    IncompletedTaskList() {
+      return TaskStore.getters.IncompletedTaskList
     },
-    HandleShowTrafficCkbChg() {
+    CompletedTaskList() {
+      return TaskStore.getters.CompletedTaskList
 
     }
   },
+  methods: {
+  },
 }
 </script>
-
 <style lang="scss" scoped>
 .task-status {
   .setting-container {

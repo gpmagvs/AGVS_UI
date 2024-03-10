@@ -98,7 +98,7 @@ export default {
       this.$vs.loading()
       setTimeout(() => {
         this.$vs.loading.close()
-      }, 400);
+      }, 200);
     },
     ToggleMenu() {
       this.menu_collapse = !this.menu_collapse;
@@ -183,7 +183,7 @@ export default {
     )
     setTimeout(() => {
       this.loading = false
-    }, 2000)
+    }, 1000)
   },
 };
 

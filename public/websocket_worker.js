@@ -35,13 +35,15 @@ function TryReConnect() {
     _socket.onopen = (ev) => {
         socket = _socket
         socket.onmessage = (ev) => {
-            setTimeout(() => {
-                var data_json = ev.data;
-                if (data_json != previous_data_json) {
-                    self.postMessage(JSON.parse(ev.data))
-                    previous_data_json = ev.data
-                }
-            }, 100)
+            // setTimeout(() => {
+            //     var data_json = ev.data;
+            //     if (data_json != previous_data_json) {
+            //         self.postMessage(JSON.parse(ev.data))
+            //         previous_data_json = ev.data
+            //     }
+            // }, 100)
+            self.postMessage(JSON.parse(ev.data))
+
         }
     }
     _socket.onclose = (ev) => {

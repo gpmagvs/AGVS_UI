@@ -56,6 +56,8 @@ export const agv_states_store = createStore({
     },
     HotRunStates: state => state.hotrun_states,
     VehicleSize: state => (name) => {
+      if (!state.agv_states)
+        return [0, 0]
       var agv = state.agv_states.find(agv => agv.AGV_Name == name);
       if (agv)
         return [agv.VehicleLength, agv.VehicleWidth]
@@ -197,7 +199,8 @@ export const UIStore = createStore({
     locus: {
     },
     EqpAlarmShowState: false,
-    SystemAlarmShowState: false
+    SystemAlarmShowState: false,
+    VMSAliveState: false
   },
   mutations: {
     IsSystemAlarmShowing(state, show) {
@@ -205,11 +208,15 @@ export const UIStore = createStore({
     },
     IsEqpAlarmShowing(state, show) {
       state.EqpAlarmShowState = show
+    },
+    SetVMSAlive(state, alive) {
+      state.VMSAliveState = alive;
     }
   },
   getters: {
     SystemAlarmShowState: state => state.SystemAlarmShowState,
     EqpAlarmShowState: state => state.EqpAlarmShowState,
+    VMSAlive: state => state.VMSAliveState
   }
 })
 
@@ -248,4 +255,32 @@ export const EqStore = createStore({
   }
 })
 
-
+export const TaskStore = createStore({
+  state: {
+    IncompletedTaskListData: [],
+    CompletedTaskListData: []
+  },
+  getters: {
+    IncompletedTaskList: state => state.IncompletedTaskListData,
+    CompletedTaskList: state => state.CompletedTaskListData,
+  },
+  mutations: {
+    StoreTaskData(state, payload) {
+      state.CompletedTaskListData = payload.completeds;
+      state.IncompletedTaskListData = payload.incompleteds;
+    }
+  }
+})
+export const AlarmStore = createStore({
+  state: {
+    alarmsCollection: [],
+  },
+  getters: {
+    alarms: state => state.alarmsCollection,
+  },
+  mutations: {
+    StoreAlarmData(state, payload) {
+      state.alarmsCollection = payload;
+    }
+  }
+})
