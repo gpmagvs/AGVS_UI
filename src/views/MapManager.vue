@@ -1,5 +1,5 @@
 <template>
-  <div class="map-view h-100 d-flex flex-row my-1" v-bind:style="StyleBiding">
+  <div class="map-view h-100 d-flex flex-row my-1">
     <div></div>
     <Map
       id="editable_map"
@@ -11,7 +11,6 @@
       ref="map_editing"></Map>
   </div>
 </template>
-
 <script>
 import Map from '@/components/Map/Map.vue';
 import MapAPI from '@/api/MapAPI';
@@ -44,7 +43,7 @@ export default {
 
       if (!_sysAlarmShowing && !_eqpAlarmShowing)
         return {
-          top: '-30px'
+          top: '-10px'
         }
       else if (_sysAlarmShowing && _eqpAlarmShowing)
         return {
@@ -163,7 +162,6 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .map-view {
   position: absolute;

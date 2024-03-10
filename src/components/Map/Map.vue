@@ -6,91 +6,8 @@
         <div class="w-100 text-light rounded p-2 select-mode"
           v-if="IsSelectEQStationMode"
           v-bind:class="TaskDispatchOptions.action_type == 'charge' ? 'bg-warning' : 'bg-primary'">{{ TaskDispatchOptions.action_type == 'charge' ? '選擇[充電站]' : `${TaskDispatchOptions.direction == 'source' ? '選擇[來源]設備' : '選擇[終點]設備'}` }}</div>
-        <!-- 編輯選項 -->
-        <div
-          v-if="editable"
-          class="editor-option bg-light"
-          style="margin-top:24px">
-          <div class="d-flex">
-            <div class="edit-block action-buttons">
-              <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
-              <b-button size="sm" variant="danger" @click="ReloadMap">重新載入</b-button>
-              <b-button size="sm" variant="danger" @click="ClearMap">重置圖資</b-button>
-            </div>
-            <div class="edit-block">
-              <span>
-                <i class="bi bi-three-dots-vertical"></i>模式 </span>
-              <el-radio-group
-                v-bind:style="radio_group_style"
-                v-model="EditorOption.EditMode"
-                @change="(opt) => { EditorOption.EditAction = 'none'; RemoveAllInteractions(); RestoreOriginalPathStyle(this.selected_path_feature) }"
-                size="large">
-                <el-radio-button size="small" label="view">檢視[V]</el-radio-button>
-                <el-radio-button size="small" label="edit">編輯[E]</el-radio-button>
-              </el-radio-group>
-            </div>
-            <div class="edit-block d-flex">
-              <span>
-                <i class="bi bi-three-dots-vertical"></i>編輯動作 </span>
-              <el-radio-group
-                v-bind:style="radio_group_style"
-                :disabled="EditorOption.EditMode != 'edit'"
-                v-model="EditorOption.EditAction"
-                @change="() => { RemoveAllInteractions(); RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction() }"
-                size="large">
-                <el-radio-button size="small" label="none">無</el-radio-button>
-                <el-radio-button size="small" label="add-station">新增點位[1]</el-radio-button>
-                <el-radio-button size="small" label="edit-station">編輯點位[2]</el-radio-button>
-                <el-radio-button size="small" label="remove-station">移除點位[3]</el-radio-button>
-              </el-radio-group>
-              <div class="d-flex flex-column">
-                <el-radio-group
-                  class="mx-1"
-                  :disabled="EditorOption.EditMode != 'edit'"
-                  v-model="EditorOption.EditAction"
-                  @change="() => { PathEditTempStore = []; RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction(); }"
-                  size="large">
-                  <el-radio-button size="small" label="add-path">新增路徑[4]</el-radio-button>
-                  <el-radio-button size="small" label="edit-path">編輯路徑[5]</el-radio-button>
-                  <el-radio-button size="small" label="remove-path">移除路徑[6]</el-radio-button>
-                </el-radio-group>
-                <el-radio-group
-                  v-show="EditorOption.EditAction == 'add-path'"
-                  class="mx-1 my-1"
-                  v-model="EditorOption.AddPathMode.Direction"
-                  @change="() => { RemoveInteraction(draw_forbid_regions_interaction); }"
-                  size="large">
-                  <el-radio-button size="small" label="one-direction">單向</el-radio-button>
-                  <el-radio-button size="small" label="bi-direction">雙向</el-radio-button>
-                </el-radio-group>
-              </div>
-              <div class="d-flex flex-column">
-                <el-radio-group
-                  class="mx-1"
-                  :disabled="EditorOption.EditMode != 'edit'"
-                  v-model="EditorOption.EditAction"
-                  size="large">
-                  <el-radio-button @click="HandleAddForbidRegionClicked(EditorOption.AddRegionMode.Mode)" size="small" label="add-forbid-region">新增管制區[7]</el-radio-button>
-                  <el-radio-button @click="HandleEditForbidRegionClicked" size="small" label="edit-forbid-region">編輯管制區[8]</el-radio-button>
-                  <el-radio-button @click="HandleDeleteForbidRegionClicked" size="small" label="remove-forbid-region">移除管制區[9]</el-radio-button>
-                  <el-radio-button @click="HandleDrawGlobalPathRegionClicked" size="small" label="add-global-path-region">繪製道路區域</el-radio-button>
-                </el-radio-group>
-                <el-radio-group
-                  v-show="EditorOption.EditAction == 'add-forbid-region'"
-                  class="mx-1 my-1"
-                  v-model="EditorOption.AddRegionMode.Mode"
-                  size="large">
-                  <el-radio-button @click="HandleAddForbidRegionClicked('forbid')" size="small" label="forbid">禁制區</el-radio-button>
-                  <el-radio-button @click="HandleAddForbidRegionClicked('passible')" size="small" label="passible">通行區</el-radio-button>
-                </el-radio-group>
-              </div>
-            </div>
-          </div>
-          <!-- <div
-            v-show="ShowWarningNotify"
-          class="bg-warning text-light border rounded p-1">目前為Slam座標模式，點位位置即為AGV真實走行座標，請小心操作 </div>-->
-        </div>
-        <div class="d-flex  flex-row flex-fill" style="overflow-y: hidden;">
+        <!-- 點位與路徑顯示 -->
+        <div class="d-flex h-100" style="overflow-y: hidden;">
           <!-- settings tabcontrol -->
           <div
             v-if="EditorOption.EditMode == 'edit' && editable"
@@ -103,17 +20,115 @@
         }"
                 class="bi bi-chevron-double-right"></i>
             </div>
-            <div v-else class="tab-open">
+            <div v-else class="tab-open text-start">
               <i
                 @click="() => {
           left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
         }"
                 class="bi bi-chevron-double-left"></i>
+              <div class="p-2 action-buttons border-bottom">
+                <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
+                <b-button size="sm" variant="danger" @click="ReloadMap">重新載入</b-button>
+                <b-button size="sm" variant="danger" @click="ClearMap">重置圖資</b-button>
+              </div>
               <b-tabs class="p-1">
+                <b-tab title="路網編輯" active>
+                  <div class="text-start border p-3">
+                    <el-form>
+                      <el-form-item label="點位">
+                        <el-radio-group
+                          v-bind:style="radio_group_style"
+                          :disabled="EditorOption.EditMode != 'edit'"
+                          v-model="EditorOption.EditAction"
+                          @change="() => { RemoveAllInteractions(); RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction() }"
+                          size="large">
+                          <el-radio-button size="small" label="add-station">新增點位[1]</el-radio-button>
+                          <el-radio-button size="small" label="edit-station">編輯點位[2]</el-radio-button>
+                          <el-radio-button size="small" label="remove-station">移除點位[3]</el-radio-button>
+                        </el-radio-group>
+                      </el-form-item>
+                      <el-form-item label="路徑">
+                        <el-radio-group
+                          class="mx-1"
+                          :disabled="EditorOption.EditMode != 'edit'"
+                          v-model="EditorOption.EditAction"
+                          @change="() => { PathEditTempStore = []; RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction(); }"
+                          size="large">
+                          <el-popover
+                            placement="bottom-end"
+                            title="管制區域類型"
+                            :width="180"
+                            trigger="click"
+                            :teleported="false"
+                            :visible="EditorOption.EditAction == 'add-path'">
+                            <template #reference>
+                              <el-radio-button size="small" label="add-path">新增路徑[4]</el-radio-button>
+                            </template>
+                            <el-radio-group
+                              class="mx-1 my-1"
+                              v-model="EditorOption.AddPathMode.Direction"
+                              @change="() => { RemoveInteraction(draw_forbid_regions_interaction); }"
+                              size="large">
+                              <el-radio-button size="small" label="one-direction">單向</el-radio-button>
+                              <el-radio-button size="small" label="bi-direction">雙向</el-radio-button>
+                            </el-radio-group>
+                          </el-popover>
+                          <el-radio-button size="small" label="edit-path">編輯路徑[5]</el-radio-button>
+                          <el-radio-button size="small" label="remove-path">移除路徑[6]</el-radio-button>
+                        </el-radio-group>
+                      </el-form-item>
+                      <el-form-item label="區域">
+                        <el-radio-group
+                          class="mx-1"
+                          :disabled="EditorOption.EditMode != 'edit'"
+                          v-model="EditorOption.EditAction"
+                          size="large">
+                          <el-popover
+                            placement="bottom-end"
+                            title="管制區域類型"
+                            :width="180"
+                            trigger="click"
+                            :teleported="false"
+                            :visible="EditorOption.EditAction == 'add-forbid-region'">
+                            <template #reference>
+                              <el-radio-button @click="HandleAddForbidRegionClicked(EditorOption.AddRegionMode.Mode)" size="small" label="add-forbid-region">新增管制區[7]</el-radio-button>
+                            </template>
+                            <el-radio-group
+                              class="mx-1 my-1"
+                              v-model="EditorOption.AddRegionMode.Mode"
+                              size="large">
+                              <el-radio-button @click="HandleAddForbidRegionClicked('forbid')" size="small" label="forbid">禁制區</el-radio-button>
+                              <el-radio-button @click="HandleAddForbidRegionClicked('passible')" size="small" label="passible">通行區</el-radio-button>
+                            </el-radio-group>
+                          </el-popover>
+                          <el-radio-button @click="HandleEditForbidRegionClicked" size="small" label="edit-forbid-region">編輯管制區[8]</el-radio-button>
+                          <el-radio-button @click="HandleDeleteForbidRegionClicked" size="small" label="remove-forbid-region">移除管制區[9]</el-radio-button>
+                          <el-radio-button @click="HandleDrawGlobalPathRegionClicked" size="small" label="add-global-path-region">繪製道路區域</el-radio-button>
+                        </el-radio-group>
+                      </el-form-item>
+                    </el-form>
+                  </div>
+                </b-tab>
+                <!-- //TODO圖層與網格  -->
+                <b-tab title="圖層與網格">
+                  <div class="border p-3">
+                    <el-form label-width="120" label-position="left">
+                      <el-form-item label="網格尺寸(公尺)">
+                        <el-input-number :min="1" :step="0.1" @change="ModifyGridSize" v-model="MapGridSizeStore"></el-input-number>
+                      </el-form-item>
+                      <el-form-item label="水平Offset(公尺)">
+                        <el-input-number :step="0.1" @change="ModifyGridOffset" v-model="MapGridSizeXOffset"></el-input-number>
+                      </el-form-item>
+                      <el-form-item label="垂直Offset(公尺)">
+                        <el-input-number :step="0.1" @change="ModifyGridOffset" v-model="MapGridSizeYOffset"></el-input-number>
+                      </el-form-item>
+                    </el-form>
+                  </div>
+                </b-tab>
                 <b-tab title="點位">
                   <div class="border">123</div>
                 </b-tab>
-                <b-tab title="路徑" active>
+                <b-tab title="路徑">
                   <div class="border">
                     <!-- <div class="d-flex">
                     <div style="width:70px">搜尋</div> <el-input></el-input>
@@ -158,7 +173,7 @@
           <div class="w-100 h-100 d-flex ">
             <!-- Map Render -->
             <!--提示-->
-            <div class="notifiers" style="position:absolute;width:100%">
+            <div class="notifiers" style="position:absolute;width: 622px;margin: 12px 60px;">
               <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" />
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'add-station'" title="使用滑鼠[右鍵]點擊地圖新增點位" type="success" />
               <el-alert class="notify-text" v-if="editable && EditorOption.EditAction == 'edit-station'" title="使用滑鼠[右鍵]選擇欲編輯之點位" type="success" />
@@ -175,6 +190,7 @@
               <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
               <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
             </div>
+            <!-- 地圖DOM渲染 //TODO 地圖DOM渲染-->
             <div
               :id="id"
               class="agv_map flex-fll"
@@ -539,7 +555,7 @@ export default {
       station_name_display_mode: 'name',
       agv_display: 'visible',
       map_image_display: 'visible',
-      left_tab_class_name: 'tab-close',
+      left_tab_class_name: 'tab-open',
       previousSelectedFeatures: [],
       agv_upload_coordination_mode: false,
       editModeContextMenuVisible: false,
@@ -570,6 +586,9 @@ export default {
       delete_forbid_regions_interaction: undefined,
       edit_forbid_regions_interaction: undefined,
       mapEditsInteraction: undefined,
+      MapGridSizeStore: 0,
+      MapGridSizeXOffset: 0,
+      MapGridSizeYOffset: 0,
 
     }
   },
@@ -2085,35 +2104,11 @@ export default {
     DeepClonePathSegmentData() {
       this.PathesSegmentsForEdit = JSON.parse(JSON.stringify(this.PathesSegments))
     },
+    //TODO 地圖初始化
     InitMap() {
 
       this.map_image_display = MapStore.getters.DefaultShowBackgroundImage ? 'visible' : '';
-      var initGrid = (_map, _extent = [-20, -20, 20, 20]) => {
-        const extent = _extent.map(val => val * 10);
-        const interval = this.MapGridSize; // 間隔:單位公尺
-        const vectorSource = new VectorSource();
-        for (let x = extent[0]; x <= extent[2]; x += interval) {
-          const lineFeature = new Feature(new LineString([[x, extent[1]], [x, extent[3]]]));
-          lineFeature.set("grid_line", true)
-          vectorSource.addFeature(lineFeature);
-        }
-        for (let y = extent[1]; y <= extent[3]; y += interval) {
-          const lineFeature = new Feature(new LineString([[extent[0], y], [extent[2], y]]));
-          lineFeature.set("grid_line", true)
-          vectorSource.addFeature(lineFeature);
-        }
-        const gridLayer = new VectorLayer({
-          source: vectorSource,
-          style: new Style({
-            stroke: new Stroke({
-              color: 'rgb(221, 221, 221)',
-              width: 1
-            })
-          })
-        });
-        _map.addLayer(gridLayer);
 
-      }
       const extent = this.map_img_extent;
       const projection = new Projection({
         code: 'xkcd-image',
@@ -2159,8 +2154,36 @@ export default {
       }
       this.EQLDULDStatusLayer.setVisible(!this.editable)
       this.InitMapEventHandler();
-      initGrid(this.map, extent)
+      this.initGrid(this.map, this.MapGridSize, extent)
       // this.map.addControl(new ZoomSlider());
+    },
+    initGrid(_map, grid_size, _extent = [-25, -25, 15, 15], offsetX = -2, offsetY = 0) {
+      const extent = _extent.map(val => val * 10);
+      const interval = grid_size; // 間隔:單位公尺
+      const vectorSource = new VectorSource();
+      for (let x = extent[0]; x <= extent[2]; x += interval) {
+        const lineFeature = new Feature(new LineString([[x + offsetX, extent[1] + offsetY], [x + offsetX, extent[3] + offsetY]]));
+        lineFeature.set("grid_line", true)
+        vectorSource.addFeature(lineFeature);
+      }
+      for (let y = extent[1]; y <= extent[3]; y += interval) {
+        const lineFeature = new Feature(new LineString([[extent[0] + offsetX, y + offsetY], [extent[2] + offsetX, y + offsetY]]));
+        lineFeature.set("grid_line", true)
+        vectorSource.addFeature(lineFeature);
+      }
+
+      const gridLayer = new VectorLayer({
+        source: vectorSource,
+        name: 'gridLayer',
+        style: new Style({
+          stroke: new Stroke({
+            color: 'rgb(221, 221, 221)',
+            width: 1
+          })
+        })
+      });
+      _map.addLayer(gridLayer);
+
     },
     GetForbidRegionCount() {
       var _features = this.RegionLayer.getSource().getFeatures()
@@ -2770,6 +2793,24 @@ export default {
       var _newFeature = CreateTransTaskMark(coordination, text);
       layerSource.addFeature(_newFeature);
 
+    },
+    ModifyGridSize(size) {
+
+      this.RemoveGridLayer();
+      this.initGrid(this.map, size, this.map_img_extent);
+      MapStore.commit('setMapGridSize', size);
+    },
+    ModifyGridOffset() {
+
+      this.RemoveGridLayer();
+      this.initGrid(this.map, this.MapGridSize, this.map_img_extent, this.MapGridSizeXOffset, this.MapGridSizeYOffset);
+
+    },
+    RemoveGridLayer() {
+      var layers = this.map.getLayers().getArray();
+      var layerRemove = layers.find(layer => layer.get('name') === 'gridLayer');
+      if (layerRemove)
+        this.map.removeLayer(layerRemove)
     }
   },
 
@@ -2851,6 +2892,7 @@ export default {
           this.UpdateAGVLocLocation();
         }, 500);
         this.loading = false;
+        this.MapGridSizeStore = this.MapGridSize;
       })
     }, 1000)
   },
@@ -2888,7 +2930,6 @@ export default {
       cursor: pointer;
       position: absolute;
       left: 479px;
-      top: 100px;
     }
 
     i:hover {
@@ -2987,32 +3028,11 @@ export default {
     }
   }
 
-  .editor-option {
-    width: 100%;
-    border-radius: 3px;
-    border: 1px solid rgb(218, 218, 218);
-    padding: 3px;
-    margin-inline: 2px;
-
-    .action-buttons {
-      button {
-        width: 90px;
-        height: 30px;
-        margin-right: 5px;
-      }
-    }
-
-    .edit-block {
-      font-size: 15px;
-      font-weight: bold;
-      display: flex;
-      flex-direction: row;
-      padding: 5px;
-
-      span {
-        text-align: left;
-        margin-right: 10px;
-      }
+  .action-buttons {
+    button {
+      width: 90px;
+      height: 30px;
+      margin-right: 5px;
     }
   }
 

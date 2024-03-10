@@ -211,6 +211,10 @@ export const MapStore = createStore({
         },
         RegionOptions(state, options) {
             state.RegionOptions = options;
+        },
+        setMapGridSize(state, grid_size) {
+            state.MapData.Options.gridSize = grid_size;
+            console.log(state.MapData.Options.gridSize);
         }
 
     },

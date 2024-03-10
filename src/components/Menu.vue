@@ -42,7 +42,7 @@
                     <el-icon>
                         <map_icon :color="IconColor" />
                     </el-icon>
-                    <template #title>圖資管理</template>
+                    <template #title>地圖編輯</template>
                 </el-menu-item>
                 <el-menu-item index="/map/agv_display">
                     <el-icon>
