@@ -25,13 +25,33 @@ export default createStore({
 
 export const agv_states_store = createStore({
   state: {
-    agv_states: [new clsAGVStateDto()],
-    hotrun_states: []
+    agv_states: undefined,
+    hotrun_states: [],
+    cachesKeyMap: {
+      agvStates: 'agv_states'
+    }
   },
   getters: {
-    AGVStatesData: state => state.agv_states,
+    AGVStatesData: state => {
+      if (state.agv_states && state.agv_states.length != 0) {
+
+        return state.agv_states;
+      }
+      else {
+        var _cache = localStorage.getItem(state.cachesKeyMap.agvStates)
+        if (_cache != null) {
+          var cacheData = JSON.parse(_cache)
+
+          return cacheData;
+        } else
+          return [new clsAGVStateDto()]
+      }
+    },
     AGVNameList: state => {
-      return state.agv_states.map(agv => agv.AGV_Name)
+      if (state.agv_states)
+        return state.agv_states.map(agv => agv.AGV_Name)
+      else
+        return []
     },
     HotRunStates: state => state.hotrun_states,
     VehicleSize: state => (name) => {
@@ -44,7 +64,9 @@ export const agv_states_store = createStore({
   },
   mutations: {
     storeAgvStates(state, data) {
-      state.agv_states = data
+      state.agv_states = data;
+      if (data.length > 0)
+        localStorage.setItem(state.cachesKeyMap.agvStates, JSON.stringify(data));
     },
     setHotRunStates(state, data) {
       state.hotrun_states = data
