@@ -120,7 +120,7 @@ export default {
       let startX = e.pageX;
 
       const onMove = (e) => {
-        if (!isDragging) return;
+        if (!isDragging || !_this.MenuExpanded) return;
         const dx = e.pageX - startX;
         const newLeftWidth = leftPanel.offsetWidth + dx;
         var newRightWidth = window_width - newLeftWidth;
