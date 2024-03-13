@@ -5,17 +5,19 @@ var auto_reconnect = true;
 function initWebsocket(ws_url) {
     _ws_url = ws_url;
     socket = new WebSocket(ws_url)
-    socket.onopen = () => { }
+    socket.onopen = () => { console.log(_ws_url + '--connected!') }
     socket.onmessage = (ev) => {
         var data_json = ev.data;
         self.postMessage(JSON.parse(data_json))
 
     }
     socket.onclose = (ev) => {
+        console.log(_ws_url + '--closed!')
         if (auto_reconnect)
             TryReConnect();
     }
     socket.onerror = (ev) => {
+        console.error(_ws_url + '--error!')
         if (auto_reconnect)
             TryReConnect();
     }

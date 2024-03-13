@@ -18,14 +18,19 @@
       row-key="AGV_Name"
       border
       @row-click="HandleRowClick">
-      <el-table-column label="車輛名稱" prop="AGV_Name" align="center" min-width="100px" type="index">
+      <el-table-column label="車輛名稱" prop="AGV_Name" align="center" min-width="130px" type="index">
         <template #default="scope">
           <div class="d-flex flex-column">
-            <div>
+            <div style="font-size: 18px;">
               <!-- <b>{{ scope.row.AGV_Name.toUpperCase() }}</b> -->
               <b>{{ GetDisplayName(scope.row.AGV_Name) }}</b>
             </div>
             <div class="agv-color-display" v-bind:style="StyleOfAGVDisplayColor(scope.row.AGV_Name)"></div>
+            <b-button v-if="!IsRunMode"
+              class="w-20 my-1 mx-2"
+              @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
+              size="sm"
+              v-bind:style="scope.row.OnlineStatus == 1 ? { backgroundColor: 'red' } : StyleOfAGVDisplayColor(scope.row.AGV_Name)"> {{ scope.row.OnlineStatus == 1 ? '請求下線' : '請求上線' }} </b-button>
             <b-button v-if="!IsRunMode"
               class="w-20 my-1 mx-2"
               @click="ShowAGVChargeConfirmDialog(scope.row)"
