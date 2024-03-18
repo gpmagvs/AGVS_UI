@@ -145,8 +145,12 @@ export const pointTypes = [
     value: 5
   },
   {
-    label: ' Charge & STK',
+    label: 'Charge & STK',
     value: 6
+  },
+  {
+    label: 'Battery_Exchanger',
+    value: 7
   },
   {
     label: 'Escape',

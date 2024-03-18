@@ -20,5 +20,7 @@
     "titleBar.inactiveBackground": "#f9e64f99",
     "titleBar.inactiveForeground": "#15202b99"
   },
-  "peacock.color": "#f9e64f"
+  "peacock.color": "#f9e64f",
+  "vue-i18n.i18nPaths": "src\\locales",
+  "i18n-ally.localesPaths": ["src/locales"]
 }

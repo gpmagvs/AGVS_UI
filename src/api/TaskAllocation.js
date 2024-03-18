@@ -30,7 +30,7 @@ export class clsMeasureTaskData {
     this.DesignatedAGVName = agv_name
     this.From_Station = '-1'
     this.From_Slot = '-1'
-    this.To_Station = bay_name
+    this.To_Station = bay_name + ''
     this.To_Slot = '-1'
     this.Carrier_ID = '-1'
     this.Priority = Priority

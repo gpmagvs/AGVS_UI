@@ -110,7 +110,7 @@
                   </div>
                 </b-tab>
                 <!-- //TODO圖層與網格  -->
-                <b-tab title="圖層與網格">
+                <b-tab title="地圖與網格">
                   <div class="border p-3">
                     <el-form label-width="120" label-position="left">
                       <el-form-item label="網格尺寸(公尺)">
@@ -121,6 +121,9 @@
                       </el-form-item>
                       <el-form-item label="垂直Offset(公尺)">
                         <el-input-number :step="0.1" @change="ModifyGridOffset" v-model="MapGridSizeYOffset"></el-input-number>
+                      </el-form-item>
+                      <el-form-item label="旋轉">
+                        <el-input-number :step="1" :min="-180" :max="180" @change="ModifyMapRotation" v-model="MapRotation"></el-input-number>
                       </el-form-item>
                     </el-form>
                   </div>
@@ -590,6 +593,7 @@ export default {
       MapGridSizeStore: 0,
       MapGridSizeXOffset: 0,
       MapGridSizeYOffset: 0,
+      MapRotation: 0
 
     }
   },
@@ -1160,7 +1164,7 @@ export default {
 
           var featureType = feature.get('feature_type');
           this.feature_ = feature;
-          this_vue.IsDragging = true;
+          this_vue.IsDragging = isRightClick ? false : true;
 
           if (currentAction == "none" && featureType != this_vue.FeatureKeys.Station)
             return false;
@@ -1183,6 +1187,8 @@ export default {
         },
         /**滑鼠拖曳事件 */
         handleDragEvent: function (event) {
+          if (!this_vue.IsDragging)
+            return;
           var is_editable = this_vue.editable;
           var edit_mode = this_vue.EditorOption.EditMode;
           var edit_action = this_vue.EditorOption.EditAction;
@@ -2141,7 +2147,8 @@ export default {
           projection: projection,
           center: [0, 0],
           zoom: 1,
-          maxZoom: 20
+          maxZoom: 20,
+          rotation: 180
         })
       })
       this.AGVLocLayer.setVisible(this.agv_show);
@@ -2808,6 +2815,12 @@ export default {
       this.RemoveGridLayer();
       this.initGrid(this.map, this.MapGridSize, this.map_img_extent, this.MapGridSizeXOffset, this.MapGridSizeYOffset);
 
+    },
+    ModifyMapRotation() {
+      var angle = this.MapRotation
+      var view = this.map.getView();
+      view.setRotation(angle * Math.PI / 180.0)
+      this.map.setView(view)
     },
     RemoveGridLayer() {
       var layers = this.map.getLayers().getArray();

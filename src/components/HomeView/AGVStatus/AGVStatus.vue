@@ -36,7 +36,7 @@
               @click="ShowAGVChargeConfirmDialog(scope.row)"
               size="sm"
               variant="warning">
-              <i class="bi bi-lightning-charge-fill"></i> {{ scope.row.AGV_MODEL == 2 ? '交換電池' : '充電' }} </b-button>
+              <i class="bi bi-lightning-charge-fill"></i> {{ scope.row.Model == 2 ? '交換電池' : '充電' }} </b-button>
           </div>
         </template>
       </el-table-column>
@@ -80,13 +80,16 @@
               <el-col :span="4">
                 <div class="h-100 border py-2 text-center bg-light">位置 </div>
               </el-col>
-              <el-col :span="11">
-                <div class="w-100 h-100 border p-1">
-                  <i
-                    class="bi bi-geo-alt-fill"
-                    style="font-size:20px;cursor:pointer"
-                    @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
-                  <b>{{ scope.row.StationName }}</b>
+              <el-col :span="11" class="">
+                <div class="w-100 h-100 border p-1 d-flex flex-row">
+                  <div class="flex-fill">
+                    <i
+                      class="bi bi-geo-alt-fill"
+                      style="font-size:20px;cursor:pointer"
+                      @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
+                    <b>{{ scope.row.StationName }}</b>
+                  </div>
+                  <el-button class="" v-show="scope.row.Model == 2" @click="HandleAGVLocatingClick(scope.row)">定位</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -285,13 +288,40 @@
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
   </div>
+  <el-dialog v-model="ShowAGVLocatingDialog"
+    width="400"
+    draggable
+    :modal="false"
+    :close-on-click-modal="false"
+    :title="AGVLocatingPayload.Name + '-定位'">
+    <el-checkbox-group>
+      <el-checkbox></el-checkbox>
+      <el-checkbox></el-checkbox>
+    </el-checkbox-group>
+    <el-form>
+      <el-form-item label="Point ID">
+        <el-input v-model="AGVLocatingPayload.currentID"></el-input>
+      </el-form-item>
+    </el-form>
+    <el-form>
+      <el-form-item label="Point ID">
+        <el-input v-model="AGVLocatingPayload.currentID"></el-input>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="ShowAGVLocatingDialog = false">Cancel</el-button>
+        <el-button type="primary" @click="HandleAGVLocatingCinfirm"> 定位 </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 <script>
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import { IsLoginLastTime } from '@/api/AuthHelper';
-import { OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
-import { TaskAllocation, clsChargeTaskData } from '@/api/TaskAllocation.js'
+import { OnlineRequest, OfflineRequest, AGVLocating } from '@/api/VMSAPI';
+import { TaskAllocation, clsChargeTaskData, clsExangeBatteryTaskData } from '@/api/TaskAllocation.js'
 import { userStore, agvs_settings_store, agv_states_store, UIStore } from '@/store'
 import moment from 'moment'
 import { MapStore } from '@/components/Map/store';
@@ -303,11 +333,19 @@ export default {
 
       ShowOnlineStateChange: false,
       ShowChargeConfirmDialog: false,
+      ShowAGVLocatingDialog: false,
       OnlineStatusReq: {
         AGV_Name: '',
         Online_Status: '',
         Model: 0
       },
+      AGVLocatingPayload: {
+        Name: "",
+        currentID: 100,
+        x: 0,
+        y: 0,
+        theata: 0
+      }
     }
   },
   props: {
@@ -424,6 +462,42 @@ export default {
       }
 
     },
+    HandleAGVLocatingClick(agv) {
+      console.log(agv)
+      this.AGVLocatingPayload.currentID = Number.parseInt(agv.CurrentLocation)
+      this.AGVLocatingPayload.Name = agv.AGV_Name
+      this.ShowAGVLocatingDialog = true;
+    },
+    async HandleAGVLocatingCinfirm() {
+      this.ShowAGVLocatingDialog = false;
+      var agv_name = this.AGVLocatingPayload.Name
+      var result = await AGVLocating(agv_name, this.AGVLocatingPayload);
+      console.log(result)
+
+      if (!result || !result.confirm) {
+        this.$swal.fire(
+          {
+            text: `${agv_name}-定位失敗`,
+            title: '',
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+        this.ShowAGVLocatingDialog = true;
+      } else {
+        this.$swal.fire(
+          {
+            text: `${agv_name}-定位完成!`,
+            title: '',
+            icon: 'success',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+      }
+
+    },
     ShowAGVChargeConfirmDialog(agv_status) {
 
       if (userStore.getters.level < 0) {
@@ -443,22 +517,28 @@ export default {
 
       this.Agv_Selected = agv_status.AGV_Name;
 
-
+      var isInspectionAGV = agv_status.Model == 2;
       this.$swal.fire(
         {
-          title: `確定要將${agv_status.AGV_Name}派送至充電站充電?`,
+          title: `確定要將${agv_status.AGV_Name}${isInspectionAGV ? '派送至交換戰站交換電池?' : '派送至充電站充電?'}`,
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: 'OK',
           customClass: 'my-sweetalert'
         }).then(res => {
           if (res.isConfirmed) {
-            this.AGVChargeTask()
+            this.AGVChargeTask(isInspectionAGV)
           }
         })
     },
-    async AGVChargeTask() {
-      var result = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))
+    async AGVChargeTask(exchangeBattery = false) {
+      var result = {};
+      if (exchangeBattery) {
+        result = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(this.Agv_Selected, -1))
+      } else {
+        result = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))
+
+      }
       console.log(result)
       this.HandleChargeTaskDispatchResult(result);
     },

@@ -46,8 +46,8 @@
                     <div class="icon-container" style="width:64px;height:84px" v-for="path in EqIcons" :key="path">
                       <el-image
                         v-bind:style="{
-                          border: path == pointData_editing.Graph.ImageName ? '3px solid rgb(49, 132, 253)' : ''
-                        }"
+        border: path == pointData_editing.Graph.ImageName ? '3px solid rgb(49, 132, 253)' : ''
+      }"
                         style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer"
                         :src="path"
                         :zoom-rate="1.2"
@@ -66,8 +66,8 @@
                     <el-image
                       v-for="path in fileList" :key="path"
                       v-bind:style="{
-                        border: path.url == pointData_editing.Graph.ImageName ? '3px solid rgb(49, 132, 253)' : ''
-                      }"
+        border: path.url == pointData_editing.Graph.ImageName ? '3px solid rgb(49, 132, 253)' : ''
+      }"
                       style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer;border:1px dashed red"
                       :src="path.url"
                       :zoom-rate="1.2"
@@ -123,10 +123,31 @@
                   <el-input-number v-model="pointData_editing.Speed" :step="0.1" :precision="1"></el-input-number>
                 </el-form-item>
                 <el-form-item label="AGV閃避模式">
-                  <el-input-number v-model="pointData_editing.DodgeMode" :step="1"></el-input-number>
-                  <i
-                    class="bi bi-question-circle information"
-                    @click="HandleDodgeModeInfoIconClick"></i>
+                  <el-select v-model="pointData_editing.DodgeMode">
+                    <el-option label="0" :value="0"></el-option>
+                    <el-option label="1" :value="1"></el-option>
+                    <el-option label="2" :value="2"></el-option>
+                    <el-option label="3" :value="3"></el-option>
+                    <el-option label="4-一般道路橫向移動(巡檢AGV)" :value="4"></el-option>
+                    <el-option label="5-電池交換橫向移動(巡檢AGV)" :value="5"></el-option>
+                    <el-option label="6" :value="6"></el-option>
+                    <el-option label="7" :value="7"></el-option>
+                    <el-option label="8" :value="8"></el-option>
+                    <el-option label="9" :value="9"></el-option>
+                    <el-option label="10-取消任務時Pass站點(用於避免與WIP內AGV旋轉干涉)" :value="10"></el-option>
+                    <el-option label="11-地標輔助修正(用於轉角或長走道起點，AGV會追Tag中心)" :value="11"></el-option>
+                    <el-option label="12-里程計輔助定位(用於窄道)" :value="12"></el-option>
+                    <el-option label="13" :value="13"></el-option>
+                    <el-option label="14-里程計輔助定位、偵測色帶(用於窄道、脫離色帶會上報異常)" :value="14"></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="Direction">
+                  <el-select v-model="pointData_editing.SpinMode">
+                    <el-option label="0-可旋轉" :value="0"></el-option>
+                    <el-option label="1-不可旋轉" :value="1"></el-option>
+                    <el-option label="2-向右旋轉" :value="2"></el-option>
+                    <el-option label="3-向左旋轉" :value="3"></el-option>
+                  </el-select>
                 </el-form-item>
               </el-form>
             </el-collapse-item>
@@ -147,12 +168,12 @@
               <div class="text-start">
                 <el-button
                   @click="() => {
-                    RegistersTable.push({
-                      index: undefined,
-                      tag: undefined,
-                      name: undefined
-                    })
-                  }">新增</el-button>
+        RegistersTable.push({
+          index: undefined,
+          tag: undefined,
+          name: undefined
+        })
+      }">新增</el-button>
               </div>
               <el-table row-key="index" height="320px" border :data="RegistersTable">
                 <el-table-column label="Index" prop="index">
@@ -174,8 +195,8 @@
                   <template #default="scope">
                     <el-button
                       @click="() => {
-                        RegistersTable.splice(RegistersTable.indexOf(scope.row), 1)
-                      }"
+        RegistersTable.splice(RegistersTable.indexOf(scope.row), 1)
+      }"
                       type="danger"
                       size="small">移除</el-button>
                   </template>
@@ -195,7 +216,6 @@
     </el-drawer>
   </div>
 </template>
-
 <script>
 import { GetEQInfoByTag } from '@/api/EquipmentAPI.js';
 import { pointTypes } from '@/api/MapAPI.js'
@@ -213,7 +233,9 @@ export default {
       show: false,
       index: -1,
       pointData: {},
-      pointData_editing: {},
+      pointData_editing: {
+        SpinMode: 0
+      },
       RegistersTable: [
         {
           index: 0,
@@ -406,8 +428,21 @@ export default {
       this.show = false;
       this.$swal.fire(
         {
-          html: '<div class="text-start">10:取消任務時Pass站點(用於避免與WIP內AGV旋轉干涉)<br>11:地標輔助修正(用於轉角或長走道起點，AGV會追Tag中心)<br>12:里程計輔助定位(用於窄道)<br>14:里程計輔助定位、偵測色帶(用於窄道、脫離色帶會上報異常)</div>',
+          html: '<div class="text-start">4:一般道路橫向移動(巡檢AGV)<br>5:電池交換橫向移動(巡檢AGV)<br>10:取消任務時Pass站點(用於避免與WIP內AGV旋轉干涉)<br>11:地標輔助修正(用於轉角或長走道起點，AGV會追Tag中心)<br>12:里程計輔助定位(用於窄道)<br>14:里程計輔助定位、偵測色帶(用於窄道、脫離色帶會上報異常)</div>',
           title: 'Dodge Mode',
+          icon: 'information',
+          showCancelButton: false,
+          customClass: 'my-sweetalert'
+        }).then(() => {
+          this.show = true
+        })
+    },
+    HandleSpinModeInfoIconClick() {
+      this.show = false;
+      this.$swal.fire(
+        {
+          html: '<div class="text-start">0:不可旋轉<br>1:可旋轉<br>2:向右旋轉<br>3:向左旋轉</div>',
+          title: 'Spin Mode',
           icon: 'information',
           showCancelButton: false,
           customClass: 'my-sweetalert'
@@ -450,8 +485,7 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" scoped >
+<style lang="scss" scoped>
 .map-point-setting-drawer {
   .modal-style {
     opacity: 0.3;

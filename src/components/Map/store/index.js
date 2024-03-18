@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import axios from 'axios'
 import { AGVOption, clsMap, clsAGVDisplay, clsMapStation, StationSelectOptions, AgvDisplayProps } from '../mapjs';
+import param from "@/gpm_param";
 
 /**圖資狀態儲存 */
 export const MapStore = createStore({
@@ -24,7 +25,7 @@ export const MapStore = createStore({
             path_color: 'red'
         },
         worker: new Worker(''),
-        mapBackendServer: process.env.NODE_ENV == 'development' ? 'http://127.0.0.1:5216' : `${window.location.protocol}//${window.location.host}`
+        mapBackendServer: process.env.NODE_ENV == 'development' ? param.backend_host : `${window.location.protocol}//${window.location.host}`
     },
     getters: {
         MapBackednAxios: state => {

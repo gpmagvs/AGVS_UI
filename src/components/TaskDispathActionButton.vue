@@ -21,9 +21,9 @@
                             <el-col class="item-value" :span="12">{{ selected_action_display }}</el-col>
                             <el-col class="item-actions" :span="7">
                                 <b-button size="sm" variant="link" @click="() => {
-                                    HandleCancelBtnClick();
-                                    action_menu_visible = true;
-                                }">重新選取</b-button></el-col>
+            HandleCancelBtnClick();
+            action_menu_visible = true;
+        }">重新選取</b-button></el-col>
                         </el-row>
                         <el-row class="order-row" v-bind:style="agv_select_row_class" @click="HandleSelectAGVFromMapBtnClick">
                             <el-col :span="5">
@@ -79,21 +79,21 @@
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
                             <b-button @click="HandleConfirmBtnClicked" :disabled="!task_dispatch_btn_pushable" class="w-50 mx-1" variant="primary">確認派送</b-button>
                             <b-button class="w-50 mx-1" variant="light" @click="() => {
-                                order_info_visible = false;
-                                action_menu_visible = true;
-                            }">返回選擇動作</b-button>
+            order_info_visible = false;
+            action_menu_visible = true;
+        }">返回選擇動作</b-button>
                             <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">取消</b-button>
                         </div>
                     </div>
                 </el-popover>
                 <b-button v-show="!order_info_visible" squared variant="primary" @click="() => {
-                    // $emit('on-click');
-                    if (action_menu_visible) {
-                        action_menu_visible = false;
-                    }
-                    else if (!order_info_visible)
-                        action_menu_visible = true
-                }">任務派送</b-button>
+            // $emit('on-click');
+            if (action_menu_visible) {
+                action_menu_visible = false;
+            }
+            else if (!order_info_visible)
+                action_menu_visible = true
+        }">任務派送</b-button>
             </div>
         </template>
         <div class="actions-btn-conatiner">
@@ -103,11 +103,12 @@
             <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('load')"> 放貨 </b-button>
             <b-button class="w-100 my-1" variant="primary" @click="SelectActionHandle('carry')"> 搬運 </b-button>
             <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('charge')"> 充電 </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('exchange_battery')"> 交換電池 </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('measure')"> 巡檢量測 </b-button>
             <b-button class="w-100 my-1" variant="danger" @click="() => { action_menu_visible = false }"> 取消 </b-button>
         </div>
     </el-popover>
 </template>
-
 <script>
 import bus from '@/event-bus.js'
 import Notifier from '@/api/NotifyHelper';
@@ -516,7 +517,6 @@ export default {
     }
 }
 </script>
-
 <style lang="scss" scoped>
 .task-dispatch-btn-container {
     position: fixed;
