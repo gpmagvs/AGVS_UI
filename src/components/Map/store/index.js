@@ -210,6 +210,7 @@ export const MapStore = createStore({
         RegionOptions: state => state.RegionOptions,
         EqIcons: state => state.MapData.Options.EQIcons,
         GridSize: state => state.MapData.Options.gridSize,
+        Rotation: state => state.MapData.Options.Rotation ? state.MapData.Options.Rotation : 0,
         DefaultShowBackgroundImage: state => state.MapData.Options.defaultShowBackgroudImage,
 
     },
@@ -248,6 +249,9 @@ export const MapStore = createStore({
             }
             _savedObject[payload.agvname] = payload.style;
             localStorage.setItem('custom-agv-styles', JSON.stringify(_savedObject));
+        },
+        SetRotation(state, rotation) {
+            state.MapData.Options.Rotation = rotation
         }
 
     },

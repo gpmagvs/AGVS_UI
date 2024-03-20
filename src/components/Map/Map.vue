@@ -866,7 +866,7 @@ export default {
           var image = style.getImage()
 
           if (this.map_display_mode != 'router') {
-            image.setRotation((agv_information.Theta - 90) * -1 * Math.PI / 180.0)
+            image.setRotation((agv_information.Theta - 90 - this.MapRotation) * -1 * Math.PI / 180.0)
             style.setImage(image)
           }
 
@@ -2117,7 +2117,8 @@ export default {
     InitMap() {
 
       this.map_image_display = MapStore.getters.DefaultShowBackgroundImage ? 'visible' : '';
-
+      const rotation = MapStore.getters.Rotation;
+      console.log('rotation', rotation)
       const extent = this.map_img_extent;
       const projection = new Projection({
         code: 'xkcd-image',
@@ -2148,7 +2149,7 @@ export default {
           center: [0, 0],
           zoom: 1,
           maxZoom: 20,
-          rotation: 180
+          rotation: rotation * Math.PI / 180.0
         })
       })
       this.AGVLocLayer.setVisible(this.agv_show);
@@ -2492,6 +2493,7 @@ export default {
       this.UpdateStationPathLayer();
       this.MapDisplayModeOptHandler(false);
       this.UpdateForbidPointLayer();
+      this.ModifyMapRotation(MapStore.getters.Rotation);
     },
     /**移除有關禁制區編輯的地圖交互事件們 */
     RemoveForbidRegionOperationInteractions() {
@@ -2816,11 +2818,14 @@ export default {
       this.initGrid(this.map, this.MapGridSize, this.map_img_extent, this.MapGridSizeXOffset, this.MapGridSizeYOffset);
 
     },
-    ModifyMapRotation() {
-      var angle = this.MapRotation
+    ModifyMapRotation(rotation = undefined) {
+      var _rotation = rotation ? rotation : this.MapRotation
       var view = this.map.getView();
-      view.setRotation(angle * Math.PI / 180.0)
+      view.setRotation(_rotation * Math.PI / 180.0)
       this.map.setView(view)
+      MapStore.commit('SetRotation', _rotation);
+      this.MapRotation = _rotation
+      console.log(this.MapRotation)
     },
     RemoveGridLayer() {
       var layers = this.map.getLayers().getArray();

@@ -739,6 +739,7 @@ export class clsMapOptions {
         this.pathColor = 'rgb(45,42,46)';
         this.fontSizeOfDisplayName = 12;
         this.fontSizeOfAsCandicates = 16;
+        this.Rotation = 0;
         this.EQIcons = [];
         this.gridSize = 1;
         this.defaultShowBackgroudImage = true

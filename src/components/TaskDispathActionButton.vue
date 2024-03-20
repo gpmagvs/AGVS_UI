@@ -30,7 +30,9 @@
                                 <div class="item-name">車輛</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇車輛" @click="HandleSelectAGVFromMapBtnClick" size="large" v-model="selected_agv">
+                                <el-select placeholder="從地圖或選單選擇車輛" @click="HandleSelectAGVFromMapBtnClick" size="large" @change="(agv) => {
+            selected_agv = agv
+        }" v-model="selected_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -205,10 +207,14 @@ export default {
             return (this.selected_action == 'carry' || this.selected_action == 'unload') && this.selected_agv == '';
         },
         task_dispatch_btn_pushable() {
+
+            var _isagvSelected = this.IsAutoSelectAGV ? true : this.selected_agv != '';
+            var _isSourceSelected = this.selected_source != undefined && this.selected_source.TagNumber != undefined;
+            var _isDestineSelected = this.selected_destine != undefined && this.selected_destine.TagNumber != undefined;
             if (this.selected_action == 'carry')
-                return (this.selected_agv != '' || this.IsAutoSelectAGV) && this.selected_source != undefined && this.selected_destine != undefined;
+                return _isagvSelected && _isSourceSelected && _isDestineSelected;
             else
-                return (this.selected_agv != '' || this.IsAutoSelectAGV) && this.selected_destine != undefined;
+                return _isagvSelected && _isDestineSelected;
         },
         EQStations() {
             return MapStore.getters.AllEqStation
@@ -240,6 +246,9 @@ export default {
             this.HandleActionSelected(action);
             this.action_menu_visible = false;
             this.order_info_visible = true;
+            this.selected_source = this.selected_destine = {
+                TagNumber: undefined
+            };
             if (action == 'carry' || action == 'unload') {
 
                 this.selected_agv = '自動選車';
@@ -250,6 +259,8 @@ export default {
                 }
             }
             else {
+                this.selected_agv = this.AgvNameList[0].label
+                console.log(this.selected_agv)
                 this.HandleSelectAGVFromMapBtnClick();
             }
         },
@@ -279,13 +290,15 @@ export default {
             this.current_progress = 'select-agv';
             this.is_reselecting_flag = true;
             bus.on(this.map_events_bus.agv_selected, (agv_name) => {
+
+                console.log(agv_name)
                 this.selected_agv = agv_name;
 
 
-                if (this.selected_action == 'carry' && this.selected_source.Graph.Display == '') {
+                if (this.selected_action == 'carry' && (!this.selected_source.Graph || this.selected_source.Graph.Display == '')) {
                     this.HandleSelectSoureStationFromMapBtnClick();
                     this.HandleActionSelected('select-source')
-                } else if (this.selected_destine.Graph.Display == '') {
+                } else if (!this.selected_destine.Graph || this.selected_destine.Graph.Display == '') {
                     this.HandleSelectDestineStationFromMapBtnClick();
                     this.HandleActionSelected('select-destine')
                 }
