@@ -31,6 +31,12 @@
                 </el-icon>
                 <template #title>帳籍管理</template>
             </el-menu-item>
+            <el-menu-item index="/vehicle">
+                <el-icon>
+                    <cargo_icon :color="IconColor" />
+                </el-icon>
+                <template #title>車輛管理</template>
+            </el-menu-item>
             <el-sub-menu v-if="IsAdmin" index="/map">
                 <template #title>
                     <el-icon>

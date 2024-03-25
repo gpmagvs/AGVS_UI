@@ -3,7 +3,6 @@
     <el-option v-for="name in agvNameList" :key="name" :label="name" :value="name"></el-option>
   </el-select>
 </template>
-
 <script>
 import { agv_states_store } from '@/store'
 
@@ -33,6 +32,4 @@ export default {
   },
 }
 </script>
-
-<style>
-</style>
+<style></style>

@@ -356,12 +356,18 @@ export default {
   },
   methods: {
     StyleOfAGVDisplayColor(agv_name) {
+      var color = 'blue'
+      if (MapStore.getters.CustomAGVStyles[agv_name])
+        color = MapStore.getters.CustomAGVStyles[agv_name].DisplayColor
       return {
-        backgroundColor: MapStore.getters.CustomAGVStyles[agv_name].DisplayColor
+        backgroundColor: color
       }
     },
     GetDisplayName(agv_name) {
-      return MapStore.getters.CustomAGVStyles[agv_name].DisplayText
+      if (MapStore.getters.CustomAGVStyles[agv_name])
+        return MapStore.getters.CustomAGVStyles[agv_name].DisplayText
+      else
+        return agv_name;
     },
     Timeformat(time, format = 'YYYY/MM/DD HH:mm:ss') {
       return moment(time).format(format)

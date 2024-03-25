@@ -52,6 +52,11 @@ const routes = [
     component: () => import('../views/RacksStatusView.vue'),
   },
   {
+    path: '/vehicle',
+    name: 'vehicle',
+    component: () => import('../views/VehicleManager.vue'),
+  },
+  {
     path: '/sys_settings',
     name: 'sys_settings',
     children: [

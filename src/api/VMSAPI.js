@@ -30,3 +30,11 @@ export async function AGVLocating(AGV_Name, Payload) {
   var response = await axios_entity_vms.post(`/api/VmsManager/AGVLocating?agv_name=${AGV_Name}`, Payload);
   return response.data;
 }
+
+export var VehicleManagerAPI = {
+  /**新增車輛 */
+  AddVehicle: async (payload) => {
+    var response = await axios_entity_vms.post(`/api/VmsManager/AddVehicle`, payload);
+    return response.data;
+  }
+}

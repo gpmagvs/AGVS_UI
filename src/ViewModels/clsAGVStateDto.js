@@ -19,6 +19,7 @@ class clsAGVStateDto {
       this.StationName = ''
       this.Group = 0
       this.IsCharging = false
+      this.Protocol = 0
       this.IP = '127.0.0.1'
       this.Port = 7025
       this.TaskSourceStationName = ""
@@ -51,6 +52,7 @@ class clsAGVStateDto {
       this.StationName = dto.StationName
       this.Group = dto.Group
       this.IsCharging = dto.IsCharging
+      this.Protocol = dto.Protocol
       this.IP = dto.IP
       this.Port = dto.Port
       this.TaskSourceStationName = dto.TaskSourceStationName
