@@ -33,7 +33,7 @@
             </el-menu-item>
             <el-menu-item index="/vehicle">
                 <el-icon>
-                    <cargo_icon :color="IconColor" />
+                    <Van :color="IconColor" />
                 </el-icon>
                 <template #title>車輛管理</template>
             </el-menu-item>
@@ -97,7 +97,7 @@
             </el-sub-menu>
             <el-menu-item v-if="IsAdmin" index="/hotrun">
                 <el-icon>
-                    <Message color="red" />
+                    <Management color="red" />
                 </el-icon>
                 <template #title>Hot Run</template>
             </el-menu-item>
@@ -147,15 +147,14 @@ import {
     AlarmClock as alarm_icon,
     CopyDocument as cargo_icon,
     MapLocation as map_icon,
-    DataAnalysis, PieChart, Message
+    DataAnalysis, PieChart, Message, Management, Van
 } from '@element-plus/icons-vue'
 import bus from '@/event-bus'
 import { userStore } from '@/store'
 export default {
 
     components: {
-        DataAnalysis, Document, Message, Location, Setting, User, home_icon, alarm_icon, cargo_icon, map_icon,
-        PieChart
+        DataAnalysis, Document, Message, Location, Setting, User, home_icon, alarm_icon, cargo_icon, map_icon, Management, Van, PieChart
     }
     ,
     props: {
