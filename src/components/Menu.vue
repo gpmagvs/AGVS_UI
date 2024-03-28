@@ -95,6 +95,12 @@
                     <template #title>機台稼動</template>
                 </el-menu-item>
             </el-sub-menu>
+            <el-menu-item v-if="IsAdmin" index="/hotrun">
+                <el-icon>
+                    <Message color="red" />
+                </el-icon>
+                <template #title>Hot Run</template>
+            </el-menu-item>
             <el-sub-menu v-if="IsAdmin" index="/sys_settings">
                 <template #title>
                     <el-icon>

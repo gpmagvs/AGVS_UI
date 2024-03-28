@@ -40,9 +40,7 @@
   <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
 </template>
 <script>
-import SideMenuDrawer from '@/views/SideMenuDrawer.vue'
 import Menu from '@/components/Menu.vue'
-import SideMenu from '@/views/SideMenu.vue'
 import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
 import ConnectionState from '@/components/App/ConnectionState.vue'
@@ -56,7 +54,7 @@ import AGVAlarmMessageDisplay from '@/components/App/AGVAlarmUI/AGVAlarmMessageD
 
 export default {
   components: {
-    Header, Menu, AlarmDisplayVue, SideMenuDrawer, SideMenu, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay,
+    Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay,
 
   },
   data() {

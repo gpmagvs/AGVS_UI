@@ -126,6 +126,11 @@ const routes = [
     name: 'dev_ui',
     component: () => import('../components/Map/AGVDesigner/AGVDisplaySettings.vue'),
   },
+  {
+    path: '/hotrun',
+    name: 'hotrun',
+    component: () => import('../views/HotRun.vue'),
+  },
 ]
 
 export const tsmc_routes = [
