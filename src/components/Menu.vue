@@ -17,44 +17,44 @@
                 <el-icon>
                     <home_icon />
                 </el-icon>
-                <template #title>主頁</template>
+                <template #title>{{ $t('Menu.Home') }}</template>
             </el-menu-item>
             <el-menu-item index="/alarm">
                 <el-icon>
                     <Message color="red" />
                 </el-icon>
-                <template #title>系統警報</template>
+                <template #title>{{ $t('Menu.System Alarm') }}</template>
             </el-menu-item>
             <el-menu-item index="/racks_status">
                 <el-icon>
                     <cargo_icon :color="IconColor" />
                 </el-icon>
-                <template #title>帳籍管理</template>
+                <template #title>{{ $t('Menu.wip_manager') }}</template>
             </el-menu-item>
             <el-menu-item index="/vehicle">
                 <el-icon>
                     <Van :color="IconColor" />
                 </el-icon>
-                <template #title>車輛管理</template>
+                <template #title>{{ $t('Menu.vehicle manager') }}</template>
             </el-menu-item>
             <el-sub-menu v-if="IsAdmin" index="/map">
                 <template #title>
                     <el-icon>
                         <map_icon :color="IconColor" />
                     </el-icon>
-                    <span>地圖與顯示</span>
+                    <span>{{ $t('Menu.map and display') }}</span>
                 </template>
                 <el-menu-item index="/map/map_editor">
                     <el-icon>
                         <map_icon :color="IconColor" />
                     </el-icon>
-                    <template #title>地圖編輯</template>
+                    <template #title>{{ $t('Menu.map edit') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/map/agv_display">
                     <el-icon>
                         <map_icon :color="IconColor" />
                     </el-icon>
-                    <template #title>AGV 顯示</template>
+                    <template #title>{{ $t('Menu.agv display') }}</template>
                 </el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="/data">
@@ -62,37 +62,37 @@
                     <el-icon>
                         <DataAnalysis :color="IconColor" />
                     </el-icon>
-                    <span>資料查詢</span>
+                    <span>{{ $t('Menu.Querys') }}</span>
                 </template>
                 <el-menu-item index="/data/task_history">
                     <el-icon>
                         <DataAnalysis />
                     </el-icon>
-                    <template #title>歷史任務查詢</template>
+                    <template #title>{{ $t('Menu.Task History') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/data/alarm_history">
                     <el-icon>
                         <DataAnalysis />
                     </el-icon>
-                    <template #title>歷史警報查詢</template>
+                    <template #title>{{ $t('Menu.Alarm History') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/data/agv_locus">
                     <el-icon>
                         <DataAnalysis />
                     </el-icon>
-                    <template #title>AGV軌跡查詢</template>
+                    <template #title>{{ $t('Menu.Trajectory') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/data/InstrumentMeasureQuery">
                     <el-icon>
                         <DataAnalysis />
                     </el-icon>
-                    <template #title>儀器量測結果查詢</template>
+                    <template #title>{{ $t('Menu.Instruments Measure Result') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/data/Avalibility">
                     <el-icon>
                         <PieChart />
                     </el-icon>
-                    <template #title>機台稼動</template>
+                    <template #title>{{ $t('Menu.utilization rate') }}</template>
                 </el-menu-item>
             </el-sub-menu>
             <el-menu-item v-if="IsAdmin" index="/hotrun">
@@ -106,31 +106,31 @@
                     <el-icon>
                         <setting :color="IconColor" />
                     </el-icon>
-                    <span>系統設置</span>
+                    <span>{{ $t('Menu.system settings') }}</span>
                 </template>
                 <el-menu-item index="/sys_settings/AGV_Battery_Setting">
                     <el-icon>
                         <setting />
                     </el-icon>
-                    <template #title>AGV電量管理</template>
+                    <template #title>{{ $t('Menu.vehicle battery managnment') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/sys_settings/Equipment_Setting">
                     <el-icon>
                         <setting />
                     </el-icon>
-                    <template #title>設備管理</template>
+                    <template #title>{{ $t('Menu.equipment management') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/sys_settings/User_Setting">
                     <el-icon>
                         <User />
                     </el-icon>
-                    <template #title>用戶管理</template>
+                    <template #title>{{ $t('Menu.user management') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/sys_settings/Charge_Station_Setting">
                     <el-icon>
                         <setting />
                     </el-icon>
-                    <template #title>充電站管理</template>
+                    <template #title>{{ $t('Menu.charge station management') }}</template>
                 </el-menu-item>
             </el-sub-menu>
         </el-menu>
@@ -224,7 +224,7 @@ export default {
     }
 
     .el-menu-vertical-demo:not(.el-menu--collapse) {
-        width: 200px;
+        width: 230px;
         border: none;
         font-weight: bold;
         letter-spacing: 2px;

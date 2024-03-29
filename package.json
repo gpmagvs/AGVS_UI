@@ -25,6 +25,7 @@
     "proj4": "^2.8.1",
     "vant": "^4.8.4",
     "vue": "^3.2.13",
+    "vue-dark-switch": "^1.0.6",
     "vue-i18n": "^9.2.2",
     "vue-router": "^4.0.3",
     "vue-sweetalert2": "^5.0.5",

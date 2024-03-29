@@ -64,10 +64,10 @@
               <el-button
                 size="small"
                 @click="() => {
-                  action_drawer_visible = true;
-                  selected_script_name = scope.row.agv_name;
-                  selected_script_actions = scope.row.actions;
-                }">動作設定</el-button>
+            action_drawer_visible = true;
+            selected_script_name = scope.row.agv_name;
+            selected_script_actions = scope.row.actions;
+          }">動作設定</el-button>
             </div>
           </template>
         </el-table-column>
@@ -100,13 +100,13 @@
             class="mx-2"
             type="danger"
             @click="() => {
-              selected_script_actions.push({
-                no: selected_script_actions.length + 1,
-                action: 'move',
-                source_tag: undefined,
-                destine_tag: undefined
-              })
-            }">新增動作</el-button>
+            selected_script_actions.push({
+              no: selected_script_actions.length + 1,
+              action: 'move',
+              source_tag: undefined,
+              destine_tag: undefined
+            })
+          }">新增動作</el-button>
           <el-button class="mx-2" @click="HandleSaveBtnClickInDrawer" type="primary">儲存設定</el-button>
           <el-table
             row-key="no"
@@ -133,6 +133,7 @@
                   <el-option label="取貨" value="unload"></el-option>
                   <el-option label="充電" value="charge"></el-option>
                   <el-option label="巡檢量測" value="measure"></el-option>
+                  <el-option label="交換電池" value="exchangebattery"></el-option>
                 </el-select>
               </template>
             </el-table-column>
@@ -188,7 +189,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import { watch } from 'vue'
 import { userStore, agv_states_store } from '@/store';
@@ -237,7 +237,7 @@ export default {
         return this.parkable_tags
       if (action == 'load' | action == 'unload' | action == 'carry')
         return this.stock_tags
-      if (action == 'charge')
+      if (action == 'charge' || action == 'exchangebattery')
         return this.chargable_tags
       if (action == 'measure')
         return this.bay_tags
@@ -429,7 +429,6 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .settings-content {
   div {

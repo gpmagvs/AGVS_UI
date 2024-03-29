@@ -18,22 +18,25 @@
         </div>
         <!-- <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container"> -->
         <div class="op-mode-switch-container">
-          <span class="mx-1">檢視模式</span>
+          <span class="mx-1">{{ $t('App.Header.view_mode') }}</span>
           <el-switch v-model="isEasyMode" @change="HandleViewModeChanged" :before-change="CheckUserLoginState"
             active-color="rgb(95, 171, 80)" inactive-color="red" active-text="簡易模式" inactive-text="工程模式"
             border-color="grey" inline-prompt size="large" width="80px"></el-switch>
         </div>
+        <!-- <div>
+          <Switch darkBackground="#fff" lightBackground="#2D2D2D"></Switch>
+        </div> -->
         <div>
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
               <b-button class="mx-1" style="border: none;background-color: transparent;color:white">
-                <el-icon><i class="bi bi-translate"></i></el-icon> 中文 <i class="bi bi-caret-down-fill"></i>
+                <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? $t('App.Header.chinese') : $t('App.Header.english') }} <i class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
               <div class="d-flex flex-column">
-                <b-button @click="LangSwitch('zh-TW')" variant="light">中文</b-button>
-                <b-button @click="LangSwitch('en-US')" variant="light">ENGLISH</b-button>
+                <b-button @click="LangSwitch('zh-TW')" :variant="$i18n.locale == 'zh-TW' ? 'primary' : 'light'">{{ $t('App.Header.chinese') }}</b-button>
+                <b-button @click="LangSwitch('en-US')" :variant="$i18n.locale == 'en-US' ? 'primary' : 'light'">{{ $t('App.Header.english') }}</b-button>
               </div>
             </template>
           </el-popover>
@@ -98,7 +101,7 @@ import { GetOperationStates, RunMode, HostConnMode, HostOperationMode, TransferM
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { ResetSystemAlarm, ResetEquipmentAlarm } from '@/api/AlarmAPI.js'
 import moment from 'moment'
-
+import { Switch } from 'vue-dark-switch'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { agvs_settings_store, userStore, UIStore, AlarmStore } from '@/store'
@@ -106,7 +109,7 @@ import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@ele
 
 export default {
   components: {
-    Login, MenuExpandIcon, MenuFoldIcon, UserFilled
+    Login, MenuExpandIcon, MenuFoldIcon, UserFilled, Switch
   },
   data() {
     return {
