@@ -125,6 +125,7 @@
                       <el-form-item label="旋轉">
                         <el-input-number :step="1" :min="-180" :max="180" @change="ModifyMapRotation" v-model="MapRotation"></el-input-number>
                       </el-form-item>
+                      <el-button type="danger" @click="ResetRouteModeDisplay">重置路網顯示</el-button>
                     </el-form>
                   </div>
                 </b-tab>
@@ -955,6 +956,38 @@ export default {
         }
       });
 
+
+
+    },
+    /**將點的Graph X Y 重新設為實際座標 */
+    async ResetRouteModeDisplay() {
+
+      this.$swal.fire(
+        {
+          text: '',
+          title: '確定要重置路網模式?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(async (res) => {
+          if (!res.isConfirmed)
+            return;
+          var response = await MapStore.dispatch('ResetMapXYGraphAsCoordinations', "")
+          console.log(response);
+          var success = response.confirm;
+          var msg = response.message
+          this.$swal.fire(
+            {
+              text: success ? '' : msg,
+              title: success ? '重置成功' : '重置失敗',
+              icon: success ? 'success' : 'error',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            })
+          this.ReloadMap(false);
+        })
 
 
     },
@@ -2091,24 +2124,32 @@ export default {
       })
     },
     ReloadMap(confirm = true) {
-      this.$swal.fire(
-        {
-          text: '確定要重新載入圖資?',
-          title: '',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: '確定',
-          cancelButtonText: '取消',
-          customClass: 'my-sweetalert'
-        }).then(async (res) => {
-          if (res.isConfirmed) {
-            this.loading = true;
-            await MapStore.dispatch('DownloadMapData', '');
-            console.log('re-done');
-            this.RefreshMap();
-            this.loading = false;
-          }
-        })
+      var reload = async () => {
+        this.loading = true;
+        await MapStore.dispatch('DownloadMapData', '');
+        console.log('re-done');
+        this.RefreshMap();
+        this.loading = false;
+      }
+      if (confirm) {
+        this.$swal.fire(
+          {
+            text: '確定要重新載入圖資?',
+            title: '',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '確定',
+            cancelButtonText: '取消',
+            customClass: 'my-sweetalert'
+          }).then(async (res) => {
+            if (res.isConfirmed) {
+              reload()
+            }
+          })
+      }
+      else {
+        reload();
+      }
     },
     DeepClonePathSegmentData() {
       this.PathesSegmentsForEdit = JSON.parse(JSON.stringify(this.PathesSegments))
@@ -2374,7 +2415,7 @@ export default {
       var index = data_dto.index;
       var ptdata = data_dto.pointData;
 
-      var SettingPoints = function (source, _index, _ptdata) {
+      var SettingPoints = function (source, _index, _ptdata, change_coordination = false) {
         //reset ptinformation
         var feature = source.getFeatures().find(ft => ft.get('index') == _index);
         feature.set('data', _ptdata)
@@ -2395,10 +2436,13 @@ export default {
         }
 
         feature.setStyle(newStyle)
+        if (change_coordination) {
+          feature.setGeometry(new Point([_ptdata.X, _ptdata.Y]))
+        }
       };
 
-      SettingPoints(this.PointLayer.getSource(), index, ptdata);
-      SettingPoints(this.PointRouteLayer.getSource(), index, ptdata);
+      SettingPoints(this.PointLayer.getSource(), index, ptdata, true); //slam mode
+      SettingPoints(this.PointRouteLayer.getSource(), index, ptdata); //route mode
       var _is_eq_link = ptdata.StationType != 0;
       var pathes_with_start = this.PathesSegmentsForEdit.filter(pt => pt.StartPtIndex == index);
       var pathes_with_end = this.PathesSegmentsForEdit.filter(pt => pt.EndPtIndex == index);
@@ -2412,7 +2456,7 @@ export default {
         pathes_with_end[i].IsEQLink = _is_eq_link;
         pathes_with_end[i].EndCoordination = [ptdata.X, ptdata.Y];
       }
-
+      this.UpdateStationPathLayer();
     },
     HandleMenuTaskBtnClick(data = { action: '', station_data: {} }) {
       this.editModeContextMenuVisible = false;

@@ -307,6 +307,11 @@ export const MapStore = createStore({
         GetRegionByName({ state, getters }, name) {
             var _forbid_regions = getters.Regions
             return _forbid_regions.find(reg => reg.Name == name)
+        },
+        ResetMapXYGraphAsCoordinations({ state, getters, actions }) {
+            return getters.MapBackednAxios.post(`api/Map/ResetGraphXYAsCoordinations`).then(response => {
+                return response.data
+            })
         }
     }
 }
