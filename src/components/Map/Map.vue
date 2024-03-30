@@ -31,7 +31,7 @@
                 <b-button size="sm" variant="danger" @click="ReloadMap">重新載入</b-button>
                 <b-button size="sm" variant="danger" @click="ClearMap">重置圖資</b-button>
               </div>
-              <b-tabs class="p-1">
+              <b-tabs fill class="p-1" v-model="selectedSettingTabIndex">
                 <b-tab title="路網編輯" active>
                   <div class="text-start border p-3">
                     <el-form>
@@ -459,6 +459,7 @@ export default {
       loading: false,
       ShowPathSelectDialog: false,
       IsPathEditing: false,
+      selectedSettingTabIndex: 0,
       SelectedPathData: {},
       PathesCandicats: [],
       _map_stations: [],
@@ -2547,14 +2548,16 @@ export default {
       this.RemoveInteraction(this.delete_forbid_regions_interaction);
     },
     EditModeKeybordEvents(event) {
+      if (this.selectedSettingTabIndex != 0 || this.EditorOption.EditMode != 'edit') {
+        return
+      }
       var name = event.key.toLowerCase();
       if (name == 'e') {
         this.EditorOption.EditMode = 'edit'
       } if (name == 'v') {
         this.EditorOption.EditMode = 'view'
       }
-      if (this.EditorOption.EditMode != 'edit')
-        return;
+
       if (name == 'escape') {
 
         if (this.draw_forbid_regions_interaction)
