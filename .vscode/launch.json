@@ -5,9 +5,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "chrome",
+      "type": "msedge",
       "request": "launch",
-      "name": "vuejs: chrome",
+      "name": "vuejs: msedge",
       "url": "http://localhost:8080",
       "webRoot": "${workspaceFolder}/src",
       "sourceMapPathOverrides": {

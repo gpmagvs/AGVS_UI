@@ -25,5 +25,13 @@
     "Trajectory": "Trajectory",
     "Instruments Measure Result": "Instruments Measure",
     "utilization rate": "Utilization"
+  },
+  "HomeView": {
+    "AGVStatus": {
+      "AGVStatus": {
+        "vehicle-status": "Vehicle Status",
+        "vehicle-name": "Vehicle Name"
+      }
+    }
   }
 }

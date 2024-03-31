@@ -25,5 +25,13 @@
     "Trajectory": "軌跡查詢",
     "Instruments Measure Result": "儀器量測結果查詢",
     "utilization rate": "稼動率"
+  },
+  "HomeView": {
+    "AGVStatus": {
+      "AGVStatus": {
+        "vehicle-status": "車輛狀態",
+        "vehicle-name": "車輛名稱"
+      }
+    }
   }
 }

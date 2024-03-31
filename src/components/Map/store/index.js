@@ -32,6 +32,7 @@ export const MapStore = createStore({
             var axio = axios.create({
                 baseURL: state.mapBackendServer
             })
+
             return axio
         },
 
@@ -66,6 +67,9 @@ export const MapStore = createStore({
         },
         MapName: state => {
             return state.MapData == null ? "Unkown" : state.MapData.Name
+        },
+        MapImageName: state => {
+            return state.MapData == null ? "Unkown" : state.MapData.ImageName
         },
         Settings: state => state.MapData.Options,
         BezierCurves: state => {
@@ -275,7 +279,24 @@ export const MapStore = createStore({
             var points = state.MapData.Points
             return Object.values(points).find(pt => pt.TagNumber + '' == tag + '')
         },
-        SaveMap({ commit, state, actions, getters }, _data) {
+        async SaveMap({ commit, state, actions, getters }, payload) {
+            var _data = payload.data;
+            var _file = payload.file;
+            console.log(_file);
+
+
+            var uploadImage = async (file) => {
+
+                const formData = new FormData();
+                formData.append('image', file);
+                console.log(formData)
+                await getters.MapBackednAxios.post("api/Map/MapImageUpload", formData)
+
+            }
+            if (_file) {
+                _data.ImageName = _file.name
+                await uploadImage(_file)
+            }
             return getters.MapBackednAxios.post('api/Map/SaveMap', _data)
                 .then((ret) => {
                     _data.Note = ret.data;

@@ -8,7 +8,8 @@
       :editable="true"
       :agv_show="true"
       canva_height="750px"
-      ref="map_editing"></Map>
+      ref="map_editing"
+    ></Map>
   </div>
 </template>
 <script>
@@ -71,10 +72,12 @@ export default {
   methods: {
 
     async SaveMapClickHandle(mapDataSave) {
+      console.log(mapDataSave);
       var mapData = JSON.parse(JSON.stringify(MapStore.getters.MapData))
       mapData.Points = mapDataSave.Points;
       mapData.Segments = mapDataSave.Pathes;
       mapData.Regions = mapDataSave.Regions;
+      mapData.Map_Image_Boundary = mapDataSave.ImageExtent;
       var _check_result = this.CheckMapContentHasAnyError(mapData);
       if (!_check_result.correct) {
         this.$swal.fire(
@@ -98,7 +101,9 @@ export default {
           showConfirmButton: false,
           customClass: 'my-sweetalert',
         })
-      var success = await MapStore.dispatch('SaveMap', mapData);
+
+
+      var success = await MapStore.dispatch('SaveMap', { data: mapData, file: mapDataSave.ImageFile });
       this.map_saving = false;
       if (success) {
         bus.emit('/map_save');
