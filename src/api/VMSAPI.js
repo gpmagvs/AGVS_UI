@@ -36,5 +36,10 @@ export var VehicleManagerAPI = {
   AddVehicle: async (payload) => {
     var response = await axios_entity_vms.post(`/api/VmsManager/AddVehicle`, payload);
     return response.data;
+  },
+  /**修改車輛 */
+  EditVehicle: async (payload, oriAGVID) => {
+    var response = await axios_entity_vms.post(`/api/VmsManager/EditVehicle?oriAGVID=${oriAGVID}`, payload);
+    return response.data;
   }
 }

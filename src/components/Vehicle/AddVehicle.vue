@@ -10,7 +10,7 @@
             <el-form-item label="車輛類型">
                 <!--  FORK = 0,YUNTECH_FORK_AGV = 1,INSPECTION_AGV = 2,SUBMERGED_SHIELD = 3,SUBMERGED_SHIELD_Parts = 4, -->
                 <el-select class="add-vehicle-input" v-model="payload.Model">
-                    <el-option label="叉車 AGV" :value="1"></el-option>
+                    <el-option label="叉車 AGV" :value="0"></el-option>
                     <el-option label="巡檢 AGV" :value="2"></el-option>
                     <el-option label="潛盾 AGV" :value="3"></el-option>
                     <el-option label="Parts AGV" :value="4"></el-option>
@@ -29,15 +29,35 @@
             <el-form-item label="Port">
                 <el-input class="add-vehicle-input" v-model="payload.Port"></el-input>
             </el-form-item>
+            <el-form-item label="車輛長度(cm)">
+                <el-input class="add-vehicle-input" v-model="payload.VehicleLength"></el-input>
+            </el-form-item>
+            <el-form-item label="車輛寬度(cm)">
+                <el-input class="add-vehicle-input" v-model="payload.VehicleWidth"></el-input>
+            </el-form-item>
         </el-form>
         <div class="border-top py-2 text-start">
-            <b-button @click="AddVehicle" variant="primary" style="width: 120px;">新增</b-button>
+            <b-button @click="IsEditMode ? EditVehicle() : AddVehicle()" variant="primary" style="width: 120px;">{{ btnText }}</b-button>
         </div>
     </div>
 </template>
 <script>
 import { VehicleManagerAPI } from '@/api/VMSAPI'
 export default {
+    props: {
+        mode: {
+            type: String,
+            default: 'add'//'add|edit'
+        },
+    },
+    computed: {
+        IsEditMode() {
+            return this.mode == 'edit'
+        },
+        btnText() {
+            return this.IsEditMode ? "修改" : "新增"
+        }
+    },
     data() {
         return {
             payload: {
@@ -46,12 +66,66 @@ export default {
                 Protocol: 0,
                 IP: '127.0.0.1',
                 Port: 7025,
-            }
+                VehicleLength: 145,
+                VehicleWidth: 70,
+            },
+            oriAGVID: ''
         }
     },
     methods: {
         async AddVehicle() {
             var result = await VehicleManagerAPI.AddVehicle(this.payload);
+            if (result.confirm) {
+                this.$swal.fire(
+                    {
+                        text: '',
+                        title: '新增成功',
+                        icon: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: 'OK',
+                        customClass: 'top-most-sweetalert'
+                    })
+            }
+            else {
+                this.$swal.fire(
+                    {
+                        text: result.message,
+                        title: '新增失敗',
+                        icon: 'error',
+                        showCancelButton: false,
+                        confirmButtonText: 'OK',
+                        customClass: 'top-most-sweetalert'
+                    })
+            }
+        },
+        async EditVehicle() {
+            var result = await VehicleManagerAPI.EditVehicle(this.payload, this.oriAGVID);
+            if (result.confirm) {
+                this.$swal.fire(
+                    {
+                        text: '',
+                        title: '修改成功',
+                        icon: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: 'OK',
+                        customClass: 'my-sweetalert'
+                    })
+            }
+            else {
+                this.$swal.fire(
+                    {
+                        text: result.message,
+                        title: '修改失敗',
+                        icon: 'error',
+                        showCancelButton: false,
+                        confirmButtonText: 'OK',
+                        customClass: 'my-sweetalert'
+                    })
+            }
+        },
+        UpdatePayload(_payload) {
+            this.payload = _payload
+            this.oriAGVID = _payload.AGV_Name
         }
     },
 }
