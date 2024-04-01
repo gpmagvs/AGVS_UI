@@ -56,6 +56,10 @@
   margin-inline: 5px;
 }
 
+.top-most-sweetalert{
+  z-index: 99999;
+}
+
 .full-sweetalert{
   // background: red;
   height: 100vh;
