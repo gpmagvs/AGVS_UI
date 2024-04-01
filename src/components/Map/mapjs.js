@@ -280,15 +280,23 @@ export function GetStationStyle(text = '', station_type = 0, map_data) {
     else if (station_type == 100 || station_type == 201) {
         image = lifter_icon(map_data.Graph.ImageName)
     }
+    var _normalStationTextColor = MapStore.getters.Settings.normalStationTextColor;
+    var _workStationTextColor = MapStore.getters.Settings.workStationTextColor;
+    var _normalStationTextFontSize = MapStore.getters.Settings.normalStationTextFontSize;
+    var _workStationTextFontSize = MapStore.getters.Settings.workStationTextFontSize;
 
+    var textFillColor = station_type == 0 ? _normalStationTextColor : _workStationTextColor
+    var fontSize = station_type == 0 ? _normalStationTextFontSize : _workStationTextFontSize;
+
+    console.log(_normalStationTextColor, _workStationTextColor);
     var textStyle = new Style({
         image: image,
         text: new Text({
             text: text,
-            font: 'bold 16px Calibri,sans-serif',
+            font: `bold ${fontSize}px Calibri,sans-serif`,
             offsetY: -22,
             fill: new Fill({
-                color: station_type == 0 ? 'gold' : 'lime',//PointColorSelect(station_type)
+                color: textFillColor,//PointColorSelect(station_type)
 
             }),
             backgroundFill: station_type == 0 ? undefined : new Fill({
@@ -737,6 +745,12 @@ export class clsMap {
 export class clsMapOptions {
     constructor() {
         this.pathColor = 'rgb(45,42,46)';
+        this.normalStationTextColor = 'orange';
+        this.workStationTextColor = 'lime';
+
+        this.normalStationTextFontSize = 12;
+        this.workStationTextFontSize = 18;
+
         this.fontSizeOfDisplayName = 12;
         this.fontSizeOfAsCandicates = 16;
         this.Rotation = 0;

@@ -39,7 +39,12 @@
                 <b-button size="sm" variant="danger" @click="ReloadMap">重新載入</b-button>
                 <b-button size="sm" variant="danger" @click="ClearMap">重置圖資</b-button>
               </div>
-              <b-tabs fill class="p-1" v-model="selectedSettingTabIndex">
+              <b-tabs
+                style="background-color:white"
+                fill
+                class="p-1"
+                v-model="selectedSettingTabIndex"
+              >
                 <b-tab title="路網編輯" active>
                   <div class="text-start border p-3">
                     <el-form size="large">
@@ -212,6 +217,54 @@
                       <el-divider></el-divider>
                       <el-form-item label="重置路網顯示">
                         <el-button type="danger" @click="ResetRouteModeDisplay">重置</el-button>
+                      </el-form-item>
+                    </el-form>
+                  </div>
+                </b-tab>
+                <b-tab title="樣式">
+                  <div class="border p-3">
+                    <el-form size="large" label-position="left">
+                      <el-divider content-position="left">路徑</el-divider>
+                      <el-form-item label="顏色">
+                        <el-color-picker
+                          show-alpha
+                          size="large"
+                          v-model="MapStyles.PathColor"
+                          @active-change="HandlePathColorSelected"
+                        ></el-color-picker>
+                      </el-form-item>
+                      <el-divider content-position="left">一般點位</el-divider>
+                      <el-form-item label="顯示顏色">
+                        <el-color-picker
+                          show-alpha
+                          size="large"
+                          v-model="MapStyles.NormalPointNameColor"
+                          @active-change="HandleNormalPointNameColorSelected"
+                        ></el-color-picker>
+                      </el-form-item>
+                      <el-form-item label="字體大小">
+                        <el-slider
+                          @change="HandleNormalStationTextSizeChanged"
+                          size="large"
+                          v-model="MapStyles.NormalPointTextFontSize"
+                        ></el-slider>
+                      </el-form-item>
+                      <el-divider content-position="left">設備點位</el-divider>
+
+                      <el-form-item label="顯示顏色">
+                        <el-color-picker
+                          show-alpha
+                          size="large"
+                          v-model="MapStyles.WorkStationPointNameColor"
+                          @active-change="HandleWorkStationNameColorSelected"
+                        ></el-color-picker>
+                      </el-form-item>
+                      <el-form-item label="字體大小">
+                        <el-slider
+                          @change="HandleWorkStationTextSizeChanged"
+                          size="large"
+                          v-model="MapStyles.WorkStationPointTextFontSize"
+                        ></el-slider>
                       </el-form-item>
                     </el-form>
                   </div>
@@ -776,8 +829,15 @@ export default {
       MapGridSizeStore: 0,
       MapGridSizeXOffset: 0,
       MapGridSizeYOffset: 0,
-      MapRotation: 0
+      MapRotation: 0,
+      MapStyles: {
+        PathColor: 'red',
+        NormalPointNameColor: 'orange',
+        WorkStationPointNameColor: 'lime',
+        NormalPointTextFontSize: 12,
+        WorkStationPointTextFontSize: 18,
 
+      }
     }
   },
   computed: {
@@ -3144,6 +3204,72 @@ export default {
       this.map_img_url_for_editor = result.blobURL;
       this.to_upload_image_file = result.file;
       this.ResetImage(this.map_img_url_for_editor)
+    },
+    HandlePathColorSelected(color) {
+      // alert(color)
+      this.SetPathColor(color);
+    },
+    HandleWorkStationNameColorSelected(color) {
+      MapStore.commit("setWorkStationPointTextColor", color)
+      this.GetAllPointsFeatures().filter(feature => feature.get('station_type') != 0).forEach(feature => {
+        this.SetPointTextFillColor(feature, color)
+      })
+    },
+
+    HandleNormalPointNameColorSelected(color) {
+      MapStore.commit("setNormalPointTextColor", color)
+      this.GetAllPointsFeatures().filter(feature => feature.get('station_type') == 0).forEach(feature => {
+        this.SetPointTextFillColor(feature, color)
+      })
+    },
+    HandleWorkStationTextSizeChanged(size) {
+      MapStore.commit("setWorkStationPointTextFontSize", size)
+      this.GetAllPointsFeatures().filter(feature => feature.get('station_type') != 0).forEach(feature => {
+        this.SetPointTextFontSize(feature, size)
+      })
+    },
+    HandleNormalStationTextSizeChanged(size) {
+      MapStore.commit("setNormalPointTextFontSize", size)
+      this.GetAllPointsFeatures().filter(feature => feature.get('station_type') == 0).forEach(feature => {
+        this.SetPointTextFontSize(feature, size)
+      })
+    },
+    GetAllPointsFeatures() {
+      return [
+        ...this.PointLayer.getSource().getFeatures(),
+        ...this.PointRouteLayer.getSource().getFeatures()
+      ]
+    },
+    SetPointTextFillColor(feature, color) {
+      var oriStyle = feature.getStyle();
+      var text = oriStyle.getText();
+      text.getFill().setColor(color);
+      oriStyle.setText(text);
+      feature.setStyle(oriStyle)
+    },
+    SetPointTextFontSize(feature, fontSize) {
+      var oriStyle = feature.getStyle();
+      var text = oriStyle.getText();
+      text.setFont(`bold ${fontSize}px Calibri,sans-serif`);
+      oriStyle.setText(text);
+      feature.setStyle(oriStyle)
+    },
+    SetPathColor(color) {
+      MapStore.commit("setPathColor", color)
+      var features = [...this.PathLayerForRouter.getSource().getFeatures(), ...this.PathLayerForCoordination.getSource().getFeatures()];
+      features.forEach(feature => {
+        var oriStyles = feature.getStyle();
+        var oriStyle = oriStyles[0];
+        // console.log(oriStyle)
+        if (oriStyle) {
+
+          var newStroke = oriStyle.getStroke();
+          newStroke.setColor(color);
+          oriStyle.setStroke(newStroke);
+          oriStyles[0] = oriStyle
+          feature.setStyle(oriStyles);
+        }
+      });
     }
   },
 
@@ -3222,9 +3348,12 @@ export default {
       bus.on('mark_as_destine_station', (tagNumber) => {
         this.CreateDestineMarkIcon(tagNumber);
       })
-      document.getElementById(this.id).addEventListener('contextmenu', (ev) => {
-        ev.preventDefault()
-      })
+
+      var mapdom = document.getElementById(this.id);
+      if (mapdom)
+        mapdom.addEventListener('contextmenu', (ev) => {
+          ev.preventDefault()
+        })
       setTimeout(() => {
         this.UpdateAGVLocLocation();
       }, 500);

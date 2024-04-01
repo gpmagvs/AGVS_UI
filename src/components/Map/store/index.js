@@ -256,6 +256,21 @@ export const MapStore = createStore({
         },
         SetRotation(state, rotation) {
             state.MapData.Options.Rotation = rotation
+        },
+        setPathColor(state, color) {
+            state.MapData.Options.pathColor = color;
+        },
+        setNormalPointTextColor(state, color) {
+            state.MapData.Options.normalStationTextColor = color;
+        },
+        setWorkStationPointTextColor(state, color) {
+            state.MapData.Options.workStationTextColor = color;
+        },
+        setNormalPointTextFontSize(state, size) {
+            state.MapData.Options.normalStationTextFontSize = size;
+        },
+        setWorkStationPointTextFontSize(state, size) {
+            state.MapData.Options.workStationTextFontSize = size;
         }
 
     },
