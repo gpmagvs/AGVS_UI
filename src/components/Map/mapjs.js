@@ -780,7 +780,7 @@ export class MapPointModel {
         this.IsExtinguishing = false
         this.InvolvePoint = ""
         this.StationType = 0
-        this.LsrMode = 0
+        this.LsrMode = 1
         this.Speed = 1
         this.Bay = ""
         this.Graph = {
