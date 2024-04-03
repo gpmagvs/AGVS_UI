@@ -78,6 +78,32 @@
                                 <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
+                        <el-row class="order-row" v-if="IsDeveloper && selected_action == 'carry'">
+                            <el-col :span="5">
+                                <div class="item-name">轉運</div>
+                            </el-col>
+                            <el-col class="item-value" :span="12">
+                                <el-checkbox v-model="IsTransferTaskNeedChangeAGV"></el-checkbox>
+                                <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
+                            </el-col>
+                            <el-col class="item-actions" :span="7">
+                                <!-- <b-button size="sm" variant="link" @click="HandleSelectDestineStationFromMapBtnClick">從地圖選取</b-button> -->
+                                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
+                            </el-col>
+                        </el-row>
+                        <el-row class="order-row" v-if="IsDeveloper && IsTransferTaskNeedChangeAGV">
+                            <el-col :span="5">
+                                <div class="item-name">轉運站</div>
+                            </el-col>
+                            <el-col class="item-value" :span="12">
+                                <el-checkbox v-model="IsTransferTaskNeedChangeAGV"></el-checkbox>
+                                <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
+                            </el-col>
+                            <el-col class="item-actions" :span="7">
+                                <!-- <b-button size="sm" variant="link" @click="HandleSelectDestineStationFromMapBtnClick">從地圖選取</b-button> -->
+                                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
+                            </el-col>
+                        </el-row>
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
                             <b-button @click="HandleConfirmBtnClicked" :disabled="!task_dispatch_btn_pushable" class="w-50 mx-1" variant="primary">確認派送</b-button>
                             <b-button class="w-50 mx-1" variant="light" @click="() => {
@@ -148,7 +174,9 @@ export default {
             },
             bypass_eq_status_check: false,
             equipments_options: [],
-            downstream_options: []
+            downstream_options: [],
+            IsTransferTaskNeedChangeAGV: false,
+            tagOfMiddleStationTagOfTransferTask: -1
         }
     },
     computed: {
@@ -433,7 +461,7 @@ export default {
             }
 
             if (this.selected_action == 'carry') {
-                response = await TaskAllocation.CarryTask(new clsCarryTaskData(_selected_agv, _sourceTag, 1, _destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check));
+                response = await TaskAllocation.CarryTask(new clsCarryTaskData(_selected_agv, _sourceTag, 1, _destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check, this.IsTransferTaskNeedChangeAGV, this.tagOfMiddleStationTagOfTransferTask));
             }
             if (this.selected_action == 'exchange_battery') {
                 response = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(_selected_agv, _destinTag, 50, this.bypass_eq_status_check));

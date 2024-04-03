@@ -20,6 +20,8 @@ export class clsMoveTaskData {
     this.Carrier_ID = '-1'
     this.Priority = Priority
     this.bypass_eq_status_check = bypass_eq_status_check
+    this.need_change_agv = false
+    this.ChangeAGVMiddleStationTag = 0
   }
 }
 
@@ -35,6 +37,8 @@ export class clsMeasureTaskData {
     this.Carrier_ID = '-1'
     this.Priority = Priority
     this.bypass_eq_status_check = bypass_eq_status_check
+    this.need_change_agv = false
+    this.ChangeAGVMiddleStationTag = 0
   }
 }
 export class clsLoadTaskData {
@@ -49,6 +53,9 @@ export class clsLoadTaskData {
     this.Carrier_ID = cst_id
     this.Priority = Priority
     this.bypass_eq_status_check = bypass_eq_status_check
+    this.need_change_agv = need_change_agv
+    this.need_change_agv = false
+    this.ChangeAGVMiddleStationTag = 0
   }
 }
 
@@ -64,6 +71,9 @@ export class clsUnloadTaskData {
     this.Carrier_ID = cst_id
     this.Priority = Priority
     this.bypass_eq_status_check = bypass_eq_status_check
+    this.need_change_agv = need_change_agv
+    this.need_change_agv = false
+    this.ChangeAGVMiddleStationTag = 0
   }
 }
 
@@ -79,6 +89,8 @@ export class clsChargeTaskData {
     this.Carrier_ID = '-1'
     this.Priority = Priority
     this.bypass_eq_status_check = bypass_eq_status_check
+    this.need_change_agv = false
+    this.ChangeAGVMiddleStationTag = 0
   }
 }
 
@@ -94,6 +106,8 @@ export class clsExangeBatteryTaskData {
     this.Carrier_ID = '-1'
     this.Priority = Priority
     this.bypass_eq_status_check = bypass_eq_status_check
+    this.need_change_agv = false
+    this.ChangeAGVMiddleStationTag = 0
   }
 }
 export class clsParkTaskData {
@@ -108,19 +122,13 @@ export class clsParkTaskData {
     this.Carrier_ID = '-1'
     this.Priority = Priority
     this.bypass_eq_status_check = bypass_eq_status_check
+    this.need_change_agv = false
+    this.ChangeAGVMiddleStationTag = 0
   }
 }
 
 export class clsCarryTaskData {
-  constructor(
-    agv_name,
-    from_tag,
-    from_slot,
-    to_tag,
-    to_slot,
-    cst_id,
-    Priority = 50, bypass_eq_status_check = false
-  ) {
+  constructor(agv_name, from_tag, from_slot, to_tag, to_slot, cst_id, Priority = 50, bypass_eq_status_check = false, need_change_agv = false, ChangeAGVMiddleStationTag = -1) {
     this.TaskName = `Local_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
     this.Action = 9
     this.DesignatedAGVName = agv_name
@@ -131,6 +139,8 @@ export class clsCarryTaskData {
     this.Carrier_ID = cst_id
     this.Priority = Priority
     this.bypass_eq_status_check = bypass_eq_status_check
+    this.need_change_agv = need_change_agv
+    this.ChangeAGVMiddleStationTag = ChangeAGVMiddleStationTag
   }
 }
 
