@@ -1,6 +1,7 @@
 <template>
     <div class="add-vehicle w-100">
         <el-form label-width="100px" label-position="left">
+            <el-divider>Basic</el-divider>
             <el-form-item label="車輛ID">
                 <el-input class="add-vehicle-input" v-model="payload.AGV_Name"></el-input>
             </el-form-item>
@@ -29,15 +30,24 @@
             <el-form-item label="Port">
                 <el-input class="add-vehicle-input" v-model="payload.Port"></el-input>
             </el-form-item>
+            <el-divider>Layout</el-divider>
             <el-form-item label="車輛長度(cm)">
                 <el-input class="add-vehicle-input" v-model="payload.VehicleLength"></el-input>
             </el-form-item>
             <el-form-item label="車輛寬度(cm)">
                 <el-input class="add-vehicle-input" v-model="payload.VehicleWidth"></el-input>
             </el-form-item>
+            <el-divider>Developer</el-divider>
+            <el-form-item label="模擬">
+                <el-switch class="add-vehicle-input" v-model="payload.Simulation"></el-switch>
+            </el-form-item>
         </el-form>
         <div class="border-top py-2 text-start">
-            <b-button @click="IsEditMode ? EditVehicle() : AddVehicle()" variant="primary" style="width: 120px;">{{ btnText }}</b-button>
+            <b-button
+                @click="IsEditMode ? EditVehicle() : AddVehicle()"
+                variant="primary"
+                :loading="adding"
+                style="width: 120px;">{{ btnText }}</b-button>
         </div>
     </div>
 </template>
@@ -68,13 +78,19 @@ export default {
                 Port: 7025,
                 VehicleLength: 145,
                 VehicleWidth: 70,
+                Simulation: false
             },
-            oriAGVID: ''
+            oriAGVID: '',
+            adding: false
         }
     },
     methods: {
         async AddVehicle() {
+
+            this.adding = true;
             var result = await VehicleManagerAPI.AddVehicle(this.payload);
+            this.adding = false;
+
             if (result.confirm) {
                 this.$swal.fire(
                     {

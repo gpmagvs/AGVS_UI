@@ -34,8 +34,16 @@ export async function AGVLocating(AGV_Name, Payload) {
 export var VehicleManagerAPI = {
   /**新增車輛 */
   AddVehicle: async (payload) => {
-    var response = await axios_entity_vms.post(`/api/VmsManager/AddVehicle`, payload);
-    return response.data;
+    try {
+
+      var response = await axios_entity_vms.post(`/api/VmsManager/AddVehicle`, payload);
+      return response.data;
+    } catch (error) {
+      return {
+        confirm: false,
+        message: `與VMS系統通訊失敗(${error})`
+      }
+    }
   },
   /**修改車輛 */
   EditVehicle: async (payload, oriAGVID) => {
