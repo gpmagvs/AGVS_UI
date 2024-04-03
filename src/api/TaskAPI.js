@@ -17,7 +17,8 @@ export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', 'TaskQuery.csv'); // 設定下載檔案的名稱
+  let fileName = `AGVS_Task_From_${start_time}_To_${end_time}.csv`
+  link.setAttribute('download', fileName); // 設定下載檔案的名稱
   document.body.appendChild(link);
   link.click();
 }
