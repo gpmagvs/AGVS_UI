@@ -34,7 +34,7 @@ export const agv_states_store = createStore({
   },
   getters: {
     AGVStatesData: state => {
-      if (state.agv_states && state.agv_states.length != 0) {
+      if (state.agv_states) {
 
         return state.agv_states;
       }

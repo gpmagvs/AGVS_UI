@@ -5,6 +5,7 @@ class clsAGVStateDto {
       this.AGV_Name = ''
       this.AGV_Description = ''
       this.Model = ''
+      this.Simulation = false
       this.MainStatus = 0
       this.OnlineStatus = 0
       this.CurrentLocation = ''
@@ -49,6 +50,7 @@ class clsAGVStateDto {
       this.TaskRunAction = dto.TaskRunAction
       this.Theta = dto.Theta
       this.Connected = dto.Connected
+      this.Simulation = dto.Simulation
       this.StationName = dto.StationName
       this.Group = dto.Group
       this.IsCharging = dto.IsCharging

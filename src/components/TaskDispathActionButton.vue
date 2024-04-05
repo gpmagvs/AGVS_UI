@@ -21,9 +21,9 @@
                             <el-col class="item-value" :span="12">{{ selected_action_display }}</el-col>
                             <el-col class="item-actions" :span="7">
                                 <b-button size="sm" variant="link" @click="() => {
-            HandleCancelBtnClick();
-            action_menu_visible = true;
-        }">重新選取</b-button></el-col>
+                                    HandleCancelBtnClick();
+                                    action_menu_visible = true;
+                                }">重新選取</b-button></el-col>
                         </el-row>
                         <el-row class="order-row" v-bind:style="agv_select_row_class" @click="HandleSelectAGVFromMapBtnClick">
                             <el-col :span="5">
@@ -31,8 +31,8 @@
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-select placeholder="從地圖或選單選擇車輛" @click="HandleSelectAGVFromMapBtnClick" size="large" @change="(agv) => {
-            selected_agv = agv
-        }" v-model="selected_agv">
+                                    selected_agv = agv
+                                }" v-model="selected_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -47,9 +47,7 @@
                                 <div class="item-name">來源</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇來源"
-                                    @change="HandleFromSelectChanged"
-                                    @click="HandleSelectSoureStationFromMapBtnClick" size="large" v-model="selected_source.TagNumber">
+                                <el-select placeholder="從地圖或選單選擇來源" @change="HandleFromSelectChanged" @click="HandleSelectSoureStationFromMapBtnClick" size="large" v-model="selected_source.TagNumber">
                                     <el-option v-for="tag in FromStationOptions" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_source ? selected_source.Graph.Display : '' }} -->
@@ -65,11 +63,7 @@
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-select placeholder="從地圖或選單選擇目的地" @change="HandleDestineSelectChanged" @click="HandleSelectDestineStationFromMapBtnClick" size="large" v-model="selected_destine.TagNumber">
-                                    <el-option
-                                        v-for="tag in DetermineDestinOptions()"
-                                        :key="tag.tag"
-                                        :label="tag.name_display"
-                                        :value="tag.tag"></el-option>
+                                    <el-option v-for="tag in DetermineDestinOptions()" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
@@ -96,7 +90,9 @@
                                 <div class="item-name">轉運站</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-checkbox v-model="IsTransferTaskNeedChangeAGV"></el-checkbox>
+                                <el-select placeholder="從地圖或選單選擇轉運站" @change="HandleFromSelectChanged" @click="HandleSelectSoureStationFromMapBtnClick" size="large" v-model="selected_source.TagNumber">
+                                    <el-option v-for="tag in FromStationOptions" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
+                                </el-select>
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
@@ -107,21 +103,21 @@
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
                             <b-button @click="HandleConfirmBtnClicked" :disabled="!task_dispatch_btn_pushable" class="w-50 mx-1" variant="primary">確認派送</b-button>
                             <b-button class="w-50 mx-1" variant="light" @click="() => {
-            order_info_visible = false;
-            action_menu_visible = true;
-        }">返回選擇動作</b-button>
+                                order_info_visible = false;
+                                action_menu_visible = true;
+                            }">返回選擇動作</b-button>
                             <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">取消</b-button>
                         </div>
                     </div>
                 </el-popover>
                 <b-button v-show="!order_info_visible" squared variant="primary" @click="() => {
-            // $emit('on-click');
-            if (action_menu_visible) {
-                action_menu_visible = false;
-            }
-            else if (!order_info_visible)
-                action_menu_visible = true
-        }">任務派送</b-button>
+                    // $emit('on-click');
+                    if (action_menu_visible) {
+                        action_menu_visible = false;
+                    }
+                    else if (!order_info_visible)
+                        action_menu_visible = true
+                }">任務派送</b-button>
             </div>
         </template>
         <div class="actions-btn-conatiner">
@@ -257,12 +253,15 @@ export default {
 
         },
         FromStationOptions() {
-            var _agvOptions = agv_states_store.getters.AGVNameList.map(name => {
+
+            var _agvList = agv_states_store.getters.AGVNameList;
+            var _agvOptions = _agvList.length == 0 ? [] : _agvList.map(name => {
                 return {
                     tag: name,
                     name_display: name
                 }
             })
+            console.log(this.EQStations)
             var _stations = [...this.EQStations, ..._agvOptions];
             return _stations;
         }

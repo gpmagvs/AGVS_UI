@@ -49,5 +49,9 @@ export var VehicleManagerAPI = {
   EditVehicle: async (payload, oriAGVID) => {
     var response = await axios_entity_vms.post(`/api/VmsManager/EditVehicle?oriAGVID=${oriAGVID}`, payload);
     return response.data;
+  },
+  DeleteVehicle: async (agv_name) => {
+    var response = await axios_entity_vms.delete(`/api/VmsManager/DeleteVehicle?AGV_Name=${agv_name}`);
+    return response.data;
   }
 }
