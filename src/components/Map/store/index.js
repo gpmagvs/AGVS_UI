@@ -196,6 +196,11 @@ export const MapStore = createStore({
             var options = points.filter(pt => !pt.IsVirtualPoint && pt.IsParking == true || pt.StationType == 4 || pt.StationType == 5).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
+        AllBufferStationOptions: state => {
+            var points = Object.values(state.MapData.Points)
+            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 4).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            return options;
+        },
         AllPointsOptions: state => {
             var options = []
             var points = state.MapData.Points
@@ -210,6 +215,7 @@ export const MapStore = createStore({
             })
             return options
         },
+
         ControledPathesBySystem: state => state.ControledPathesBySystem,
         RegionOptions: state => state.RegionOptions,
         EqIcons: state => state.MapData.Options.EQIcons,

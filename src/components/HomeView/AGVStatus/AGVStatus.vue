@@ -119,15 +119,15 @@
                 <div class="h-100 border px-2 py-1 d-flex">
                   <b-progress class="flex-fill" :max="100" :min="0" animated>
                     <i
-                      v-if="scope.row.IsCharging"
-                      v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)"
+                      v-if="scope.row.IsCharging && IsVMSConnect"
+                      v-bind:class="BatteryClass(scope.row.BatteryLevel_1, IsVMSConnect ? scope.row.IsCharging : false)"
                       style="color:white"
                       class="bi bi-lightning-charge battery-icon"></i>
                     <b-progress-bar
                       :animated="true"
-                      v-bind:class="BatteryClass(scope.row.BatteryLevel_1, scope.row.IsCharging)"
-                      :value="scope.row.BatteryLevel_1"
-                      :label="`${((scope.row.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                      v-bind:class="BatteryClass(scope.row.BatteryLevel_1, IsVMSConnect ? scope.row.IsCharging : false)"
+                      :value="!IsVMSConnect ? 0 : scope.row.BatteryLevel_1"
+                      :label="`${((!IsVMSConnect ? 0 : scope.row.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                   </b-progress>
                   <b-progress
                     v-if="scope.row.BatteryLevel_2 != -1.0"
@@ -136,15 +136,15 @@
                     :min="0"
                     animated>
                     <i
-                      v-if="scope.row.IsCharging"
-                      v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)"
+                      v-if="scope.row.IsCharging && IsVMSConnect"
+                      v-bind:class="BatteryClass(scope.row.BatteryLevel_2, IsVMSConnect ? scope.row.IsCharging : false)"
                       style="color:white"
                       class="bi bi-lightning-charge battery-icon"></i>
                     <b-progress-bar
                       :animated="true"
-                      v-bind:class="BatteryClass(scope.row.BatteryLevel_2, scope.row.IsCharging)"
-                      :value="scope.row.BatteryLevel_2"
-                      :label="`${((scope.row.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                      v-bind:class="BatteryClass(scope.row.BatteryLevel_2, IsVMSConnect ? scope.row.IsCharging : false)"
+                      :value="!IsVMSConnect ? 0 : scope.row.BatteryLevel_2"
+                      :label="`${((!IsVMSConnect ? 0 : scope.row.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                   </b-progress>
                 </div>
               </el-col>

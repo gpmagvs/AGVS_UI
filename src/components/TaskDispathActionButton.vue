@@ -25,15 +25,13 @@
                                     action_menu_visible = true;
                                 }">重新選取</b-button></el-col>
                         </el-row>
-                        <el-row class="order-row" v-bind:style="agv_select_row_class" @click="HandleSelectAGVFromMapBtnClick">
+                        <el-row class="order-row" v-bind:style="agv_select_row_class">
                             <el-col :span="5">
                                 <div class="item-name">車輛</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇車輛" @click="HandleSelectAGVFromMapBtnClick" size="large" @change="(agv) => {
-                                    selected_agv = agv
-                                }" v-model="selected_agv">
-                                    <el-option v-for="obj in AgvNameList" :key="obj.value" :label="obj.label"></el-option>
+                                <el-select placeholder="選擇車輛" size="large" v-model="selected_agv">
+                                    <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
                             <!-- <el-col class="item-value" :span="12">{{ IsAutoSelectAGV ? '自動選車' : selected_agv }}</el-col> -->
@@ -85,13 +83,13 @@
                                 <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
-                        <el-row class="order-row" v-if="IsDeveloper && IsTransferTaskNeedChangeAGV">
+                        <el-row class="order-row" v-bind:style="transfer_station_select_row_class" v-if="IsDeveloper && IsTransferTaskNeedChangeAGV" @click="HandleSelectTransferStationFromMapBtnClick">
                             <el-col :span="5">
                                 <div class="item-name">轉運站</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇轉運站" @change="HandleFromSelectChanged" @click="HandleSelectSoureStationFromMapBtnClick" size="large" v-model="selected_source.TagNumber">
-                                    <el-option v-for="tag in FromStationOptions" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
+                                <el-select placeholder="從地圖或選單選擇轉運站" @change="HandleTransferStationSelectChanged" @click="HandleSelectTransferStationFromMapBtnClick" size="large" v-model="selected_transfer_station.TagNumber">
+                                    <el-option v-for="tag in BufferStations" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
@@ -100,11 +98,27 @@
                                 <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
+                        <el-row class="order-row" v-if="IsTransferTaskNeedChangeAGV">
+                            <el-col :span="5">
+                                <div class="item-name">車輛</div>
+                            </el-col>
+                            <el-col class="item-value" :span="12">
+                                <el-select placeholder="選擇車輛" size="large" v-model="selected_transfer_to_destine_agv">
+                                    <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
+                                </el-select>
+                            </el-col>
+                            <!-- <el-col class="item-value" :span="12">{{ IsAutoSelectAGV ? '自動選車' : selected_agv }}</el-col> -->
+                            <el-col class="item-actions" :span="7">
+                                <!-- <b-button size="sm" variant="link" @click="HandleSelectAGVFromMapBtnClick">從地圖選取</b-button> -->
+                                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-agv'; is_reselecting_flag = true }">列表選取</b-button> -->
+                            </el-col>
+                        </el-row>
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
-                            <b-button @click="HandleConfirmBtnClicked" :disabled="!task_dispatch_btn_pushable" class="w-50 mx-1" variant="primary">確認派送</b-button>
+                            <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">確認派送</b-button>
                             <b-button class="w-50 mx-1" variant="light" @click="() => {
                                 order_info_visible = false;
                                 action_menu_visible = true;
+                                HandleCancelBtnClick();
                             }">返回選擇動作</b-button>
                             <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">取消</b-button>
                         </div>
@@ -129,7 +143,7 @@
             <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('charge')"> 充電 </b-button>
             <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('exchange_battery')"> 交換電池 </b-button>
             <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('measure')"> 巡檢量測 </b-button>
-            <b-button class="w-100 my-1" variant="danger" @click="() => { action_menu_visible = false }"> 取消 </b-button>
+            <b-button class="w-100 my-1" variant="danger" @click="() => { HandleCancelBtnClick(); action_menu_visible = false }"> 取消 </b-button>
         </div>
     </el-popover>
 </template>
@@ -145,8 +159,10 @@ export default {
         return {
             action_menu_visible: false,
             order_info_visible: false,
+            isSelectTransferToDestinAGV: false,
             selected_action: '',
             selected_agv: '',
+            selected_transfer_to_destine_agv: '',
             selected_source: {
                 Graph: {
                     Display: ''
@@ -157,12 +173,18 @@ export default {
                     Display: ''
                 }
             },
+            selected_transfer_station: {
+                Graph: {
+                    Display: ''
+                }
+            },
             Cst_ID_Input: '',
             order_info_style: {
                 // backgroundColor: 'rgba(255, 255, 255,.8)'
             },
             source_select_row_class: '',
             destine_select_row_class: '',
+            transfer_station_select_row_class: '',
             agv_select_row_class: '',
             map_events_bus: {
                 agv_selected: '/map/agv_selected',
@@ -243,6 +265,9 @@ export default {
         EQStations() {
             return MapStore.getters.AllEqStation
         },
+        BufferStations() {
+            return MapStore.getters.AllBufferStationOptions;
+        },
         bay_names() {
 
             var bay_data = MapStore.getters.BaysData;
@@ -261,7 +286,6 @@ export default {
                     name_display: name
                 }
             })
-            console.log(this.EQStations)
             var _stations = [...this.EQStations, ..._agvOptions];
             return _stations;
         }
@@ -271,7 +295,7 @@ export default {
             this.$emit('onTaskDispatch')
             this.selected_action = action;
             this.HandleActionSelected(action);
-            this.action_menu_visible = false;
+            this.action_menu_visible = this.IsTransferTaskNeedChangeAGV = false;
             this.order_info_visible = true;
             this.selected_source = this.selected_destine = {
                 TagNumber: undefined
@@ -294,6 +318,7 @@ export default {
         HandleActionSelected(action) {
             this.source_select_row_class =
                 this.destine_select_row_class =
+                this.transfer_station_select_row_class =
                 this.agv_select_row_class = '';
             var selectedStyle = {
                 backgroundColor: 'rgb(13, 110, 253)',
@@ -308,9 +333,21 @@ export default {
 
             if (action == 'select-destine')
                 this.destine_select_row_class = selectedStyle;
+
+            if (action == 'select-transfer-station')
+                this.transfer_station_select_row_class = selectedStyle;
         },
-        HandleSelectAGVFromMapBtnClick() {
-            this.HandleActionSelected("select-agv");
+        HandleAGVSelected(agv) {
+            console.log(agv)
+            if (this.isSelectTransferToDestinAGV)
+                this.selected_transfer_to_destine_agv = agv
+            else
+                this.selected_agv = agv
+        },
+        HandleSelectAGVFromMapBtnClick(isTransferToDestineAGV = false) {
+            this.isSelectTransferToDestinAGV = isTransferToDestineAGV;
+            if (!isTransferToDestineAGV)
+                this.HandleActionSelected("select-agv");
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
             bus.emit('change_to_select_agv_mode');
@@ -319,19 +356,49 @@ export default {
             bus.on(this.map_events_bus.agv_selected, (agv_name) => {
 
                 console.log(agv_name)
-                this.selected_agv = agv_name;
+                if (isTransferToDestineAGV)
+                    this.selected_transfer_to_destine_agv = agv_name;
+                else {
 
+                    this.selected_agv = agv_name;
 
-                if (this.selected_action == 'carry' && (!this.selected_source.Graph || this.selected_source.Graph.Display == '')) {
-                    this.HandleSelectSoureStationFromMapBtnClick();
-                    this.HandleActionSelected('select-source')
-                } else if (!this.selected_destine.Graph || this.selected_destine.Graph.Display == '') {
-                    this.HandleSelectDestineStationFromMapBtnClick();
-                    this.HandleActionSelected('select-destine')
+                    if (this.selected_action == 'carry' && (!this.selected_source.Graph || this.selected_source.Graph.Display == '')) {
+                        this.HandleSelectSoureStationFromMapBtnClick();
+                        this.HandleActionSelected('select-source')
+                    } else if (!this.selected_destine.Graph || this.selected_destine.Graph.Display == '') {
+                        this.HandleSelectDestineStationFromMapBtnClick();
+                        this.HandleActionSelected('select-destine')
+                    }
                 }
 
             })
 
+        },
+        HandleSelectTransferStationFromMapBtnClick() {
+            this.HandleActionSelected('select-transfer-station');
+            bus.off(this.map_events_bus.agv_selected)
+            bus.off(this.map_events_bus.station_selected)
+
+            var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
+            console.info('_destine_options:', _destine_options);
+            let map_options = {
+                action_type: this.selected_action,
+                direction: 'buffer',
+                stations_to_show: this.BufferStations
+            }
+            bus.emit('change_to_select_eq_station_mode', map_options);
+            this.current_progress = 'select-transfer-station';
+            this.is_reselecting_flag = true;
+            bus.on(this.map_events_bus.station_selected, (_station_data) => {
+
+                console.info(_station_data);
+                if (_station_data.StationType != 4)
+                    return;
+
+                bus.emit('mark_as_transfer_station', _station_data.TagNumber);
+                this.selected_transfer_station = _station_data;
+                this.tagOfMiddleStationTagOfTransferTask = _station_data.TagNumber
+            })
         },
         HandleSelectSoureStationFromMapBtnClick() {
 
@@ -406,12 +473,13 @@ export default {
             // alert(tag)
             this.selected_destine = await MapStore.dispatch('GetMapPointByTag', tag)
         },
+
         HandleCancelBtnClick() {
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
             this.order_info_visible = false;
             this.selected_source = this.selected_destine = { Graph: { Display: '' } };
-            this.source_select_row_class = this.destine_select_row_class = this.agv_select_row_class = '';
+            this.source_select_row_class = this.destine_select_row_class = this.agv_select_row_class = this.transfer_station_select_row_class = '';
             bus.emit('change_to_normal_view_mode');
 
         },
@@ -430,6 +498,10 @@ export default {
                         this.TaskDeliveryHandle()
                     }
                 })
+        },
+        HandleTransferStationSelectChanged(tag) {
+            this.tagOfMiddleStationTagOfTransferTask = tag
+            console.warn(tag)
         },
         async TaskDeliveryHandle() {
             // TaskAllocation.Task();
@@ -460,7 +532,7 @@ export default {
             }
 
             if (this.selected_action == 'carry') {
-                response = await TaskAllocation.CarryTask(new clsCarryTaskData(_selected_agv, _sourceTag, 1, _destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check, this.IsTransferTaskNeedChangeAGV, this.tagOfMiddleStationTagOfTransferTask));
+                response = await TaskAllocation.CarryTask(new clsCarryTaskData(_selected_agv, _sourceTag, 1, _destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check, this.IsTransferTaskNeedChangeAGV, this.tagOfMiddleStationTagOfTransferTask, this.selected_transfer_to_destine_agv));
             }
             if (this.selected_action == 'exchange_battery') {
                 response = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(_selected_agv, _destinTag, 50, this.bypass_eq_status_check));
