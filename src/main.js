@@ -20,8 +20,6 @@ import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import './BackendDataFetchWorker.js'
 import './idling_detector.js'
-
-document.title = "GPV AGVS"
 const i18n = createI18n({
   legacy: false,
   locale: 'zh-TW',
@@ -39,12 +37,13 @@ const Sweetalert_options = {
 
 const app = createApp(App)
 // 合併 store
-const mergedStore = { ...store, ...userStore };
-
-app.use(mergedStore);
+store.dispatch('GetDynamicWebsiteData').then(() => {
+  var fieldName = store.getters.FieldName;
+  document.title = `GPM 派車系統-[${fieldName}]`
+});
 app.use(VueApexCharts)
 app.use(Vuesax)
-app.use(mergedStore)
+app.use(store)
 app.use(router)
 app.use(BootstrapVue3)
 app.use(ElementPlus)

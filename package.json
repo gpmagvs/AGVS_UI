@@ -23,6 +23,7 @@
     "ol-contextmenu": "^5.2.0",
     "ol-ext": "^4.0.6",
     "proj4": "^2.8.1",
+    "three": "^0.163.0",
     "vant": "^4.8.4",
     "vue": "^3.2.13",
     "vue-dark-switch": "^1.0.6",

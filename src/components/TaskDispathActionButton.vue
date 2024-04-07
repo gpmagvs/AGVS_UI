@@ -3,11 +3,10 @@
         placement="right"
         :visible="action_menu_visible && !order_info_visible"
         :width="200"
-        effect="dark"
         content="">
         <template #reference>
             <div class="task-dispatch-btn-container">
-                <el-popover :show-arrow="false" :popper-style="order_info_style" :visible="order_info_visible" placement="right-start" :width="435">
+                <el-popover :show-arrow="false" :popper-style="order_info_style" :visible="order_info_visible" placement="right-start" :width="455">
                     <template #reference>
                         <span></span>
                     </template>
@@ -25,12 +24,13 @@
                                     action_menu_visible = true;
                                 }">重新選取</b-button></el-col>
                         </el-row>
+                        <!-- 選車 -->
                         <el-row class="order-row" v-bind:style="agv_select_row_class">
                             <el-col :span="5">
                                 <div class="item-name">車輛</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="選擇車輛" size="large" v-model="selected_agv">
+                                <el-select placeholder="選擇車輛" v-model="selected_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -40,36 +40,43 @@
                                 <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-agv'; is_reselecting_flag = true }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
+                        <!-- 選來源 -->
                         <el-row v-if="selected_action == 'carry'" class="order-row" v-bind:style="source_select_row_class" @click="HandleSelectSoureStationFromMapBtnClick">
                             <el-col :span="5">
                                 <div class="item-name">來源</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇來源" @change="HandleFromSelectChanged" @click="HandleSelectSoureStationFromMapBtnClick" size="large" v-model="selected_source.TagNumber">
+                                <el-select placeholder="從地圖或選單選擇來源" @change="HandleFromSelectChanged" @click="HandleSelectSoureStationFromMapBtnClick" v-model="selected_source.TagNumber">
                                     <el-option v-for="tag in FromStationOptions" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_source ? selected_source.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
-                                <!-- <b-button size="sm" variant="link" @click="HandleSelectSoureStationFromMapBtnClick">從地圖選取</b-button> -->
-                                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-source'; is_reselecting_flag = false }">列表選取</b-button> -->
+                                <el-select v-if="IsSourceStationBuffer" placeholder="選擇PORT" v-model="selected_source_slot">
+                                    <el-option v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)" :key="selected_source.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
+                                    </el-option>
+                                </el-select>
                             </el-col>
                         </el-row>
+                        <!-- 選目的地 -->
                         <el-row class="order-row" v-bind:style="destine_select_row_class" @click="HandleSelectDestineStationFromMapBtnClick">
                             <el-col :span="5">
                                 <div class="item-name">目的地</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇目的地" @change="HandleDestineSelectChanged" @click="HandleSelectDestineStationFromMapBtnClick" size="large" v-model="selected_destine.TagNumber">
+                                <el-select placeholder="從地圖或選單選擇目的地" @change="HandleDestineSelectChanged" @click="HandleSelectDestineStationFromMapBtnClick" v-model="selected_destine.TagNumber">
                                     <el-option v-for="tag in DetermineDestinOptions()" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
-                                <!-- <b-button size="sm" variant="link" @click="HandleSelectDestineStationFromMapBtnClick">從地圖選取</b-button> -->
-                                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
+                                <el-select v-if="IsDestineStationBuffer" placeholder="選擇PORT" v-model="selected_destine_slot">
+                                    <el-option v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)" :key="selected_source.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
+                                    </el-option>
+                                </el-select>
                             </el-col>
                         </el-row>
+                        <!-- 是否轉運 -->
                         <el-row class="order-row" v-if="IsDeveloper && selected_action == 'carry'">
                             <el-col :span="5">
                                 <div class="item-name">轉運</div>
@@ -83,12 +90,13 @@
                                 <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
+                        <!-- 選擇轉運站 -->
                         <el-row class="order-row" v-bind:style="transfer_station_select_row_class" v-if="IsDeveloper && IsTransferTaskNeedChangeAGV" @click="HandleSelectTransferStationFromMapBtnClick">
                             <el-col :span="5">
                                 <div class="item-name">轉運站</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇轉運站" @change="HandleTransferStationSelectChanged" @click="HandleSelectTransferStationFromMapBtnClick" size="large" v-model="selected_transfer_station.TagNumber">
+                                <el-select placeholder="從地圖或選單選擇轉運站" @change="HandleTransferStationSelectChanged" @click="HandleSelectTransferStationFromMapBtnClick" v-model="selected_transfer_station.TagNumber">
                                     <el-option v-for="tag in BufferStations" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
@@ -98,12 +106,13 @@
                                 <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
                             </el-col>
                         </el-row>
+                        <!-- 選擇轉運車輛 -->
                         <el-row class="order-row" v-if="IsTransferTaskNeedChangeAGV">
                             <el-col :span="5">
                                 <div class="item-name">車輛</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="選擇車輛" size="large" v-model="selected_transfer_to_destine_agv">
+                                <el-select placeholder="選擇車輛" v-model="selected_transfer_to_destine_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -124,7 +133,7 @@
                         </div>
                     </div>
                 </el-popover>
-                <b-button v-show="!order_info_visible" squared variant="primary" @click="() => {
+                <b-button squared variant="primary" @click="() => {
                     // $emit('on-click');
                     if (action_menu_visible) {
                         action_menu_visible = false;
@@ -178,9 +187,11 @@ export default {
                     Display: ''
                 }
             },
+            selected_source_slot: 0,
+            selected_destine_slot: 0,
             Cst_ID_Input: '',
             order_info_style: {
-                // backgroundColor: 'rgba(255, 255, 255,.8)'
+                backgroundColor: 'rgba(255, 255, 255,.8)'
             },
             source_select_row_class: '',
             destine_select_row_class: '',
@@ -288,6 +299,12 @@ export default {
             })
             var _stations = [...this.EQStations, ..._agvOptions];
             return _stations;
+        },
+        IsSourceStationBuffer() {
+            return this.selected_source.StationType == 4;
+        },
+        IsDestineStationBuffer() {
+            return this.selected_destine.StationType == 4;
         }
     },
     methods: {
@@ -424,11 +441,11 @@ export default {
 
             bus.on(this.map_events_bus.station_selected, (_station_data) => {
                 console.info(_station_data);
-                if (_station_data.IsEquipment || _station_data.StationType == 4) {
+                const isBuffer = _station_data.StationType == 4
+                if (_station_data.IsEquipment || isBuffer) {
 
                     if (_station_data == this.selected_destine)
                         return;
-
                     this.selected_source = _station_data;
                     this.HandleFromSelectChanged(this.selected_source.TagNumber);
                     bus.emit('mark_as_start_station', this.selected_source.TagNumber);
@@ -524,15 +541,15 @@ export default {
                 response = await TaskAllocation.MeasureTask(new clsMeasureTaskData(_selected_agv, _destinTag));
             }
             if (this.selected_action == 'load') {
-                response = await TaskAllocation.LoadTask(new clsLoadTaskData(_selected_agv, _destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check));
+                response = await TaskAllocation.LoadTask(new clsLoadTaskData(_selected_agv, _destinTag, this.selected_destine_slot, this.Cst_ID_Input, 50, this.bypass_eq_status_check));
             }
 
             if (this.selected_action == 'unload') {
-                response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(_selected_agv, _destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check));
+                response = await TaskAllocation.UnloadTask(new clsUnloadTaskData(_selected_agv, _destinTag, this.selected_destine_slot, this.Cst_ID_Input, 50, this.bypass_eq_status_check));
             }
 
             if (this.selected_action == 'carry') {
-                response = await TaskAllocation.CarryTask(new clsCarryTaskData(_selected_agv, _sourceTag, 1, _destinTag, 1, this.Cst_ID_Input, 50, this.bypass_eq_status_check, this.IsTransferTaskNeedChangeAGV, this.tagOfMiddleStationTagOfTransferTask, this.selected_transfer_to_destine_agv));
+                response = await TaskAllocation.CarryTask(new clsCarryTaskData(_selected_agv, _sourceTag, this.selected_source_slot, _destinTag, this.selected_destine_slot, this.Cst_ID_Input, 50, this.bypass_eq_status_check, this.IsTransferTaskNeedChangeAGV, this.tagOfMiddleStationTagOfTransferTask, this.selected_transfer_to_destine_agv));
             }
             if (this.selected_action == 'exchange_battery') {
                 response = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(_selected_agv, _destinTag, 50, this.bypass_eq_status_check));
@@ -606,6 +623,19 @@ export default {
                 });
             }
             return _results;
+
+        },
+        GetLayersOfBuffer(tag) {
+            const rows = EqStore.getters.GetRowsByStationTag(tag);
+            const options = [];
+            for (let index = 0; index < rows; index++) {
+                options.push({
+                    label: `第${index + 1}層`,
+                    value: index
+                })
+            }
+            return options;
+
         },
         DetermineDestinOptions() {
             if (this.selected_action == 'measure')

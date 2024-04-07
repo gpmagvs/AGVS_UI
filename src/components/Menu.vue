@@ -1,6 +1,6 @@
 <template>
     <div class="menu">
-        <div class="menu-top" style="cursor: pointer;"> <!-- <i @click="() => { isCollapse = !isCollapse }">tgt</i> -->
+        <div class="menu-top border-bottom p-2" style="cursor: pointer;"> <!-- <i @click="() => { isCollapse = !isCollapse }">tgt</i> -->
             <img v-if="!isCollapse" @click="GoToHomePage" src="/GPM_Logo.png" alt="" width="160">
             <div v-else class="gpm-text" @click="GoToHomePage">GPM</div>
         </div>
@@ -119,6 +119,12 @@
                         <setting />
                     </el-icon>
                     <template #title>{{ $t('Menu.equipment management') }}</template>
+                </el-menu-item>
+                <el-menu-item index="/sys_settings/RacksManagement">
+                    <el-icon>
+                        <setting />
+                    </el-icon>
+                    <template #title>{{ $t('Menu.racks management') }}</template>
                 </el-menu-item>
                 <el-menu-item index="/sys_settings/User_Setting">
                     <el-icon>

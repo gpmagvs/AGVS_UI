@@ -1,15 +1,15 @@
 <template>
-    <div class="vehicles">
+    <div class="racks-manager">
         <b-card no-body>
             <b-tabs pills vertical justified nav-class="my-nav" content-class="my-nav-tabs">
-                <b-tab title="車輛列表" active>
+                <b-tab title="RACK列表" active>
                     <div class="">
-                        <VehicleListTable></VehicleListTable>
+                        <RackListTable></RackListTable>
                     </div>
                 </b-tab>
-                <b-tab title="新增車輛">
+                <b-tab title="新增RACK">
                     <div class="">
-                        <AddVehicle></AddVehicle>
+                        <AddRack></AddRack>
                     </div>
                 </b-tab>
             </b-tabs>
@@ -17,11 +17,11 @@
     </div>
 </template>
 <script>
-import AddVehicle from '@/components/Vehicle/AddVehicle.vue'
-import VehicleListTable from '@/components/Vehicle/VehicleListTable.vue'
+import AddRack from '@/components/RacksStatusView/AddRack.vue'
+import RackListTable from '@/components/RacksStatusView/RackListTable.vue'
 export default {
     components: {
-        AddVehicle, VehicleListTable
+        AddRack, RackListTable
     },
     data() {
         return {
@@ -31,7 +31,7 @@ export default {
 }
 </script>
 <styles lang="scss" scoped>
-.vehicles {
+.racks-manager {
     margin-top: 20px;
     padding: 5px;
 

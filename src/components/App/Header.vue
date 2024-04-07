@@ -7,7 +7,9 @@
           <MenuFoldIcon class="menu-icon" v-else />
         </el-icon>
       </i>
-      <div class="flex-fill"></div>
+      <div class="flex-fill text-start">
+        <div class="field-name"> {{ fieldName }} </div>
+      </div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
         <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="key">
@@ -72,8 +74,7 @@
         </div>
         <div class="opt">
           <div>
-            <b-button v-if="current_user_role != 0" @click="ResetSysAlarmsHandler" class="mb-0" size="sm"
-              variant="danger">警報復歸</b-button>
+            <b-button v-if="current_user_role != 0" @click="ResetSysAlarmsHandler" class="mb-0" size="sm" variant="danger">警報復歸</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -212,6 +213,9 @@ export default {
     },
     HasEqpAlarm() {
       return this.eq_alrm_text != '';
+    },
+    fieldName() {
+      return this.$store.getters.FieldName
     }
 
   },
@@ -522,6 +526,12 @@ export default {
 
   h3:hover {
     cursor: pointer;
+  }
+
+  .field-name {
+    font-size: 23px;
+    font-weight: bold;
+    letter-spacing: 2px;
   }
 
   .menu-toggle-icon {

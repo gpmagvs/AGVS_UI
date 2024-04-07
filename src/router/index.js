@@ -71,6 +71,11 @@ const routes = [
         component: () => import('@/components/SystemSettings/EquipmentManager.vue')
       },
       {
+        path: 'RacksManagement',
+        name: 'RacksManagement',
+        component: () => import('@/components/SystemSettings/RacksManager.vue')
+      },
+      {
         path: 'User_Setting',
         name: 'User_Setting',
         component: () => import('@/components/SystemSettings/UserManager.vue')
@@ -122,9 +127,9 @@ const routes = [
     component: AlarmView,
   },
   {
-    path: '/developing',
+    path: '/playground',
     name: 'dev_ui',
-    component: () => import('../components/Map/AGVDesigner/AGVDisplaySettings.vue'),
+    component: () => import('../views/Playground.vue'),
   },
   {
     path: '/hotrun',

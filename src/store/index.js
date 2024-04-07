@@ -2,7 +2,8 @@ import { createStore } from 'vuex'
 import { Login, StoreToLocalStorage, UserRouteChange } from '@/api/UserAPI';
 import MapAPI from '@/api/MapAPI'
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
-
+import param from '@/gpm_param.js'
+import axios from 'axios'
 var cachesKeyMap = {
   agvStates: 'agv_states'
 }
@@ -10,19 +11,25 @@ var cachesKeyMap = {
 export default createStore({
 
   state: {
-    configs: {
-
+    websiteSetting: {
+      FieldName: 'UMTC'
     }
   },
+  getters: {
+    GetWebsiteSetting: (state) => { return state.websiteSetting; },
+    FieldName: (state) => { return state.websiteSetting.FieldName }
+  },
   mutations: {
-    setConfigs(state, configs) {
-      state.configs = configs
+    setAgvsystemConfigs(state, configs) {
+      state.websiteSetting = configs
     }
   },
   actions: {
-    SetConfig({ commit }, configs) {
-      commit('setConfigs', configs)
-    }
+    async GetDynamicWebsiteData({ commit }, user) {
+      var response = await axios.get(`${param.backend_host}/api/system/website`)
+      console.log(response.data);
+      commit('setAgvsystemConfigs', response.data)
+    },
   }
 })
 
@@ -236,7 +243,10 @@ export const EqStore = createStore({
       return state.ChargeStation;
     },
     EqOptions: state => state.EqOptions,
-    WIPData: state => state.WIPsData
+    WIPData: state => state.WIPsData,
+    GetRowsByStationTag: state => (tag) => {
+      return 3
+    }
   },
   mutations: {
     setData(state, data) {
