@@ -501,6 +501,7 @@ export default {
 
         },
         HandleConfirmBtnClicked() {
+            this.order_info_visible = false;
             this.$swal.fire(
                 {
                     title: '確定要派送此任務?',
@@ -513,6 +514,8 @@ export default {
                 }).then(res => {
                     if (res.isConfirmed) {
                         this.TaskDeliveryHandle()
+                    } else {
+                        this.order_info_visible = true;
                     }
                 })
         },
