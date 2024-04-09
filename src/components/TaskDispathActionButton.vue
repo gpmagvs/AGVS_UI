@@ -20,9 +20,9 @@
                             <el-col class="item-value" :span="12">{{ selected_action_display }}</el-col>
                             <el-col class="item-actions" :span="7">
                                 <b-button size="sm" variant="link" @click="() => {
-                                    HandleCancelBtnClick();
-                                    action_menu_visible = true;
-                                }">重新選取</b-button></el-col>
+            HandleCancelBtnClick();
+            action_menu_visible = true;
+        }">重新選取</b-button></el-col>
                         </el-row>
                         <!-- 選車 -->
                         <el-row class="order-row" v-bind:style="agv_select_row_class">
@@ -52,7 +52,7 @@
                                 <!-- {{ selected_source ? selected_source.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
-                                <el-select v-if="IsSourceStationBuffer" placeholder="選擇PORT" v-model="selected_source_slot">
+                                <el-select v-if="selected_source.Graph && IsSourceStationBuffer" placeholder="選擇PORT" v-model="selected_source_slot">
                                     <el-option v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)" :key="selected_source.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
                                     </el-option>
                                 </el-select>
@@ -70,8 +70,8 @@
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
-                                <el-select v-if="IsDestineStationBuffer" placeholder="選擇PORT" v-model="selected_destine_slot">
-                                    <el-option v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)" :key="selected_source.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
+                                <el-select v-if="selected_destine.Graph && IsDestineStationBuffer" placeholder="選擇PORT" v-model="selected_destine_slot">
+                                    <el-option v-for="layer in GetLayersOfBuffer(selected_destine.TagNumber)" :key="selected_destine.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
                                     </el-option>
                                 </el-select>
                             </el-col>
@@ -125,22 +125,22 @@
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
                             <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">確認派送</b-button>
                             <b-button class="w-50 mx-1" variant="light" @click="() => {
-                                order_info_visible = false;
-                                action_menu_visible = true;
-                                HandleCancelBtnClick();
-                            }">返回選擇動作</b-button>
+            order_info_visible = false;
+            action_menu_visible = true;
+            HandleCancelBtnClick();
+        }">返回選擇動作</b-button>
                             <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">取消</b-button>
                         </div>
                     </div>
                 </el-popover>
                 <b-button squared variant="primary" @click="() => {
-                    // $emit('on-click');
-                    if (action_menu_visible) {
-                        action_menu_visible = false;
-                    }
-                    else if (!order_info_visible)
-                        action_menu_visible = true
-                }">任務派送</b-button>
+            // $emit('on-click');
+            if (action_menu_visible) {
+                action_menu_visible = false;
+            }
+            else if (!order_info_visible)
+                action_menu_visible = true
+        }">任務派送</b-button>
             </div>
         </template>
         <div class="actions-btn-conatiner">
@@ -175,17 +175,20 @@ export default {
             selected_source: {
                 Graph: {
                     Display: ''
-                }
+                },
+                StationType: 0,
             },
             selected_destine: {
                 Graph: {
                     Display: ''
-                }
+                },
+                StationType: 0,
             },
             selected_transfer_station: {
                 Graph: {
                     Display: ''
-                }
+                },
+                StationType: 0,
             },
             selected_source_slot: 0,
             selected_destine_slot: 0,
@@ -301,10 +304,10 @@ export default {
             return _stations;
         },
         IsSourceStationBuffer() {
-            return this.selected_source.StationType == 4;
+            return this.selected_source.StationType == 4 || this.selected_source.StationType == 5;
         },
         IsDestineStationBuffer() {
-            return this.selected_destine.StationType == 4;
+            return this.selected_destine.StationType == 4 || this.selected_destine.StationType == 5;
         }
     },
     methods: {
@@ -441,7 +444,7 @@ export default {
 
             bus.on(this.map_events_bus.station_selected, (_station_data) => {
                 console.info(_station_data);
-                const isBuffer = _station_data.StationType == 4
+                const isBuffer = _station_data.StationType == 4 || _station_data.StationType == 5
                 if (_station_data.IsEquipment || isBuffer) {
 
                     if (_station_data == this.selected_destine)
@@ -460,6 +463,9 @@ export default {
             bus.off(this.map_events_bus.station_selected)
 
             var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
+            if (this.IsSourceStationBuffer) {
+                _destine_options = [..._destine_options, this.BufferStations]
+            }
             console.info('_destine_options:', _destine_options);
             let map_options = {
                 action_type: this.selected_action,
@@ -647,7 +653,7 @@ export default {
                 return MapStore.getters.AllNormalStationOptions;
             else if (this.selected_action == 'park')
                 return MapStore.getters.AllParkingStationOptions;
-            else if (this.selected_action == 'load' || this.selected_action == 'unload')
+            else if (this.IsSourceStationBuffer || this.selected_action == 'load' || this.selected_action == 'unload')
                 return MapStore.getters.AllEqStation;
             else if (this.selected_action == 'charge')
                 return MapStore.getters.AllChargeStation;
