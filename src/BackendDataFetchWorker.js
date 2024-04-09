@@ -46,6 +46,7 @@ agvs_websocket_worker.postMessage({ command: 'connect', ws_url: param.backend_ws
 const throttledHandleVMSData = Throttle(function (event) {
     if (event.data != 'error' && event.data != 'closed') {
         MapStore.commit('setAGVDynamicPathInfo', event.data.AGVNaviPathsInfoVM);
+        MapStore.commit('setOtherAGVLocateInfo', event.data.OtherAGVLocations);
 
     }
 }, 33);

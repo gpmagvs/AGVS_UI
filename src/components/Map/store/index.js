@@ -9,6 +9,7 @@ export const MapStore = createStore({
         MapData: new clsMap(),
         MapGeoJson: null,
         AGVDynamicPathInfo: undefined,
+        OthersAGVLocateInfo: [],
         /**被系統交通管制的路徑字典 */
         ControledPathesBySystem: {},
         AGVLocUpload: {},
@@ -170,6 +171,10 @@ export const MapStore = createStore({
             var _AGVOption = new AGVOption(agv_num, agvDataLs)
             return _AGVOption;
         },
+        /**[ {"AGVName":"AGV_001","Location":"DEMOS001"}] */
+        OthersAGVLocateInfo: state => {
+            return state.OthersAGVLocateInfo;
+        },
         AllNormalStationOptions: state => {
             //[{tag:1,name:'' }]
             var points = Object.values(state.MapData.Points)
@@ -234,6 +239,9 @@ export const MapStore = createStore({
         },
         setAGVDynamicPathInfo(state, info) {
             state.AGVDynamicPathInfo = info
+        },
+        setOtherAGVLocateInfo(state, data) {
+            state.OthersAGVLocateInfo = data;
         },
         setAGVLocUpload(state, data) {
             state.AGVLocUpload = data

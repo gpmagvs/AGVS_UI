@@ -580,7 +580,37 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
 
     })
 }
+export function SimpleAGVStyle(agv_name, color) {
+    return new Style({
+        image: new Icon({
+            src: '/agv.png', // 设置PNG图像的路径
+            scale: .6, // 设置PNG图像的缩放比例
+            anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
+            size: [64, 64],// 设置PNG图像的大小
+            opacity: 1,
+            rotation: 0 * Math.PI / 180.0 //3.14 180
 
+        }),
+        text: new Text({
+            text: agv_name,
+            offsetX: 0,
+            offsetY: 32,
+            font: 'bold 16px Arial',
+            fill: new Fill({
+                color: 'white'
+            }),
+
+            backgroundFill: new Fill({
+                color: color,
+            }),
+            backgroundStroke: new Stroke({
+                color: 'black',
+            }),
+            textAlign: 'center',
+            padding: [4, 4, 4, 4]
+        }),
+    })
+}
 export function AGVPointStyle(agv_name, color, ImageName = undefined, ImageSize = undefined) {
     return new Style({
         image: AGVIcon(ImageName),
