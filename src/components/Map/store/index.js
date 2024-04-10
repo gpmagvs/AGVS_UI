@@ -139,6 +139,9 @@ export const MapStore = createStore({
             var index = 0;
             Object.keys(agv_nav_info).forEach(name => {
                 var data = agv_nav_info[name]
+                var vehicleLength = data.vehicleLength
+                var vehicleWidth = data.vehicleWidth
+
                 var pathtags = data.nav_path
                 var pathCoordinations = []
 
@@ -165,7 +168,8 @@ export const MapStore = createStore({
                 } else {
                     _agv_color = state.agv_colors[index];
                 }
-                agvDataLs.push(new clsAGVDisplay(name, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text))
+                var agvDisplayModel = new clsAGVDisplay(name, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text, vehicleLength, vehicleWidth);
+                agvDataLs.push(agvDisplayModel)
                 index += 1;
             })
             var _AGVOption = new AGVOption(agv_num, agvDataLs)

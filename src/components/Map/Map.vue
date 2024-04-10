@@ -1,5 +1,5 @@
 <template>
-  <div id="map" class="map-component">
+  <div id="map" class="map-component" v-loading="loading">
     <div class="d-flex flex-row h-100">
       <div class="flex-fill d-flex flex-column">
         <div
@@ -19,15 +19,15 @@
             <div class="p-0 m-0 w-100" v-if="left_tab_class_name == 'tab-close'">
               <i
                 @click="() => {
-                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-                }"
+    left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+  }"
                 class="bi bi-chevron-double-right"></i>
             </div>
             <div v-else class="tab-open text-start">
               <i
                 @click="() => {
-                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-                }"
+    left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+  }"
                 class="bi bi-chevron-double-left"></i>
               <div class="p-2 action-buttons border-bottom">
                 <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
@@ -130,12 +130,12 @@
                       </el-form-item>
                       <el-form-item label="調整圖片位置">
                         <el-switch size="large" active-text="開啟" inactive-text="關閉" inline-prompt v-model="DragBackgroundImageMode" @change="() => {
-                          new_map_img_extent = map_img_extent;
-                          if (map_image_display != 'visible' && DragBackgroundImageMode) {
-                            map_image_display = 'visible';
-                            SlamImageDisplayOptHandler();
-                          }
-                        }"></el-switch>
+    new_map_img_extent = map_img_extent;
+    if (map_image_display != 'visible' && DragBackgroundImageMode) {
+      map_image_display = 'visible';
+      SlamImageDisplayOptHandler();
+    }
+  }"></el-switch>
                       </el-form-item>
                       <el-divider></el-divider>
                       <el-form-item label="重置路網顯示">
@@ -254,26 +254,26 @@
               <div>
                 <span class="mx-1">路網顯示</span>
                 <el-switch v-model="routePathsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
-                  if (visible) {
-                    if (map_display_mode == 'router') {
-                      PathLayerForCoordination.setVisible(false);
-                      PathLayerForRouter.setVisible(true);
-                    } else {
-                      PathLayerForCoordination.setVisible(true);
-                      PathLayerForRouter.setVisible(false);
-                    }
-                  } else {
-                    PathLayerForCoordination.setVisible(false);
-                    PathLayerForRouter.setVisible(false);
-                  }
-                  HideNormalStations(!visible);
-                }"></el-switch>
+    if (visible) {
+      if (map_display_mode == 'router') {
+        PathLayerForCoordination.setVisible(false);
+        PathLayerForRouter.setVisible(true);
+      } else {
+        PathLayerForCoordination.setVisible(true);
+        PathLayerForRouter.setVisible(false);
+      }
+    } else {
+      PathLayerForCoordination.setVisible(false);
+      PathLayerForRouter.setVisible(false);
+    }
+    HideNormalStations(!visible);
+  }"></el-switch>
               </div>
               <div>
                 <span class="mx-1">管制區顯示</span>
                 <el-switch :disabled="map_display_mode != 'coordination'" v-model="regionsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
-                  RegionLayer.setVisible(visible && map_display_mode == 'coordination');
-                }"></el-switch>
+    RegionLayer.setVisible(visible && map_display_mode == 'coordination');
+  }"></el-switch>
               </div>
               <div v-if="editable" class="rounded">
                 <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
@@ -290,33 +290,33 @@
     <PointContextMenu ref="EditModeContextMenu" v-show="editModeContextMenuVisible" :mouse_click_position="[contextMenuTop, contextMenuLeft]" :options="contextMenuOptions" @OnTaskBtnClick="HandleMenuTaskBtnClick" @OnPtSettingBtnClick="HandlePtSettingBtnClick"></PointContextMenu>
     <MapPointSettingDrawer ref="ptsetting" @OnLeve="HandlePtSettingDrawerLeaved" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
     <MapPathSettingDrawer :SettingsChangedHandler="() => {
-      UpdateStationPathLayer();
-      HandlePathTbRowClick(SelectedPathData);
+    UpdateStationPathLayer();
+    HandlePathTbRowClick(SelectedPathData);
 
-    }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
+  }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
     <MapRegionEditDrawer @closed="HandleForbidRegionEditDrawerClosed" ref="forbid_region_editor" :SettingsChangedHandler="() => {
 
-    }"></MapRegionEditDrawer>
+  }"></MapRegionEditDrawer>
     <el-dialog @closed="() => {
-      if (selected_path_feature) {
-        RestoreOriginalPathStyle(selected_path_feature)
-      }
-    }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
+    if (selected_path_feature) {
+      RestoreOriginalPathStyle(selected_path_feature)
+    }
+  }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
       <div class="bg-light text-start d-flex py-2">
         <b-button size="sm" variant="success" @click="() => {
-          PathesCandicats.forEach(path_setting => {
-            path_setting.IsPassable = true
-          });
-          UpdateStationPathLayer();
-          HandlePathTbRowClick(SelectedPathData);
-        }">開放所有道路</b-button>
+    PathesCandicats.forEach(path_setting => {
+      path_setting.IsPassable = true
+    });
+    UpdateStationPathLayer();
+    HandlePathTbRowClick(SelectedPathData);
+  }">開放所有道路</b-button>
         <b-button class="mx-2" variant="danger" size="sm" @click="() => {
-          PathesCandicats.forEach(path_setting => {
-            path_setting.IsPassable = false
-          });
-          UpdateStationPathLayer();
-          HandlePathTbRowClick(SelectedPathData);
-        }">關閉所有道路</b-button>
+    PathesCandicats.forEach(path_setting => {
+      path_setting.IsPassable = false
+    });
+    UpdateStationPathLayer();
+    HandlePathTbRowClick(SelectedPathData);
+  }">關閉所有道路</b-button>
       </div>
       <el-table :data="PathesCandicats" border>
         <el-table-column label="ID" prop="PathID">
@@ -864,10 +864,9 @@ export default {
         return;
 
       this.agvs_info.AGVDisplays.forEach(agv_information => {
-
         const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
-        const vehicleLength = vehicleSize[0] / 100.0; //unit:m
-        const vehicleWidth = vehicleSize[1] / 100.0;//unit:m
+        const vehicleLength = agv_information.vehicleLength / 100.0; //unit:m
+        const vehicleWidth = agv_information.vehicleWidth / 100.0;//unit:m
         const vehicleImageName = '/images/AGVDisplayImage/' + agv_information.AgvName + '-Icon.png';//[length,width]
         const vehicleSaftyRotationRadious = Math.sqrt(Math.pow(vehicleLength / 2, 2) + Math.pow(vehicleWidth / 2, 2));//unit:m
         var _polygon_coordinations = this.CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
@@ -931,6 +930,8 @@ export default {
             })
 
             //AGV車體與迴轉半徑顯示
+            console.log(agv_information.Coordination);
+            console.log(vehicleSaftyRotationRadious);
             const _agvSaftyCircle = new Circle(agv_information.Coordination, vehicleSaftyRotationRadious) //TODO 車輛安全區域半徑數據取得
             const _agvBodyPolygon = new Polygon(_polygon_coordinations)
             // 構造一個新的 RGBA 字串
@@ -3065,6 +3066,7 @@ export default {
   },
 
   mounted() {
+    this.loading = true;
     if (this.editable) {
       this.RemoveKeyboardPressEventListener();
       document.addEventListener('keydown', this.EditModeKeybordEvents)
@@ -3076,89 +3078,91 @@ export default {
       element.addEventListener('contextmenu', function (event) {
         event.preventDefault();
       });
-    MapStore.dispatch('DownloadMapData').then(() => {
-      this.RestoreSettingsFromLocalStorage();
-      this.DeepClonePathSegmentData();
-      this.InitMap();
-      this.AddEditMapInteraction();
-      watch(
-        () => this.map_station_data, (newval, oldval) => {
+
+    setTimeout(() => {
+
+      MapStore.dispatch('DownloadMapData').then(() => {
+        this.RestoreSettingsFromLocalStorage();
+        this.DeepClonePathSegmentData();
+        this.InitMap();
+        this.AddEditMapInteraction();
+        watch(
+          () => this.map_station_data, (newval, oldval) => {
+            if (!newval)
+              return;
+            this.RefreshMap();
+          }, { deep: true, immediate: true }
+        )
+        if (this.eq_lduld_status_show) {
+          this.watch_eq_data_changed();
+        }
+        watch(() => this.agvs_info, (newval, oldval) => {
           if (!newval)
-            return;
-          this.RefreshMap();
-        }, { deep: true, immediate: true }
-      )
-      if (this.eq_lduld_status_show) {
-        this.watch_eq_data_changed();
-      }
-      watch(() => this.agvs_info, (newval, oldval) => {
-        if (!newval)
-          return
-        this.UpdateAGVLayer()
-      }, { deep: true, immediate: true })
+            return
+          this.UpdateAGVLayer()
+        }, { deep: true, immediate: true })
 
 
-      watch(() => this.agvs_info_other_system, (newval, oldval) => {
-        if (!newval)
-          return
-        this.UpdateAGVLocationOfOtherSystem(newval)
-      }, { deep: true, immediate: true })
+        watch(() => this.agvs_info_other_system, (newval, oldval) => {
+          if (!newval)
+            return
+          this.UpdateAGVLocationOfOtherSystem(newval)
+        }, { deep: true, immediate: true })
 
-      bus.on('/show_agv_at_center', agv_name => {
-        // alert(agv_name)
-        this.ResetMapCenterViaAGVLoc(agv_name)
-      })
-
-      bus.on('/rerender_agv_layer', () => {
-        console.log('rerender_agv_layer');
-        this.AGVLocLayer.getSource().clear();
-        this.AGVFeatures = {};
-      })
-
-      watch(
-        () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
-          if (this.agv_upload_coordination_mode) {
-            this.HandleAGVUploadData(newval)
-          }
-        }, { deep: true, immediate: true }
-      )
-      bus.on('change_to_select_agv_mode', () => {
-        if (this.editable)
-          return;
-        this.ChangeToSelectAGVMode();
-      })
-      bus.on('change_to_select_eq_station_mode', (option) => {
-        if (this.editable)
-          return;
-        this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
-        this.ChangeToSelectEQStationMode();
-      })
-      bus.on('change_to_normal_view_mode', () => {
-        if (this.editable)
-          return;
-        this.ChangeToNormalViewMode();
-      })
-      bus.on('mark_as_start_station', (tagNumber) => {
-        if (this.editable)
-          return;
-        this.TransferTaskIconLayer.getSource().clear();
-        this.AddMarkIconWithText(tagNumber, '搬運起點');
-      })
-      bus.on('mark_as_destine_station', (tagNumber) => {
-        this.CreateDestineMarkIcon(tagNumber);
-      })
-
-      var mapdom = document.getElementById(this.id);
-      if (mapdom)
-        mapdom.addEventListener('contextmenu', (ev) => {
-          ev.preventDefault()
+        bus.on('/show_agv_at_center', agv_name => {
+          // alert(agv_name)
+          this.ResetMapCenterViaAGVLoc(agv_name)
         })
-      setTimeout(() => {
+
+        bus.on('/rerender_agv_layer', () => {
+          console.log('rerender_agv_layer');
+          this.AGVLocLayer.getSource().clear();
+          this.AGVFeatures = {};
+        })
+
+        watch(
+          () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
+            if (this.agv_upload_coordination_mode) {
+              this.HandleAGVUploadData(newval)
+            }
+          }, { deep: true, immediate: true }
+        )
+        bus.on('change_to_select_agv_mode', () => {
+          if (this.editable)
+            return;
+          this.ChangeToSelectAGVMode();
+        })
+        bus.on('change_to_select_eq_station_mode', (option) => {
+          if (this.editable)
+            return;
+          this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
+          this.ChangeToSelectEQStationMode();
+        })
+        bus.on('change_to_normal_view_mode', () => {
+          if (this.editable)
+            return;
+          this.ChangeToNormalViewMode();
+        })
+        bus.on('mark_as_start_station', (tagNumber) => {
+          if (this.editable)
+            return;
+          this.TransferTaskIconLayer.getSource().clear();
+          this.AddMarkIconWithText(tagNumber, '搬運起點');
+        })
+        bus.on('mark_as_destine_station', (tagNumber) => {
+          this.CreateDestineMarkIcon(tagNumber);
+        })
+
+        var mapdom = document.getElementById(this.id);
+        if (mapdom)
+          mapdom.addEventListener('contextmenu', (ev) => {
+            ev.preventDefault()
+          })
         this.UpdateAGVLocLocation();
-      }, 500);
-      this.loading = false;
-      this.MapGridSizeStore = this.MapGridSize;
-    })
+        this.loading = false;
+        this.MapGridSizeStore = this.MapGridSize;
+      })
+    }, 1000);
   },
 }
 </script>
