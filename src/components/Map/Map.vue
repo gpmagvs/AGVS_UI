@@ -835,21 +835,24 @@ export default {
         var featureKey = `other-agv-${agvName}`;
         var featureFound = agvFeatures.find(ft => ft.get('agv-addition') == featureKey);
         var coordination = _GetCoordinationByDisplayName(agvLocation);
+        var isCoordinationNotFound = coordination[0] == 0 && coordination[1] == 0;
+        if (!isCoordinationNotFound) {
 
-        if (featureFound) {
-          //TODO Update Coordination by location name
-          featureFound.setGeometry(new Point(coordination));
-        } else {
-          var _agvfeature = new Feature({
-            geometry: new Point(coordination)
-          })
+          if (featureFound) {
+            //TODO Update Coordination by location name
+            featureFound.setGeometry(new Point(coordination));
+          } else {
+            var _agvfeature = new Feature({
+              geometry: new Point(coordination)
+            })
 
-          var _style = SimpleAGVStyle(agvName, 'blue')
-          _agvfeature.setStyle(_style)
-          _agvfeature.set('agvname', agvName)
-          _agvfeature.set("feature_type", this.FeatureKeys.agv)
-          _agvfeature.set("agv-addition", featureKey)
-          source.addFeature(_agvfeature);
+            var _style = SimpleAGVStyle(agvName, 'blue')
+            _agvfeature.setStyle(_style)
+            _agvfeature.set('agvname', agvName)
+            _agvfeature.set("feature_type", this.FeatureKeys.agv)
+            _agvfeature.set("agv-addition", featureKey)
+            source.addFeature(_agvfeature);
+          }
         }
 
 
