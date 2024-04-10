@@ -150,6 +150,18 @@
                     :label="option.name"
                     :value="option.tag"></el-option>
                 </el-select>
+                <el-select
+                  v-if="slotSelectable(scope.row.action)"
+                  :disabled="scope.row.action != 'carry'"
+                  class="w-100"
+                  v-model="scope.row.source_slot"
+                  placeholder="請選擇Slot">
+                  <el-option
+                    v-for="option in SlotOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value"></el-option>
+                </el-select>
               </template>
             </el-table-column>
             <el-table-column label="卡匣ID" width="150">
@@ -159,20 +171,31 @@
             </el-table-column>
             <el-table-column label="終點" prop="destine_tag" width="250">
               <template #default="scope">
-                <el-select v-if="scope.row.action != 'measure'" class="w-100" v-model="scope.row.destine_tag" placeholder="請選擇終點">
-                  <el-option
-                    v-for="option in GetOption(scope.row.action)"
-                    :key="option"
-                    :label="option.name"
-                    :value="option.tag"></el-option>
-                </el-select>
-                <el-select v-else class="w-100" v-model="scope.row.destine_name" placeholder="請選擇終點">
-                  <el-option
-                    v-for="option in GetOption(scope.row.action)"
-                    :key="option"
-                    :label="option.name"
-                    :value="option.tag"></el-option>
-                </el-select>
+                <div v-if="scope.row.action != 'measure'">
+                  <el-select class="w-100" v-model="scope.row.destine_tag" placeholder="請選擇終點">
+                    <el-option
+                      v-for="option in GetOption(scope.row.action)"
+                      :key="option"
+                      :label="option.name"
+                      :value="option.tag"></el-option>
+                  </el-select>
+                  <el-select v-if="slotSelectable(scope.row.action)" class="w-100" v-model="scope.row.destine_slot" placeholder="請選擇Slot">
+                    <el-option
+                      v-for="option in SlotOptions"
+                      :key="option.value"
+                      :label="option.label"
+                      :value="option.value"></el-option>
+                  </el-select>
+                </div>
+                <div v-else>
+                  <el-select class="w-100" v-model="scope.row.destine_name" placeholder="請選擇終點">
+                    <el-option
+                      v-for="option in GetOption(scope.row.action)"
+                      :key="option"
+                      :label="option.name"
+                      :value="option.tag"></el-option>
+                  </el-select>
+                </div>
               </template>
             </el-table-column>
             <el-table-column>
@@ -209,7 +232,9 @@ export default {
               no: 1,
               action: 'move',
               source_tag: 0,
+              source_slot: 0,
               destine_tag: 2,
+              destine_slot: 0,
               cst_id: "",
             },
             {
@@ -284,6 +309,9 @@ export default {
         }
         return arr;
       }
+    },
+    slotSelectable(action) {
+      return action == "carry" || action == "unload" || action == "load";
     },
     async HandleStartBtnClick(script) {
       if (script.state == 'IDLE') {
@@ -405,6 +433,13 @@ export default {
     },
     hot_run_states() {
       return agv_states_store.getters.HotRunStates
+    },
+    SlotOptions() {
+      return [
+        { value: 0, label: "第1層" },
+        { value: 1, label: "第2層" },
+        { value: 2, label: "第3層" }
+      ]
     }
   },
   mounted() {

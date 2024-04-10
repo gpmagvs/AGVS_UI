@@ -2783,6 +2783,7 @@ export default {
       var charge_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsCharge)
       var non_charge_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge);
       var eq_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge && ft.get('data').StationType != 0);
+      var buffer_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge && ft.get('data').StationType != 4);
       var normal_pt_features = this.StationPointsFeatures.filter(ft => ft.get('data').StationType == 0);
       var parkable_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsParking || ft.get('data').StationType == 4 || ft.get('data'.StationType == 5))
 

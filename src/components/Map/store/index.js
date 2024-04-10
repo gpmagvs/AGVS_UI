@@ -181,10 +181,11 @@ export const MapStore = createStore({
             var points = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return points;
         },
-        AllEqStation: state => {
+        AllEqStation: (state, getters) => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => pt.IsEquipment).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
-            return options;
+            var eqs = points.filter(pt => pt.IsEquipment).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var buffers = getters.AllBufferStationOptions
+            return [...eqs, ...buffers];
         },
         AllChargeStation: state => {
             var points = Object.values(state.MapData.Points)
@@ -203,7 +204,7 @@ export const MapStore = createStore({
         },
         AllBufferStationOptions: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 4).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 4 || pt.StationType == 5)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllPointsOptions: state => {
