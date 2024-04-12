@@ -1,22 +1,86 @@
 <template>
   <div class="charge-station-setup" style="height:100%">
-    <el-tabs tab-position="top">
-      <el-tab-pane v-for="(data, name) in charge_station_data" :key="name" :label="name">
+    <el-tabs type="border-card" tab-position="top" @tab-change="HandleTabChange" v-model="selectedTabName">
+      <el-tab-pane
+        v-for="(data, name) in charge_station_data"
+        :key="name"
+        :label="name"
+        :name="name"
+      >
         <div class="charger-states border rounded text-start">
           <h3 class="px-2">{{ name }}</h3>
           <div class="d-flex w-100">
+            <div class="state p-3">
+              <h5 class="title">充電樁配置</h5>
+              <el-form label-width="120" label-position="left">
+                <el-form-item label="可使用AGV">
+                  <div class="d-flex w-100">
+                    <el-select
+                      v-if="!IsModify"
+                      :disabled="true"
+                      size="small"
+                      v-model="data.UsableAGVNames"
+                      multiple
+                      placeholder="Select"
+                      style="width: 1000px"
+                    >
+                      <el-option
+                        v-for="agv_name in GetAGVName"
+                        :key="agv_name"
+                        :label="agv_name"
+                        :value="agv_name"
+                      />
+                    </el-select>
+                    <el-select
+                      v-else
+                      size="small"
+                      v-model="UsableAGVNamesEdit"
+                      multiple
+                      placeholder="Select"
+                      style="width: 1000px"
+                    >
+                      <el-option
+                        v-for="agv_name in GetAGVName"
+                        :key="agv_name"
+                        :label="agv_name"
+                        :value="agv_name"
+                      />
+                    </el-select>
+                    <el-button
+                      :type="IsModify ? 'success' : ''"
+                      size="large"
+                      @click="() => {
+      IsModify = !IsModify;
+      if (IsModify)
+        UsableAGVNamesEdit = data.UsableAGVNames;
+      else
+        SaveUsableAGVSetting(name, UsableAGVNamesEdit)
+    }"
+                    >{{ IsModify ? '儲存' : '修改' }}</el-button>
+                    <el-button
+                      v-if="IsModify"
+                      type="danger"
+                      size="large"
+                      @click="()=>{ IsModify=false}"
+                    >取消</el-button>
+                  </div>
+                </el-form-item>
+              </el-form>
+            </div>
             <div class="state p-3">
               <h5 class="title">狀態</h5>
               <el-form label-width="120" label-position="left">
                 <el-form-item label="連線狀態">
                   <el-tag
                     effect="dark"
-                    :type="data.Connected ? 'success' : 'danger'">{{ data.Connected ? 'Connected' : 'Disconnect' }}</el-tag>
+                    :type="data.Connected ? 'success' : 'danger'"
+                  >{{ data.Connected ? 'Connected' : 'Disconnect' }}</el-tag>
                 </el-form-item>
                 <el-form-item label="狀態">
                   <el-tag
                     effect="dark"
-                    :type="GetTagType(data)">{{ !data.Connected ? 'Disconnect' : data.ErrorCodes.length == 0 ? 'Normal' : 'Warning' }}</el-tag>
+                    :type="GetTagType(data)"
+                  >{{ !data.Connected ? 'Disconnect' : data.ErrorCodes.length == 0 ? 'Normal' : 'Warning' }}</el-tag>
                 </el-form-item>
                 <el-form-item label="異常碼">
                   <div class="row" style="width:390px;padding-left:12px">
@@ -25,7 +89,8 @@
                       class="col-sm-3"
                       v-for="error_code in data.ErrorCodes"
                       :key="error_code"
-                      type="danger">{{ error_code }}</el-tag>
+                      type="danger"
+                    >{{ error_code }}</el-tag>
                   </div>
                 </el-form-item>
                 <el-form-item label="輸入電壓">
@@ -47,7 +112,8 @@
                     <el-input :precision="2" disabled v-model="data.CC"></el-input>
                     <el-button
                       :disabled="!IsLogin"
-                      @click="HandleSettingBtnClick(name, 'cc', data.CC)">設定</el-button>
+                      @click="HandleSettingBtnClick(name, 'cc', data.CC)"
+                    >設定</el-button>
                   </div>
                 </el-form-item>
                 <el-form-item label="CV">
@@ -55,7 +121,8 @@
                     <el-input :precision="2" disabled v-model="data.CV"></el-input>
                     <el-button
                       :disabled="!IsLogin"
-                      @click="HandleSettingBtnClick(name, 'cv', data.CV)">設定</el-button>
+                      @click="HandleSettingBtnClick(name, 'cv', data.CV)"
+                    >設定</el-button>
                   </div>
                 </el-form-item>
                 <el-form-item label="FV">
@@ -63,7 +130,8 @@
                     <el-input :precision="2" disabled v-model="data.FV"></el-input>
                     <el-button
                       :disabled="!IsLogin"
-                      @click="HandleSettingBtnClick(name, 'fv', data.FV)">設定</el-button>
+                      @click="HandleSettingBtnClick(name, 'fv', data.FV)"
+                    >設定</el-button>
                   </div>
                 </el-form-item>
                 <el-form-item label="TC">
@@ -71,7 +139,8 @@
                     <el-input :precision="2" disabled v-model="data.TC"></el-input>
                     <el-button
                       :disabled="!IsLogin"
-                      @click="HandleSettingBtnClick(name, 'tc', data.TC)">設定</el-button>
+                      @click="HandleSettingBtnClick(name, 'tc', data.TC)"
+                    >設定</el-button>
                   </div>
                 </el-form-item>
               </el-form>
@@ -81,7 +150,8 @@
           </div>
         </div>
         <div class="text-start" style="font-size: 14px;">
-          <span>更新時間</span> {{ FormatTime(data.UpdateTime) }}
+          <span>更新時間</span>
+          {{ FormatTime(data.UpdateTime) }}
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -89,7 +159,8 @@
       draggable
       :title="`${DialogData.EqName}-${DialogData.Item.toUpperCase()} 設定`"
       width="300px"
-      v-model="SettingDialogVisible">
+      v-model="SettingDialogVisible"
+    >
       <el-form class="border-top py-2" label-width="60px">
         <el-form-item :label="DialogData.Item.toUpperCase()">
           <el-input-number :step="0.1" :precision="2" v-model="DialogData.Value"></el-input-number>
@@ -102,9 +173,8 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
-import { EqStore, userStore, UIStore } from '@/store'
+import { EqStore, userStore, UIStore, agv_states_store } from '@/store'
 import param from '@/gpm_param.js'
 import { ChargerAPI } from '@/api/EquipmentAPI.js'
 import moment from 'moment'
@@ -115,20 +185,68 @@ export default {
     },
     IsLogin() {
       return userStore.getters.IsLogin
+    },
+    GetAGVName() {
+      return agv_states_store.getters.AGVNameList
     }
   },
   data() {
     return {
       select: 1,
+      selectedTabName: '',
+      previousSelectedTabName: '',
       SettingDialogVisible: false,
       DialogData: {
         EqName: '',
         Item: 'CC',
-        Value: 33
-      }
+        Value: 33,
+        UsableAGVNames: []
+      },
+      UsableAGVNamesEdit: [],
+      IsModify: false
     }
   },
+  mounted() {
+    setTimeout(() => {
+      this.selectedTabName = this.previousSelectedTabName = Object.keys(this.charge_station_data)[0]
+    }, 1000);
+  },
   methods: {
+    HandleTabChange(name) {
+      if (this.previousSelectedTabName != name && this.IsModify) {
+        var previousChargeAGVNameList = this.charge_station_data[this.previousSelectedTabName].UsableAGVNames;
+        var isHasChange = JSON.stringify(this.UsableAGVNamesEdit) != JSON.stringify(previousChargeAGVNameList);
+        if (isHasChange) {
+          this.$swal.fire(
+            {
+              text: '',
+              title: `${this.previousSelectedTabName} 可用車輛設定尚未儲存，確定要離開嗎?`,
+              icon: 'warning',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              cancelButtonText: '返回',
+              showCancelButton: true,
+              customClass: 'my-sweetalert'
+            }).then(ret => {
+              if (ret.isConfirmed) {
+                this.IsModify = false;
+                this.previousSelectedTabName = name;
+              } else {
+                this.selectedTabName = this.previousSelectedTabName;
+                this.IsModify = true;
+                return;
+              }
+            })
+        } else {
+          this.IsModify = false;
+          this.previousSelectedTabName = name;
+        }
+      } else if (this.previousSelectedTabName != name) {
+
+        this.IsModify = false;
+        this.previousSelectedTabName = name;
+      }
+    },
     GetTagType(data) {
       if (!data.Connected) {
         return 'danger'
@@ -146,6 +264,7 @@ export default {
       this.DialogData.EqName = charge_station_name
       this.DialogData.Item = setting_item
       this.DialogData.Value = value
+
       this.SettingDialogVisible = true;
     },
     HandleConfirmClick() {
@@ -182,12 +301,35 @@ export default {
             this.SettingDialogVisible = true;
           }
         })
+    },
+    async SaveUsableAGVSetting(stationName, AGVList) {
+      var response = await ChargerAPI.SaveUsableAGVSetting(stationName, AGVList);
+      if(response.confirm){
+        this.$swal.fire(
+          {
+            title: `${stationName} 可用車輛設定已儲存!`,
+            icon: 'info',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+      }else{
+        this.$swal.fire(
+        {
+        text:response.message,
+        title:`${stationName} 可用車輛設定失敗!`,
+        icon:'error',
+        showCancelButton:false,
+        confirmButtonText:'OK',
+        customClass: 'my-sweetalert'
+        })
+      }
     }
   },
+
 }
 </script>
-
-<style lang="scss" >
+<style lang="scss">
 .el-tabs__content {
   padding: 3px;
   color: #6b778c;
