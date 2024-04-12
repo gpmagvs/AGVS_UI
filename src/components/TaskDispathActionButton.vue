@@ -592,7 +592,9 @@ export default {
                 if (response.data.confirm) {
                     this.HandleCancelBtnClick();
                     Notifier.Success(`任務-[${this.selected_action_display}] 已派送!`, 'bottom', 2000);
-                } else {
+                } else {                        
+                    this.order_info_visible = true;
+
                     this.$swal.fire(
                         {
                             text: response.data.message,
