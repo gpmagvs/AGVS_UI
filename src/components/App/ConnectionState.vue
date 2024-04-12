@@ -3,8 +3,7 @@
     class="connection-state d-flex flex-row justify-content-between fixed-bottom bg-light border-top text-start"
     v-bind:style="{
       marginLeft: marginLeft
-    }"
-  >
+    }">
     <div class="d-flex flex-row">
       <i class="bi bi-three-dots-vertical"></i>
       <div class="conn-block px-1 border-end">
@@ -12,6 +11,7 @@
         <el-tag effect="dark" :type="VMSAlive ? 'success' : 'danger'">{{ VMSAlive ? '已連線' : '斷線' }}</el-tag>
       </div>
     </div>
+    <div>V{{ APPVersion }}</div>
     <div @dblclick="handleTimeDoubleClick" class="sys-time">{{ sys_time }}</div>
   </div>
 </template>
@@ -63,6 +63,9 @@ export default {
     },
     VMSAlive() {
       return UIStore.getters.VMSAlive;
+    },
+    APPVersion() {
+      return this.$store.getters.APPVersion;
     }
   },
 }
