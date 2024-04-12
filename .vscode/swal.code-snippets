@@ -9,24 +9,37 @@
   "Show swal confirm dialog_warning": {
     "scope": "javascript,typescript",
     "prefix": "swalwarning",
+<<<<<<< HEAD
     "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'warning',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+=======
+    "body": ["this.\\$swal.fire(\r\n{\r\ntitle:'$1',\r\ntext:'$2',\r\nicon:'warning',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
     "description": "Log output to console"
   },
   "Show swal confirm dialog_question": {
     "scope": "javascript,typescript",
     "prefix": "swalquestion",
+<<<<<<< HEAD
     "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'question',\r\nshowCancelButton:true,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+=======
+    "body": ["this.\\$swal.fire(\r\n{\r\ntitle:'$1',\r\ntext:'$2',\r\nicon:'question',\r\nshowCancelButton:true,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
     "description": "Log output to console"
   },
   "Show swal confirm dialog_error": {
     "scope": "javascript,typescript",
     "prefix": "swalerror",
+<<<<<<< HEAD
     "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'error',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+=======
+    "body": ["this.\\$swal.fire(\r\n{\r\ntitle:'$1',\r\ntext:'$2',\r\nicon:'error',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
     "description": "Log output to console"
   },
   "Show swal confirm dialog_success": {
     "scope": "javascript,typescript",
     "prefix": "swalsuccess",
+<<<<<<< HEAD
     "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'success',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
     "description": "Log output to console"
   },
@@ -34,6 +47,9 @@
     "scope": "javascript,typescript",
     "prefix": "swalinformation",
     "body": ["this.\\$swal.fire(\r\n{\r\ntext:'$1',\r\ntitle:'$2',\r\nicon:'info',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+=======
+    "body": ["this.\\$swal.fire(\r\n{\r\ntitle:'$1',\r\ntext:'$2',\r\nicon:'success',\r\nshowCancelButton:false,\r\nconfirmButtonText:'OK',\r\ncustomClass: 'my-sweetalert'\r\n})"],
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
     "description": "Log output to console"
   }
 }

@@ -7,6 +7,10 @@ class WebSocketHelp {
     this.wssocket = null
     this.closed_actived = false
     this.previousWsState = WebSocket.CLOSED
+<<<<<<< HEAD
+=======
+    this.connected = false;
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
     bus.on('/ws_force_close', () => {
       this.Close()
     })
@@ -23,6 +27,7 @@ class WebSocketHelp {
   }
 
   Connect() {
+<<<<<<< HEAD
     const socket = new WebSocket(`${this.ws_url}`)
 
     socket.onerror = (ev) => {
@@ -34,6 +39,23 @@ class WebSocketHelp {
   /**重新連線 */
   ReconnectWorker() {
     this.wssocket = new WebSocket(`${this.ws_url}`)
+=======
+    console.info(`Try Connect to : ${this.ws_url}`)
+    const socket = new WebSocket(`${this.ws_url}`)
+    //this.SendAliveCheck()
+    socket.onerror = (ev) => {
+      this.connected = false;
+      console.info(`Try Connect to : ${this.ws_url} ON ＥＲＲＯＲ FAIL`)
+    }
+    this.wssocket = socket
+  }
+  /**重新連線 */
+  ReconnectWorker() {
+
+    console.info(`[Reconnect] Try Connect to : ${this.ws_url}`)
+    this.wssocket = new WebSocket(`${this.ws_url}`)
+
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
     this.wssocket.onmessage = this.onmessageHandler
     this.wssocket.onclose = this.oncloseHandler
     this.wssocket.onopen = this.onopenHandler
@@ -46,6 +68,7 @@ class WebSocketHelp {
       this.wssocket.close()
     }
   }
+<<<<<<< HEAD
 
   set onerror(ev) {
     this.onopenHandler = ev
@@ -55,6 +78,8 @@ class WebSocketHelp {
     return this.wssocket.onerror
   }
 
+=======
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
   set onclose(ev) {
     this.oncloseHandler = ev
     this.wssocket.onclose = ev
@@ -71,7 +96,10 @@ class WebSocketHelp {
     return this.wssocket.onopen
   }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
   set onmessage(ev) {
     this.onmessageHandler = ev
     this.wssocket.onmessage = ev
@@ -80,7 +108,32 @@ class WebSocketHelp {
     return this.wssocket.onmessage
   }
 
+<<<<<<< HEAD
 
+=======
+  SendAliveCheck() {
+    this.alive_check_timer = setInterval(() => {
+      if (this.wssocket) {
+        if (this.wssocket.readyState == WebSocket.CONNECTING) {
+
+        }
+        else {
+          if (this.wssocket.readyState == WebSocket.OPEN) {
+            this.wssocket.send('alive')
+          }
+
+          if (
+            this.wssocket.readyState != this.previousWsState &&
+            this.wssocket.readyState == WebSocket.CLOSED
+          ) {
+            this.ReconnectWorker()
+          }
+        }
+        this.previousWsState = this.wssocket.readyState
+      }
+    }, 1000)
+  }
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
 }
 
 export default WebSocketHelp

@@ -1,10 +1,14 @@
 import axios from 'axios'
 import param from '@/gpm_param'
+<<<<<<< HEAD
 import { getAuthHeaders, getJWTAuthorizationVal } from './AuthHelper'
+=======
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
 var axios_entity = axios.create({
   baseURL: param.backend_host,
 })
 
+<<<<<<< HEAD
 export async function GetUsers() {
   const JWTAuthorizationVal = getJWTAuthorizationVal()
   var headers = {}
@@ -59,3 +63,15 @@ export async function UserRouteChange(userID, route) {
   return ret.data
 }
 
+=======
+export async function Login(user) {
+  var ret = await axios_entity.post('api/User/Login', user)
+  StoreToLocalStorage(ret.data)
+  return ret.data
+}
+
+function StoreToLocalStorage(user) {
+  user.LoginTime = Date.now()
+  localStorage.setItem('user', JSON.stringify(user))
+}
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7

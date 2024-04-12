@@ -1,5 +1,6 @@
 import axios from 'axios'
 import param from '@/gpm_param'
+<<<<<<< HEAD
 import { MapStore } from '@/components/Map/store'
 var axios_entity = axios.create({
   baseURL: MapStore.getters.MapServerUrl,
@@ -38,6 +39,30 @@ const MapAPI = {
   GetGeoMap() {
     return axios_entity
       .get('api/Map/GeoMapJson')
+=======
+import { map_store } from '@/store'
+var axios_entity = axios.create({
+  baseURL: param.backend_host,
+})
+
+const MapAPI = {
+  GetMapFromServer() {
+    return axios_entity
+      .get('api/map/GetMapFromServer')
+      .then((ret) => {
+        var _data = ret.data;
+        map_store.commit('SetMapData', _data)
+        console.info('download map data from server ..');
+        return _data
+      })
+      .catch((er) => {
+        return undefined
+      })
+  },
+  GetMapFromLocal() {
+    return axios_entity
+      .get('api/Map')
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
       .then((ret) => {
         return ret.data
       })
@@ -55,11 +80,37 @@ const MapAPI = {
         return undefined
       })
   },
+<<<<<<< HEAD
+=======
+  GetNormalStations() {
+    return axios_entity
+      .get('api/Map/GetNormalStations')
+      .then((ret) => {
+        return ret.data
+      })
+      .catch((err) => {
+        return undefined
+      })
+  },
+  SaveMap(_data) {
+    return axios_entity
+      .post('api/Map/SaveMap', _data)
+      .then((ret) => {
+        return true
+      })
+      .catch((err) => {
+        return false
+      })
+  },
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
   ReloadMap() {
     return axios_entity
       .get('api/Map/ReloadMap')
       .then((ret) => {
+<<<<<<< HEAD
         MapStore.dispatch('DownloadMapData');
+=======
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
         return ret.data
       })
       .catch((err) => {
@@ -86,6 +137,7 @@ const MapAPI = {
         return undefined
       })
   },
+<<<<<<< HEAD
   GetMapStationTemplate() {
     return axios_entity
       .get('api/Map/MapPointTemplate')
@@ -215,4 +267,18 @@ export function GetPointTypeNameByTypeNum(num) {
 }
 
 
+=======
+  UploadCoordination(agv_name, tag, x, y, theta) {
+    try {
+      return axios_entity.get(`api/Map/UploadCoordination?AGVName=${agv_name}&tagNumber=${tag}&x=${x}&y=${y}&theta=${theta}`).
+        then(ret => {
+          return ret.data
+        })
+    } catch (error) {
+      return false;
+    }
+  }
+}
+
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
 export default MapAPI

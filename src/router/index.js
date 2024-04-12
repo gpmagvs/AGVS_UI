@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿import {
   createRouter,
   createWebHashHistory,
@@ -8,6 +9,19 @@ import HomeView from '../views/HomeView.vue'
 import DataVue from '../views/DataView.vue'
 import AlarmView from '@/views/AlarmView.vue'
 import ChargeStationView from '@/views/ChargeStation/ChargeStationHomeView.vue'
+=======
+import {
+  createRouter,
+  createWebHistory
+} from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import HomeViewVersion2 from '../views/Version2/HomeView.vue'
+import Admin from '../views/Admin.vue'
+import MainStatuShow from '@/components/Version2/MainStatuShow.vue'
+import { UIStore } from '@/store'
+import AgvOverview from '@/components/AGVStatusOverview.vue';
+
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
 const routes = [
   {
     path: '/',
@@ -15,6 +29,7 @@ const routes = [
     component: HomeView
   },
   {
+<<<<<<< HEAD
     path: '/OP',
     name: 'OP',
     component: () => import('../views/SimpleOpUsePage.vue'),
@@ -161,10 +176,67 @@ export const tsmc_routes = [
         meta: {
           Display: "AGV軌跡"
         }
+=======
+    path: '/v2',
+    name: '',
+    component: HomeViewVersion2,
+    children: [
+      {
+
+        path: '/v2',
+        name: 'MainStatuShow',
+        component: AgvOverview,
+      },
+      {
+        path: 'IOTable',
+        component: () => import('../components/Version2/DIOViewer.vue'),
+      },
+      {
+        path: 'Alarm',
+        component: () => import('../components/AlarmWarningTable.vue'),
+      },
+      {
+        path: 'controller',
+        component: () => import('../components/Admin/Controller.vue'),
+        children: [
+          {
+            path: 'move',
+            component: () => import('../components/Controller/MoveController.vue')
+          },
+          {
+            path: 'fork',
+            component: () => import('../components/Controller/ForkController.vue')
+          }
+        ]
+      },
+      {
+        path: 'rd_test',
+        component: () =>
+          import(/* webpackChunkName: "about" */ '../views/RDTestView.vue'),
+      },
+    ]
+  },
+  {
+    path: '/rd_test',
+    name: 'rd_test',
+    component: () =>
+      import(/* webpackChunkName: "about" */ '../views/RDTestView.vue'),
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: Admin,
+    children: [
+      {
+        path: 'controller',
+        name: 'controller',
+        component: () => import('../components/Admin/Controller.vue')
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
       }
     ]
   },
   {
+<<<<<<< HEAD
     path: '/map',
     name: 'map',
     component: () => import('../views/MapManager.vue'),
@@ -179,12 +251,27 @@ export const tsmc_routes = [
     name: 'data',
     component: DataVue,
   },
+=======
+    path: '/idle',
+    name: 'idle',
+    component: () => import('../views/IdleView.vue')
+  },
+  {
+    path: '/playground',
+    name: 'playground',
+    component: () => import('../views/Playground.vue')
+  }
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
 ]
 
 const router = createRouter({
   history: createWebHistory(),
+<<<<<<< HEAD
   // routes: tsmc_routes,
   routes: routes,
+=======
+  routes,
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
 })
 
 export default router

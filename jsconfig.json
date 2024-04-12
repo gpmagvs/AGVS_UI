@@ -2,6 +2,10 @@
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
+<<<<<<< HEAD
+=======
+    "allowJs": true,
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7
     "baseUrl": "./",
     "moduleResolution": "node",
     "paths": {
@@ -16,4 +20,8 @@
       "scripthost"
     ]
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ae44f2291e3361fe9e9cbc8a15ef35f6dcc8c6c7

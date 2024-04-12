@@ -1,0 +1,112 @@
+
+.swal2-container{
+  z-index: 9999;
+}
+.swal2-html-container {
+    font-size: 2.223rem;
+    font-weight: bold;
+}
+
+.swal2-popup{
+    width: 45rem;
+    .swal2-title{
+        font-size: 1.8rem;
+        font-weight: normal;
+
+    }
+}
+
+.swal2-popup .swal2-confirm,
+.swal2-popup .swal2-cancel {
+  padding: 0.35rem 1.25rem;
+  font-size: 2.5rem;
+  width: 200px;
+}
+
+.opt-buttons{
+    .stop,
+    .alarm,
+    .down {
+      background-color: rgb(220, 53, 69);
+    }
+    .charging,
+    .warning,
+    .idle,
+    .run,.working {
+      background-color: rgb(13, 110, 253);
+    }
+
+    .initialize,
+    .initializing {
+      animation: initializing-color-change 1s infinite;
+    }
+}
+
+
+.agv-name .status , .status,.status-tb{
+
+    .stop,
+    .alarm,
+    .down {
+      background-color: rgb(220, 53, 69);
+      color:white;
+    }
+   
+    .idle{
+        background-color: rgb(255, 200, 37);
+        color:rgb(13, 110, 253);
+      }
+    .run,.working{
+        background-color: rgb(53, 163, 101);
+        color:white;
+    }
+    .charging,
+    .warning {      
+
+      background-color: limegreen;
+      color:white;
+    }
+
+    .initialize,
+    .initializing {
+        animation: initializing-color-change 1s infinite;
+        color: rgb(13, 110, 253);
+        background-color: white;
+    }
+}
+
+
+@keyframes initializing-color-change {
+  0% ,100%{
+    background-color: rgb(13, 110, 253);
+    color: white;
+  }
+  
+  50% {
+    background-color: #f8f9fa;
+    color: rgb(13, 110, 253);
+  }
+}
+
+
+.table-container-div{
+  width:760px;
+}
+
+@media screen  and (min-width:1024px){
+ 
+.table-container-div{
+  width:95%;
+} 
+  
+}
+.el-loading-mask {
+  z-index: 1000;
+}
+
+.controller-route-view{
+  .el-loading-spinner .el-loading-text{
+    font-size: 30px;
+    letter-spacing: 2px;
+  }
+}
