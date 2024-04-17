@@ -19,15 +19,15 @@
             <div class="p-0 m-0 w-100" v-if="left_tab_class_name == 'tab-close'">
               <i
                 @click="() => {
-    left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-  }"
+                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+                }"
                 class="bi bi-chevron-double-right"></i>
             </div>
             <div v-else class="tab-open text-start">
               <i
                 @click="() => {
-    left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-  }"
+                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+                }"
                 class="bi bi-chevron-double-left"></i>
               <div class="p-2 action-buttons border-bottom">
                 <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
@@ -130,12 +130,12 @@
                       </el-form-item>
                       <el-form-item label="調整圖片位置">
                         <el-switch size="large" active-text="開啟" inactive-text="關閉" inline-prompt v-model="DragBackgroundImageMode" @change="() => {
-    new_map_img_extent = map_img_extent;
-    if (map_image_display != 'visible' && DragBackgroundImageMode) {
-      map_image_display = 'visible';
-      SlamImageDisplayOptHandler();
-    }
-  }"></el-switch>
+                          new_map_img_extent = map_img_extent;
+                          if (map_image_display != 'visible' && DragBackgroundImageMode) {
+                            map_image_display = 'visible';
+                            SlamImageDisplayOptHandler();
+                          }
+                        }"></el-switch>
                       </el-form-item>
                       <el-divider></el-divider>
                       <el-form-item label="重置路網顯示">
@@ -254,26 +254,26 @@
               <div>
                 <span class="mx-1">路網顯示</span>
                 <el-switch v-model="routePathsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
-    if (visible) {
-      if (map_display_mode == 'router') {
-        PathLayerForCoordination.setVisible(false);
-        PathLayerForRouter.setVisible(true);
-      } else {
-        PathLayerForCoordination.setVisible(true);
-        PathLayerForRouter.setVisible(false);
-      }
-    } else {
-      PathLayerForCoordination.setVisible(false);
-      PathLayerForRouter.setVisible(false);
-    }
-    HideNormalStations(!visible);
-  }"></el-switch>
+                  if (visible) {
+                    if (map_display_mode == 'router') {
+                      PathLayerForCoordination.setVisible(false);
+                      PathLayerForRouter.setVisible(true);
+                    } else {
+                      PathLayerForCoordination.setVisible(true);
+                      PathLayerForRouter.setVisible(false);
+                    }
+                  } else {
+                    PathLayerForCoordination.setVisible(false);
+                    PathLayerForRouter.setVisible(false);
+                  }
+                  HideNormalStations(!visible);
+                }"></el-switch>
               </div>
               <div>
                 <span class="mx-1">管制區顯示</span>
                 <el-switch :disabled="map_display_mode != 'coordination'" v-model="regionsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
-    RegionLayer.setVisible(visible && map_display_mode == 'coordination');
-  }"></el-switch>
+                  RegionLayer.setVisible(visible && map_display_mode == 'coordination');
+                }"></el-switch>
               </div>
               <div v-if="editable" class="rounded">
                 <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
@@ -290,33 +290,33 @@
     <PointContextMenu ref="EditModeContextMenu" v-show="editModeContextMenuVisible" :mouse_click_position="[contextMenuTop, contextMenuLeft]" :options="contextMenuOptions" @OnTaskBtnClick="HandleMenuTaskBtnClick" @OnPtSettingBtnClick="HandlePtSettingBtnClick"></PointContextMenu>
     <MapPointSettingDrawer ref="ptsetting" @OnLeve="HandlePtSettingDrawerLeaved" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
     <MapPathSettingDrawer :SettingsChangedHandler="() => {
-    UpdateStationPathLayer();
-    HandlePathTbRowClick(SelectedPathData);
+      UpdateStationPathLayer();
+      HandlePathTbRowClick(SelectedPathData);
 
-  }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
+    }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
     <MapRegionEditDrawer @closed="HandleForbidRegionEditDrawerClosed" ref="forbid_region_editor" :SettingsChangedHandler="() => {
 
-  }"></MapRegionEditDrawer>
+    }"></MapRegionEditDrawer>
     <el-dialog @closed="() => {
-    if (selected_path_feature) {
-      RestoreOriginalPathStyle(selected_path_feature)
-    }
-  }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
+      if (selected_path_feature) {
+        RestoreOriginalPathStyle(selected_path_feature)
+      }
+    }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
       <div class="bg-light text-start d-flex py-2">
         <b-button size="sm" variant="success" @click="() => {
-    PathesCandicats.forEach(path_setting => {
-      path_setting.IsPassable = true
-    });
-    UpdateStationPathLayer();
-    HandlePathTbRowClick(SelectedPathData);
-  }">開放所有道路</b-button>
+          PathesCandicats.forEach(path_setting => {
+            path_setting.IsPassable = true
+          });
+          UpdateStationPathLayer();
+          HandlePathTbRowClick(SelectedPathData);
+        }">開放所有道路</b-button>
         <b-button class="mx-2" variant="danger" size="sm" @click="() => {
-    PathesCandicats.forEach(path_setting => {
-      path_setting.IsPassable = false
-    });
-    UpdateStationPathLayer();
-    HandlePathTbRowClick(SelectedPathData);
-  }">關閉所有道路</b-button>
+          PathesCandicats.forEach(path_setting => {
+            path_setting.IsPassable = false
+          });
+          UpdateStationPathLayer();
+          HandlePathTbRowClick(SelectedPathData);
+        }">關閉所有道路</b-button>
       </div>
       <el-table :data="PathesCandicats" border>
         <el-table-column label="ID" prop="PathID">
@@ -356,7 +356,7 @@ import Static from 'ol/source/ImageStatic.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
-import { Fill, Stroke, Style, Circle as CircleStyle, Text } from 'ol/style';
+import { Fill, Stroke, Style, Circle as CircleStyle, Text, Icon } from 'ol/style';
 import { Circle, Polygon } from 'ol/geom';
 
 import { noModifierKeys } from 'ol/events/condition';
@@ -479,6 +479,13 @@ export default {
           features: [],
         }),
         zIndex: 17
+      }),
+      /**設備維修中ICON圖層 */
+      EQMaintainIconLayer: new VectorLayer({
+        source: new VectorSource({
+          features: [],
+        }),
+        zIndex: 4
       }),
       AGVLocusLayer: new VectorLayer({
         source: new VectorSource({
@@ -720,24 +727,32 @@ export default {
     UpdateStationPointLayer() {
       var stationPointFeatures = []
       var stationPointFeatures_ForRouteShow = []//路網顯示用
+      var maintainingFeatures = []
+      var maintainingFeatures_ForRouteShow = []
       for (let index = 0; index < this._map_stations.length; index++) {
         var station = this._map_stations[index];
         var iconFeature = CreateStationFeature(station)
 
         stationPointFeatures.push(iconFeature)
+        if (station.data.StationType != 0)
+          maintainingFeatures.push(this.CreateEqMaintainingFeature(station.data, iconFeature.getGeometry().getCoordinates()))
+        //this.ShowEqMaintainIcon(station.data.TagNumber)
         var routeUseFeature = iconFeature.get('routeModeFeature')
         if (routeUseFeature) {
           stationPointFeatures_ForRouteShow.push(routeUseFeature)
+          //maintainingFeatures_ForRouteShow.push(this.CreateEqMaintainingFeature(routeUseFeature.getGeometry().getCoordinates()))
         }
       }
       var ptlayerSource = this.PointLayer.getSource();
       ptlayerSource.clear();
       ptlayerSource.addFeatures(stationPointFeatures);
+      this.EQMaintainIconLayer.getSource().addFeatures(maintainingFeatures);
 
 
       var ptRouteLayerSource = this.PointRouteLayer.getSource();
       ptRouteLayerSource.clear();
       ptRouteLayerSource.addFeatures(stationPointFeatures_ForRouteShow);
+      //ptRouteLayerSource.addFeatures(maintainingFeatures_ForRouteShow);
       this.UpdateEQLDULDFeature();
     },
     UpdateStationPathLayer() {
@@ -2256,7 +2271,7 @@ export default {
         source: new VectorSource({ features: [] }),
       })
       this.map = new Map({
-        layers: [this.ImageLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.RegionLayer],
+        layers: [this.ImageLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.RegionLayer],
         target: this.id,
         view: new View({
           projection: projection,
@@ -2584,7 +2599,34 @@ export default {
       //alert(JSON.stringify(station_data))
       this.$emit('onTransferRequst', { station_data: station_data, action: action })
     },
-    ChangeLDULDStatus(tagNumber, status) {
+    ShowEqMaintainIcon(tag) {
+      var features = this.EQMaintainIconLayer.getSource().getFeatures()
+      var feature = features.find(ft => ft.get('tag') == tag)
+      if (!feature) return;
+      var _style = feature.getStyle();
+      _style.getImage().setOpacity(1);
+      feature.setStyle(_style);
+    },
+    CreateEqMaintainingFeature(data, eqFeatureCoordination) {
+      debugger
+      var newCoordination = eqFeatureCoordination;
+      var maintainFeature = new Feature({
+        geometry: new Point(newCoordination)
+      });
+      maintainFeature.set('tag', data.TagNumber)
+      maintainFeature.setStyle(new Style({
+        image: new Icon({
+          src: '/maintain-64.png',
+          scale: 0.8,
+          anchor: [0.01, 1.6],
+          size: [64, 64],
+          opacity: 0,
+
+        })
+      }))
+      return maintainFeature;
+    },
+    ChangeLDULDStatus(tagNumber, status, IsMaintaining) {
       try {
         var ld_uld_state = status == 1 ? 'load' : 'unload'
         var features = this.EQLDULDStatusLayer.getSource().getFeatures();
@@ -2621,10 +2663,10 @@ export default {
       }
 
     },
-    RenderEQLDULDStatus() {
+    RenderEQLDULDStatus() {//TODO EQ狀態渲染
       this.eq_data.forEach(eq_states => {
         setTimeout(() => {
-          this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
+          this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus, eq_states.IsMaintaining)
         }, 100)
       });
     },
@@ -3093,9 +3135,11 @@ export default {
             this.RefreshMap();
           }, { deep: true, immediate: true }
         )
+
         if (this.eq_lduld_status_show) {
           this.watch_eq_data_changed();
         }
+
         watch(() => this.agvs_info, (newval, oldval) => {
           if (!newval)
             return

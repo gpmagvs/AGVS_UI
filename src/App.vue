@@ -33,7 +33,7 @@
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
-    <MoveAGVNotifty></MoveAGVNotifty>
+    <!-- <MoveAGVNotifty></MoveAGVNotifty> -->
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
     <ConnectionState :IsMenuExpanded="!menu_collapse"></ConnectionState>
   </div>
