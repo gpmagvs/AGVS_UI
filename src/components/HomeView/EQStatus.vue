@@ -167,29 +167,17 @@
       </el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <!-- IO訊號 -->
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="可移入"
-        prop="Load_Request"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="可移入" prop="Load_Request" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Load_Request)">可移入</div>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="可移出"
-        prop="Unload_Request"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="可移出" prop="Unload_Request" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">可移出</div>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="貨物在席"
-        prop="Port_Exist"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="貨物在席" prop="Port_Exist" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">{{ scope.row.Port_Exist ? '有貨' : '無貨' }}</div>
         </template>
@@ -206,37 +194,29 @@
         </template>
       </el-table-column> -->
       <!--  -->
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="Down"
-        prop="Eqp_Status_Down"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="Down" prop="Eqp_Status_Down" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">{{ scope.row.EqType == 0 ? 'Normal' : 'Down' }}</div>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="Run"
-        prop="Eqp_Status_Run"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="Run" prop="Eqp_Status_Run" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Run)">Run</div>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="Idle"
-        prop="Eqp_Status_Idle"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="Idle" prop="Eqp_Status_Idle" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Idle)">Idle</div>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="!show_lduld_state" label="維修" prop="IsMaintaining" :min-width="column_width">
+        <template #default="scope">
+          <div class="di-status" v-bind:style="signalOn(scope.row.IsMaintaining, false, 'red')">維修</div>
         </template>
       </el-table-column>
     </el-table>
   </div>
 </template>
-
 <script>
 import WebSocketHelp from '@/api/WebSocketHepler';
 import RegionsSelector from '@/components/RegionsSelector.vue'
@@ -328,13 +308,13 @@ export default {
       var isConnected = row.row.IsConnected;
       return isConnected ? 'success-row' : 'error-row';
     },
-    signalOn(status, isLoadable = false) {
+    signalOn(status, isLoadable = false, activeColor = 'lime') {
       if (status) {
         if (isLoadable) {
           return { backgroundColor: 'blue' }
         }
         return {
-          backgroundColor: 'lime'
+          backgroundColor: activeColor
         }
       }
       else {
@@ -444,8 +424,7 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" >
+<style lang="scss">
 .eq-status {
   height: 100%;
   width: 99%;
@@ -485,7 +464,7 @@ export default {
   }
 
   .di-status {
-    color: rgb(139, 139, 139);
+    color: rgb(240, 240, 240);
     height: 22px;
     padding: 0;
     margin: 0;

@@ -2599,16 +2599,15 @@ export default {
       //alert(JSON.stringify(station_data))
       this.$emit('onTransferRequst', { station_data: station_data, action: action })
     },
-    ShowEqMaintainIcon(tag) {
+    EqMaintainIconDisplay(tag, visible) {
       var features = this.EQMaintainIconLayer.getSource().getFeatures()
       var feature = features.find(ft => ft.get('tag') == tag)
       if (!feature) return;
       var _style = feature.getStyle();
-      _style.getImage().setOpacity(1);
+      _style.getImage().setOpacity(visible ? 1 : 0);
       feature.setStyle(_style);
     },
     CreateEqMaintainingFeature(data, eqFeatureCoordination) {
-      debugger
       var newCoordination = eqFeatureCoordination;
       var maintainFeature = new Feature({
         geometry: new Point(newCoordination)
@@ -2628,6 +2627,9 @@ export default {
     },
     ChangeLDULDStatus(tagNumber, status, IsMaintaining) {
       try {
+
+        var _notLDULDState = status != 1 && status != 2
+
         var ld_uld_state = status == 1 ? 'load' : 'unload'
         var features = this.EQLDULDStatusLayer.getSource().getFeatures();
         var _feature = features.find(ft => ft.get('data').TagNumber == tagNumber);
@@ -2640,19 +2642,19 @@ export default {
         if (!text)
           return;
 
+        this.EqMaintainIconDisplay(tagNumber, IsMaintaining);
         var status_text = ''
         if (status == 1 || status == 2) {
           status_text = status == 1 ? ' 入料請求' : '出料請求'
         }
         text.setText(status_text);
-
         text.setBackgroundFill(new Fill({
-          color: status == 1 ? 'orange' : 'blue'
+          color: _notLDULDState ? '' : status == 1 ? 'orange' : 'blue'
         }))
         // text.setFill(new Fill({
         //   color: status == 3 ? 'black' : 'white'
         // }))
-
+        style.setText(text)
         if (_feature.get('action') == ld_uld_state)
           return;
         _feature.set('action', ld_uld_state)
@@ -2665,15 +2667,8 @@ export default {
     },
     RenderEQLDULDStatus() {//TODO EQ狀態渲染
       this.eq_data.forEach(eq_states => {
-        setTimeout(() => {
-          this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus, eq_states.IsMaintaining)
-        }, 100)
+        this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus, eq_states.IsMaintaining)
       });
-    },
-    watch_eq_data_changed() {
-      setInterval(() => {
-        this.RenderEQLDULDStatus();
-      }, 100);
     },
     RefreshMap() {
       this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
@@ -3121,6 +3116,9 @@ export default {
         event.preventDefault();
       });
 
+    setInterval(() => {
+      this.RenderEQLDULDStatus();
+    }, 500);
     setTimeout(() => {
 
       MapStore.dispatch('DownloadMapData').then(() => {
@@ -3135,10 +3133,6 @@ export default {
             this.RefreshMap();
           }, { deep: true, immediate: true }
         )
-
-        if (this.eq_lduld_status_show) {
-          this.watch_eq_data_changed();
-        }
 
         watch(() => this.agvs_info, (newval, oldval) => {
           if (!newval)

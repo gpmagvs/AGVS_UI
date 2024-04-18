@@ -436,14 +436,14 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
     iconFeature.set('feature_type', 'lduld')
     iconFeature.set('data', station.data)
     iconFeature.set('action', 0)
-
-    if (station.station_type != 1)
+    debugger
+    if (station.station_type == 0)
         return iconFeature;
 
     var _style = new Style({
         image: undefined,
         text: new Text({
-            text: "",
+            text,
             font: 'bold 12px Calibri,sans-serif',
             offsetX: 14,
             offsetY: -52,
@@ -459,7 +459,8 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
             backgroundStroke: new Stroke({
                 color: 'black',
                 width: 3,
-            })
+            }),
+
         }),
     })
     iconFeature.setStyle(_style)
