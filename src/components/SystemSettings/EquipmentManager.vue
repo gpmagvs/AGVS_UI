@@ -1,5 +1,5 @@
 <template>
-  <div class="equipment-manager border-start border-end">
+  <div class="equipment-manager border-start border-end" v-loading="loading">
     <p class="text-start px-1">
       <b-button variant="primary" squared @click="SaveSettingHandler">儲存設定</b-button>
       <b-button variant="info" squared class="mx-2" @click="AddNewEqHandler">新增設備</b-button>
@@ -8,12 +8,14 @@
     <el-table
       :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '12px' }"
       :data="EqDatas"
-      row-key="index"
+      :row-key="rowKey"
       size="small"
       border
-      height="100%"
+      scrollbar-always-on
+      height="80vh"
       table-layout="fixed"
-      style="width:1800px">
+      ref="eqTable"
+      style="width:100vw">
       <el-table-column label="Index" prop="index" width="80" align="center" fixed="left" />
       <el-table-column label="設備名稱" prop="Name" width="210" fixed="left">
         <template #default="scope">
@@ -37,7 +39,6 @@
       <el-table-column label="Tag ID" prop="TagID" width="120" align="center" fixed="left">
         <template #default="scope">
           <b-form-input
-            :key="`eq-tag-id-${scope.row.index}`"
             type="number"
             :state="ValidTag(scope.row)"
             v-model.number="scope.row.TagID"
@@ -51,7 +52,7 @@
           <RegionsSelector v-model="scope.row.Region"></RegionsSelector>
         </template>
       </el-table-column>-->
-      <el-table-column label="下游設備" width="740">
+      <el-table-column label="下游設備" width="850">
         <template #default="scope">
           <div class="w-100 d-flex flex-row">
             <el-select
@@ -92,7 +93,7 @@
           <el-checkbox v-model="scope.row.RackCapcityCheck"></el-checkbox>
         </template>
       </el-table-column>
-      <el-table-column label="操作" min-width="170" fixed="right">
+      <el-table-column label="操作" min-width="100" fixed="right">
         <template #default="scope">
           <div>
             <el-button
@@ -206,7 +207,7 @@
   </div>
 </template>
 <script>
-import { SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
+import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import { MapStore } from '../Map/store';
 import { EqStore } from '@/store'
@@ -247,8 +248,9 @@ export default {
         return same_name_row.length == 1 && name != '';
       },
       selected_eq: {},
-      connection_testing: false
-
+      connection_testing: false,
+      loading: true,
+      rowKey: 'index',
     }
   },
   methods: {
@@ -277,12 +279,12 @@ export default {
     },
     async DownloadEQOptions() {
       this.EqDatas = [];
-
       var datas = EqStore.getters.EqOptions;
       for (let index = 0; index < datas.length; index++) {
-        const element = datas[index];
+        var element = datas[index];
         element.index = index;
         this.EqDatas.push(element)
+        console.info(element)
       }
       this.CloneEQDatas();
     },
@@ -290,7 +292,15 @@ export default {
       this.EqDatas_Orignal = JSON.parse(JSON.stringify(this.EqDatas));
     },
     ReloadSettingsHandler() {
-      this.DownloadEQOptions();
+      this.loading = true;
+      setTimeout(() => {
+        GetEQOptions().then(option => EqStore.commit('EqOptions', option));
+
+        this.DownloadEQOptions();
+        this.$refs.eqTable.setScrollTop(0)
+
+        this.loading = false;
+      }, 300);
     },
     AddNewEqHandler() {
       this.EqDatas.push(
@@ -305,6 +315,7 @@ export default {
             ComPort: "COM1"
           }
         })
+      this.$refs.eqTable.setScrollTop(window.innerHeight - 200)
     },
     RemoveHandle(row) {
       var remains = this.EqDatas.filter(eq => eq.Name != row.Name)
@@ -388,7 +399,8 @@ export default {
   mounted() {
     setTimeout(() => {
       this.DownloadEQOptions();
-    }, 1000);
+      this.loading = false;
+    }, 400);
   },
   computed: {
     EqNames() {
