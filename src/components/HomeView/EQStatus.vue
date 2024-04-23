@@ -32,6 +32,7 @@
     <el-table
       class="eq-status-table px-1"
       border
+      scrollbar-always-on
       siz="small"
       v-bind:style="tableStyle"
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
