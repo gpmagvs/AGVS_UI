@@ -20,9 +20,9 @@
                             <el-col class="item-value" :span="12">{{ selected_action_display }}</el-col>
                             <el-col class="item-actions" :span="7">
                                 <b-button size="sm" variant="link" @click="() => {
-            HandleCancelBtnClick();
-            action_menu_visible = true;
-        }">重新選取</b-button></el-col>
+                                    HandleCancelBtnClick();
+                                    action_menu_visible = true;
+                                }">重新選取</b-button></el-col>
                         </el-row>
                         <!-- 選車 -->
                         <el-row class="order-row" v-bind:style="agv_select_row_class">
@@ -125,22 +125,22 @@
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
                             <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">確認派送</b-button>
                             <b-button class="w-50 mx-1" variant="light" @click="() => {
-            order_info_visible = false;
-            action_menu_visible = true;
-            HandleCancelBtnClick();
-        }">返回選擇動作</b-button>
+                                order_info_visible = false;
+                                action_menu_visible = true;
+                                HandleCancelBtnClick();
+                            }">返回選擇動作</b-button>
                             <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">取消</b-button>
                         </div>
                     </div>
                 </el-popover>
                 <b-button squared variant="primary" @click="() => {
-            // $emit('on-click');
-            if (action_menu_visible) {
-                action_menu_visible = false;
-            }
-            else if (!order_info_visible)
-                action_menu_visible = true
-        }">任務派送</b-button>
+                    // $emit('on-click');
+                    if (action_menu_visible) {
+                        action_menu_visible = false;
+                    }
+                    else if (!order_info_visible)
+                        action_menu_visible = true
+                }">任務派送</b-button>
             </div>
         </template>
         <div class="actions-btn-conatiner">
@@ -592,7 +592,7 @@ export default {
                 if (response.data.confirm) {
                     this.HandleCancelBtnClick();
                     Notifier.Success(`任務-[${this.selected_action_display}] 已派送!`, 'bottom', 2000);
-                } else {                        
+                } else {
                     this.order_info_visible = true;
 
                     this.$swal.fire(
@@ -656,7 +656,7 @@ export default {
             else if (this.selected_action == 'park')
                 return MapStore.getters.AllParkingStationOptions;
             else if (this.IsSourceStationBuffer || this.selected_action == 'load' || this.selected_action == 'unload')
-                return MapStore.getters.AllEqStation;
+                return this.EQStations;
             else if (this.selected_action == 'charge')
                 return MapStore.getters.AllChargeStation;
             else if (this.selected_action == 'carry')

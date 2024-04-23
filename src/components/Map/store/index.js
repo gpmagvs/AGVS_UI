@@ -187,7 +187,14 @@ export const MapStore = createStore({
         },
         AllEqStation: (state, getters) => {
             var points = Object.values(state.MapData.Points)
-            var eqs = points.filter(pt => pt.IsEquipment).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var eqs = points.filter(pt => pt.StationType != 0 && pt.StationType != 3).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+
+            // 使用 sort 方法按照 name_display 進行排序
+            eqs.sort((a, b) => {
+                return a.name_display.localeCompare(b.name_display);
+            });
+            return eqs;
+
             var buffers = getters.AllBufferStationOptions
             return [...eqs, ...buffers];
         },

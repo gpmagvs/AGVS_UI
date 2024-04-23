@@ -82,6 +82,14 @@
               v-bind:style="signalOn(scope.row.To_EQ_Low)">To_EQ_Low</div>
             <div
               class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'Cmd_Reserve_Up', !scope.row.Cmd_Reserve_Up)"
+              v-bind:style="signalOn(scope.row.Cmd_Reserve_Up)">Cmd_Reserve_Up</div>
+            <div
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'Cmd_Reserve_Low', !scope.row.Cmd_Reserve_Low)"
+              v-bind:style="signalOn(scope.row.Cmd_Reserve_Low)">Cmd_Reserve_Low</div>
+            <div
+              class="di-status"
               @click="HandleAGVHSSignaleChange(scope.row.EQName, 'VALID', !scope.row.HS_AGV_VALID)"
               v-bind:style="signalOn(scope.row.HS_AGV_VALID)">VALID</div>
             <div
