@@ -107,6 +107,8 @@
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">切換為Busy</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'load')">切換為Load</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'unload')">切換為Unload</el-button>
+            <el-button :type="scope.row.IsMaintaining ? 'success' : 'danger'" @click="MaintainEmulation(scope.row, 'maintain')">{{ scope.row.IsMaintaining ? '取消維修' : '維修模擬' }}</el-button>
+            <el-button :type="scope.row.IsPartsReplacing ? 'success' : 'danger'" @click="PartsReplacingEmulation(scope.row)">{{ scope.row.IsPartsReplacing ? '取消零件更換' : '零件更換模擬' }}</el-button>
           </div>
         </template>
       </el-table-column>
@@ -335,6 +337,16 @@ export default {
     },
     LDULD_Emu_State_Switch(EQName = "", mode = 'busy|load|unlod') {
       EmuAPI.SetState(EQName, mode)
+    },
+    async MaintainEmulation(row) {
+      var isMaintaining = row.IsMaintaining;
+      var stateToSwitch = !isMaintaining;
+      await EmuAPI.SwitchMaintainstate(row.Tag, stateToSwitch);
+    },
+    async PartsReplacingEmulation(row) {
+      var IsPartsReplacing = row.IsPartsReplacing;
+      var stateToSwitch = !IsPartsReplacing;
+      await EmuAPI.SwitchPartsReplacing(row.Tag, stateToSwitch);
     },
     EmuAllLoad() {
       EmuAPI.EQAllLoad()
