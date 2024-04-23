@@ -2878,10 +2878,13 @@ export default {
       this.IsSelectEQStationMode = true;
     },
     ChangeToNormalViewMode() {
+
       this.AGVLocLayer.setVisible(true);
       this.RestoredFillColorOfChangedFeature();
+      this.StationNameDisplayOptHandler();
       this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
       this.TransferTaskIconLayer.getSource().clear();
+
 
     },
     RestoredFillColorOfChangedFeature() {
