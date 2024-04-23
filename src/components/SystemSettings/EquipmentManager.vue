@@ -118,6 +118,7 @@
               <el-option label="Modbus RTU" :value="1"></el-option>
               <el-option label="TCP/IP" :value="2"></el-option>
               <el-option label="Serial Port" :value="3"></el-option>
+              <el-option label="MC Protocol" :value="5"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="IP">
