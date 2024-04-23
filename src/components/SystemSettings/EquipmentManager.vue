@@ -315,7 +315,9 @@ export default {
             ComPort: "COM1"
           }
         })
-      this.$refs.eqTable.setScrollTop(window.innerHeight - 200)
+      setTimeout(() => {
+        this.$refs.eqTable.setScrollTop(window.innerHeight)
+      }, 300);
     },
     RemoveHandle(row) {
       var remains = this.EqDatas.filter(eq => eq.Name != row.Name)

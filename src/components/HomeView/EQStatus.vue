@@ -1,12 +1,12 @@
 <template>
   <div class="eq-status" ref="eq-status-container">
     <div class="text-start border-bottom p-2 my-2 d-flex flex-row justify-content-space">
-      <div class="d-flex">
+      <!-- <div class="d-flex">
         <div class="p-1">
           <i class="bi bi-three-dots-vertical pt-2"></i>區域選擇
         </div>
         <RegionsSelector v-model="selected_region"></RegionsSelector>
-      </div>
+      </div> -->
       <div class="d-flex">
         <div class="p-1">
           <i class="bi bi-three-dots-vertical pt-2"></i>顯示模式
