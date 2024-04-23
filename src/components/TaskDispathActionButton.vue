@@ -477,6 +477,8 @@ export default {
             this.is_reselecting_flag = true;
             bus.on(this.map_events_bus.station_selected, (_station_data) => {
                 console.info(_station_data);
+                if (this.selected_action == 'move' && (_station_data.StationType != 0 || _station_data.IsVirtualPoint))
+                    return;
                 if (this.selected_action == 'charge' && !_station_data.IsCharge)
                     return;
                 if ((this.selected_action == 'load' || this.selected_action == 'unload' || this.selected_action == 'carry') && (!_station_data.IsEquipment && _station_data.StationType != 4))

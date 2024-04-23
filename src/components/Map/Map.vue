@@ -19,15 +19,15 @@
             <div class="p-0 m-0 w-100" v-if="left_tab_class_name == 'tab-close'">
               <i
                 @click="() => {
-    left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-  }"
+                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+                }"
                 class="bi bi-chevron-double-right"></i>
             </div>
             <div v-else class="tab-open text-start">
               <i
                 @click="() => {
-    left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-  }"
+                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+                }"
                 class="bi bi-chevron-double-left"></i>
               <div class="p-2 action-buttons border-bottom">
                 <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
@@ -130,12 +130,12 @@
                       </el-form-item>
                       <el-form-item label="調整圖片位置">
                         <el-switch size="large" active-text="開啟" inactive-text="關閉" inline-prompt v-model="DragBackgroundImageMode" @change="() => {
-    new_map_img_extent = map_img_extent;
-    if (map_image_display != 'visible' && DragBackgroundImageMode) {
-      map_image_display = 'visible';
-      SlamImageDisplayOptHandler();
-    }
-  }"></el-switch>
+                          new_map_img_extent = map_img_extent;
+                          if (map_image_display != 'visible' && DragBackgroundImageMode) {
+                            map_image_display = 'visible';
+                            SlamImageDisplayOptHandler();
+                          }
+                        }"></el-switch>
                       </el-form-item>
                       <el-divider></el-divider>
                       <el-form-item label="重置路網顯示">
@@ -254,26 +254,26 @@
               <div>
                 <span class="mx-1">路網顯示</span>
                 <el-switch v-model="routePathsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
-    if (visible) {
-      if (map_display_mode == 'router') {
-        PathLayerForCoordination.setVisible(false);
-        PathLayerForRouter.setVisible(true);
-      } else {
-        PathLayerForCoordination.setVisible(true);
-        PathLayerForRouter.setVisible(false);
-      }
-    } else {
-      PathLayerForCoordination.setVisible(false);
-      PathLayerForRouter.setVisible(false);
-    }
-    HideNormalStations(!visible);
-  }"></el-switch>
+                  if (visible) {
+                    if (map_display_mode == 'router') {
+                      PathLayerForCoordination.setVisible(false);
+                      PathLayerForRouter.setVisible(true);
+                    } else {
+                      PathLayerForCoordination.setVisible(true);
+                      PathLayerForRouter.setVisible(false);
+                    }
+                  } else {
+                    PathLayerForCoordination.setVisible(false);
+                    PathLayerForRouter.setVisible(false);
+                  }
+                  HideNormalStations(!visible);
+                }"></el-switch>
               </div>
               <div>
                 <span class="mx-1">管制區顯示</span>
                 <el-switch :disabled="map_display_mode != 'coordination'" v-model="regionsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
-    RegionLayer.setVisible(visible && map_display_mode == 'coordination');
-  }"></el-switch>
+                  RegionLayer.setVisible(visible && map_display_mode == 'coordination');
+                }"></el-switch>
               </div>
               <div v-if="editable" class="rounded">
                 <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
@@ -290,33 +290,33 @@
     <PointContextMenu ref="EditModeContextMenu" v-show="editModeContextMenuVisible" :mouse_click_position="[contextMenuTop, contextMenuLeft]" :options="contextMenuOptions" @OnTaskBtnClick="HandleMenuTaskBtnClick" @OnPtSettingBtnClick="HandlePtSettingBtnClick"></PointContextMenu>
     <MapPointSettingDrawer ref="ptsetting" @OnLeve="HandlePtSettingDrawerLeaved" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
     <MapPathSettingDrawer :SettingsChangedHandler="() => {
-    UpdateStationPathLayer();
-    HandlePathTbRowClick(SelectedPathData);
+      UpdateStationPathLayer();
+      HandlePathTbRowClick(SelectedPathData);
 
-  }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
+    }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
     <MapRegionEditDrawer @closed="HandleForbidRegionEditDrawerClosed" ref="forbid_region_editor" :SettingsChangedHandler="() => {
 
-  }"></MapRegionEditDrawer>
+    }"></MapRegionEditDrawer>
     <el-dialog @closed="() => {
-    if (selected_path_feature) {
-      RestoreOriginalPathStyle(selected_path_feature)
-    }
-  }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
+      if (selected_path_feature) {
+        RestoreOriginalPathStyle(selected_path_feature)
+      }
+    }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
       <div class="bg-light text-start d-flex py-2">
         <b-button size="sm" variant="success" @click="() => {
-    PathesCandicats.forEach(path_setting => {
-      path_setting.IsPassable = true
-    });
-    UpdateStationPathLayer();
-    HandlePathTbRowClick(SelectedPathData);
-  }">開放所有道路</b-button>
+          PathesCandicats.forEach(path_setting => {
+            path_setting.IsPassable = true
+          });
+          UpdateStationPathLayer();
+          HandlePathTbRowClick(SelectedPathData);
+        }">開放所有道路</b-button>
         <b-button class="mx-2" variant="danger" size="sm" @click="() => {
-    PathesCandicats.forEach(path_setting => {
-      path_setting.IsPassable = false
-    });
-    UpdateStationPathLayer();
-    HandlePathTbRowClick(SelectedPathData);
-  }">關閉所有道路</b-button>
+          PathesCandicats.forEach(path_setting => {
+            path_setting.IsPassable = false
+          });
+          UpdateStationPathLayer();
+          HandlePathTbRowClick(SelectedPathData);
+        }">關閉所有道路</b-button>
       </div>
       <el-table :data="PathesCandicats" border>
         <el-table-column label="ID" prop="PathID">
@@ -2823,7 +2823,7 @@ export default {
       var buffer_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge && ft.get('data').StationType != 4);
       var normal_pt_features = this.StationPointsFeatures.filter(ft => ft.get('data').StationType == 0);
       var parkable_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsParking || ft.get('data').StationType == 4 || ft.get('data'.StationType == 5))
-
+      var normal_virtual_pt_features = normal_pt_features.filter(ft => ft.get('data').IsVirtualPoint)
       this.AGVLocLayer.setVisible(false);
       this.RestoredFillColorOfChangedFeature();
       //把AGV圖層Feature變為不明顯
@@ -2856,6 +2856,7 @@ export default {
         } else if (_isChoiseDestine) {
           if (_isMoveOrder) {
             this.ChangeFeaturesAsIgnoreStyle(eq_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_virtual_pt_features);
           } else if (_isOnlyUnloadOrder || _isOnlyLoadOrder) {
             this.ChangeFeaturesAsIgnoreStyle(charge_features);
             this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
