@@ -145,19 +145,24 @@ export const MapStore = createStore({
                 var pathtags = data.nav_path
                 var pathCoordinations = []
 
-                if (pathtags) {
-
-                    pathtags.forEach(tag => {
-                        var pt = getters.MapStations.find(st => st.tag == tag)
-                        if (pt) {
-                            pathCoordinations.push(pt.coordination)
-                        }
-                    })
-                }
                 var coordination = [0, 0]
                 if (data.currentCoordication) {
                     coordination = [data.currentCoordication.X, data.currentCoordication.Y]
                 }
+                if (pathtags) {
+
+                    var pathTagsLen = pathtags.length;
+                    pathCoordinations.push(coordination);
+                    for (let index = 1; index < pathTagsLen; index++) {
+                        const tag = pathtags[index];
+                        var pt = getters.MapStations.find(st => st.tag == tag)
+                        if (pt) {
+                            pathCoordinations.push(pt.coordination)
+                        }
+                    }
+                }
+
+
                 var _agv_style_custom = getters.CustomAGVStyles[name];
                 var _agv_color = 'black'
                 var _agv_display_text = name
