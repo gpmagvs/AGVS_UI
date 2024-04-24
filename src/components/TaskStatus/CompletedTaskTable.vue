@@ -40,7 +40,6 @@
     </el-table>
   </div>
 </template>
-
 <script>
 import { GetTaskStateType } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
@@ -71,6 +70,7 @@ export default {
     }
     ,
     GetStationName(tag) {
+      if (tag == -1) return "-";
       var station = this.MapPoints.find(station => station.TagNumber + '' == tag)
       if (station)
         return station.Graph.Display
@@ -86,7 +86,6 @@ export default {
   },
 }
 </script>
-
 <style lang="scss">
 .completed-task-table {
 
