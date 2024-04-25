@@ -45,6 +45,16 @@ export const EmuAPI = {
     var ret = await axios_entity.get(url)
     return ret.data;
   },
+  async SwitchMaintainstate(tag, state) {
+    var url = `/api/Equipment/Emu/MaintainStatusSimulation?TagNumber=${tag}&isMaintain=${state}`;
+    var ret = await axios_entity.get(url)
+    return ret.data;
+  },
+  async SwitchPartsReplacing(tag, state) {
+    var url = `/api/Equipment/Emu/PartsReplcingSimulation?TagNumber=${tag}&isPartsReplcing=${state}`;
+    var ret = await axios_entity.get(url)
+    return ret.data;
+  },
   /**設定所有EQ為Load狀態 */
   async EQAllLoad() {
     var url = `/api/Equipment/Emu/AllLoad`;
@@ -79,6 +89,11 @@ export const ChargerAPI = {
   async SetCurveSetting(charge_station_name, item, value) {
     var url = `/api/Equipment/ChargeStation/Settings?EqName=${encodeURIComponent(charge_station_name)}&Item=${encodeURIComponent(item)}&Value=${value}`; //避免帶有特殊符號的時候字串參數會不完整
     var ret = await axios_entity.get(url)
+    return ret.data
+  },
+  async SaveUsableAGVSetting(stationName, AGVList) {
+    var url = `/api/Equipment/ChargeStation/SaveUsableAGVSetting?ChargeStationName=${encodeURIComponent(stationName)}`; //避免帶有特殊符號的時候字串參數會不完整
+    var ret = await axios_entity.post(url, AGVList)
     return ret.data
   }
 }

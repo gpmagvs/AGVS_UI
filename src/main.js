@@ -37,10 +37,7 @@ const Sweetalert_options = {
 
 const app = createApp(App)
 // 合併 store
-store.dispatch('GetDynamicWebsiteData').then(() => {
-  var fieldName = store.getters.FieldName;
-  document.title = `GPM 派車系統-[${fieldName}]`
-});
+
 app.use(VueApexCharts)
 app.use(Vuesax)
 app.use(store)

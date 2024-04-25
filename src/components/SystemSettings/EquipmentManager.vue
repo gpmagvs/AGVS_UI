@@ -1,5 +1,5 @@
 <template>
-  <div class="equipment-manager border-start border-end">
+  <div class="equipment-manager border-start border-end" v-loading="loading">
     <p class="text-start px-1">
       <b-button variant="primary" squared @click="SaveSettingHandler">儲存設定</b-button>
       <b-button variant="info" squared class="mx-2" @click="AddNewEqHandler">新增設備</b-button>
@@ -8,13 +8,14 @@
     <el-table
       :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '12px' }"
       :data="EqDatas"
-      row-key="TagID"
+      :row-key="rowKey"
       size="small"
       border
-      height="100%"
+      scrollbar-always-on
+      height="80vh"
       table-layout="fixed"
-      style="width:1800px"
-    >
+      ref="eqTable"
+      style="width:100vw">
       <el-table-column label="Index" prop="index" width="80" align="center" fixed="left" />
       <el-table-column label="設備名稱" prop="Name" width="210" fixed="left">
         <template #default="scope">
@@ -27,27 +28,23 @@
               :no-wheel="true"
               size="sm"
               :min="1"
-              @input="HandleEqNameChange(scope.row, scope.row.Name)"
-            ></b-form-input>
+              @input="HandleEqNameChange(scope.row, scope.row.Name)"></b-form-input>
             <el-button
               class="my-1"
               size="small"
-              @click="HandleUseMapDataDisplayName(scope.row.TagID)"
-            >使用圖資設定</el-button>
+              @click="HandleUseMapDataDisplayName(scope.row.TagID)">使用圖資設定</el-button>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="Tag ID" prop="TagID" width="100" align="center" fixed="left">
+      <el-table-column label="Tag ID" prop="TagID" width="120" align="center" fixed="left">
         <template #default="scope">
           <b-form-input
             type="number"
             :state="ValidTag(scope.row)"
             v-model.number="scope.row.TagID"
             placeholder="tag id"
-            :no-wheel="true"
             size="sm"
-            :min="1"
-          ></b-form-input>
+            :min="1"></b-form-input>
         </template>
       </el-table-column>
       <!-- <el-table-column label="區域" prop="Region" width="130">
@@ -55,7 +52,7 @@
           <RegionsSelector v-model="scope.row.Region"></RegionsSelector>
         </template>
       </el-table-column>-->
-      <el-table-column label="下游設備" width="740">
+      <el-table-column label="下游設備" width="850">
         <template #default="scope">
           <div class="w-100 d-flex flex-row">
             <el-select
@@ -63,26 +60,22 @@
               v-model="scope.row.ValidDownStreamEndPointNames"
               multiple
               placeholder="Select"
-              style="width: 1000px"
-            >
+              style="width: 1000px">
               <el-option
                 v-for="eq_name in GetAvaluableEqNameList(scope.row.Name)"
                 :key="eq_name"
                 :label="eq_name"
-                :value="eq_name"
-              />
+                :value="eq_name" />
             </el-select>
             <el-button
               class="mx-1"
               size="small"
               type="default"
-              @click="() => { scope.row.ValidDownStreamEndPointNames = GetAvaluableEqNameList(scope.row.Name) }"
-            >使用所有設備</el-button>
+              @click="() => { scope.row.ValidDownStreamEndPointNames = GetAvaluableEqNameList(scope.row.Name) }">使用所有設備</el-button>
             <el-button
               size="small"
               type="danger"
-              @click="() => { scope.row.ValidDownStreamEndPointNames = [] }"
-            >清除</el-button>
+              @click="() => { scope.row.ValidDownStreamEndPointNames = [] }">清除</el-button>
           </div>
         </template>
       </el-table-column>
@@ -100,14 +93,13 @@
           <el-checkbox v-model="scope.row.RackCapcityCheck"></el-checkbox>
         </template>
       </el-table-column>
-      <el-table-column label="操作" min-width="170" fixed="right">
+      <el-table-column label="操作" min-width="100" fixed="right">
         <template #default="scope">
           <div>
             <el-button
               size="small"
               type="default"
-              @click="ConnectionSettingBtnHandle(scope.row)"
-            >連線設定</el-button>
+              @click="ConnectionSettingBtnHandle(scope.row)">連線設定</el-button>
             <!-- <el-button
               :size="cell_item_size"
               type="primary"
@@ -126,32 +118,29 @@
               <el-option label="Modbus RTU" :value="1"></el-option>
               <el-option label="TCP/IP" :value="2"></el-option>
               <el-option label="Serial Port" :value="3"></el-option>
+              <el-option label="MC Protocol" :value="5"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="IP">
             <el-input
               :disabled="selected_eq.ConnOptions.ConnMethod == 1"
-              v-model="selected_eq.ConnOptions.IP"
-            ></el-input>
+              v-model="selected_eq.ConnOptions.IP"></el-input>
           </el-form-item>
           <el-form-item label="PORT">
             <el-input
               :disabled="selected_eq.ConnOptions.ConnMethod == 1"
-              v-model.number="selected_eq.ConnOptions.Port"
-            ></el-input>
+              v-model.number="selected_eq.ConnOptions.Port"></el-input>
           </el-form-item>
           <el-form-item label="COMPORT">
             <el-input
               :disabled="selected_eq.ConnOptions.ConnMethod == 0"
-              v-model="selected_eq.ConnOptions.ComPort"
-            ></el-input>
+              v-model="selected_eq.ConnOptions.ComPort"></el-input>
           </el-form-item>
         </el-form>
         <el-button
           :loading="connection_testing"
           type="default"
-          @click="ConnectTestHandle(selected_eq)"
-        >通訊測試</el-button>
+          @click="ConnectTestHandle(selected_eq)">通訊測試</el-button>
       </div>
     </el-drawer>
     <el-drawer v-model="io_check_drawer" direction="btt">
@@ -160,80 +149,66 @@
         <div
           class="di-status"
           @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_L_REQ)"
-        >L_REQ</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_L_REQ)">L_REQ</div>
         <div
           class="di-status"
           @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_U_REQ)"
-        >U_REQ</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_U_REQ)">U_REQ</div>
         <div
           class="di-status"
           @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'READY', !scope.row.HS_EQ_READY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_READY)"
-        >READY</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_READY)">READY</div>
         <div
           class="di-status"
           @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'UP_READY', !scope.row.HS_EQ_UP_READY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_UP_READY)"
-        >UP_READY</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_UP_READY)">UP_READY</div>
         <div
           class="di-status"
           @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'LOW_READY', !scope.row.HS_EQ_LOW_READY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_LOW_READY)"
-        >LOW_READY</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_LOW_READY)">LOW_READY</div>
         <div
           v-if="false"
           class="di-status"
           @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_BUSY)"
-        >BUSY</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_BUSY)">BUSY</div>
       </div>
       <div class="hs-signals d-flex">
         <div class="mx-3">交握訊號-AGV</div>
         <div
           class="di-status"
           @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'To_EQ_Up', !scope.row.To_EQ_Up)"
-          v-bind:style="signalOn(selected_eq_io_data.To_EQ_Up)"
-        >To_EQ_Up</div>
+          v-bind:style="signalOn(selected_eq_io_data.To_EQ_Up)">To_EQ_Up</div>
         <div
           class="di-status"
           @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'To_EQ_Low', !scope.row.To_EQ_Low)"
-          v-bind:style="signalOn(selected_eq_io_data.To_EQ_Low)"
-        >To_EQ_Low</div>
+          v-bind:style="signalOn(selected_eq_io_data.To_EQ_Low)">To_EQ_Low</div>
         <div
           class="di-status"
           @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'VALID', !scope.row.HS_AGV_VALID)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_VALID)"
-        >VALID</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_VALID)">VALID</div>
         <div
           class="di-status"
           @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'TR_REQ', !scope.row.HS_AGV_TR_REQ)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_TR_REQ)"
-        >TR_REQ</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_TR_REQ)">TR_REQ</div>
         <div
           class="di-status"
           @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'BUSY', !scope.row.HS_AGV_BUSY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_BUSY)"
-        >BUSY</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_BUSY)">BUSY</div>
         <div
           v-if="false"
           class="di-status"
           @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'READY', !scope.row.HS_AGV_READY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_READY)"
-        >READY</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_READY)">READY</div>
         <div
           class="di-status"
           @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'COMPT', !scope.row.HS_AGV_COMPT)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_COMPT)"
-        >COMPT</div>
+          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_COMPT)">COMPT</div>
       </div>
     </el-drawer>
   </div>
 </template>
-
 <script>
-import { SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
+import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import { MapStore } from '../Map/store';
 import { EqStore } from '@/store'
@@ -274,8 +249,9 @@ export default {
         return same_name_row.length == 1 && name != '';
       },
       selected_eq: {},
-      connection_testing: false
-
+      connection_testing: false,
+      loading: true,
+      rowKey: 'index',
     }
   },
   methods: {
@@ -304,12 +280,12 @@ export default {
     },
     async DownloadEQOptions() {
       this.EqDatas = [];
-
       var datas = EqStore.getters.EqOptions;
       for (let index = 0; index < datas.length; index++) {
-        const element = datas[index];
+        var element = datas[index];
         element.index = index;
         this.EqDatas.push(element)
+        console.info(element)
       }
       this.CloneEQDatas();
     },
@@ -317,7 +293,15 @@ export default {
       this.EqDatas_Orignal = JSON.parse(JSON.stringify(this.EqDatas));
     },
     ReloadSettingsHandler() {
-      this.DownloadEQOptions();
+      this.loading = true;
+      setTimeout(() => {
+        GetEQOptions().then(option => EqStore.commit('EqOptions', option));
+
+        this.DownloadEQOptions();
+        this.$refs.eqTable.setScrollTop(0)
+
+        this.loading = false;
+      }, 300);
     },
     AddNewEqHandler() {
       this.EqDatas.push(
@@ -332,6 +316,9 @@ export default {
             ComPort: "COM1"
           }
         })
+      setTimeout(() => {
+        this.$refs.eqTable.setScrollTop(window.innerHeight)
+      }, 300);
     },
     RemoveHandle(row) {
       var remains = this.EqDatas.filter(eq => eq.Name != row.Name)
@@ -415,7 +402,8 @@ export default {
   mounted() {
     setTimeout(() => {
       this.DownloadEQOptions();
-    }, 1000);
+      this.loading = false;
+    }, 400);
   },
   computed: {
     EqNames() {
@@ -430,8 +418,6 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
-.equipment-manager {
-}
+.equipment-manager {}
 </style>

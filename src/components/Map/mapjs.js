@@ -436,14 +436,9 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
     iconFeature.set('feature_type', 'lduld')
     iconFeature.set('data', station.data)
     iconFeature.set('action', 0)
-
-    if (station.station_type != 1)
-        return iconFeature;
-
     var _style = new Style({
         image: undefined,
         text: new Text({
-            text: "",
             font: 'bold 12px Calibri,sans-serif',
             offsetX: 14,
             offsetY: -52,
@@ -459,7 +454,8 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
             backgroundStroke: new Stroke({
                 color: 'black',
                 width: 3,
-            })
+            }),
+
         }),
     })
     iconFeature.setStyle(_style)
@@ -706,7 +702,7 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "") {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "", vehicleLength = 145, vehicleWidth = 80) {
         this.AgvName = AgvName
         this.TextColor = TextColor
         this.Coordination = initCoordination;
@@ -718,7 +714,8 @@ export class clsAGVDisplay {
         this.CurrentAction = AgvStates.is_executing_task ? GetActionName(CurrentAction, CargoStatus) : ""
         this.AgvStates = AgvStates
         this.DisplayText = DisplayText == "" ? AgvName : DisplayText
-
+        this.vehicleWidth = vehicleWidth;
+        this.vehicleLength = vehicleLength;
     }
 }
 export class clsWaitingInfo {

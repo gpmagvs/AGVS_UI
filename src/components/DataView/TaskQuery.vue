@@ -36,16 +36,14 @@
         class="Select-Query"
         variant="primary mx-1"
         size="sm"
-        style="float:right"
-      >搜尋</b-button>
+        style="float:right">搜尋</b-button>
       <b-button
         @click="SaveTocsv()"
         :SaveTocsv="SaveTocsv"
         class="SaveTocsv mx-2"
         variant="primary"
         size="sm"
-        style="float:right"
-      >輸出csv檔</b-button>
+        style="float:right">輸出csv檔</b-button>
     </div>
     <div>
       <el-table
@@ -57,17 +55,13 @@
         style="width: 100%;font-weight: bold;"
         border
         aria-current="currentpage"
-        id="Tasktable"
-      >
+        id="Tasktable">
         <el-table-column label="任務名稱" prop="TaskName" width="230">
           <template #default="scope">
-            <div>
-              {{ scope.row.TaskName }}
-              <el-tooltip placement="top-start" content="複製到剪貼簿">
+            <div> {{ scope.row.TaskName }} <el-tooltip placement="top-start" content="複製到剪貼簿">
                 <i
                   @click="CopyText(scope.row.TaskName)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                  class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
@@ -78,29 +72,32 @@
         <el-table-column label="結束時間" prop="FinishTime" width="160">
           <template #default="scope">{{ formatTime(scope.row.FinishTime) }}</template>
         </el-table-column>
-
         <el-table-column label="執行結果" prop="StateName" width="100" align="center">
           <template #default="scope">
             <el-tag
               effect="dark"
-              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'"
-            >{{ scope.row.StateName }}</el-tag>
+              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'">{{ scope.row.StateName }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="AGV名稱" prop="DesignatedAGVName" width="100" align="center"></el-table-column>
         <el-table-column label="任務類型" prop="ActionName" min-width="30" align="center"></el-table-column>
-        <el-table-column label="起始站點" prop="From_Station" width="120" align="center"></el-table-column>
-        <el-table-column label="結束站點" prop="To_Station" width="120" align="center"></el-table-column>
+        <el-table-column label="起點" prop="From_Station_Display" width="120" align="center">
+        </el-table-column>
+        <el-table-column label="起點Slot" prop="From_Slot" width="120" align="center">
+          <template #default="scope"> {{ scope.row.From_Slot == -1 ? '-' : scope.row.From_Slot }} </template>
+        </el-table-column>
+        <el-table-column label="終點" prop="To_Station_Display" width="120" align="center">
+        </el-table-column>
+        <el-table-column label="終點Slot" prop="To_Slot" width="120" align="center">
+          <template #default="scope"> {{ scope.row.To_Slot == -1 ? '-' : scope.row.To_Slot }} </template>
+        </el-table-column>
         <el-table-column label="載物ID" prop="Carrier_ID" min-width="30">
           <template #default="scope">
-            <div>
-              {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }}
-              <el-tooltip placement="top-start" content="複製到剪貼簿">
+            <div> {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }} <el-tooltip placement="top-start" content="複製到剪貼簿">
                 <i
                   v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
                   @click="CopyText(scope.row.Carrier_ID)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                  class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
@@ -115,23 +112,12 @@
         </el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center">
-        <b-pagination
-          :per-page="per_page_num"
-          :total-rows="rows"
-          aria-controls="Tasktable"
-          class="pagination justify-content-center"
-          v-model="currentpage"
-          @click="PageChnageHandle"
-        ></b-pagination>
-        <div class="mx-3 py-2">
-          共
-          <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆
-        </div>
+        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="Tasktable" class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
+        <div class="mx-3 py-2"> 共 <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆 </div>
       </div>
     </div>
   </div>
 </template>
-  
 <script>
 import { TaskQuery } from '@/api/TaskAPI.js'
 import { SaveTocsv } from '@/api/TaskAPI.js'
@@ -220,7 +206,6 @@ export default {
   },
 }
 </script>
-  
 <style lang="scss" scoped>
 .Task-query {
   overflow-y: scroll;

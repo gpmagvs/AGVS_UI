@@ -33,7 +33,7 @@
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
-    <MoveAGVNotifty></MoveAGVNotifty>
+    <!-- <MoveAGVNotifty></MoveAGVNotifty> -->
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
     <ConnectionState :IsMenuExpanded="!menu_collapse"></ConnectionState>
   </div>
@@ -107,7 +107,11 @@ export default {
     }
   },
   mounted() {
-    document.title = "GPM 派車系統";
+    this.$store.dispatch('GetDynamicWebsiteData').then(response => {
+      var fieldName = response.FieldName;
+      document.title = `GPM 派車系統-[${fieldName}]`
+    });
+
     let login_states = IsLoginLastTime();
 
     //嘗試存取前次的登入狀態，並更新 userStore的值

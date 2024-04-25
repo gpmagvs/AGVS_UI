@@ -1,5 +1,5 @@
 <template>
-  <div id="map" class="map-component">
+  <div id="map" class="map-component" v-loading="loading">
     <div class="d-flex flex-row h-100">
       <div class="flex-fill d-flex flex-column">
         <div
@@ -19,15 +19,15 @@
             <div class="p-0 m-0 w-100" v-if="left_tab_class_name == 'tab-close'">
               <i
                 @click="() => {
-                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-                }"
+    left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+  }"
                 class="bi bi-chevron-double-right"></i>
             </div>
             <div v-else class="tab-open text-start">
               <i
                 @click="() => {
-                  left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
-                }"
+    left_tab_class_name = left_tab_class_name == 'tab-open' ? 'tab-close' : 'tab-open'
+  }"
                 class="bi bi-chevron-double-left"></i>
               <div class="p-2 action-buttons border-bottom">
                 <b-button size="sm" variant="primary" @click="HandlerSaveBtnClick">儲存</b-button>
@@ -130,12 +130,12 @@
                       </el-form-item>
                       <el-form-item label="調整圖片位置">
                         <el-switch size="large" active-text="開啟" inactive-text="關閉" inline-prompt v-model="DragBackgroundImageMode" @change="() => {
-                          new_map_img_extent = map_img_extent;
-                          if (map_image_display != 'visible' && DragBackgroundImageMode) {
-                            map_image_display = 'visible';
-                            SlamImageDisplayOptHandler();
-                          }
-                        }"></el-switch>
+    new_map_img_extent = map_img_extent;
+    if (map_image_display != 'visible' && DragBackgroundImageMode) {
+      map_image_display = 'visible';
+      SlamImageDisplayOptHandler();
+    }
+  }"></el-switch>
                       </el-form-item>
                       <el-divider></el-divider>
                       <el-form-item label="重置路網顯示">
@@ -254,26 +254,26 @@
               <div>
                 <span class="mx-1">路網顯示</span>
                 <el-switch v-model="routePathsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
-                  if (visible) {
-                    if (map_display_mode == 'router') {
-                      PathLayerForCoordination.setVisible(false);
-                      PathLayerForRouter.setVisible(true);
-                    } else {
-                      PathLayerForCoordination.setVisible(true);
-                      PathLayerForRouter.setVisible(false);
-                    }
-                  } else {
-                    PathLayerForCoordination.setVisible(false);
-                    PathLayerForRouter.setVisible(false);
-                  }
-                  HideNormalStations(!visible);
-                }"></el-switch>
+    if (visible) {
+      if (map_display_mode == 'router') {
+        PathLayerForCoordination.setVisible(false);
+        PathLayerForRouter.setVisible(true);
+      } else {
+        PathLayerForCoordination.setVisible(true);
+        PathLayerForRouter.setVisible(false);
+      }
+    } else {
+      PathLayerForCoordination.setVisible(false);
+      PathLayerForRouter.setVisible(false);
+    }
+    HideNormalStations(!visible);
+  }"></el-switch>
               </div>
               <div>
                 <span class="mx-1">管制區顯示</span>
                 <el-switch :disabled="map_display_mode != 'coordination'" v-model="regionsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
-                  RegionLayer.setVisible(visible && map_display_mode == 'coordination');
-                }"></el-switch>
+    RegionLayer.setVisible(visible && map_display_mode == 'coordination');
+  }"></el-switch>
               </div>
               <div v-if="editable" class="rounded">
                 <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
@@ -290,33 +290,33 @@
     <PointContextMenu ref="EditModeContextMenu" v-show="editModeContextMenuVisible" :mouse_click_position="[contextMenuTop, contextMenuLeft]" :options="contextMenuOptions" @OnTaskBtnClick="HandleMenuTaskBtnClick" @OnPtSettingBtnClick="HandlePtSettingBtnClick"></PointContextMenu>
     <MapPointSettingDrawer ref="ptsetting" @OnLeve="HandlePtSettingDrawerLeaved" @OnPointSettingChanged="PointSettingChangedHandle"></MapPointSettingDrawer>
     <MapPathSettingDrawer :SettingsChangedHandler="() => {
-      UpdateStationPathLayer();
-      HandlePathTbRowClick(SelectedPathData);
+    UpdateStationPathLayer();
+    HandlePathTbRowClick(SelectedPathData);
 
-    }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
+  }" @closed="HandlePathSetingDrawerClosed" ref="path_editor"></MapPathSettingDrawer>
     <MapRegionEditDrawer @closed="HandleForbidRegionEditDrawerClosed" ref="forbid_region_editor" :SettingsChangedHandler="() => {
 
-    }"></MapRegionEditDrawer>
+  }"></MapRegionEditDrawer>
     <el-dialog @closed="() => {
-      if (selected_path_feature) {
-        RestoreOriginalPathStyle(selected_path_feature)
-      }
-    }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
+    if (selected_path_feature) {
+      RestoreOriginalPathStyle(selected_path_feature)
+    }
+  }" draggable width="600" title="路徑選取" v-model="ShowPathSelectDialog">
       <div class="bg-light text-start d-flex py-2">
         <b-button size="sm" variant="success" @click="() => {
-          PathesCandicats.forEach(path_setting => {
-            path_setting.IsPassable = true
-          });
-          UpdateStationPathLayer();
-          HandlePathTbRowClick(SelectedPathData);
-        }">開放所有道路</b-button>
+    PathesCandicats.forEach(path_setting => {
+      path_setting.IsPassable = true
+    });
+    UpdateStationPathLayer();
+    HandlePathTbRowClick(SelectedPathData);
+  }">開放所有道路</b-button>
         <b-button class="mx-2" variant="danger" size="sm" @click="() => {
-          PathesCandicats.forEach(path_setting => {
-            path_setting.IsPassable = false
-          });
-          UpdateStationPathLayer();
-          HandlePathTbRowClick(SelectedPathData);
-        }">關閉所有道路</b-button>
+    PathesCandicats.forEach(path_setting => {
+      path_setting.IsPassable = false
+    });
+    UpdateStationPathLayer();
+    HandlePathTbRowClick(SelectedPathData);
+  }">關閉所有道路</b-button>
       </div>
       <el-table :data="PathesCandicats" border>
         <el-table-column label="ID" prop="PathID">
@@ -356,7 +356,7 @@ import Static from 'ol/source/ImageStatic.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
-import { Fill, Stroke, Style, Circle as CircleStyle, Text } from 'ol/style';
+import { Fill, Stroke, Style, Circle as CircleStyle, Text, Icon } from 'ol/style';
 import { Circle, Polygon } from 'ol/geom';
 
 import { noModifierKeys } from 'ol/events/condition';
@@ -479,6 +479,13 @@ export default {
           features: [],
         }),
         zIndex: 17
+      }),
+      /**設備維修中ICON圖層 */
+      EQMaintainIconLayer: new VectorLayer({
+        source: new VectorSource({
+          features: [],
+        }),
+        zIndex: 4
       }),
       AGVLocusLayer: new VectorLayer({
         source: new VectorSource({
@@ -720,24 +727,32 @@ export default {
     UpdateStationPointLayer() {
       var stationPointFeatures = []
       var stationPointFeatures_ForRouteShow = []//路網顯示用
+      var maintainingFeatures = []
+      var maintainingFeatures_ForRouteShow = []
       for (let index = 0; index < this._map_stations.length; index++) {
         var station = this._map_stations[index];
         var iconFeature = CreateStationFeature(station)
 
         stationPointFeatures.push(iconFeature)
+        if (station.data.StationType != 0)
+          maintainingFeatures.push(this.CreateEqMaintainingFeature(station.data, iconFeature.getGeometry().getCoordinates()))
+        //this.ShowEqMaintainIcon(station.data.TagNumber)
         var routeUseFeature = iconFeature.get('routeModeFeature')
         if (routeUseFeature) {
           stationPointFeatures_ForRouteShow.push(routeUseFeature)
+          //maintainingFeatures_ForRouteShow.push(this.CreateEqMaintainingFeature(routeUseFeature.getGeometry().getCoordinates()))
         }
       }
       var ptlayerSource = this.PointLayer.getSource();
       ptlayerSource.clear();
       ptlayerSource.addFeatures(stationPointFeatures);
+      this.EQMaintainIconLayer.getSource().addFeatures(maintainingFeatures);
 
 
       var ptRouteLayerSource = this.PointRouteLayer.getSource();
       ptRouteLayerSource.clear();
       ptRouteLayerSource.addFeatures(stationPointFeatures_ForRouteShow);
+      //ptRouteLayerSource.addFeatures(maintainingFeatures_ForRouteShow);
       this.UpdateEQLDULDFeature();
     },
     UpdateStationPathLayer() {
@@ -864,10 +879,9 @@ export default {
         return;
 
       this.agvs_info.AGVDisplays.forEach(agv_information => {
-
         const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
-        const vehicleLength = vehicleSize[0] / 100.0; //unit:m
-        const vehicleWidth = vehicleSize[1] / 100.0;//unit:m
+        const vehicleLength = agv_information.vehicleLength / 100.0; //unit:m
+        const vehicleWidth = agv_information.vehicleWidth / 100.0;//unit:m
         const vehicleImageName = '/images/AGVDisplayImage/' + agv_information.AgvName + '-Icon.png';//[length,width]
         const vehicleSaftyRotationRadious = Math.sqrt(Math.pow(vehicleLength / 2, 2) + Math.pow(vehicleWidth / 2, 2));//unit:m
         var _polygon_coordinations = this.CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
@@ -931,6 +945,8 @@ export default {
             })
 
             //AGV車體與迴轉半徑顯示
+            console.log(agv_information.Coordination);
+            console.log(vehicleSaftyRotationRadious);
             const _agvSaftyCircle = new Circle(agv_information.Coordination, vehicleSaftyRotationRadious) //TODO 車輛安全區域半徑數據取得
             const _agvBodyPolygon = new Polygon(_polygon_coordinations)
             // 構造一個新的 RGBA 字串
@@ -2255,7 +2271,7 @@ export default {
         source: new VectorSource({ features: [] }),
       })
       this.map = new Map({
-        layers: [this.ImageLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.RegionLayer],
+        layers: [this.ImageLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.RegionLayer],
         target: this.id,
         view: new View({
           projection: projection,
@@ -2581,10 +2597,39 @@ export default {
     },
     HandleLDULDLabelClick(station_data, action) {
       //alert(JSON.stringify(station_data))
-      this.$emit('onTransferRequst', { station_data: station_data, action: action })
+      //this.$emit('onTransferRequst', { station_data: station_data, action: action })
     },
-    ChangeLDULDStatus(tagNumber, status) {
+    EqMaintainIconDisplay(tag, visible) {
+      var features = this.EQMaintainIconLayer.getSource().getFeatures()
+      var feature = features.find(ft => ft.get('tag') == tag)
+      if (!feature) return;
+      var _style = feature.getStyle();
+      _style.getImage().setOpacity(visible ? 1 : 0);
+      feature.setStyle(_style);
+    },
+    CreateEqMaintainingFeature(data, eqFeatureCoordination) {
+      var newCoordination = eqFeatureCoordination;
+      var maintainFeature = new Feature({
+        geometry: new Point(newCoordination)
+      });
+      maintainFeature.set('tag', data.TagNumber)
+      maintainFeature.setStyle(new Style({
+        image: new Icon({
+          src: '/maintain-64.png',
+          scale: 0.8,
+          anchor: [0.01, 1.6],
+          size: [64, 64],
+          opacity: 0,
+
+        })
+      }))
+      return maintainFeature;
+    },
+    ChangeLDULDStatus(tagNumber, status, IsMaintaining) {
       try {
+
+        var _notLDULDState = status != 1 && status != 2
+
         var ld_uld_state = status == 1 ? 'load' : 'unload'
         var features = this.EQLDULDStatusLayer.getSource().getFeatures();
         var _feature = features.find(ft => ft.get('data').TagNumber == tagNumber);
@@ -2597,40 +2642,32 @@ export default {
         if (!text)
           return;
 
+        this.EqMaintainIconDisplay(tagNumber, IsMaintaining);
         var status_text = ''
         if (status == 1 || status == 2) {
           status_text = status == 1 ? ' 入料請求' : '出料請求'
         }
         text.setText(status_text);
-
         text.setBackgroundFill(new Fill({
-          color: status == 1 ? 'orange' : 'blue'
+          color: _notLDULDState ? '' : status == 1 ? 'orange' : 'blue'
         }))
         // text.setFill(new Fill({
         //   color: status == 3 ? 'black' : 'white'
         // }))
-
-        if (_feature.get('action') == ld_uld_state)
-          return;
+        style.setText(text)
         _feature.set('action', ld_uld_state)
         _feature.setStyle(style)
+        _feature.changed();
       } catch (err) {
 
         console.error(err)
       }
 
     },
-    RenderEQLDULDStatus() {
+    RenderEQLDULDStatus() {//TODO EQ狀態渲染
       this.eq_data.forEach(eq_states => {
-        setTimeout(() => {
-          this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus)
-        }, 100)
+        this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus, eq_states.IsMaintaining)
       });
-    },
-    watch_eq_data_changed() {
-      setInterval(() => {
-        this.RenderEQLDULDStatus();
-      }, 100);
     },
     RefreshMap() {
       this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
@@ -2786,7 +2823,7 @@ export default {
       var buffer_features = this.StationPointsFeatures.filter(ft => !ft.get('data').IsCharge && ft.get('data').StationType != 4);
       var normal_pt_features = this.StationPointsFeatures.filter(ft => ft.get('data').StationType == 0);
       var parkable_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsParking || ft.get('data').StationType == 4 || ft.get('data'.StationType == 5))
-
+      var normal_virtual_pt_features = normal_pt_features.filter(ft => ft.get('data').IsVirtualPoint)
       this.AGVLocLayer.setVisible(false);
       this.RestoredFillColorOfChangedFeature();
       //把AGV圖層Feature變為不明顯
@@ -2819,6 +2856,7 @@ export default {
         } else if (_isChoiseDestine) {
           if (_isMoveOrder) {
             this.ChangeFeaturesAsIgnoreStyle(eq_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_virtual_pt_features);
           } else if (_isOnlyUnloadOrder || _isOnlyLoadOrder) {
             this.ChangeFeaturesAsIgnoreStyle(charge_features);
             this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
@@ -2840,10 +2878,13 @@ export default {
       this.IsSelectEQStationMode = true;
     },
     ChangeToNormalViewMode() {
+
       this.AGVLocLayer.setVisible(true);
       this.RestoredFillColorOfChangedFeature();
+      this.StationNameDisplayOptHandler();
       this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
       this.TransferTaskIconLayer.getSource().clear();
+
 
     },
     RestoredFillColorOfChangedFeature() {
@@ -3065,6 +3106,7 @@ export default {
   },
 
   mounted() {
+    this.loading = true;
     if (this.editable) {
       this.RemoveKeyboardPressEventListener();
       document.addEventListener('keydown', this.EditModeKeybordEvents)
@@ -3076,89 +3118,92 @@ export default {
       element.addEventListener('contextmenu', function (event) {
         event.preventDefault();
       });
-    MapStore.dispatch('DownloadMapData').then(() => {
-      this.RestoreSettingsFromLocalStorage();
-      this.DeepClonePathSegmentData();
-      this.InitMap();
-      this.AddEditMapInteraction();
-      watch(
-        () => this.map_station_data, (newval, oldval) => {
+
+
+    setTimeout(() => {
+
+      MapStore.dispatch('DownloadMapData').then(() => {
+        this.RestoreSettingsFromLocalStorage();
+        this.DeepClonePathSegmentData();
+        this.InitMap();
+        this.AddEditMapInteraction();
+        watch(
+          () => this.map_station_data, (newval, oldval) => {
+            if (!newval)
+              return;
+            this.RefreshMap();
+          }, { deep: true, immediate: true }
+        )
+
+        watch(() => this.agvs_info, (newval, oldval) => {
           if (!newval)
-            return;
-          this.RefreshMap();
-        }, { deep: true, immediate: true }
-      )
-      if (this.eq_lduld_status_show) {
-        this.watch_eq_data_changed();
-      }
-      watch(() => this.agvs_info, (newval, oldval) => {
-        if (!newval)
-          return
-        this.UpdateAGVLayer()
-      }, { deep: true, immediate: true })
+            return
+          this.UpdateAGVLayer()
+        }, { deep: true, immediate: true })
 
 
-      watch(() => this.agvs_info_other_system, (newval, oldval) => {
-        if (!newval)
-          return
-        this.UpdateAGVLocationOfOtherSystem(newval)
-      }, { deep: true, immediate: true })
+        watch(() => this.agvs_info_other_system, (newval, oldval) => {
+          if (!newval)
+            return
+          this.UpdateAGVLocationOfOtherSystem(newval)
+        }, { deep: true, immediate: true })
 
-      bus.on('/show_agv_at_center', agv_name => {
-        // alert(agv_name)
-        this.ResetMapCenterViaAGVLoc(agv_name)
-      })
-
-      bus.on('/rerender_agv_layer', () => {
-        console.log('rerender_agv_layer');
-        this.AGVLocLayer.getSource().clear();
-        this.AGVFeatures = {};
-      })
-
-      watch(
-        () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
-          if (this.agv_upload_coordination_mode) {
-            this.HandleAGVUploadData(newval)
-          }
-        }, { deep: true, immediate: true }
-      )
-      bus.on('change_to_select_agv_mode', () => {
-        if (this.editable)
-          return;
-        this.ChangeToSelectAGVMode();
-      })
-      bus.on('change_to_select_eq_station_mode', (option) => {
-        if (this.editable)
-          return;
-        this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
-        this.ChangeToSelectEQStationMode();
-      })
-      bus.on('change_to_normal_view_mode', () => {
-        if (this.editable)
-          return;
-        this.ChangeToNormalViewMode();
-      })
-      bus.on('mark_as_start_station', (tagNumber) => {
-        if (this.editable)
-          return;
-        this.TransferTaskIconLayer.getSource().clear();
-        this.AddMarkIconWithText(tagNumber, '搬運起點');
-      })
-      bus.on('mark_as_destine_station', (tagNumber) => {
-        this.CreateDestineMarkIcon(tagNumber);
-      })
-
-      var mapdom = document.getElementById(this.id);
-      if (mapdom)
-        mapdom.addEventListener('contextmenu', (ev) => {
-          ev.preventDefault()
+        bus.on('/show_agv_at_center', agv_name => {
+          // alert(agv_name)
+          this.ResetMapCenterViaAGVLoc(agv_name)
         })
-      setTimeout(() => {
+
+        bus.on('/rerender_agv_layer', () => {
+          console.log('rerender_agv_layer');
+          this.AGVLocLayer.getSource().clear();
+          this.AGVFeatures = {};
+        })
+
+        watch(
+          () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
+            if (this.agv_upload_coordination_mode) {
+              this.HandleAGVUploadData(newval)
+            }
+          }, { deep: true, immediate: true }
+        )
+        bus.on('change_to_select_agv_mode', () => {
+          if (this.editable)
+            return;
+          this.ChangeToSelectAGVMode();
+        })
+        bus.on('change_to_select_eq_station_mode', (option) => {
+          if (this.editable)
+            return;
+          this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
+          this.ChangeToSelectEQStationMode();
+        })
+        bus.on('change_to_normal_view_mode', () => {
+          if (this.editable)
+            return;
+          this.ChangeToNormalViewMode();
+        })
+        bus.on('mark_as_start_station', (tagNumber) => {
+          if (this.editable)
+            return;
+          this.TransferTaskIconLayer.getSource().clear();
+          this.AddMarkIconWithText(tagNumber, '搬運起點');
+        })
+        bus.on('mark_as_destine_station', (tagNumber) => {
+          this.CreateDestineMarkIcon(tagNumber);
+        })
+        setInterval(() => {
+          this.RenderEQLDULDStatus();
+        }, 500);
+        var mapdom = document.getElementById(this.id);
+        if (mapdom)
+          mapdom.addEventListener('contextmenu', (ev) => {
+            ev.preventDefault()
+          })
         this.UpdateAGVLocLocation();
-      }, 500);
-      this.loading = false;
-      this.MapGridSizeStore = this.MapGridSize;
-    })
+        this.loading = false;
+        this.MapGridSizeStore = this.MapGridSize;
+      })
+    }, 1000);
   },
 }
 </script>

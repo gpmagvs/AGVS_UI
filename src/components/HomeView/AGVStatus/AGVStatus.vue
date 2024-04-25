@@ -106,7 +106,7 @@
                   </div>
                   <el-button
                     class
-                    v-show="scope.row.Model == 2"
+                    v-show="scope.row.Model == 2 || scope.row.Simulation"
                     @click="HandleAGVLocatingClick(scope.row)">定位</el-button>
                 </div>
               </el-col>
@@ -275,10 +275,11 @@
     </b-modal>
   </div>
   <el-dialog v-model="ShowAGVLocatingDialog" width="400" draggable :modal="false" :close-on-click-modal="false" :title="AGVLocatingPayload.Name + '-定位'">
-    <el-checkbox-group>
+    <!-- <el-checkbox-group>
       <el-checkbox></el-checkbox>
       <el-checkbox></el-checkbox>
-    </el-checkbox-group>
+    </el-checkbox-group> -->
+    <div v-if="AGVLocatingPayload.isAMCAGV">AMC</div>
     <el-form>
       <el-form-item label="Point ID">
         <el-input v-model="AGVLocatingPayload.currentID"></el-input>
@@ -325,7 +326,8 @@ export default {
         currentID: 100,
         x: 0,
         y: 0,
-        theata: 0
+        theata: 0,
+        isAMCAGV: false
       }
     }
   },
@@ -453,6 +455,7 @@ export default {
       console.log(agv)
       this.AGVLocatingPayload.currentID = Number.parseInt(agv.CurrentLocation)
       this.AGVLocatingPayload.Name = agv.AGV_Name
+      this.AGVLocatingPayload.isAMCAGV = agv.Model == 2
       this.ShowAGVLocatingDialog = true;
     },
     async HandleAGVLocatingCinfirm() {

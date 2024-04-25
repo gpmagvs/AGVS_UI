@@ -46,7 +46,6 @@
     </el-table>
   </div>
 </template>
-
 <script>
 import { userStore } from '@/store'
 import { TaskAllocation } from '@/api/TaskAllocation'
@@ -127,6 +126,7 @@ export default {
       return GetTaskStateType(State);
     },
     GetStationName(tag) {
+      if (tag == -1) return "-";
       var station = this.MapPoints.find(station => station.TagNumber + '' == tag)
       if (station)
         return station.Graph.Display
@@ -142,8 +142,7 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" >
+<style lang="scss">
 .running-task-table {
   .el-table .traffic-task-row {
     background-color: rgb(169, 223, 238);

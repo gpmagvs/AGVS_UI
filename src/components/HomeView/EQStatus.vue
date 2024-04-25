@@ -1,12 +1,12 @@
 <template>
   <div class="eq-status" ref="eq-status-container">
     <div class="text-start border-bottom p-2 my-2 d-flex flex-row justify-content-space">
-      <div class="d-flex">
+      <!-- <div class="d-flex">
         <div class="p-1">
           <i class="bi bi-three-dots-vertical pt-2"></i>區域選擇
         </div>
         <RegionsSelector v-model="selected_region"></RegionsSelector>
-      </div>
+      </div> -->
       <div class="d-flex">
         <div class="p-1">
           <i class="bi bi-three-dots-vertical pt-2"></i>顯示模式
@@ -32,6 +32,7 @@
     <el-table
       class="eq-status-table px-1"
       border
+      scrollbar-always-on
       siz="small"
       v-bind:style="tableStyle"
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
@@ -81,6 +82,14 @@
               v-bind:style="signalOn(scope.row.To_EQ_Low)">To_EQ_Low</div>
             <div
               class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'Cmd_Reserve_Up', !scope.row.Cmd_Reserve_Up)"
+              v-bind:style="signalOn(scope.row.Cmd_Reserve_Up)">Cmd_Reserve_Up</div>
+            <div
+              class="di-status"
+              @click="HandleAGVHSSignaleChange(scope.row.EQName, 'Cmd_Reserve_Low', !scope.row.Cmd_Reserve_Low)"
+              v-bind:style="signalOn(scope.row.Cmd_Reserve_Low)">Cmd_Reserve_Low</div>
+            <div
+              class="di-status"
               @click="HandleAGVHSSignaleChange(scope.row.EQName, 'VALID', !scope.row.HS_AGV_VALID)"
               v-bind:style="signalOn(scope.row.HS_AGV_VALID)">VALID</div>
             <div
@@ -106,6 +115,8 @@
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">切換為Busy</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'load')">切換為Load</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'unload')">切換為Unload</el-button>
+            <el-button :type="scope.row.IsMaintaining ? 'success' : 'danger'" @click="MaintainEmulation(scope.row, 'maintain')">{{ scope.row.IsMaintaining ? '取消維修' : '維修模擬' }}</el-button>
+            <el-button :type="scope.row.IsPartsReplacing ? 'success' : 'danger'" @click="PartsReplacingEmulation(scope.row)">{{ scope.row.IsPartsReplacing ? '取消零件更換' : '零件更換模擬' }}</el-button>
           </div>
         </template>
       </el-table-column>
@@ -167,29 +178,17 @@
       </el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <!-- IO訊號 -->
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="可移入"
-        prop="Load_Request"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="可移入" prop="Load_Request" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Load_Request)">可移入</div>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="可移出"
-        prop="Unload_Request"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="可移出" prop="Unload_Request" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">可移出</div>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="貨物在席"
-        prop="Port_Exist"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="貨物在席" prop="Port_Exist" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">{{ scope.row.Port_Exist ? '有貨' : '無貨' }}</div>
         </template>
@@ -206,37 +205,29 @@
         </template>
       </el-table-column> -->
       <!--  -->
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="Down"
-        prop="Eqp_Status_Down"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="Down" prop="Eqp_Status_Down" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Down)">{{ scope.row.EqType == 0 ? 'Normal' : 'Down' }}</div>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="Run"
-        prop="Eqp_Status_Run"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="Run" prop="Eqp_Status_Run" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Run)">Run</div>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="!show_lduld_state"
-        label="Idle"
-        prop="Eqp_Status_Idle"
-        :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" label="Idle" prop="Eqp_Status_Idle" :min-width="column_width">
         <template #default="scope">
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Idle)">Idle</div>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="!show_lduld_state" label="維修" prop="IsMaintaining" :min-width="column_width">
+        <template #default="scope">
+          <div class="di-status" v-bind:style="signalOn(scope.row.IsMaintaining, false, 'red')">維修</div>
         </template>
       </el-table-column>
     </el-table>
   </div>
 </template>
-
 <script>
 import WebSocketHelp from '@/api/WebSocketHepler';
 import RegionsSelector from '@/components/RegionsSelector.vue'
@@ -328,13 +319,13 @@ export default {
       var isConnected = row.row.IsConnected;
       return isConnected ? 'success-row' : 'error-row';
     },
-    signalOn(status, isLoadable = false) {
+    signalOn(status, isLoadable = false, activeColor = '#00e300') {
       if (status) {
         if (isLoadable) {
           return { backgroundColor: 'blue' }
         }
         return {
-          backgroundColor: 'lime'
+          backgroundColor: activeColor
         }
       }
       else {
@@ -354,6 +345,16 @@ export default {
     },
     LDULD_Emu_State_Switch(EQName = "", mode = 'busy|load|unlod') {
       EmuAPI.SetState(EQName, mode)
+    },
+    async MaintainEmulation(row) {
+      var isMaintaining = row.IsMaintaining;
+      var stateToSwitch = !isMaintaining;
+      await EmuAPI.SwitchMaintainstate(row.Tag, stateToSwitch);
+    },
+    async PartsReplacingEmulation(row) {
+      var IsPartsReplacing = row.IsPartsReplacing;
+      var stateToSwitch = !IsPartsReplacing;
+      await EmuAPI.SwitchPartsReplacing(row.Tag, stateToSwitch);
     },
     EmuAllLoad() {
       EmuAPI.EQAllLoad()
@@ -444,8 +445,7 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" >
+<style lang="scss">
 .eq-status {
   height: 100%;
   width: 99%;
@@ -485,7 +485,7 @@ export default {
   }
 
   .di-status {
-    color: rgb(139, 139, 139);
+    color: rgb(240, 240, 240);
     height: 22px;
     padding: 0;
     margin: 0;
