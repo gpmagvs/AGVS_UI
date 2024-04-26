@@ -6,11 +6,7 @@
       <label>End Time</label>
       <input type="datetime-local" v-model="end_time" prop="End Time" />
       <label>警報類型</label>
-      <select
-        v-bind:class="AlarmTypeSelected == 'ALL' ? '' : AlarmTypeSelected == 'Alarm' ? 'bg-danger text-light' : 'bg-warning text-light'"
-        prop="EQ Name"
-        v-model="AlarmTypeSelected"
-      >
+      <select v-bind:class="AlarmTypeSelected == 'ALL' ? '' : AlarmTypeSelected == 'Alarm' ? 'bg-danger text-light' : 'bg-warning text-light'" prop="EQ Name" v-model="AlarmTypeSelected">
         <option>ALL</option>
         <option class="bg-danger text-light">Alarm</option>
         <option class="bg-warning text-light">Warning</option>
@@ -22,51 +18,24 @@
       </select>
       <label>任務名稱</label>
       <input type="text" v-model="TaskName" placeholder="ALL" size="20" />
-      <b-button
-        @click="QueryAlarm()"
-        :QueryAlarm="QueryAlarm"
-        class="Select-Query"
-        variant="primary"
-        size="sm"
-        style="float:right"
-      >搜尋</b-button>
-      <b-button
-        @click="SaveTocsv()"
-        :SaveTocsv="SaveTocsv"
-        class="SaveTocsv mx-2"
-        variant="primary"
-        size="sm"
-        style="float:right"
-      >輸出csv檔</b-button>
+      <b-button @click="QueryAlarm()" :QueryAlarm="QueryAlarm" class="Select-Query" variant="primary" size="sm" style="float:right">搜尋</b-button>
+      <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm" style="float:right">輸出csv檔</b-button>
     </div>
     <div>
-      <el-table
-        border
-        :data="alarms"
-        empty-text="No Alarms"
-        :row-class-name="row_state_class_name"
-        size="small"
-        style="width: 100%;font-weight: bold;"
-        aria-current="currentpage"
-        id="alarmtable"
-      >
+      <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small" style="width: 100%;font-weight: bold;" aria-current="currentpage" id="alarmtable">
         <el-table-column label="發生時間" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
         </el-table-column>
         <el-table-column label="AGV名稱" prop="Equipment_Name" width="80" align="center"></el-table-column>
         <el-table-column label="警報碼" prop="AlarmCode" width="60" align="center"></el-table-column>
-        <el-table-column label="警報描述" prop="Description_En" min-width="420">
+        <el-table-column label="警報描述" prop="Description_En" min-width="320">
           <template #default="scope">
             <div>{{ scope.row.Description_En }}({{ scope.row.Description_Zh }})</div>
           </template>
         </el-table-column>
         <el-table-column label="警報類型" prop="Level" width="100" align="center">
           <template #default="scope">
-            <el-tag
-              style="width:80px"
-              effect="dark"
-              :type="scope.row.Level == 1 ? 'danger' : 'warning'"
-            >{{ scope.row.Level == 1 ? 'Alarm' : 'Warning' }}</el-tag>
+            <el-tag style="width:80px" effect="dark" :type="scope.row.Level == 1 ? 'danger' : 'warning'">{{ scope.row.Level == 1 ? 'Alarm' : 'Warning' }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="任務名稱" prop="Task_Name" width="210">
@@ -74,28 +43,23 @@
             <div>
               {{ scope.row.Task_Name }}
               <el-tooltip placement="top-start" content="複製到剪貼簿">
-                <i
-                  v-if="scope.row.Task_Name != ''"
-                  @click="CopyText(scope.row.Task_Name)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i v-if="scope.row.Task_Name != ''" @click="CopyText(scope.row.Task_Name)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
         </el-table-column>
         <el-table-column label="發生地點" prop="OccurLocation" width="120" align="center"></el-table-column>
+        <el-table-column label="排除方法" prop="TrobleShootingMethod" width="120" align="center"></el-table-column>
+        <el-table-column label="排除方法參考文件" prop="TrobleShootingReference" width="220" align="center">
+          <!-- <template #default="scope">
+            <div></div>
+          </template> -->
+        </el-table-column>
         <el-table-column label="持續時間(s)" prop="Duration" width="90" align="center"></el-table-column>
         <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" min-width="120"></el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center">
-        <b-pagination
-          :per-page="per_page_num"
-          :total-rows="rows"
-          aria-controls="alarmtable"
-          class="pagination justify-content-center"
-          v-model="currentpage"
-          @click="PageChnageHandle"
-        ></b-pagination>
+        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="alarmtable" class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
         <div class="mx-3 py-2">
           共
           <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆
@@ -106,62 +70,71 @@
 </template>
 
 <script>
-import { QueryAlarm } from '@/api/AlarmAPI.js'
-import { SaveTocsv } from '@/api/AlarmAPI.js'
-import moment from 'moment'
-import Notifier from '@/api/NotifyHelper'
-import { CopyText } from '@/api/Common/UtilityTools'
+import { QueryAlarm } from "@/api/AlarmAPI.js";
+import { SaveTocsv } from "@/api/AlarmAPI.js";
+import moment from "moment";
+import Notifier from "@/api/NotifyHelper";
+import { CopyText } from "@/api/Common/UtilityTools";
 
-import { userStore, agv_states_store } from '@/store';
+import { userStore, agv_states_store } from "@/store";
 export default {
   data() {
     return {
-      start_time: '2023-06-01 00:00:00',
-      end_time: '2023-06-03 00:00:00',
-      AGVSelected: 'ALL',
-      AlarmTypeSelected: 'ALL',
-      TaskName: '',
+      start_time: "2023-06-01 00:00:00",
+      end_time: "2023-06-03 00:00:00",
+      AGVSelected: "ALL",
+      AlarmTypeSelected: "ALL",
+      TaskName: "",
       alarms: [],
       per_page_num: 19,
       rows: 1,
       currentpage: 1,
       loading: false,
-    }
+    };
   },
 
   computed: {
     AgvNameList() {
-      return agv_states_store.getters.AGVNameList
+      return agv_states_store.getters.AGVNameList;
     },
   },
   mounted() {
     const EndDate = new Date();
-    this.end_time = EndDate.toISOString().substring(0, 10) + ' 23:59:59';
-    this.start_time = moment(this.end_time, 'YYYY-MM-DD HH:mm:ss').subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
+    this.end_time = EndDate.toISOString().substring(0, 10) + " 23:59:59";
+    this.start_time = moment(this.end_time, "YYYY-MM-DD HH:mm:ss")
+      .subtract(7, "days")
+      .format("YYYY-MM-DD HH:mm:ss");
     setTimeout(() => {
-      QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
-        this.alarms = retquery.alarms
-        this.rows = retquery.count;
-        this.currentpage = retquery.currentpage;
-      }).catch(er => {
-        Notifier.Danger('警報查詢失敗後端服務異常')
-      });
+      QueryAlarm(
+        this.currentpage,
+        this.start_time,
+        this.end_time,
+        this.AGVSelected,
+        this.TaskName
+      )
+        .then((retquery) => {
+          this.alarms = retquery.alarms;
+          this.rows = retquery.count;
+          this.currentpage = retquery.currentpage;
+        })
+        .catch((er) => {
+          Notifier.Danger("警報查詢失敗後端服務異常");
+        });
     }, 500);
-
   },
   methods: {
     formatTime(_time) {
-      return moment(_time).format('yyyy-MM-DD HH:mm:ss');
+      return moment(_time).format("yyyy-MM-DD HH:mm:ss");
     },
     onmessage(ev) {
-      this.alarms = JSON.parse(ev.data)
+      this.alarms = JSON.parse(ev.data);
     },
     row_state_class_name({ row, rowIndex }) {
       if (row.rowIndex < 0) {
-        return '';
+        return "";
       }
       var level = this.alarms[rowIndex].Level;
-      return level == 1 ? 'alarm-row' : 'warning-row';
+      return level == 1 ? "alarm-row" : "warning-row";
     },
     async QueryAlarm() {
       this.loading = true;
@@ -170,36 +143,58 @@ export default {
       this.currentpage = 1;
       this.payload = 2;
       setTimeout(() => {
-        QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.AlarmTypeSelected).then(retquery => {
-          this.alarms = retquery.alarms
-          this.rows = retquery.count;
-          this.currentpage = retquery.currentpage;
-        }).then(dat => {
-          //window.open('http://localhost:5216/MapFiles/test.csv')
-
-        }).catch(er => {
-          this.loading = false;
-          Notifier.Danger('警報查詢失敗後端服務異常')
-        });
+        QueryAlarm(
+          this.currentpage,
+          this.start_time,
+          this.end_time,
+          this.AGVSelected,
+          this.TaskName,
+          this.AlarmTypeSelected
+        )
+          .then((retquery) => {
+            this.alarms = retquery.alarms;
+            this.rows = retquery.count;
+            this.currentpage = retquery.currentpage;
+          })
+          .then((dat) => {
+            //window.open('http://localhost:5216/MapFiles/test.csv')
+          })
+          .catch((er) => {
+            this.loading = false;
+            Notifier.Danger("警報查詢失敗後端服務異常");
+          });
       }, 300);
     },
     async SaveTocsv() {
-      await SaveTocsv(this.start_time, this.end_time, this.AGVSelected, this.TaskName)
-      Notifier.Primary('檔案儲存成功')
+      await SaveTocsv(
+        this.start_time,
+        this.end_time,
+        this.AGVSelected,
+        this.TaskName
+      );
+      Notifier.Primary("檔案儲存成功");
     },
     PageChnageHandle(payload) {
-      QueryAlarm(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.AlarmTypeSelected).then(retquery => {
-        this.alarms = retquery.alarms;
-      }
-      ).catch(er => {
-        Notifier.Danger('警報查詢失敗後端服務異常')
-      });
+      QueryAlarm(
+        this.currentpage,
+        this.start_time,
+        this.end_time,
+        this.AGVSelected,
+        this.TaskName,
+        this.AlarmTypeSelected
+      )
+        .then((retquery) => {
+          this.alarms = retquery.alarms;
+        })
+        .catch((er) => {
+          Notifier.Danger("警報查詢失敗後端服務異常");
+        });
     },
     CopyText(text) {
-      CopyText(text)
-    }
+      CopyText(text);
+    },
   },
-}
+};
 </script>
 
 <style lang="scss" >
