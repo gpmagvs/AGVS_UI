@@ -906,8 +906,10 @@ export default {
                 const coor = agv_information.NavPathCoordinationList[index];
                 var ft = pts.find(feature => feature.getGeometry().getCoordinates()[0] == coor[0] &&
                   feature.getGeometry().getCoordinates()[1] == coor[1])
-                var feature_ = this.StationPointsFeatures.find(feature => feature.get('index') == ft.get('index'))
-                path_coordinations.push(feature_.getGeometry().getCoordinates())
+                if (ft) {
+                  var feature_ = this.StationPointsFeatures.find(feature => feature.get('index') == ft.get('index'))
+                  path_coordinations.push(feature_.getGeometry().getCoordinates())
+                }
               }
             }
           }
