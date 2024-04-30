@@ -55,3 +55,14 @@ export var VehicleManagerAPI = {
     return response.data;
   }
 }
+
+export const VehicleBatteryAPI = {
+  GetSettings: async () => {
+    var response = await axios_entity_vms.get('api/vehiclebattery')
+    return response.data;
+  },
+  ModifySetting: async (agvName, payload) => {
+    var response = await axios_entity_vms.post(`api/vehiclebattery?agvName=${agvName}`, payload)
+    return response.data;
+  }
+}

@@ -1,6 +1,11 @@
 <template>
     <div class="vehicle-list-table">
-        <el-table header-cell-class-name="my-el-table-cell-class" header-row-class-name="my-el-table-row-class" row-key="AGV_Name" border :data="GetAGVStatesData" style="width: 100%">
+        <el-table
+            header-cell-class-name="my-el-table-cell-class"
+            row-key="AGV_Name"
+            border :data="GetAGVStatesData"
+            :header-cell-style="tableHeaderStyle"
+            size="large">
             <el-table-column label="AGV ID" prop="AGV_Name"></el-table-column>
             <el-table-column label="類型" prop="Model">
                 <template #default="scope"><el-tag effect="dark"> {{ VehicleModels[scope.row.Model].labelCN }}</el-tag> </template>
@@ -54,6 +59,7 @@ export default {
     components: {
         AddVehicle,
     },
+    inject: ['tableHeaderStyle'],
     data() {
         return {
             table: [],
@@ -131,4 +137,8 @@ export default {
     },
 }
 </script>
-<style></style>
+<style scoped>
+.my-el-table-row-class {
+    background-color: red;
+}
+</style>

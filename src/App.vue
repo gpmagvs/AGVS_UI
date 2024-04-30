@@ -37,7 +37,6 @@
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
     <ConnectionState :IsMenuExpanded="!menu_collapse"></ConnectionState>
   </div>
-  <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
 </template>
 <script>
 import Menu from '@/components/Menu.vue'
@@ -51,11 +50,16 @@ import { IsLoginLastTime } from '@/api/AuthHelper.js'
 import { userStore } from '@/store'
 import MoveAGVNotifty from '@/components/Traffic/MoveAGVNotify.vue'
 import AGVAlarmMessageDisplay from '@/components/App/AGVAlarmUI/AGVAlarmMessageDisplay.vue'
-
+import { tableHeaderStyle } from '@/ViewModels/GlobalStyles'
 export default {
   components: {
     Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay,
 
+  },
+  provide() {
+    return {
+      tableHeaderStyle
+    }
   },
   data() {
     return {
@@ -159,7 +163,7 @@ export default {
           return;
         } else {
 
-          this.OpenLoading();
+          // this.OpenLoading();
           // if (newValue == "/alarm") {
           //   this.router_view_style.paddingTop = '50px';
           // }

@@ -202,21 +202,21 @@ export var TaskAllocation = {
   },
 }
 export async function SaveHotRunSettings(data) {
-  var response = await axios_entity.post('/api/Task/HotRun', data)
+  var response = await axios_entity.post('/api/HotRun', data)
   return response.data;
 }
 export async function GetHotRunSettings() {
-  var response = await axios_entity.get('/api/Task/HotRun')
+  var response = await axios_entity.get('/api/HotRun')
   return response.data;
 }
 
 export async function StartHotRun(no) {
-  var response = await axios_entity.get(`/api/Task/HotRun/Start?no=${no}`)
+  var response = await axios_entity.get(`/api/HotRun/Start?no=${no}`)
   return response.data;//{confirm,message}
 }
 
 export async function StopHotRun(no) {
-  var response = await axios_entity.get(`/api/Task/HotRun/Stop?no=${no}`)
+  var response = await axios_entity.get(`/api/HotRun/Stop?no=${no}`)
 }
 async function CallAPI(path, data) {
   var user_param = `?user=${userStore.getters.UserName}`

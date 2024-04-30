@@ -158,12 +158,12 @@ const source_station_mark = new Icon({
 })
 
 /**一般點位 */
-function normal_station_image(map_data = {}) {
+function normal_station_image(stationData = new MapPointModel()) {
     var fillColor = 'orange'
     const stroke = new Stroke({ color: 'black', width: 2 });
 
-    if (map_data) {
-        if (!map_data.Enable) {
+    if (stationData) {
+        if (!stationData.Enable) {
             return new RegularShape({
                 fill: new Fill({
                     color: 'red',
@@ -176,16 +176,16 @@ function normal_station_image(map_data = {}) {
             })
         } else {
 
-            if (map_data.IsVirtualPoint) {
+            if (stationData.IsVirtualPoint) {
                 fillColor = 'grey'
             }
-            else if (map_data.IsTrafficCheckPoint) {
+            else if (stationData.IsTrafficCheckPoint) {
                 fillColor = 'rgb(13, 110, 253)'
             }
             else {
                 fillColor = 'orange'
             }
-            if (map_data.IsAvoid) {
+            if (stationData.IsAvoid) {
                 return new RegularShape({
                     fill: new Fill({
                         color: 'orange',
@@ -256,7 +256,7 @@ export function CreateLocIcon(coordinate, isStart = true, text = '') {
     return iconFeture;
 }
 
-export function GetStationStyle(text = '', station_type = 0, map_data) {
+export function GetStationStyle(text = '', station_type = 0, map_data = new MapPointModel()) {
     var image = normal_station_image(map_data)
 
     if (station_type == 0) {
@@ -285,14 +285,13 @@ export function GetStationStyle(text = '', station_type = 0, map_data) {
     var _normalStationTextFontSize = MapStore.getters.Settings.normalStationTextFontSize;
     var _workStationTextFontSize = MapStore.getters.Settings.workStationTextFontSize;
 
-    var textFillColor = station_type == 0 ? _normalStationTextColor : _workStationTextColor
+    var textFillColor = !map_data.Enable ? 'rgb(255, 102, 92)' : (station_type == 0 ? _normalStationTextColor : _workStationTextColor);
     var fontSize = station_type == 0 ? _normalStationTextFontSize : _workStationTextFontSize;
 
-    console.log(_normalStationTextColor, _workStationTextColor);
     var textStyle = new Style({
         image: image,
         text: new Text({
-            text: text,
+            text: text + `${map_data.Enable ? '' : '(已禁用)'}`,
             font: `bold ${fontSize}px Calibri,sans-serif`,
             offsetY: -22,
             fill: new Fill({
@@ -351,7 +350,7 @@ export function CreateStationPathStyles(feature, color = undefined) {
                 new Style({
                     geometry: new Point(end),
                     image: new Icon({
-                        src: 'arrow.png',
+                        src: '/arrow.png',
                         anchor: isEQLink ? [1.8, 0.5] : [1.2, 0.5],
                         rotateWithView: true,
                         rotation: -rotation,
@@ -369,7 +368,7 @@ export function CreateStationPathStyles(feature, color = undefined) {
                     new Style({
                         geometry: new Point(start),
                         image: new Icon({
-                            src: 'close.png',
+                            src: '/close.png',
                             anchor: [1.2, 0.5],
                             rotateWithView: true,
                             rotation: -rotation,

@@ -47,7 +47,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import Clipboard from 'clipboard'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
@@ -165,11 +164,10 @@ export default {
   },
 }
 </script>
-
 <style lang="scss">
 .rack-port {
   width: 360px;
-  height: 255px;
+  height: 190px;
   //   background-color: rgb(236, 236, 236);
   border: 2px solid grey;
   margin: 2px;

@@ -18,7 +18,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import RackPort from './RackPort.vue';
 export default {
@@ -45,6 +44,11 @@ export default {
           WIPName: "Rack-1",
           Rows: 3,
           Columns: 3,
+          ColumnsTagMap: {
+            0: [0],
+            1: [1],
+            2: [2],
+          },
           Ports: [
             {
               CargoExist: false,
@@ -92,7 +96,6 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .rack-status {
   border: 2px solid black;

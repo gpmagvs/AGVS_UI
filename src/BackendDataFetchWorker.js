@@ -24,7 +24,7 @@ const throttledHandleAGVSData = Throttle(function (event) {
     if (event.data != 'error' && event.data != 'closed') {
 
         if (event.data.VMSStatus) {
-            var data = Object.values(event.data.VMSStatus).map(d => new clsAGVStateDto(d));
+            var data = Object.values(event.data.VMSStatus).map(d => Object.assign(new clsAGVStateDto(), d));
             agv_states_store.commit('storeAgvStates', data)
         }
 

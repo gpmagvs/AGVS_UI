@@ -32,6 +32,9 @@ class clsAGVStateDto {
       this.IsExecutingOrder = false
       this.VehicleLength = 145
       this.VehicleWidth = 70
+      this.LowBatLvThreshold = 70
+      this.MiddleBatLvThreshold = 70
+      this.HighBatLvThreshold = 70
       this.UIOptions = {
 
       }
@@ -67,6 +70,9 @@ class clsAGVStateDto {
       this.VehicleLength = dto.VehicleLength
       this.VehicleWidth = dto.VehicleWidth
       this.UIOptions = dto.UIOptions
+      this.LowBatLvThreshold = dto.LowBatLvThreshold
+      this.MiddleBatLvThreshold = dto.MiddleBatLvThreshold
+      this.HighBatLvThreshold = dto.HighBatLvThreshold
     }
   }
 }

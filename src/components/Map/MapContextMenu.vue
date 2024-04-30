@@ -12,6 +12,9 @@
           @click="() => { $emit('OnTaskBtnClick', { action: 'move', station_data: station_data }) }">移動</b-button>
       </div>
       <div v-if="station_type == 1 || station_type == 2 || station_type == 4 || station_type == 5" class="d-flex flex-column">
+        <b-button v-if="station_type == 4 || station_type == 5"
+          variant="primary"
+          @click="ShowRackInfoBtnClick">RACK資訊</b-button>
         <!-- EQ可指派之任務 -->
         <b-button
           variant="primary"
@@ -41,13 +44,23 @@
     <div v-else class="menu edit">
       <b-button variant="primary" @click="() => { $emit('OnPtSettingBtnClick', '') }">設定點位</b-button>
     </div>
+    <el-dialog v-bind:style="{ height: RackShowDialogHeight }" :width="RackShowDialogWidth" v-model="showRack" draggable :modal="false">
+      <template #header="{}">
+        <div class="my-header">{{ RackName }} </div>
+      </template>
+      <div class="w-100 text-center" style="padding-left: 50px;">
+        <RackVue class="mx-3" :rackName="RackName"></RackVue>
+      </div>
+    </el-dialog>
   </div>
 </template>
-
 <script>
 import { MapContextMenuOptions, MenuUseTaskOption } from './mapjs'
+import { EqStore } from '@/store';
+import RackVue from '@/components/RacksStatusView/Rack.vue';
 export default {
   components: {
+    RackVue
   },
   props: {
     mouse_click_position: {
@@ -76,15 +89,40 @@ export default {
     },
     station_data() {
       return this.options.point_data;
-    }
+    },
+
   },
   data() {
     return {
+      showRack: false,
+      RackName: "",
+      RackShowDialogWidth: '50%',
+      RackShowDialogHeight: '400px'
+    }
+  },
+  methods: {
+    ShowRackInfoBtnClick() {
+
+      //get wip name 
+
+      var RacksData = EqStore.getters.WIPData;
+      const racks = RacksData.filter(element => {
+        const columnsTagMap = Object.values(element.ColumnsTagMap);
+        return columnsTagMap.some(tagValues => tagValues.includes(this.station_data.TagNumber));
+      });
+
+      if (racks) {
+        var rack = racks[0]
+        console.log(rack)
+        this.RackName = rack.WIPName
+        this.RackShowDialogWidth = rack.Columns * 200 + 'pt'
+        this.RackShowDialogHeight = rack.Rows * 200 + 'pt'
+        this.showRack = true;
+      }
     }
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .map-menu {
   position: fixed;

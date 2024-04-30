@@ -126,8 +126,7 @@
               </el-form>
             </el-collapse-item>
             <el-collapse-item title="功能設定" name="2">
-              <div class="d-flex flex-column">
-                <el-checkbox v-model="pointData_editing.Enable" label="啟用"></el-checkbox>
+              <div class="d-flex flex-column">ㄉ<el-checkbox v-model="pointData_editing.Enable" label="啟用"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsTrafficCheckPoint" label="交管檢查點"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsStandbyPoint" label="停駐點"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsSegment" label="二次定位點"></el-checkbox>
@@ -136,6 +135,7 @@
                 <el-checkbox v-model="pointData_editing.IsVirtualPoint" label="虛擬點"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsAutoDoor" label="自動門"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsExtinguishing" label="消防設備"></el-checkbox>
+                <el-checkbox v-model="pointData_editing.IsNarrowPath" label="窄道"></el-checkbox>
               </div>
             </el-collapse-item>
             <el-collapse-item title="註冊點" name="3">
@@ -202,6 +202,7 @@
 <script>
 import { GetEQInfoByTag } from '@/api/EquipmentAPI.js';
 import { pointTypes } from '@/api/MapAPI.js'
+import { MapPointModel } from '@/components/Map/mapjs';
 import { MapStore } from './Map/store';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import MapAPI from '@/api/MapAPI'
@@ -216,9 +217,7 @@ export default {
       show: false,
       index: -1,
       pointData: {},
-      pointData_editing: {
-        SpinMode: 0
-      },
+      pointData_editing: new MapPointModel(),
       RegistersTable: [
         {
           index: 0,
@@ -227,7 +226,7 @@ export default {
 
         }
       ],
-      activeNames: ['1'],
+      activeNames: [],
       BindingEQInfo: {
         ConnOptions: {
           ConnMethod: 0,

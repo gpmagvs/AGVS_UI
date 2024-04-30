@@ -12,7 +12,7 @@
       </div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
-        <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="key">
+        <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="mode.name">
           <span class="mx-1">{{ mode.name }}</span>
           <el-switch v-model="mode.actived" active-color="rgb(95, 171, 80)" inactive-color="red"
             :active-text="mode.active_text" :inactive-text="mode.inactive_text" border-color="grey" inline-prompt
@@ -107,7 +107,7 @@ import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { agvs_settings_store, userStore, UIStore, AlarmStore } from '@/store'
 import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@element-plus/icons-vue'
-
+import { ElNotification } from 'element-plus';
 export default {
   components: {
     Login, MenuExpandIcon, MenuFoldIcon, UserFilled, Switch
@@ -127,7 +127,7 @@ export default {
           active_text: '運轉',
           inactive_text: '維護',
           loading: false,
-          beforeChangeHandler: this.SysOptModeChangeRequest
+          beforeChangeHandler: () => this.SysOptModeChangeRequest()
         },
         transfer_mode: {
           name: "派工模式",
@@ -135,7 +135,7 @@ export default {
           active_text: '自動',
           inactive_text: '手動',
           loading: false,
-          beforeChangeHandler: this.TransferModeChangeRequest
+          beforeChangeHandler: () => this.TransferModeChangeRequest()
         },
         host_conn_mode: {
           name: 'HOST連線',
@@ -143,7 +143,7 @@ export default {
           active_text: 'Online',
           inactive_text: 'Offline',
           loading: false,
-          beforeChangeHandler: this.HostConnModeChangeRequest
+          beforeChangeHandler: () => this.HostConnModeChangeRequest()
         },
         host_operation_mode: {
           name: 'HOST模式',
@@ -151,7 +151,7 @@ export default {
           active_text: 'Remote',
           inactive_text: 'Local',
           loading: false,
-          beforeChangeHandler: this.HostOptModeChangeRequest
+          beforeChangeHandler: () => this.HostOptModeChangeRequest()
         }
 
       },
@@ -160,7 +160,8 @@ export default {
       system_alrm_text: '',
       eq_alrm_text: '',
       showAlarm: true,
-      isEasyMode: false
+      isEasyMode: false,
+      systemAlarmInterval: undefined
     }
   },
   props: {
@@ -367,7 +368,7 @@ export default {
       if (!this.CheckUserLoginState())
         return false;
       this.modes.host_conn_mode.loading = true;
-      var mode_req_text = this.modes.host_conn_mode.actived ? 'OFFLINE' : 'ONLINE';
+      var mode_req_text = this.modes.host_conn_mode.actived ? 'HOST-OFFLINE' : 'HOST-ONLINE';
       var response = await HostConnMode(this.modes.host_conn_mode.actived ? 0 : 1);
       var success = response.confirm;
       var msg = response.message;
@@ -384,8 +385,9 @@ export default {
     async HostOptModeChangeRequest() {
       if (!this.CheckUserLoginState())
         return false;
+
       this.modes.host_operation_mode.loading = true;
-      var mode_req_text = this.modes.host_operation_mode.actived ? 'LOCAL' : 'REMOTE';
+      var mode_req_text = this.modes.host_operation_mode.actived ? 'HOST-LOCAL' : 'HOST-REMOTE';
       var response = await HostOperationMode(this.modes.host_operation_mode.actived ? 0 : 1);
       var success = response.confirm;
       var msg = response.message;
@@ -430,27 +432,23 @@ export default {
       })
     },
     ModeRequestSuccessHandler(action) {
-      this.$vs.notify({
-        color: 'success',
-        title: `${action}請求`,
-        text: `${action}請求成功`,
-        position: 'bottom-right',
-        time: 2000
+      ElNotification.success({
+        message: `${action}-請求成功`,
+        position: 'top-right',
+        duration: 2000
       })
     },
     LangSwitch(lang) {
       this.$i18n.locale = lang;
-
     },
     async ResetSysAlarmsHandler() {
       await ResetSystemAlarm()
-      this.$vs.notify({
-        color: 'primary',
-        title: '警報復歸請求',
-        text: '系統警報復歸請求完成',
-        position: 'bottom-right',
-        time: 1400
+      ElNotification.success({
+        message: `系統警報清除完成`,
+        position: 'top-right',
+        duration: 2000
       })
+      this.ResetSystemAlarmTimer();
       this.system_alarms = [''];
       this.system_alrm_text = "";
     },
@@ -468,28 +466,8 @@ export default {
       return `${moment(alarm.Time).format('yyyy/MM/DD HH:mm:ss')} |Code:${alarm.AlarmCode}|Source:${alarm.Equipment_Name}|-${alarm.Description_Zh}(${alarm.Description_En})`
     },
     AlarmDisplayHandler() {
-      var sys_alarm_inx = 0;
       var eq_alarm_inx = 0;
-
-      setInterval(() => {
-        if (!this.SystemAlarms || this.SystemAlarms.length == 0) {
-          this.system_alarms = [''];
-          this.system_alrm_text = '';
-          return;
-        }
-        var sys_alarm = this.SystemAlarms[sys_alarm_inx]
-        if (sys_alarm) {
-          this.system_alarms = [sys_alarm.Level == 1 ? 'alarm' : 'warning'];
-          this.system_alrm_text = this.CreateAlarmDisplayText(sys_alarm);
-        } else {
-          this.system_alarms = [''];
-          this.system_alrm_text = '';
-        }
-        sys_alarm_inx += 1;
-        if (sys_alarm_inx >= this.SystemAlarms.length)
-          sys_alarm_inx = 0
-
-      }, 2000);
+      this.ResetSystemAlarmTimer();
 
       setInterval(() => {
         if (!this.EquipmentAlarms || this.EquipmentAlarms.length == 0) {
@@ -509,6 +487,31 @@ export default {
         if (eq_alarm_inx >= this.EquipmentAlarms.length)
           eq_alarm_inx = 0
       }, 2000);
+    },
+    ResetSystemAlarmTimer() {
+
+      clearInterval(this.systemAlarmInterval)
+      var sys_alarm_inx = 0;
+      this.systemAlarmInterval = setInterval(() => {
+        if (!this.SystemAlarms || this.SystemAlarms.length == 0) {
+          this.system_alarms = [''];
+          this.system_alrm_text = '';
+          return;
+        }
+        var sys_alarm = this.SystemAlarms[sys_alarm_inx]
+        if (sys_alarm) {
+          this.system_alarms = [sys_alarm.Level == 1 ? 'alarm' : 'warning'];
+          this.system_alrm_text = this.CreateAlarmDisplayText(sys_alarm);
+        } else {
+          this.system_alarms = [''];
+          this.system_alrm_text = '';
+        }
+        sys_alarm_inx += 1;
+        if (sys_alarm_inx >= this.SystemAlarms.length)
+          sys_alarm_inx = 0
+
+      }, 2000);
+
     },
     NavigateToAlarmView() {
       this.$router.push('/alarm');
