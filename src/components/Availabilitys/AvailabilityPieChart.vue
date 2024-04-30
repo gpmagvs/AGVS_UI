@@ -1,18 +1,11 @@
 <template>
   <div class="border rounded" style="height:600px;width: 95%; display: flex;flex-direction:column;">
-    <vue3-chart-js
-      :key="myChart.type"
-      ref="chartRef"
-      :id="myChart.id"
-      :type="myChart.type"
-      :data="myChart.data"
-      :options="myChart.options"
-      @before-render="beforeRenderLogic"
-    ></vue3-chart-js>
+    <vue3-chart-js :key="myChart.type" ref="chartRef" :id="myChart.id" :type="myChart.type" :data="myChart.data"
+      :options="myChart.options" @before-render="beforeRenderLogic"></vue3-chart-js>
   </div>
 </template>
-  
-  <script>
+
+<script>
 import Vue3ChartJs from '@j-t-mcc/vue3-chartjs'
 import { watch } from 'vue'
 export default {
@@ -135,6 +128,25 @@ export default {
       } catch (error) {
       }
 
+    },
+    updateStackBarChartmttr(BarchartMTTR = {
+      dates: [],
+      time: [],
+    }) {
+      this.myChart.type = 'bar'
+      this.myChart.data.labels = BarchartMTTR.dates;
+      this.myChart.data.datasets = [
+        {
+          label: 'MTTR',
+          data: BarchartMTTR.time,
+          backgroundColor: this.colorSet[1],
+        }
+      ]
+      try {
+        this.$refs.chartRef.update();
+      } catch (error) {
+      }
+
     }
   },
   mounted() {
@@ -144,4 +156,4 @@ export default {
   },
 
 }
-  </script>
+</script>

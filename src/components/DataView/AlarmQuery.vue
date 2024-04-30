@@ -49,11 +49,13 @@
           </template>
         </el-table-column>
         <el-table-column label="發生地點" prop="OccurLocation" width="120" align="center"></el-table-column>
-        <el-table-column label="排除方法" prop="TrobleShootingMethod" width="120" align="center"></el-table-column>
-        <el-table-column label="排除方法參考文件" prop="TrobleShootingReference" width="220" align="center">
-          <!-- <template #default="scope">
-            <div></div>
-          </template> -->
+        <el-table-column label="排除方法" prop="TrobleShootingMethod" width="320" align="center">
+          <template #default="scope">
+            <div>
+              <span v-if="scope.row.TrobleShootingReference==''">{{scope.row.TrobleShootingMethod}}</span>
+              <a  v-else :href="getFullFilePath(scope.row.TrobleShootingReference)" target = "_blank">{{scope.row.TrobleShootingMethod}} </a>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column label="持續時間(s)" prop="Duration" width="90" align="center"></el-table-column>
         <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" min-width="120"></el-table-column>
@@ -75,6 +77,7 @@ import { SaveTocsv } from "@/api/AlarmAPI.js";
 import moment from "moment";
 import Notifier from "@/api/NotifyHelper";
 import { CopyText } from "@/api/Common/UtilityTools";
+import param from '@/gpm_param.js'
 
 import { userStore, agv_states_store } from "@/store";
 export default {
@@ -193,6 +196,10 @@ export default {
     CopyText(text) {
       CopyText(text);
     },
+    getFullFilePath(filePath) {
+      const baseURL =param.backend_host ;
+      return baseURL +"/TrobleShootingFiles/" +filePath; // 構建完整的 URL
+    }
   },
 };
 </script>
