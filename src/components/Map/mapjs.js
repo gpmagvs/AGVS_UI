@@ -849,10 +849,17 @@ export class MapPointModel {
 }
 
 export class MapRegion {
-    constructor(name, coordinations, region_type = 0 | 1) {
+    constructor(name = "", coordinations = [], region_type = 0 | 1) {
         this.Name = name
         this.PolygonCoordinations = coordinations
         this.RegionType = region_type
+        this.IsOpend = true
+        this.IsNarrowPath = true
+        this.MaxVehicleCapacity = 2
+        this.SpeedLimit = 1
+        this.EnteryTags = []
+        this.LeavingTags = []
+        this.ThetaLimitWhenAGVIdling = 0
     }
 }
 export class MapContextMenuOptions {
