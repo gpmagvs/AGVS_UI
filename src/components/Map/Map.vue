@@ -825,6 +825,7 @@ export default {
       var _regions = MapStore.getters.Regions;
       _regions.forEach(element => {
         var _RegionObj = CreateRegionPolygon(element.Name, element.PolygonCoordinations, element.RegionType);
+        _RegionObj.region_feature.set('data', element)
         this.RegionLayer.getSource().addFeatures([_RegionObj.region_feature, _RegionObj.text_feature])
       });
     },
@@ -2381,6 +2382,8 @@ export default {
       _polygons.forEach(polygon_feature => {
         var _name = polygon_feature.get('name')
         var _regionType = polygon_feature.get('region_type')
+        let _regionData = new MapRegion("", [], -1);
+        Object.assign(_regionData, polygon_feature.get('data'))
         var flatCoordinates = polygon_feature.getGeometry().flatCoordinates;
 
         function createPolygons(coordinates) {
@@ -2397,7 +2400,10 @@ export default {
           return polygons;
         }
         let coordinate_list = createPolygons(flatCoordinates);
-        output.push(new MapRegion(_name ? _name : `禁制區-${GetForbidRegionCount() + 1}`, coordinate_list, _regionType == 'forbid' ? 0 : 1))
+        _regionData.Name = _name ? _name : `禁制區-${GetForbidRegionCount() + 1}`;
+        _regionData.PolygonCoordinations = coordinate_list;
+        _regionData.RegionType = _regionType == 'forbid' ? 0 : 1;
+        output.push(_regionData)
       })
       console.log(output)
       return output;
