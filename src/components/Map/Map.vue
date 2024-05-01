@@ -550,7 +550,7 @@ export default {
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
       routePathsVisible: true,
-      regionsVisible: true,
+      regionsVisible: false,
       contextMenuTop: 0,
       contextMenuLeft: 0,
       contextMenuOptions: new MapContextMenuOptions(),
@@ -2104,7 +2104,7 @@ export default {
       this.PointRouteLayer.setVisible(!isShowSlamCoordi);
       this.PathLayerForCoordination.setVisible(isShowSlamCoordi);
       this.PathLayerForRouter.setVisible(!isShowSlamCoordi);
-      this.RegionLayer.setVisible(isShowSlamCoordi);
+      this.RegionLayer.setVisible(isShowSlamCoordi && this.regionsVisible);
 
       this.UpdateEQLDULDFeature();
       this.UpdateAGVLocLocation();

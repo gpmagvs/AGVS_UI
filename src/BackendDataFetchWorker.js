@@ -23,11 +23,6 @@ GetWIPOptions().then(option => EqStore.commit('WIPOptions', option));
 const throttledHandleAGVSData = Throttle(function (event) {
     if (event.data != 'error' && event.data != 'closed') {
 
-        if (event.data.VMSStatus) {
-            var data = Object.values(event.data.VMSStatus).map(d => Object.assign(new clsAGVStateDto(), d));
-            agv_states_store.commit('storeAgvStates', data)
-        }
-
         EqStore.commit('setData', event.data.EQStatus)
         agv_states_store.commit('setHotRunStates', event.data.HotRun)
         TaskStore.commit('StoreTaskData', event.data.TaskData);
@@ -45,6 +40,13 @@ agvs_websocket_worker.postMessage({ command: 'connect', ws_url: param.backend_ws
 
 const throttledHandleVMSData = Throttle(function (event) {
     if (event.data != 'error' && event.data != 'closed') {
+
+
+        if (event.data.VMSStatus) {
+            var data = Object.values(event.data.VMSStatus).map(d => Object.assign(new clsAGVStateDto(), d));
+            agv_states_store.commit('storeAgvStates', data)
+        }
+
         MapStore.commit('setAGVDynamicPathInfo', event.data.AGVNaviPathsInfoVM);
         MapStore.commit('setOtherAGVLocateInfo', event.data.OtherAGVLocations);
 

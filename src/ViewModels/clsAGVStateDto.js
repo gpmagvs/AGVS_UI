@@ -27,7 +27,7 @@ class clsAGVStateDto {
       this.TaskDestineStationName = ""
       this.TransferProcess = 0
       this.CurrentAction = 0
-      this.OrderAction = 0
+      this.TaskRunAction = 0
       this.TaskETA = ""
       this.IsExecutingOrder = false
       this.VehicleLength = 145
@@ -64,7 +64,7 @@ class clsAGVStateDto {
       this.TaskDestineStationName = dto.TaskDestineStationName
       this.TransferProcess = dto.TransferProcess
       this.CurrentAction = dto.CurrentAction
-      this.OrderAction = dto.OrderAction
+      this.TaskRunAction = dto.TaskRunAction
       this.TaskETA = dto.TaskETA
       this.IsExecutingOrder = dto.IsExecutingOrder
       this.VehicleLength = dto.VehicleLength
