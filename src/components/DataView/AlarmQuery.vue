@@ -53,7 +53,7 @@
           <template #default="scope">
             <div>
               <span v-if="scope.row.TrobleShootingReference==''">{{scope.row.TrobleShootingMethod}}</span>
-              <a  v-else :href="getFullFilePath(scope.row.TrobleShootingReference)" target = "_blank">{{scope.row.TrobleShootingMethod}} </a>
+              <a  v-else :href="getFullFilePath(scope.row.TrobleShootingReference)" target = "_blank"> 📕 {{scope.row.TrobleShootingMethod}} </a>
             </div>
           </template>
         </el-table-column>
