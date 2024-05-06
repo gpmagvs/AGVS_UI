@@ -21,7 +21,8 @@
         <el-radio-group v-model="chart_type" @change="HandleChartTypeChanged">
           <el-radio-button size="large" label="pie">圓餅圖</el-radio-button>
           <el-radio-button size="large" label="bar">直條圖</el-radio-button>
-          <el-radio-button size="large" label="BarchartMTBF">MTTR</el-radio-button>
+          <el-radio-button size="large" label="BarchartMTTR">MTTR</el-radio-button>
+          <el-radio-button size="large" label="BarchartMTBF">MTBF</el-radio-button>
           <!-- <el-radio-button size="large" label="edit-station">編輯點位[2]</el-radio-button>
           <el-radio-button size="large" label="remove-station">移除點位[3]</el-radio-button>-->
         </el-radio-group>
@@ -29,6 +30,7 @@
           <AvailabilityPieChart v-show="chart_type == 'pie'" class ref="piechart"></AvailabilityPieChart>
           <AvailabilityPieChart v-show="chart_type == 'bar'" class ref="barchart"></AvailabilityPieChart>
           <AvailabilityPieChart v-show="chart_type == 'bar'" class ref="BarchartMTTR"></AvailabilityPieChart>
+          <AvailabilityPieChart v-show="chart_type == 'bar'" class ref="BarchartMTBF"></AvailabilityPieChart>
         </div>
       </div>
     </div>
@@ -66,6 +68,10 @@ export default {
         BarchartMTTR: {
           dates: [],
           time: []
+        },
+        BarchartMTBF: {
+          dates: [],
+          time: []
         }
       }
     }
@@ -86,7 +92,7 @@ export default {
       this.$refs['barchart'].updateStackBarChart(this.query_data.days);
       this.$refs['piechart'].updateChart(this.query_data.total);
       this.$refs['BarchartMTTR'].updateStackBarChartmttr(this.query_data.BarchartMTTR);
-      //this.$refs['BarchartMTBF'].renderChartMTBF(this.query_data.BarchartMTBF);
+      this.$refs['BarchartMTBF'].updateStackBarChartmttr(this.query_data.BarchartMTBF);
       setTimeout(() => {
         this.loading = false;
       }, 400);

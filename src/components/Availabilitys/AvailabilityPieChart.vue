@@ -147,6 +147,25 @@ export default {
       } catch (error) {
       }
 
+    },
+    updateStackBarChartmtbf(BarchartMTBF = {
+      dates: [],
+      time: [],
+    }) {
+      this.myChart.type = 'bar'
+      this.myChart.data.labels = BarchartMTBF.dates;
+      this.myChart.data.datasets = [
+        {
+          label: 'MTBF',
+          data: BarchartMTBF.time,
+          backgroundColor: this.colorSet[1],
+        }
+      ]
+      try {
+        this.$refs.chartRef.update();
+      } catch (error) {
+      }
+
     }
   },
   mounted() {
