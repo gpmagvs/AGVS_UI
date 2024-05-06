@@ -23,6 +23,7 @@
           <el-radio-button size="large" label="bar">直條圖</el-radio-button>
           <el-radio-button size="large" label="BarchartMTTR">MTTR</el-radio-button>
           <el-radio-button size="large" label="BarchartMTBF">MTBF</el-radio-button>
+          <el-radio-button size="large" label="BarchartMissTag">Miss Tag Count</el-radio-button>
           <!-- <el-radio-button size="large" label="edit-station">編輯點位[2]</el-radio-button>
           <el-radio-button size="large" label="remove-station">移除點位[3]</el-radio-button>-->
         </el-radio-group>
@@ -31,6 +32,7 @@
           <AvailabilityPieChart v-show="chart_type == 'bar'" class ref="barchart"></AvailabilityPieChart>
           <AvailabilityPieChart v-show="chart_type == 'bar'" class ref="BarchartMTTR"></AvailabilityPieChart>
           <AvailabilityPieChart v-show="chart_type == 'bar'" class ref="BarchartMTBF"></AvailabilityPieChart>
+          <AvailabilityPieChart v-show="chart_type == 'bar'" class ref="BarchartMissTag"></AvailabilityPieChart>
         </div>
       </div>
     </div>
@@ -72,6 +74,10 @@ export default {
         BarchartMTBF: {
           dates: [],
           time: []
+        },
+        BarchartMissTag: {
+          dates: [],
+          count: []
         }
       }
     }
@@ -93,6 +99,7 @@ export default {
       this.$refs['piechart'].updateChart(this.query_data.total);
       this.$refs['BarchartMTTR'].updateStackBarChartmttr(this.query_data.BarchartMTTR);
       this.$refs['BarchartMTBF'].updateStackBarChartmttr(this.query_data.BarchartMTBF);
+      this.$refs['BarchartMissTag'].updateStackBarChartmttr(this.query_data.BarchartMissTag);
       setTimeout(() => {
         this.loading = false;
       }, 400);

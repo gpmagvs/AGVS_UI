@@ -67,7 +67,7 @@ export default {
             },
             title: {
               display: true,
-              text: '稼動率',
+              text: '統計資料',
             }
           },
         }
@@ -158,6 +158,25 @@ export default {
         {
           label: 'MTBF',
           data: BarchartMTBF.time,
+          backgroundColor: this.colorSet[1],
+        }
+      ]
+      try {
+        this.$refs.chartRef.update();
+      } catch (error) {
+      }
+
+    },
+    updateStackBarChartMissTags(BarchartMissTag = {
+      dates: [],
+      count: [],
+    }) {
+      this.myChart.type = 'bar'
+      this.myChart.data.labels = BarchartMissTag.dates;
+      this.myChart.data.datasets = [
+        {
+          label: 'MissTagsCount',
+          data: BarchartMissTag.count,
           backgroundColor: this.colorSet[1],
         }
       ]
