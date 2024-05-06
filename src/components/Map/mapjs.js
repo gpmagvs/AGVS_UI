@@ -523,16 +523,17 @@ export function AGVCargoIconStyle(cargo_type = 0, cargo_id = '', cst_exist = fal
         text: new Text({
             // text: `${cargo_type.toUpperCase()}\r\n${cargo_id}`,
             text: cargo_id,
-            offsetX: -45,
-            offsetY: -35,
+            offsetX: -55,
+            offsetY: -45,
             textAlign: 'left',
-            font: 'bold 9px Arial',
+            font: 'bold 16px Arial',
             fill: new Fill({
                 color: 'white'
             }),
             backgroundFill: new Fill({
-                color: 'grey',
+                color: 'rgb(13, 110, 253)',
             }),
+            padding: [5, 8, 5, 8]
 
 
         })
@@ -567,7 +568,7 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
     }
     return new Icon({
         src: _imgUrl, // 设置PNG图像的路径
-        scale: 32 / width, // 设置PNG图像的缩放比例
+        scale: 48 / width, // 设置PNG图像的缩放比例
         anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
         size: [width, height],// 设置PNG图像的大小
         opacity: 1,
@@ -625,7 +626,7 @@ export function AGVPointStyle(agv_name, color, ImageName = undefined, ImageSize 
                 color: 'black',
             }),
             textAlign: 'center',
-            padding: [4, 4, 4, 4]
+            padding: [6, 8, 6, 8]
         }),
     })
 }

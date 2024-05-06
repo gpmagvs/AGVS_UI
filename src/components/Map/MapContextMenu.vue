@@ -3,7 +3,7 @@
     <div
       class="title border-bottom"
       v-bind:class="station_data.Enable ? 'text-primary' : 'text-danger'">{{ options.title + (station_data.Enable ? '' : '(已禁用)') }}</div>
-    <div v-if="options.show_task_dispatch" class="menu task">
+    <div v-if="options.show_taskㄌdispatch" class="menu task">
       <span>站點類型 : {{ station_data.IsVirtualPoint ? '虛擬點' : options.task_options.StationType }}</span>
       <div v-if="station_type == 0 && !station_data.IsVirtualPoint">
         <!-- 一般點位可指派之任務 -->

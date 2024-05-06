@@ -340,6 +340,7 @@
         </el-table-column>
       </el-table>
     </el-dialog>
+    <!-- <el-drawer v-model="AgvOperation.display"></el-drawer> -->
   </div>
 </template>
 <script>
@@ -586,6 +587,14 @@ export default {
         NormalPointTextFontSize: 12,
         WorkStationPointTextFontSize: 18,
 
+      },
+      AgvOperation: {
+        operatingAgvName: '',
+        display: false,
+        Show(agvName) {
+          this.operatingAgvName = agvName;
+          this.display = true
+        }
       }
     }
   },
@@ -598,6 +607,9 @@ export default {
       if (this.map_img_url_for_editor)
         return this.map_img_url_for_editor
       return `${this.MapServerUrl}/MapFiles/${MapStore.getters.MapImageName}?version=1`
+    },
+    map_name_with_url() {
+      return `map-${this.$route.name}`
     },
     /**[xmin,ymin,xmax,ymax] */
     map_img_extent() {
@@ -934,7 +946,7 @@ export default {
           text.setText(agvText);
 
           var fill = text.getBackgroundFill()
-          fill.setColor(!agv_information.AgvStates.is_online ? 'rgb(147, 147, 147)' : (agv_information.WaitingInfo.IsWaiting ? 'orange' : agv_information.TextColor))
+          fill.setColor(!agv_information.AgvStates.is_online ? 'rgb(147, 147, 147)' : agv_information.TextColor)
           text.setBackgroundFill(fill);
           agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
@@ -1162,11 +1174,18 @@ export default {
         this.map.getTargetElement().style.cursor = 'grabbing';
       })
       this.map.on('moveend', event => {
+        console.log('moveend')
         this.SaveSettingsToLocalStorage();
-
       })
-
-
+      this.map.on('click', (evt) => {
+        this.map.forEachFeatureAtPixel(evt.pixel, (feature) => {
+          if (feature.get('feature_type') === 'agv') {
+            const agvName = feature.get('agvname')
+            //alert(agvName)
+            this.AgvOperation.Show(agvName)
+          }
+        });
+      });
     },
     /**切換為刪除禁制區模式 */
     HandleDeleteForbidRegionClicked() {
@@ -1665,7 +1684,7 @@ export default {
         this.center_route = center
       }
       //儲存目前的地圖設定
-      localStorage.setItem(`map-${this.$route.name}`, JSON.stringify({
+      localStorage.setItem(this.map_name_with_url, JSON.stringify({
         zoom: this.zoom,
         zoom_route: this.zoom_route,
         mode: this.map_display_mode,
@@ -1676,12 +1695,17 @@ export default {
 
     },
     RestoreSettingsFromLocalStorage() {
-      var settings_json = localStorage.getItem(`map-${this.$route.name}`)
+      var settings_json = localStorage.getItem(this.map_name_with_url)
+      console.log(settings_json);
       if (settings_json) {
         var settings = JSON.parse(settings_json)
         this.station_name_display_mode = settings.station_name_display_mode
         this.map_display_mode = this.editable ? 'router' : settings.mode
         this.zoom = settings.zoom;
+
+        this.map.getView().setCenter(settings.center);
+        this.map.getView().setZoom(settings.zoom);
+
         //this.center = settings.center
         //this.zoom_route = settings.zoom_route;
         //this.center_route = settings.center_route
@@ -3129,9 +3153,9 @@ export default {
     setTimeout(() => {
 
       MapStore.dispatch('DownloadMapData').then(() => {
-        this.RestoreSettingsFromLocalStorage();
         this.DeepClonePathSegmentData();
         this.InitMap();
+        this.RestoreSettingsFromLocalStorage();
         this.AddEditMapInteraction();
         watch(
           () => this.map_station_data, (newval, oldval) => {
