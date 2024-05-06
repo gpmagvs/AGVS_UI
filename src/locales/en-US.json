@@ -34,5 +34,12 @@
         "vehicle-name": "Vehicle Name"
       }
     }
-  }
+  },
+  "source": "From",
+  "TaskDispathActionButton": {
+    "Destine": "To",
+    "dispatch-confirm": "Dispatch",
+    "Back To Select Action": "Back"
+  },
+  "auto-choise-vehicle": "Auto"
 }

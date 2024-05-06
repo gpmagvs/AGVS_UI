@@ -15,11 +15,11 @@
                         </div>
                         <el-row class="order-row">
                             <el-col :span="5">
-                                <div class="item-name">動作</div>
+                                <div class="item-name">{{ $t('Action') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">{{ selected_action_display }}</el-col>
                             <el-col class="item-actions" :span="7">
-                                <b-button size="sm" variant="link" @click="() => {
+                                <b-button v-if="IsDeveloper" size="sm" variant="link" @click="() => {
                                     HandleCancelBtnClick();
                                     action_menu_visible = true;
                                 }">重新選取</b-button></el-col>
@@ -27,10 +27,10 @@
                         <!-- 選車 -->
                         <el-row class="order-row" v-bind:style="agv_select_row_class">
                             <el-col :span="5">
-                                <div class="item-name">車輛</div>
+                                <div class="item-name">{{ $t('Vehicle') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="選擇車輛" v-model="selected_agv">
+                                <el-select :placeholder="選擇車輛" v-model="selected_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -43,7 +43,7 @@
                         <!-- 選來源 -->
                         <el-row v-if="selected_action == 'carry'" class="order-row" v-bind:style="source_select_row_class" @click="HandleSelectSoureStationFromMapBtnClick">
                             <el-col :span="5">
-                                <div class="item-name">來源</div>
+                                <div class="item-name">{{ $t('source') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-select placeholder="從地圖或選單選擇來源" @change="HandleFromSelectChanged" @click="HandleSelectSoureStationFromMapBtnClick" v-model="selected_source.TagNumber">
@@ -61,7 +61,7 @@
                         <!-- 選目的地 -->
                         <el-row class="order-row" v-bind:style="destine_select_row_class" @click="HandleSelectDestineStationFromMapBtnClick">
                             <el-col :span="5">
-                                <div class="item-name">目的地</div>
+                                <div class="item-name">{{ $t('TaskDispathActionButton.Destine') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-select placeholder="從地圖或選單選擇目的地" @change="HandleDestineSelectChanged" @click="HandleSelectDestineStationFromMapBtnClick" v-model="selected_destine.TagNumber">
@@ -112,7 +112,7 @@
                                 <div class="item-name">車輛</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="選擇車輛" v-model="selected_transfer_to_destine_agv">
+                                <el-select placeholder="$t('xuan-ze-che-liang')" v-model="selected_transfer_to_destine_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -123,36 +123,41 @@
                             </el-col>
                         </el-row>
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
-                            <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">確認派送</b-button>
-                            <b-button class="w-50 mx-1" variant="light" @click="() => {
+                            <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">{{ $t('TaskDispathActionButton.dispatch-confirm') }}</b-button>
+                            <b-button v-if="IsDeveloper" class="w-50 mx-1" variant="light" @click="() => {
                                 order_info_visible = false;
                                 action_menu_visible = true;
                                 HandleCancelBtnClick();
-                            }">返回選擇動作</b-button>
-                            <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">取消</b-button>
+                            }">{{ $t('TaskDispathActionButton.Back To Select Action') }}</b-button>
+                            <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">{{ $t('Cancel') }}</b-button>
                         </div>
                     </div>
                 </el-popover>
                 <b-button squared variant="primary" @click="() => {
+
+                    if (!IsDeveloper) {
+                        SelectActionHandle('carry');
+                        return;
+                    }
                     // $emit('on-click');
                     if (action_menu_visible) {
                         action_menu_visible = false;
                     }
                     else if (!order_info_visible)
                         action_menu_visible = true
-                }">任務派送</b-button>
+                }">{{ $t('Dispatch') }}</b-button>
             </div>
         </template>
         <div class="actions-btn-conatiner">
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('move')"> 移動</b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('park')"> 停車</b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('unload')"> 取貨 </b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('load')"> 放貨 </b-button>
-            <b-button class="w-100 my-1" variant="primary" @click="SelectActionHandle('carry')"> 搬運 </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('charge')"> 充電 </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('exchange_battery')"> 交換電池 </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('measure')"> 巡檢量測 </b-button>
-            <b-button class="w-100 my-1" variant="danger" @click="() => { HandleCancelBtnClick(); action_menu_visible = false }"> 取消 </b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('move')"> {{ $t('Move') }}</b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('park')"> {{ $t('Park') }}</b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('unload')"> {{ $t('Unload') }} </b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('load')"> {{ $t('Load') }} </b-button>
+            <b-button class="w-100 my-1" variant="primary" @click="SelectActionHandle('carry')"> {{ $t('Transfer') }} </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('charge')"> {{ $t('Charge') }} </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('exchange_battery')"> {{ $t('Exchange Battery') }} </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('measure')"> {{ $t('Measure') }} </b-button>
+            <b-button class="w-100 my-1" variant="danger" @click="() => { HandleCancelBtnClick(); action_menu_visible = false }"> {{ $t('Cancel') }} </b-button>
         </div>
     </el-popover>
 </template>
@@ -246,22 +251,22 @@ export default {
         selected_action_display() {
             var _action = this.selected_action;
             if (_action == 'move') {
-                return '移動'
+                return this.$t('Move')
             }
             if (_action == 'unload') {
-                return '取貨'
+                return this.$t('Unload')
             }
             if (_action == 'load') {
-                return '放貨'
+                return this.$t('Load')
             }
             if (_action == 'carry') {
-                return '搬運'
+                return this.$t('Transfer')
             }
             if (_action == 'charge') {
-                return '充電'
+                return this.$t('Charge')
             }
             if (_action == 'park') {
-                return '停車'
+                return this.$t('Park')
             }
         },
         IsAutoSelectAGV() {
@@ -323,7 +328,7 @@ export default {
             };
             if (action == 'carry' || action == 'unload') {
 
-                this.selected_agv = '自動選車';
+                this.selected_agv = this.$t('auto-choise-vehicle');
                 if (action == 'carry') {
                     this.HandleSelectSoureStationFromMapBtnClick();
                 } else {
@@ -597,7 +602,7 @@ export default {
                     ElNotification.success({
                         message: `任務-[${this.selected_action_display}] 已派送!`,
                         position: 'top-right',
-                        duration: 5000
+                        duration: 3000
                     })
                 } else {
                     this.order_info_visible = true;
