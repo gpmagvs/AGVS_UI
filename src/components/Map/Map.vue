@@ -595,7 +595,9 @@ export default {
           this.operatingAgvName = agvName;
           this.display = true
         }
-      }
+      },
+      featureHighlightTimerID: '',
+      highlightingFeatures: []
     }
   },
   computed: {
@@ -2844,6 +2846,7 @@ export default {
     /**地圖變更為選擇設備站點模式 */
     ChangeToSelectEQStationMode() {
 
+      this.highlightingFeatures = []
       if (this.TaskDispatchOptions.direction == 'source') {
         this.RestoredFillColorOfChangedFeature();
         this.TransferTaskIconLayer.getSource().clear();
@@ -2891,6 +2894,7 @@ export default {
           } else if (_isOnlyUnloadOrder || _isOnlyLoadOrder) {
             this.ChangeFeaturesAsIgnoreStyle(charge_features);
             this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
+            this.ChangeFeaturesAsCandicatingStyle(eq_features);
           } else if (_isChargeOrder) {
             this.ChangeFeaturesAsIgnoreStyle(eq_features);
             this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
@@ -2904,17 +2908,51 @@ export default {
             this.ChangeFeaturesAsIgnoreStyle(this.StationPointsFeatures);
           }
         }
+
+        if (_isCarryOrder && !_isChoiseDestine) {
+
+          this.ChangeFeaturesAsCandicatingStyle(eq_features);
+        }
       }
       this.IsSelectAGVMode = false;
       this.IsSelectEQStationMode = true;
+      clearInterval(this.featureHighlightTimerID);
+      var _index = 0;
+
+      this.featureHighlightTimerID = setInterval(() => {
+        console.info(this.highlightingFeatures);
+        var SetTextColor = (_feature, textColor, bgColor) => {
+          var newStyle = _feature.getStyle().clone();
+          var text = newStyle.getText();
+          var fillProp = text.getFill().clone();
+          var backgroundFill = text.getBackgroundFill().clone();
+
+          backgroundFill.setColor(bgColor);
+          fillProp.setColor(textColor);
+          text.setFill(fillProp);
+          text.setBackgroundFill(backgroundFill);
+          newStyle.setText(text);
+          _feature.setStyle(newStyle)
+        }
+        this.highlightingFeatures.forEach(_feature => {
+          let _textColor = _index == 0 ? 'white' : 'gold';
+          let _bgColor = _index == 0 ? 'red' : 'black';
+          SetTextColor(_feature, _textColor, _bgColor);
+        })
+        _index = _index == 0 ? 1 : 0
+      }, 600)
     },
     ChangeToNormalViewMode() {
+      setTimeout(() => {
 
-      this.AGVLocLayer.setVisible(true);
-      this.RestoredFillColorOfChangedFeature();
-      this.StationNameDisplayOptHandler();
-      this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
-      this.TransferTaskIconLayer.getSource().clear();
+        this.highlightingFeatures = [];
+        clearInterval(this.featureHighlightTimerID)
+        this.AGVLocLayer.setVisible(true);
+        this.RestoredFillColorOfChangedFeature();
+        this.StationNameDisplayOptHandler();
+        this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
+        this.TransferTaskIconLayer.getSource().clear();
+      }, 500);
 
 
     },
@@ -2965,24 +3003,25 @@ export default {
       features.forEach(feature => {
         var style = feature.getStyle()
         if (style) {
-          feature.set('oriStyle', style)
+          feature.set('oriStyle', style.clone())
           try {
             var newStyle = style.clone()
             var oriImage = newStyle.getImage();
             if (oriImage) {
               var newImage = oriImage.clone();
-              newImage.setScale(0.7)
+              newImage.setScale(0.75)
               newStyle.setImage(newImage);
             }
             var text = newStyle.getText();
             if (text) {
-              text.setFont('bold 18px Calibri,sans-serif')
+              text.setFont('bold 22px Arial')
               var fill = text.getFill()
               if (fill) {
                 var newfill = fill.clone();
                 newfill.setColor(color)
                 text.setFill(newfill)
                 feature.setStyle(newStyle)
+                this.highlightingFeatures.push(feature)
               }
             }
           } catch (exception) {

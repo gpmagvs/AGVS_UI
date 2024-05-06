@@ -159,6 +159,7 @@
 <script>
 import bus from '@/event-bus.js'
 import Notifier from '@/api/NotifyHelper';
+import { ElNotification } from 'element-plus'
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
 import { MapStore } from '@/components/Map/store'
@@ -593,7 +594,11 @@ export default {
                 //{confirm:true,message:''}
                 if (response.data.confirm) {
                     this.HandleCancelBtnClick();
-                    Notifier.Success(`任務-[${this.selected_action_display}] 已派送!`, 'bottom', 2000);
+                    ElNotification.success({
+                        message: `任務-[${this.selected_action_display}] 已派送!`,
+                        position: 'top-right',
+                        duration: 5000
+                    })
                 } else {
                     this.order_info_visible = true;
 

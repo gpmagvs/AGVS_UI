@@ -305,6 +305,7 @@ export function GetStationStyle(text = '', station_type = 0, map_data = new MapP
                 color: 'black',
                 width: 2,
             }),
+            padding: [4, 4, 4, 4]
         }),
     })
     return textStyle
