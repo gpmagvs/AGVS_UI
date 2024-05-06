@@ -376,6 +376,7 @@ import QuicklyAction from './QuicklyActionMenu.vue'
 import { ElNotification } from 'element-plus'
 import { Throttle } from '@/api/Common/UtilityTools.js'
 import ImageEditor from '@/components/General/ImageEditor.vue'
+import EQStatusDIDto from '@/ViewModels/clsEQStates.js'
 export default {
   components: {
     QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor
@@ -659,7 +660,8 @@ export default {
       return MapStore.getters.OthersAGVLocateInfo;
     },
     eq_data() {
-      return EqStore.getters.EQData
+
+      return EqStore.getters.EQData;
     },
     /**dictionary<string:path_id,MapPath> */
     ControledPathesBySystem() {
@@ -2697,7 +2699,9 @@ export default {
     },
     RenderEQLDULDStatus() {//TODO EQ狀態渲染
       this.eq_data.forEach(eq_states => {
-        this.ChangeLDULDStatus(eq_states.Tag, eq_states.TransferStatus, eq_states.IsMaintaining)
+        let _EQStatusDIDto = new EQStatusDIDto();
+        Object.assign(_EQStatusDIDto, eq_states)
+        this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
       });
     },
     RefreshMap() {
@@ -2886,8 +2890,28 @@ export default {
           var _hidden_stations_features = this.StationPointsFeatures.filter(ft => !tags_to_show.includes(ft.get('data').TagNumber));
           var _show_stations_features = this.StationPointsFeatures.filter(ft => tags_to_show.includes(ft.get('data').TagNumber));
           this.ChangeFeaturesAsIgnoreStyle(_hidden_stations_features);
-          this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
-        } else if (_isChoiseDestine) {
+          if (_isCarryOrder) {
+            var _GetEqLoadRequestState = (feature = new Feature()) => {
+              debugger
+              var eqStatusDtoCollection = [new EQStatusDIDto()];
+              Object.assign(eqStatusDtoCollection, this.eq_data);
+              var tag = feature.get('data').TagNumber
+              let eqData = eqStatusDtoCollection.find(data => data.Tag == tag)
+              if (!eqData)
+                return false
+              else
+                return eqData.Load_Request;
+            }
+
+            var loadableEqFeatures = _show_stations_features.filter(feature => _GetEqLoadRequestState(feature))
+            var notLoadableEqFeatures = _show_stations_features.filter(feature => !_GetEqLoadRequestState(feature))
+            this.ChangeFeaturesAsIgnoreStyle(notLoadableEqFeatures);
+            this.ChangeFeaturesAsCandicatingStyle(loadableEqFeatures);
+          }else{
+            this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
+          }
+        }
+        else if (_isChoiseDestine) {
           if (_isMoveOrder) {
             this.ChangeFeaturesAsIgnoreStyle(eq_features);
             this.ChangeFeaturesAsIgnoreStyle(normal_virtual_pt_features);
@@ -2909,10 +2933,27 @@ export default {
           }
         }
 
-        if (_isCarryOrder && !_isChoiseDestine) {
-
-          this.ChangeFeaturesAsCandicatingStyle(eq_features);
+        if (_isCarryOrder) {
+          var _GetEqUnloadRequestState = (feature = new Feature()) => {
+            debugger
+            var eqStatusDtoCollection = [new EQStatusDIDto()];
+            Object.assign(eqStatusDtoCollection, this.eq_data);
+            var tag = feature.get('data').TagNumber
+            let eqData = eqStatusDtoCollection.find(data => data.Tag == tag)
+            if (!eqData)
+              return false
+            else
+              return eqData.Unload_Request;
+          }
+          if (!_isChoiseDestine) {
+            var unloadableEqFeatures = eq_features.filter(feature => _GetEqUnloadRequestState(feature))
+            var notUnloadableEqFeatures = eq_features.filter(feature => !_GetEqUnloadRequestState(feature))
+            this.ChangeFeaturesAsIgnoreStyle(notUnloadableEqFeatures);
+            this.ChangeFeaturesAsCandicatingStyle(unloadableEqFeatures);
+          }
         }
+
+
       }
       this.IsSelectAGVMode = false;
       this.IsSelectEQStationMode = true;
