@@ -282,12 +282,7 @@
     <div v-if="AGVLocatingPayload.isAMCAGV">AMC</div>
     <el-form>
       <el-form-item label="Point ID">
-        <el-input v-model="AGVLocatingPayload.currentID"></el-input>
-      </el-form-item>
-    </el-form>
-    <el-form>
-      <el-form-item label="Point ID">
-        <el-input v-model="AGVLocatingPayload.currentID"></el-input>
+        <el-input type="number" :min="0" clearable placeholder="0" ref="locating-tag-input" v-model="AGVLocatingPayload.currentID"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -457,6 +452,10 @@ export default {
       this.AGVLocatingPayload.Name = agv.AGV_Name
       this.AGVLocatingPayload.isAMCAGV = agv.Model == 2
       this.ShowAGVLocatingDialog = true;
+      setTimeout(() => {
+        this.$refs['locating-tag-input'].focus();
+        this.$refs['locating-tag-input'].select();
+      }, 500)
     },
     async HandleAGVLocatingCinfirm() {
       this.ShowAGVLocatingDialog = false;
