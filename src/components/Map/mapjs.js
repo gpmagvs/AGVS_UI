@@ -216,19 +216,20 @@ export function CreateTransTaskMark(coordinate, text = '') {
         image: source_station_mark,
         text: new Text({
             text: text,
-            font: 'bold 18px Calibri,sans-serif',
+            font: 'bold 20px Calibri,sans-serif',
             offsetX: -7,
             offsetY: -82,
             fill: new Fill({
-                color: 'gold'
+                color: 'white'
             }),
             stroke: new Stroke({
                 color: 'black',
                 width: 2,
             }),
             backgroundFill: new Fill({
-                color: 'black'
-            })
+                color: 'rgb(13, 110, 253)'
+            }),
+            padding: [5, 5, 5, 5]
         })
     }))
     return iconFeture;

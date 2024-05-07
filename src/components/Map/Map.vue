@@ -2889,26 +2889,27 @@ export default {
           var _hidden_stations_features = this.StationPointsFeatures.filter(ft => !tags_to_show.includes(ft.get('data').TagNumber));
           var _show_stations_features = this.StationPointsFeatures.filter(ft => tags_to_show.includes(ft.get('data').TagNumber));
           this.ChangeFeaturesAsIgnoreStyle(_hidden_stations_features);
-          if (_isCarryOrder) {
-            var _GetEqLoadRequestState = (feature = new Feature()) => {
-              debugger
-              var eqStatusDtoCollection = [new EQStatusDIDto()];
-              Object.assign(eqStatusDtoCollection, this.eq_data);
-              var tag = feature.get('data').TagNumber
-              let eqData = eqStatusDtoCollection.find(data => data.Tag == tag)
-              if (!eqData)
-                return false
-              else
-                return eqData.Load_Request;
-            }
+          // if (_isCarryOrder) {
+          //   var _GetEqLoadRequestState = (feature = new Feature()) => {
+          //     debugger
+          //     var eqStatusDtoCollection = [new EQStatusDIDto()];
+          //     Object.assign(eqStatusDtoCollection, this.eq_data);
+          //     var tag = feature.get('data').TagNumber
+          //     let eqData = eqStatusDtoCollection.find(data => data.Tag == tag)
+          //     if (!eqData)
+          //       return false
+          //     else
+          //       return eqData.Load_Request;
+          //   }
 
-            var loadableEqFeatures = _show_stations_features.filter(feature => _GetEqLoadRequestState(feature))
-            var notLoadableEqFeatures = _show_stations_features.filter(feature => !_GetEqLoadRequestState(feature))
-            this.ChangeFeaturesAsIgnoreStyle(notLoadableEqFeatures);
-            this.ChangeFeaturesAsCandicatingStyle(loadableEqFeatures);
-          } else {
-            this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
-          }
+          //   var loadableEqFeatures = _show_stations_features.filter(feature => _GetEqLoadRequestState(feature))
+          //   var notLoadableEqFeatures = _show_stations_features.filter(feature => !_GetEqLoadRequestState(feature))
+          //   this.ChangeFeaturesAsIgnoreStyle(notLoadableEqFeatures);
+          //   this.ChangeFeaturesAsCandicatingStyle(loadableEqFeatures);
+          // } else {
+          // }
+          this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
+
         }
         else if (_isChoiseDestine) {
           if (_isMoveOrder) {
@@ -2932,27 +2933,24 @@ export default {
           }
         }
 
-        if (_isCarryOrder) {
-          var _GetEqUnloadRequestState = (feature = new Feature()) => {
-            debugger
-            var eqStatusDtoCollection = [new EQStatusDIDto()];
-            Object.assign(eqStatusDtoCollection, this.eq_data);
-            var tag = feature.get('data').TagNumber
-            let eqData = eqStatusDtoCollection.find(data => data.Tag == tag)
-            if (!eqData)
-              return false
-            else
-              return eqData.Unload_Request;
-          }
-          if (!_isChoiseDestine) {
-            var unloadableEqFeatures = eq_features.filter(feature => _GetEqUnloadRequestState(feature))
-            var notUnloadableEqFeatures = eq_features.filter(feature => !_GetEqUnloadRequestState(feature))
-            this.ChangeFeaturesAsIgnoreStyle(notUnloadableEqFeatures);
-            this.ChangeFeaturesAsCandicatingStyle(unloadableEqFeatures);
-          }
-        }
+        // if (_isCarryOrder) {
+
+        //   if (!_isChoiseDestine) {//選擇起點
 
 
+
+        //     var tags_to_show = this.TaskDispatchOptions.stations_to_show.map((st) => st.tag);
+        //   var _hidden_stations_features = this.StationPointsFeatures.filter(ft => !tags_to_show.includes(ft.get('data').TagNumber));
+        //   var _show_stations_features = this.StationPointsFeatures.filter(ft => tags_to_show.includes(ft.get('data').TagNumber));
+        //   this.ChangeFeaturesAsIgnoreStyle(_hidden_stations_features);
+        //   this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
+
+        //     // var unloadableEqFeatures = eq_features.filter(feature => _GetEqUnloadRequestState(feature))
+        //     // var notUnloadableEqFeatures = eq_features.filter(feature => !_GetEqUnloadRequestState(feature))
+        //     // this.ChangeFeaturesAsIgnoreStyle(notUnloadableEqFeatures);
+        //     // this.ChangeFeaturesAsCandicatingStyle(unloadableEqFeatures);
+        //   }
+        // }
       }
       this.IsSelectAGVMode = false;
       this.IsSelectEQStationMode = true;
