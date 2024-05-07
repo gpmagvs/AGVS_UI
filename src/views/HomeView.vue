@@ -1,8 +1,8 @@
 <template>
   <div class="home-view h-100 custom-tabs-head" v-loading="loading">
     <div v-bind:style="{
-    visibility: isEasyMode ? 'hidden' : 'visible'
-  }" class="d-flex flex-row ">
+      visibility: isEasyMode ? 'hidden' : 'visible'
+    }" class="d-flex flex-row ">
       <div v-show="MenuExpanded" class="left-col  border-right left-panel">
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="330px"></TaskStatusVue>
@@ -34,12 +34,12 @@
       <TaskAllocationVue></TaskAllocationVue>
     </div>
     <div v-bind:style="{
-    visibility: isEasyMode ? 'visible' : 'hidden',
-    position: 'absolute',
-    top: '70px',
-    width: '100%',
-    height: '82vh'
-  }" class="easy_mode d-flex">
+      visibility: isEasyMode ? 'visible' : 'hidden',
+      position: 'absolute',
+      top: '70px',
+      width: '100%',
+      height: '82vh'
+    }" class="easy_mode d-flex">
       <div>
         <AGVStatusVue :IsEasyMode="true"></AGVStatusVue>
       </div>
@@ -49,8 +49,8 @@
     </div>
     <TaskDispatchNewUI class="new-dispatch-pnl" v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'" @close="() => { show_new_dispatch_panel = false }" v-show="show_new_dispatch_panel"></TaskDispatchNewUI>
     <TaskDispathActionButton @onTaskDispatch="() => {
-    right_side_tabSelected = 'map';
-  }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
+      right_side_tabSelected = 'map';
+    }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
   </div>
 </template>
 <script>
@@ -81,6 +81,17 @@ export default {
       const rightPanel = this.$el.querySelector('.right-panel');
       const leftPanel = this.$el.querySelector('.left-panel');
       leftPanel.style.width = `${this.previousLeftSideWidth}px`;
+    },
+    SavePanlWitdthToLocalStorage(_right, _left) {
+      localStorage.setItem('home-resizer', JSON.stringify({ right: _right, left: _left }));
+    },
+    GetPanlWidthFromLocalStorage() {
+      let jsonStr = localStorage.getItem('home-resizer');
+      if (jsonStr) {
+        return JSON.parse(jsonStr);
+      } else {
+        return null
+      }
     }
   },
   computed: {
@@ -115,6 +126,17 @@ export default {
     leftPanel.style.width = `50vw`;
     rightPanel.style.width = `50vw`;
     var _this = this;
+
+    setTimeout(() => {
+      var resizer_pnls_width_cache = this.GetPanlWidthFromLocalStorage();
+      console.log(resizer_pnls_width_cache)
+      if (resizer_pnls_width_cache) {
+
+        leftPanel.style.width = resizer_pnls_width_cache.left;
+        rightPanel.style.width = resizer_pnls_width_cache.right;
+      }
+    }, 200);
+
     resizer.addEventListener('mousedown', e => {
       isDragging = true;
       let startX = e.pageX;
@@ -124,17 +146,25 @@ export default {
         const dx = e.pageX - startX;
         const newLeftWidth = leftPanel.offsetWidth + dx;
         var newRightWidth = window_width - newLeftWidth;
-
-        leftPanel.style.width = `${newLeftWidth}px`;
-        rightPanel.style.width = `${newRightWidth}px`;
+        let _newLftWidth = `${newLeftWidth}px`;
+        let _newRightWidth = `${newRightWidth}px`;
+        leftPanel.style.width = _newLftWidth;
+        rightPanel.style.width = _newRightWidth;
         _this.previousLeftSideWidth = newLeftWidth
         startX = e.pageX;
+
       };
 
       const onUp = () => {
+        if (isDragging) {
+          setTimeout(() => {
+            this.SavePanlWitdthToLocalStorage(leftPanel.style.width, rightPanel.style.width)
+          }, 299);
+        }
         window.removeEventListener('mousemove', onMove);
         window.removeEventListener('mouseup', onUp);
         isDragging = false;
+
       };
 
       window.addEventListener('mousemove', onMove);

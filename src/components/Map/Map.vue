@@ -1178,7 +1178,6 @@ export default {
         this.map.getTargetElement().style.cursor = 'grabbing';
       })
       this.map.on('moveend', event => {
-        console.log('moveend')
         this.SaveSettingsToLocalStorage();
       })
       this.map.on('click', (evt) => {
@@ -2907,7 +2906,7 @@ export default {
             var notLoadableEqFeatures = _show_stations_features.filter(feature => !_GetEqLoadRequestState(feature))
             this.ChangeFeaturesAsIgnoreStyle(notLoadableEqFeatures);
             this.ChangeFeaturesAsCandicatingStyle(loadableEqFeatures);
-          }else{
+          } else {
             this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
           }
         }
