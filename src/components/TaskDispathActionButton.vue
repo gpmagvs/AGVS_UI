@@ -165,11 +165,13 @@
 import bus from '@/event-bus.js'
 import Notifier from '@/api/NotifyHelper';
 import { ElNotification } from 'element-plus'
+import { StationSelectOptions } from '@/components/Map/mapjs';
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
 import { MapStore } from '@/components/Map/store'
 import { watch } from 'vue';
 import { useRoute } from 'vue-router'
+import EQStatusDIDto from '@/ViewModels/clsEQStates'
 export default {
     data() {
         return {
@@ -212,8 +214,8 @@ export default {
                 station_selected: '/map/station_selected'
             },
             bypass_eq_status_check: false,
-            equipments_options: [],
-            downstream_options: [],
+            equipments_options: [new StationSelectOptions()],
+            downstream_options: [new StationSelectOptions()],
             IsTransferTaskNeedChangeAGV: false,
             tagOfMiddleStationTagOfTransferTask: -1,
             routePath: ''
@@ -300,7 +302,8 @@ export default {
 
         },
         FromStationOptions() {
-
+            var eqOptions = [new StationSelectOptions()];
+            Object.assign(eqOptions, this.EQStations);
             var _agvList = agv_states_store.getters.AGVNameList;
             var _agvOptions = _agvList.length == 0 ? [] : _agvList.map(name => {
                 return {
@@ -308,7 +311,13 @@ export default {
                     name_display: name
                 }
             })
-            var _stations = [...this.EQStations, ..._agvOptions];
+
+            var eqStatusDtoCollection = [new EQStatusDIDto()];
+            Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
+            var unloadableEqList = eqStatusDtoCollection.filter(eq => eq.Unload_Request);
+            var unloadableTags = unloadableEqList.map(eq => eq.Tag);
+            var unloadableOptions = eqOptions.filter(opt => unloadableTags.includes(opt.tag));
+            var _stations = [...unloadableOptions, ..._agvOptions];
             return _stations;
         },
         IsSourceStationBuffer() {
@@ -683,8 +692,16 @@ export default {
                 return this.EQStations;
             else if (this.selected_action == 'charge')
                 return MapStore.getters.AllChargeStation;
-            else if (this.selected_action == 'carry')
+            else if (this.selected_action == 'carry') {
+
+                var eqStatusDtoCollection = [new EQStatusDIDto()];
+                Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
+                var loadableEqList = eqStatusDtoCollection.filter(eq => eq.Load_Request);
+                var loadableTags = loadableEqList.map(eq => eq.Tag);
+                var loadableOptions = this.downstream_options.filter(opt => loadableTags.includes(opt.tag));
+                return loadableOptions;
                 return this.downstream_options;
+            }
             else if (this.selected_action == 'exchange_battery')
                 return MapStore.getters.AllExangeBatteryStation;
             else
