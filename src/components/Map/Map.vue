@@ -2988,10 +2988,10 @@ export default {
         this.highlightingFeatures = [];
         clearInterval(this.featureHighlightTimerID)
         this.AGVLocLayer.setVisible(true);
-        this.RestoredFillColorOfChangedFeature();
         this.StationNameDisplayOptHandler();
         this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
         this.TransferTaskIconLayer.getSource().clear();
+        this.RestoredFillColorOfChangedFeature();
       }, 500);
 
 

@@ -565,7 +565,7 @@ export default {
         } else {
           this.$swal.fire(
             {
-              text: result.data.alarm_code,
+              text: 'Error Code: ' + result.data.alarm_code,
               title: result.data.message,
               icon: 'error',
               showCancelButton: false,
