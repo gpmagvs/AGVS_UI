@@ -439,11 +439,11 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
     var _style = new Style({
         image: undefined,
         text: new Text({
-            font: 'bold 12px Calibri,sans-serif',
+            font: 'bold 14px Calibri,sans-serif',
             offsetX: 14,
             offsetY: -52,
             stroke: new Stroke({
-                color: null
+                width: 1
             }),
             fill: new Fill({
                 color: 'white',//PointColorSelect(station_type)
@@ -452,9 +452,11 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
                 color: 'seagreen',//PointColorSelect(station_type)
             }),
             backgroundStroke: new Stroke({
-                color: 'black',
-                width: 3,
+                color: 'grey',
+                width: 2,
             }),
+            rotation: 0.15,
+            padding: [5, 5, 5, 5]
 
         }),
     })

@@ -168,7 +168,8 @@ import { ElNotification } from 'element-plus'
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
 import { MapStore } from '@/components/Map/store'
-
+import { watch } from 'vue';
+import { useRoute } from 'vue-router'
 export default {
     data() {
         return {
@@ -214,7 +215,8 @@ export default {
             equipments_options: [],
             downstream_options: [],
             IsTransferTaskNeedChangeAGV: false,
-            tagOfMiddleStationTagOfTransferTask: -1
+            tagOfMiddleStationTagOfTransferTask: -1,
+            routePath: ''
         }
     },
     computed: {
@@ -314,7 +316,8 @@ export default {
         },
         IsDestineStationBuffer() {
             return this.selected_destine.StationType == 4 || this.selected_destine.StationType == 5;
-        }
+        },
+
     },
     methods: {
         SelectActionHandle(action) {
@@ -578,22 +581,30 @@ export default {
                 response = await TaskAllocation.ParkTask(new clsParkTaskData(_selected_agv, _destinTag, 50, this.bypass_eq_status_check));
             }
             if (response.status != 200) {
-                const is_Unauthorized = response.status == 401;
-                this.$swal.fire({
-                    title: is_Unauthorized ? '須重新進行登入' : '任務派送失敗!',
-                    text: is_Unauthorized ? '' : response.mesage,
-                    icon: 'error',
-                    showCancelButton: false,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    customClass: 'my-sweetalert',
-                }).then(res => {
-                    if (is_Unauthorized) {
-                        userStore.dispatch('logout', '')
-                        bus.emit('/show-login-view-invoke')
 
-                    }
-                })
+
+                this.HandleCancelBtnClick();
+                const is_Unauthorized = response.status == 401;
+                setTimeout(() => {
+                    this.$swal.fire({
+                        title: is_Unauthorized ? '須重新進行登入' : '任務派送失敗!',
+                        text: is_Unauthorized ? '' : response.mesage,
+                        icon: 'error',
+                        showCancelButton: false,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        customClass: 'my-sweetalert',
+                    }).then(res => {
+
+                        this.HandleCancelBtnClick();
+                        if (is_Unauthorized) {
+                            userStore.dispatch('logout', '')
+                            bus.emit('/show-login-view-invoke')
+
+                        }
+                    })
+                }, 200);
+
             }
             else {
                 //{confirm:true,message:''}
@@ -605,17 +616,18 @@ export default {
                         duration: 3000
                     })
                 } else {
-                    this.order_info_visible = true;
-
-                    this.$swal.fire(
-                        {
-                            text: response.data.message,
-                            title: '任務派送失敗!',
-                            icon: 'error',
-                            showCancelButton: false,
-                            confirmButtonText: 'OK',
-                            customClass: 'my-sweetalert'
-                        })
+                    this.HandleCancelBtnClick();
+                    setTimeout(() => {
+                        this.$swal.fire(
+                            {
+                                text: response.data.message,
+                                title: '任務派送失敗!',
+                                icon: 'error',
+                                showCancelButton: false,
+                                confirmButtonText: 'OK',
+                                customClass: 'my-sweetalert'
+                            })
+                    }, 200);
                 }
             }
 
@@ -679,6 +691,18 @@ export default {
                 return [];
 
         },
+    },
+    mounted() {
+        this.routePath = this.$route.path;
+        const route = useRoute()
+        watch(
+            () => route.path,
+            (newValue, oldValue) => {
+                if (newValue != this.routePath) {
+                    this.HandleCancelBtnClick();
+                }
+            }
+        )
     }
 }
 </script>
