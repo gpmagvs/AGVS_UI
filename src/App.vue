@@ -113,7 +113,7 @@ export default {
   mounted() {
     this.$store.dispatch('GetDynamicWebsiteData').then(response => {
       var fieldName = response.FieldName;
-      document.title = `GPM 派車系統-[${fieldName}]`
+      document.title = `[${fieldName}]-GPM AGVS`
     });
 
     let login_states = IsLoginLastTime();
