@@ -27,7 +27,7 @@
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
       </el-table-column>
-      <el-table-column label="任務狀態" prop="StateName" :width="getColumnSize('To_Station', 80)">
+      <el-table-column label="任務狀態" prop="StateName" :width="getColumnSize('StateName', 80)">
         <template #default="scope">
           <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
         </template>
