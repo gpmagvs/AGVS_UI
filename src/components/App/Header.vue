@@ -66,7 +66,8 @@
     </div>
     <!--Alarm-->
     <div v-show="showAlarm" class="alarm text-dark">
-      <div v-if="system_alrm_text != ''" class="alarm-container" v-bind:class="system_alarms">
+      <!-- <div v-if="system_alrm_text != ''" class="alarm-container" v-bind:class="system_alarms"> -->
+      <div class="alarm-container" v-bind:class="system_alarms_classes">
         <div class="flex-fill">
           <span class="type-text">
             <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 系統警報 </span>
@@ -79,7 +80,8 @@
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
       </div>
-      <div v-if="eq_alrm_text != ''" class="alarm-container" v-bind:class="equipment_alarms">
+      <!-- <div v-if="eq_alrm_text != ''" class="alarm-container" v-bind:class="equipment_alarms"> -->
+      <div class="alarm-container" v-bind:class="equipment_alarms_classes">
         <div class="flex-fill">
           <span class="type-text">
             <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 設備警報 </span>
@@ -155,8 +157,8 @@ export default {
         }
 
       },
-      system_alarms: [''],
-      equipment_alarms: [''],
+      system_alarms_classes: ['no-alarm'],
+      equipment_alarms_classes: ['no-alarm'],
       system_alrm_text: '',
       eq_alrm_text: '',
       showAlarm: true,
@@ -449,7 +451,7 @@ export default {
         duration: 2000
       })
       this.ResetSystemAlarmTimer();
-      this.system_alarms = [''];
+      this.system_alarms_classes = ['no-alarm'];
       this.system_alrm_text = "";
     },
     async ResetEqpAlarmsHandler() {
@@ -471,16 +473,16 @@ export default {
 
       setInterval(() => {
         if (!this.EquipmentAlarms || this.EquipmentAlarms.length == 0) {
-          this.equipment_alarms = [''];
+          this.equipment_alarms_classes = ['no-alarm'];
           this.eq_alrm_text = '';
           return;
         }
         var eq_alarm = this.EquipmentAlarms[eq_alarm_inx]
         if (eq_alarm) {
-          this.equipment_alarms = [eq_alarm.Level == 1 ? 'alarm' : 'warning'];
+          this.equipment_alarms_classes = [eq_alarm.Level == 1 ? 'alarm' : 'warning'];
           this.eq_alrm_text = this.CreateAlarmDisplayText(eq_alarm);
         } else {
-          this.equipment_alarms = [''];
+          this.equipment_alarms_classes = [''];
           this.eq_alrm_text = '';
         }
         eq_alarm_inx += 1;
@@ -494,16 +496,16 @@ export default {
       var sys_alarm_inx = 0;
       this.systemAlarmInterval = setInterval(() => {
         if (!this.SystemAlarms || this.SystemAlarms.length == 0) {
-          this.system_alarms = [''];
+          this.system_alarms_classes = ['no-alarm'];
           this.system_alrm_text = '';
           return;
         }
         var sys_alarm = this.SystemAlarms[sys_alarm_inx]
         if (sys_alarm) {
-          this.system_alarms = [sys_alarm.Level == 1 ? 'alarm' : 'warning'];
+          this.system_alarms_classes = [sys_alarm.Level == 1 ? 'alarm' : 'warning'];
           this.system_alrm_text = this.CreateAlarmDisplayText(sys_alarm);
         } else {
-          this.system_alarms = [''];
+          this.system_alarms_classes = [''];
           this.system_alrm_text = '';
         }
         sys_alarm_inx += 1;
@@ -604,6 +606,10 @@ export default {
     .warning {
       animation: warning_blink 1s infinite;
     }
+
+    .no-alarm {
+      background-color: rgb(229 229 239);
+    }
   }
 
   .options {
@@ -625,8 +631,8 @@ export default {
 
     0%,
     100% {
-      background-color: rgb(254, 199, 210);
-      color: white;
+      background-color: rgb(255, 0, 51);
+      color: rgb(255, 255, 255);
     }
 
     50% {
