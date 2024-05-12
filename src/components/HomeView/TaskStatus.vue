@@ -5,7 +5,7 @@
       <div><i class="bi bi-sliders" @click="ShowSettingsDrawer = true"></i></div>
     </div>
     <div class="px-1" v-if="display_mode == 'tabs'">
-      <el-tabs size>
+      <el-tabs lazy size>
         <el-tab-pane label="未完成任務">
           <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskListTbData"></RunningTaskTable>
         </el-tab-pane>

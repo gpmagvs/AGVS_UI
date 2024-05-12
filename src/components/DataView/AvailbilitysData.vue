@@ -11,7 +11,7 @@
 <script>
 import { GetTodayAvailability } from '@/api/AvailabilitysAPI'
 import AvailabilityPieChart from '@/components/Availabilitys/AvailabilityPieChart.vue';
-import AvailabilityTimelineChart from '@/components/Availabilitys/AvailabilityTimelineChart.vue';
+import AvailabilityTimelineChart from '@/components/Availabilitys/MeanTimeChart.vue';
 import { useRoute } from 'vue-router';
 import { watch } from 'vue';
 import moment from 'moment';
