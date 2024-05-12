@@ -1,7 +1,7 @@
 <template>
   <div class="completed-task-table">
     <el-table
-      :header-cell-style="{ color: 'black', backgroundColor: 'rgb(241, 241, 241)' }"
+      :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="CompletedTaskList"
       row-key="TaskName"
       size="small"
@@ -20,7 +20,7 @@
       </el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60">
         <template #default="scope">
-          <b>{{ scope.row.ActionName }}</b>
+          <el-tag effect="dark" :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : 'primary'"> <b>{{ scope.row.ActionName }}</b></el-tag>
         </template>
       </el-table-column>
       <el-table-column label="卡匣ID" prop="Carrier_ID">
@@ -77,6 +77,7 @@ export default {
       return tag
     },
     row_class_name({ row, rowIndex }) {
+      return 'task-row'
       if (row.DispatcherName.toUpperCase() == 'TRAFFIC')
         return 'traffic-task-row'
       if (row.Action == 8 || row.Action == 14)
@@ -95,7 +96,11 @@ export default {
   }
 
   .el-table .charge-task-row {
-    background-color: rgb(252, 244, 179);
+    background-color: rgb(255, 235, 83);
+  }
+
+  .task-row {
+    color: rgb(61, 61, 61)
   }
 }
 </style>

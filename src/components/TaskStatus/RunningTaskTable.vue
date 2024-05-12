@@ -1,7 +1,7 @@
 <template>
   <div class="running-task-table">
     <el-table
-      :header-cell-style="{ color: 'black', backgroundColor: 'rgb(241, 241, 241)' }"
+      :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="IncompletedTaskList"
       row-key="TaskName"
       size="small"
@@ -14,23 +14,23 @@
       <el-table-column label="時間" prop="RecieveTime_Formated" width="80"></el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60">
         <template #default="scope">
-          <b>{{ scope.row.ActionName }}</b>
+          <el-tag effect="dark" :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : 'primary'"> <b>{{ scope.row.ActionName }}</b></el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="任務狀態" prop="StateName" :width="getColumnSize('StateName', 80)">
+        <template #default="scope">
+          <el-tag class="w-100" effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="起點" prop="From_Station" :width="getColumnSize('From_Station', 110)">
-        <template #default="scope">{{ GetStationName(scope.row.From_Station) }}</template>
+        <template #default="scope"> <el-tag> {{ GetStationName(scope.row.From_Station) }}</el-tag></template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column> -->
       </el-table-column>
       <el-table-column label="終點" prop="To_Station" :width="getColumnSize('To_Station', 110)" min-width="100%">
-        <template #default="scope">{{ GetStationName(scope.row.To_Station) }}</template>
+        <template #default="scope"> <el-tag> {{ GetStationName(scope.row.To_Station) }}</el-tag></template>
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
-      </el-table-column>
-      <el-table-column label="任務狀態" prop="StateName" :width="getColumnSize('StateName', 80)">
-        <template #default="scope">
-          <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
-        </template>
       </el-table-column>
       <el-table-column v-if="false" label="任務名稱" :width="getColumnSize('TaskName', 180)" prop="TaskName"></el-table-column>
       <el-table-column label="執行AGV" :width="getColumnSize('DesignatedAGVName', 120)" prop="DesignatedAGVName"></el-table-column>
@@ -162,10 +162,14 @@ export default {
       return tag
     },
     row_class_name({ row, rowIndex }) {
+      return 'task-row'
       if (row.DispatcherName.toUpperCase() == 'TRAFFIC')
         return 'traffic-task-row'
       if (row.Action == 8 || row.Action == 14)
         return 'charge-task-row'
+      if (row.Action == 9)
+        return 'carry-task-row'
+
       return ''
     }
   },
@@ -181,8 +185,18 @@ export default {
     /* --el-table-tr-bg-color: var(--el-color-warning-light-9); */
   }
 
-  .el-table .charge-task-row {
-    background-color: rgb(252, 244, 179);
+  .el-table {
+    .charge-task-row {
+      background-color: rgb(255, 230, 36);
+    }
+
+    .carry-task-row {
+      //background-color: rgb(124, 82, 82);
+    }
+
+    .task-row {
+      color: rgb(13, 110, 253)
+    }
   }
 }
 </style>

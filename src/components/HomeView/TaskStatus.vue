@@ -4,8 +4,8 @@
       <div><i class="bi bi-three-dots-vertical"></i>任務狀態 TASK STATUS</div>
       <div><i class="bi bi-sliders" @click="ShowSettingsDrawer = true"></i></div>
     </div>
-    <div class="px-1" v-if="display_mode == 'tabs'">
-      <el-tabs lazy size>
+    <div class="" v-if="display_mode == 'tabs'">
+      <el-tabs lazy size type="border-card">
         <el-tab-pane label="未完成任務">
           <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskListTbData"></RunningTaskTable>
         </el-tab-pane>
