@@ -11,6 +11,7 @@
       border
       fit
       :height="height">
+      <el-table-column  label="任務名稱" :width="getColumnSize('TaskName', 180)" prop="TaskName"></el-table-column>
       <el-table-column label="時間" prop="RecieveTime_Formated" width="80"></el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60">
         <template #default="scope">
@@ -23,16 +24,15 @@
         </template>
       </el-table-column>
       <el-table-column label="起點" prop="From_Station" :width="getColumnSize('From_Station', 110)">
-        <template #default="scope"> <el-tag> {{ GetStationName(scope.row.From_Station) }}</el-tag></template>
+        <template #default="scope"> {{ GetStationName(scope.row.From_Station) }}</template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column> -->
       </el-table-column>
       <el-table-column label="終點" prop="To_Station" :width="getColumnSize('To_Station', 110)" min-width="100%">
-        <template #default="scope"> <el-tag> {{ GetStationName(scope.row.To_Station) }}</el-tag></template>
+        <template #default="scope">{{ GetStationName(scope.row.To_Station) }}</template>
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
       </el-table-column>
-      <el-table-column v-if="false" label="任務名稱" :width="getColumnSize('TaskName', 180)" prop="TaskName"></el-table-column>
       <el-table-column label="執行AGV" :width="getColumnSize('DesignatedAGVName', 120)" prop="DesignatedAGVName"></el-table-column>
       <el-table-column label="卡匣ID" :width="getColumnSize('Carrier_ID', 120)" prop="Carrier_ID">
         <template #default="scope">{{ scope.row.Carrier_ID == "-1" ? "" : scope.row.Carrier_ID }}</template>
