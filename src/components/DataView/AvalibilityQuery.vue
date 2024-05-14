@@ -16,7 +16,7 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="chart-display h-100 w-100 d-flex justify-content-center">
+    <div class="chart-display h-100 w-100 d-flex justify-content-center" v-loading="loading">
       <div class="w-100 m-1">
         <el-tabs type="border-card" tab-position="top" lazy class="demo-tabs">
           <el-tab-pane label="圓餅圖">

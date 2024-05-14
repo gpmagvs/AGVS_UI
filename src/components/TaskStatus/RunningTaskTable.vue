@@ -11,11 +11,11 @@
       border
       fit
       :height="height">
-      <el-table-column  label="任務名稱" :width="getColumnSize('TaskName', 180)" prop="TaskName"></el-table-column>
+      <el-table-column label="任務名稱" :width="getColumnSize('TaskName', 180)" prop="TaskName"></el-table-column>
       <el-table-column label="時間" prop="RecieveTime_Formated" width="80"></el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60">
         <template #default="scope">
-          <el-tag effect="dark" :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : 'primary'"> <b>{{ scope.row.ActionName }}</b></el-tag>
+          <el-tag effect="dark" :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : ''"> <b>{{ scope.row.ActionName }}</b></el-tag>
         </template>
       </el-table-column>
       <el-table-column label="任務狀態" prop="StateName" :width="getColumnSize('StateName', 80)">
