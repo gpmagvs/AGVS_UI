@@ -86,6 +86,9 @@
                 <el-form-item label="角度">
                   <el-input-number v-model="pointData_editing.Direction"></el-input-number>
                 </el-form-item>
+                <el-form-item label="避車角度">
+                  <el-input-number v-model="pointData_editing.Direction_Avoid"></el-input-number>
+                </el-form-item>
                 <el-form-item v-if="pointData_editing.StationType != 0" label="二次定位點角度">
                   <el-input-number v-model="pointData_editing.Direction_Secondary_Point"></el-input-number>
                 </el-form-item>
@@ -123,10 +126,13 @@
                     <el-option label="3-向左旋轉" :value="3"></el-option>
                   </el-select>
                 </el-form-item>
+                <el-form-item v-if="IsWorkStation" label="任務權重">
+                  <el-input-number :min="1" v-model="pointData_editing.PriorityOfTask"></el-input-number>
+                </el-form-item>
               </el-form>
             </el-collapse-item>
             <el-collapse-item title="功能設定" name="2">
-              <div class="d-flex flex-column">ㄉ<el-checkbox v-model="pointData_editing.Enable" label="啟用"></el-checkbox>
+              <div class="d-flex flex-column"><el-checkbox v-model="pointData_editing.Enable" label="啟用"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsTrafficCheckPoint" label="交管檢查點"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsStandbyPoint" label="停駐點"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsSegment" label="二次定位點"></el-checkbox>

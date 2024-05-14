@@ -640,6 +640,8 @@ export default {
         return "退出設備中"
       else if (status_code == 8)
         return "退出停車點/充電站"
+      else if (status_code == 13)
+        return "避車"
       else
         return "Unknown"
     },
