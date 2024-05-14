@@ -8,7 +8,11 @@
   </div>
 </template>
 <script>
+import _ from 'lodash';
+
 export default {
+  components: {
+  },
   props: {
     id: {
       type: String,
@@ -37,10 +41,10 @@ export default {
           chart: {
             type: 'line',
             zoom: {
-              enabled: false
+              enabled: true
             },
             animations: {
-              enabled: false,
+              enabled: true,
             },
           },
           dataLabels: {
@@ -116,22 +120,33 @@ export default {
             },
           ],
           tooltip: {
-            enabled: false
+            enabled: true
           }
         },
-      }
+      },
     }
   },
   methods: {
     RenderChartWithTimeSeriesData(datas) {
-      //[ {name:'',data:''}]
-      setTimeout(() => {
-        this.chart_datas.series = datas
+      let _data = JSON.parse(JSON.stringify(datas));
+      // this.myChart.data.labels = _data[0].data.map(d => (d.x))
+      // // {
+      // //   backgroundColor: this.colorSet,
+      // //   data: [0, 0, 0, 0, 0]
+      // // }
+      // this.myChart.data.datasets = _data.map(d => (
+      //   {
+      //     data: d.data.map(_d => _d.y),
+      //     name: d.name
+      //   }))
+      // this.$refs.chartRef.update();
+      //this.$refs['bat_chart'].updateSeries(_data)
+      this.debounceChartUpdate(_data);
 
-        this.$refs['bat_chart'].updateSeries(this.chart_datas.series)
-
-      }, 1000);
     },
+    debounceChartUpdate: _.debounce(function (data) {
+      this.$refs['bat_chart'].updateSeries(data)
+    }, 300), // Adjust debounce time as needed
   },
   mounted() {
     this.chart_datas.chartOptions.title.text = this.title;

@@ -20,7 +20,7 @@
       </el-table-column>
       <el-table-column label="動作" prop="ActionName" width="60">
         <template #default="scope">
-          <el-tag effect="dark" :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : 'primary'"> <b>{{ scope.row.ActionName }}</b></el-tag>
+          <el-tag effect="dark" :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : ''"> <b>{{ scope.row.ActionName }}</b></el-tag>
         </template>
       </el-table-column>
       <el-table-column label="卡匣ID" prop="Carrier_ID">
