@@ -2849,6 +2849,14 @@ export default {
     /**地圖變更為選擇設備站點模式 */
     ChangeToSelectEQStationMode() {
 
+
+      var _isMoveOrder = this.TaskDispatchOptions.action_type == 'move';
+      var _isOnlyLoadOrder = this.TaskDispatchOptions.action_type == 'load';
+      var _isOnlyUnloadOrder = this.TaskDispatchOptions.action_type == 'unload';
+      var _isChargeOrder = this.TaskDispatchOptions.action_type == 'charge';
+      var _isParkOrder = this.TaskDispatchOptions.action_type == 'park';
+      var _isCarryOrder = this.TaskDispatchOptions.action_type == 'carry';
+      var _isChoiseDestine = this.TaskDispatchOptions.direction == 'destine';
       this.highlightingFeatures = []
       if (this.TaskDispatchOptions.direction == 'source') {
         this.RestoredFillColorOfChangedFeature();
@@ -2876,39 +2884,13 @@ export default {
         //把充電站的Feature變為不明顯
         this.ChangeFeaturesAsIgnoreStyle(charge_features);
 
-        var _isMoveOrder = this.TaskDispatchOptions.action_type == 'move';
-        var _isOnlyLoadOrder = this.TaskDispatchOptions.action_type == 'load';
-        var _isOnlyUnloadOrder = this.TaskDispatchOptions.action_type == 'unload';
-        var _isChargeOrder = this.TaskDispatchOptions.action_type == 'charge';
-        var _isParkOrder = this.TaskDispatchOptions.action_type == 'park';
-        var _isCarryOrder = this.TaskDispatchOptions.action_type == 'carry';
-        var _isChoiseDestine = this.TaskDispatchOptions.direction == 'destine';
-
         if (this.TaskDispatchOptions.stations_to_show && this.TaskDispatchOptions.stations_to_show.length != 0) {
           var tags_to_show = this.TaskDispatchOptions.stations_to_show.map((st) => st.tag);
           var _hidden_stations_features = this.StationPointsFeatures.filter(ft => !tags_to_show.includes(ft.get('data').TagNumber));
           var _show_stations_features = this.StationPointsFeatures.filter(ft => tags_to_show.includes(ft.get('data').TagNumber));
           this.ChangeFeaturesAsIgnoreStyle(_hidden_stations_features);
-          if (_isCarryOrder) {
-            var _GetEqLoadRequestState = (feature = new Feature()) => {
-              debugger
-              var eqStatusDtoCollection = [new EQStatusDIDto()];
-              Object.assign(eqStatusDtoCollection, this.eq_data);
-              var tag = feature.get('data').TagNumber
-              let eqData = eqStatusDtoCollection.find(data => data.Tag == tag)
-              if (!eqData)
-                return false
-              else
-                return eqData.Load_Request;
-            }
+          this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
 
-            var loadableEqFeatures = _show_stations_features.filter(feature => _GetEqLoadRequestState(feature))
-            var notLoadableEqFeatures = _show_stations_features.filter(feature => !_GetEqLoadRequestState(feature))
-            this.ChangeFeaturesAsIgnoreStyle(notLoadableEqFeatures);
-            this.ChangeFeaturesAsCandicatingStyle(loadableEqFeatures);
-          } else {
-            this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
-          }
         }
         else if (_isChoiseDestine) {
           if (_isMoveOrder) {
@@ -2931,68 +2913,51 @@ export default {
             this.ChangeFeaturesAsIgnoreStyle(this.StationPointsFeatures);
           }
         }
-
-        if (_isCarryOrder) {
-          var _GetEqUnloadRequestState = (feature = new Feature()) => {
-            debugger
-            var eqStatusDtoCollection = [new EQStatusDIDto()];
-            Object.assign(eqStatusDtoCollection, this.eq_data);
-            var tag = feature.get('data').TagNumber
-            let eqData = eqStatusDtoCollection.find(data => data.Tag == tag)
-            if (!eqData)
-              return false
-            else
-              return eqData.Unload_Request;
-          }
-          if (!_isChoiseDestine) {
-            var unloadableEqFeatures = eq_features.filter(feature => _GetEqUnloadRequestState(feature))
-            var notUnloadableEqFeatures = eq_features.filter(feature => !_GetEqUnloadRequestState(feature))
-            this.ChangeFeaturesAsIgnoreStyle(notUnloadableEqFeatures);
-            this.ChangeFeaturesAsCandicatingStyle(unloadableEqFeatures);
-          }
-        }
-
-
       }
       this.IsSelectAGVMode = false;
       this.IsSelectEQStationMode = true;
       clearInterval(this.featureHighlightTimerID);
-      var _index = 0;
 
-      this.featureHighlightTimerID = setInterval(() => {
-        console.info(this.highlightingFeatures);
-        var SetTextColor = (_feature, textColor, bgColor) => {
-          var newStyle = _feature.getStyle().clone();
-          var text = newStyle.getText();
-          var fillProp = text.getFill().clone();
-          var backgroundFill = text.getBackgroundFill().clone();
-
-          backgroundFill.setColor(bgColor);
-          fillProp.setColor(textColor);
-          text.setFill(fillProp);
-          text.setBackgroundFill(backgroundFill);
-          newStyle.setText(text);
-          _feature.setStyle(newStyle)
-        }
-        this.highlightingFeatures.forEach(_feature => {
-          let _textColor = _index == 0 ? 'white' : 'gold';
-          let _bgColor = _index == 0 ? 'red' : 'black';
-          SetTextColor(_feature, _textColor, _bgColor);
-        })
-        _index = _index == 0 ? 1 : 0
-      }, 600)
+      if (!_isMoveOrder) {
+        var _index = 0;
+        this.featureHighlightTimerID = setInterval(() => {
+          console.info(this.highlightingFeatures);
+          var SetTextColor = (_feature, textColor, bgColor) => {
+            var newStyle = _feature.getStyle().clone();
+            var text = newStyle.getText();
+            var fillProp = text.getFill().clone();
+            var bgFill = text.getBackgroundFill();
+            if (bgFill) {
+              var backgroundFill = bgFill.clone();
+              backgroundFill.setColor(bgColor);
+              text.setBackgroundFill(backgroundFill);
+            }
+            fillProp.setColor(textColor);
+            text.setFill(fillProp);
+            newStyle.setText(text);
+            _feature.setStyle(newStyle)
+          }
+          this.highlightingFeatures.forEach(_feature => {
+            let _textColor = _index == 0 ? 'white' : 'gold';
+            let _bgColor = _index == 0 ? 'rgb(9, 76, 176)' : 'rgb(2, 20, 48)';
+            SetTextColor(_feature, _textColor, _bgColor);
+          })
+          _index = _index == 0 ? 1 : 0
+        }, 600)
+      }
     },
     ChangeToNormalViewMode() {
-      setTimeout(() => {
 
-        this.highlightingFeatures = [];
+      this.highlightingFeatures = [];
+      clearInterval(this.featureHighlightTimerID)
+      this.AGVLocLayer.setVisible(true);
+      this.StationNameDisplayOptHandler();
+      this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
+      this.TransferTaskIconLayer.getSource().clear();
+      this.RestoredFillColorOfChangedFeature();
+      setTimeout(() => {
         clearInterval(this.featureHighlightTimerID)
-        this.AGVLocLayer.setVisible(true);
-        this.StationNameDisplayOptHandler();
-        this.IsSelectAGVMode = this.IsSelectEQStationMode = false;
-        this.TransferTaskIconLayer.getSource().clear();
-        this.RestoredFillColorOfChangedFeature();
-      }, 500);
+      }, 600);
 
 
     },

@@ -13,8 +13,8 @@
       <el-container>
         <el-header style="padding:0;">
           <Header ref="header" :MenuExpanded="menu_collapse" v-show="!loading"
-            @update:HasSystemAlarm="(val) => { HeaderShowSysAlarm = val; }"
-            @update:HasEqpAlarm="(val) => { HeaderShowEqpAlarm = val; }"
+            @update:HasSystemAlarm="(val) => { HeaderShowSysAlarm = true; }"
+            @update:HasEqpAlarm="(val) => { HeaderShowEqpAlarm = true; }"
             @onMenuToggleClicked="ToggleMenu"></Header>
         </el-header>
         <el-main style="padding:0;overflow-y: hidden;" v-bind:style="router_view_style"><router-view v-show="!loading" v-slot="{ Component }"> <keep-alive>
@@ -73,8 +73,8 @@ export default {
         content: '',
         title_variant: 'primary'
       },
-      HeaderShowSysAlarm: false,
-      HeaderShowEqpAlarm: false
+      HeaderShowSysAlarm: true,
+      HeaderShowEqpAlarm: true
     }
   },
   computed: {
@@ -82,7 +82,7 @@ export default {
 
       var _paddingTop = '18px';
       if (this.HeaderShowEqpAlarm && this.HeaderShowSysAlarm)
-        _paddingTop = '60px'
+        _paddingTop = '65px'
       else if (!this.HeaderShowEqpAlarm && !this.HeaderShowSysAlarm)
         _paddingTop = '1px';
       else
@@ -113,7 +113,7 @@ export default {
   mounted() {
     this.$store.dispatch('GetDynamicWebsiteData').then(response => {
       var fieldName = response.FieldName;
-      document.title = `GPM 派車系統-[${fieldName}]`
+      document.title = `[${fieldName}]-GPM AGVS`
     });
 
     let login_states = IsLoginLastTime();

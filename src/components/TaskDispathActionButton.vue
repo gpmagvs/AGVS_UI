@@ -165,11 +165,13 @@
 import bus from '@/event-bus.js'
 import Notifier from '@/api/NotifyHelper';
 import { ElNotification } from 'element-plus'
+import { StationSelectOptions } from '@/components/Map/mapjs';
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
 import { MapStore } from '@/components/Map/store'
 import { watch } from 'vue';
 import { useRoute } from 'vue-router'
+import EQStatusDIDto from '@/ViewModels/clsEQStates'
 export default {
     data() {
         return {
@@ -212,8 +214,8 @@ export default {
                 station_selected: '/map/station_selected'
             },
             bypass_eq_status_check: false,
-            equipments_options: [],
-            downstream_options: [],
+            equipments_options: [new StationSelectOptions()],
+            downstream_options: [new StationSelectOptions()],
             IsTransferTaskNeedChangeAGV: false,
             tagOfMiddleStationTagOfTransferTask: -1,
             routePath: ''
@@ -300,6 +302,11 @@ export default {
 
         },
         FromStationOptions() {
+            var eqOptions = [new StationSelectOptions()];
+            Object.assign(eqOptions, this.EQStations);
+            if (this.IsDeveloper) {
+                return eqOptions
+            }
 
             var _agvList = agv_states_store.getters.AGVNameList;
             var _agvOptions = _agvList.length == 0 ? [] : _agvList.map(name => {
@@ -308,7 +315,13 @@ export default {
                     name_display: name
                 }
             })
-            var _stations = [...this.EQStations, ..._agvOptions];
+
+            var eqStatusDtoCollection = [new EQStatusDIDto()];
+            Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
+            var unloadableEqList = eqStatusDtoCollection.filter(eq => eq.Unload_Request);
+            var unloadableTags = unloadableEqList.map(eq => eq.Tag);
+            var unloadableOptions = eqOptions.filter(opt => unloadableTags.includes(opt.tag));
+            var _stations = [...unloadableOptions, ..._agvOptions];
             return _stations;
         },
         IsSourceStationBuffer() {
@@ -440,7 +453,7 @@ export default {
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
 
-            bus.emit('change_to_select_eq_station_mode', { action_type: this.selected_action, direction: 'source' });
+            bus.emit('change_to_select_eq_station_mode', { action_type: this.selected_action, direction: 'source', stations_to_show: this.FromStationOptions });
 
             this.current_progress = 'select-source';
             this.is_reselecting_flag = false;
@@ -460,9 +473,11 @@ export default {
                         return;
                     this.selected_source = _station_data;
                     this.HandleFromSelectChanged(this.selected_source.TagNumber);
-                    bus.emit('mark_as_start_station', this.selected_source.TagNumber);
-                    this.HandleSelectDestineStationFromMapBtnClick();
-                    this.HandleActionSelected('select-destine')
+                    setTimeout(() => {
+                        bus.emit('mark_as_start_station', this.selected_source.TagNumber);
+                        this.HandleSelectDestineStationFromMapBtnClick();
+                        this.HandleActionSelected('select-destine')
+                    }, 100);
                 }
             })
         },
@@ -471,7 +486,9 @@ export default {
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
 
-            var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
+            var _destine_options = this.DetermineDestinOptions()
+            // var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
+
             if (this.IsSourceStationBuffer) {
                 _destine_options = [..._destine_options, this.BufferStations]
             }
@@ -683,8 +700,18 @@ export default {
                 return this.EQStations;
             else if (this.selected_action == 'charge')
                 return MapStore.getters.AllChargeStation;
-            else if (this.selected_action == 'carry')
-                return this.downstream_options;
+            else if (this.selected_action == 'carry') {
+
+                if (this.IsDeveloper) {
+                    return this.downstream_options;
+                }
+                var eqStatusDtoCollection = [new EQStatusDIDto()];
+                Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
+                var loadableEqList = eqStatusDtoCollection.filter(eq => eq.Load_Request);
+                var loadableTags = loadableEqList.map(eq => eq.Tag);
+                var loadableOptions = this.downstream_options.filter(opt => loadableTags.includes(opt.tag));
+                return loadableOptions;
+            }
             else if (this.selected_action == 'exchange_battery')
                 return MapStore.getters.AllExangeBatteryStation;
             else

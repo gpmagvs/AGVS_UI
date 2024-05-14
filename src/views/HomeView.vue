@@ -22,7 +22,7 @@
       </div>
       <div class="right-panel flex-fill">
         <!-- <HomeMap style="width:100%"></HomeMap> -->
-        <el-tabs v-model="right_side_tabSelected" tab-position="top" style="height: 100%" type="border-card">
+        <el-tabs lazy v-model="right_side_tabSelected" tab-position="top" style="height: 100%" type="border-card">
           <el-tab-pane name="map" label="地圖">
             <HomeMap style="width:100%"></HomeMap>
           </el-tab-pane>
