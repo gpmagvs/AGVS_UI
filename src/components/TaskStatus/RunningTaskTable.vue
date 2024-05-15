@@ -133,21 +133,22 @@ export default {
       try {
         await TaskAllocation.Cancel(this.cancelTaskName);
       } catch (error) {
-        if (error.response.status == 401) {
-          bus.emit('/show-login-view-invoke')
+        if (error.response && error.response.status === 401) {
+          console.error("Unauthorized access. Please log in again.");
+          userStore.commit('setUser', null);
+          // bus.emit('/show-login-view-invoke')
+          this.$swal.fire(
+            {
+              text: '',
+              title: '請先進行登入',
+              icon: 'warning',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            }).then(() => {
 
-          // this.$swal.fire(
-          //   {
-          //     text: '',
-          //     title: '請先進行登入',
-          //     icon: 'warning',
-          //     showCancelButton: false,
-          //     confirmButtonText: 'OK',
-          //     customClass: 'my-sweetalert'
-          //   }).then(() => {
-
-          //     bus.emit('/show-login-view-invoke')
-          //   })
+              bus.emit('/show-login-view-invoke')
+            })
         }
       }
     },

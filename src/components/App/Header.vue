@@ -291,8 +291,7 @@ export default {
       }
     },
     LoginClickHandler(action = '') {
-      if (!this.IsLogin | action == 'switch')
-        this.$refs['login'].Show(this.current_route_info.route_name);
+      this.$refs['login'].Show(this.current_route_info.route_name);
     },
     LogoutQickly() {
 
