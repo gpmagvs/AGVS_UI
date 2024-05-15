@@ -3,7 +3,7 @@ var param = {
   // backend_host: 'http://192.168.0.103:7025',
   get backend_host() {
     if (process.env.NODE_ENV == 'development') {
-      return 'http://127.0.0.1:5216'
+      return 'https://localhost:5216'
       return 'http://192.168.0.1:5216'
       return 'http://192.168.0.2:5216'
       return 'http://192.168.0.55:5216'
@@ -23,6 +23,9 @@ var param = {
   get vms_ws_host() {
     return this.vms_host.replace('http', 'ws')
   },
+  get agvsystem_notify_url() {
+    return this.backend_host + '/api/event'
+  }
 }
 
 export const version = '1.0.0'

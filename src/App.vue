@@ -51,6 +51,8 @@ import { userStore } from '@/store'
 import MoveAGVNotifty from '@/components/Traffic/MoveAGVNotify.vue'
 import AGVAlarmMessageDisplay from '@/components/App/AGVAlarmUI/AGVAlarmMessageDisplay.vue'
 import { tableHeaderStyle } from '@/ViewModels/GlobalStyles'
+import param from './gpm_param'
+import { ElNotification } from 'element-plus'
 export default {
   components: {
     Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay,
@@ -108,6 +110,16 @@ export default {
     },
     SideMenuCloseHandler() {
       this.showMenuToggleIcon = true;
+    },
+    RegistNotifies() {
+      const eqMaintainNotify = new EventSource(param.agvsystem_notify_url);
+      eqMaintainNotify.addEventListener('Equipment_Maintain', (event) => {
+        var eqname = event.data;
+        ElNotification.warning({
+          message: `設備 ${eqname} 維修中!`
+        })
+
+      })
     }
   },
   mounted() {
@@ -190,6 +202,7 @@ export default {
     setTimeout(() => {
       this.loading = false
     }, 1000)
+    this.RegistNotifies();
   },
 };
 
