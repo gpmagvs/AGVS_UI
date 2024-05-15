@@ -377,6 +377,7 @@ import { ElNotification } from 'element-plus'
 import { Throttle } from '@/api/Common/UtilityTools.js'
 import ImageEditor from '@/components/General/ImageEditor.vue'
 import EQStatusDIDto from '@/ViewModels/clsEQStates.js'
+import param from '@/gpm_param';
 export default {
   components: {
     QuicklyAction, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor
@@ -598,7 +599,8 @@ export default {
         }
       },
       featureHighlightTimerID: '',
-      highlightingFeatures: []
+      highlightingFeatures: [],
+      renderLDULD_StatusTimerId: ''
     }
   },
   computed: {
@@ -2241,7 +2243,7 @@ export default {
     },
     ReloadMap(confirm = true) {
       var reload = async () => {
-        this.loading = true;
+        this.loading = confirm;
         this.map_img_url_for_editor = null;
         await MapStore.dispatch('DownloadMapData', '');
         console.log('re-done');
@@ -3265,7 +3267,7 @@ export default {
         bus.on('mark_as_destine_station', (tagNumber) => {
           this.CreateDestineMarkIcon(tagNumber);
         })
-        setInterval(() => {
+        this.renderLDULD_StatusTimerId = setInterval(() => {
           this.RenderEQLDULDStatus();
         }, 500);
         var mapdom = document.getElementById(this.id);
@@ -3278,6 +3280,13 @@ export default {
         this.MapGridSizeStore = this.MapGridSize;
       })
     }, 1000);
+
+    const eventSource = new EventSource(param.backend_host + '/api/event');
+    eventSource.addEventListener('Reload Map', (event) => {
+      MapStore.dispatch('DownloadMapData')
+      this.UpdateStationPointLayer();
+      console.info('Recieved Reload Event', event.data);
+    })
   },
 }
 </script>
