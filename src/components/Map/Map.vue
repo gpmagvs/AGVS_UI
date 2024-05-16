@@ -600,7 +600,8 @@ export default {
       },
       featureHighlightTimerID: '',
       highlightingFeatures: [],
-      renderLDULD_StatusTimerId: ''
+      renderLDULD_StatusTimerId: '',
+      prviousEQDataJson:''
     }
   },
   computed: {
@@ -897,8 +898,21 @@ export default {
       if (this.agv_display != 'visible')
         return;
       const isDevelopment = process.env.NODE_ENV === 'development';
+      var saveAgvDataToLocalStorage = (agvName, JSONData) => {
+        localStorage.setItem(agvName, JSONData);
+      }
+
+      var getAgvDataFromLocalStorage = (agvName) => {
+        var jsonStr = localStorage.getItem(agvName);
+        if (jsonStr) {
+          return jsonStr;
+        } else
+          return ''
+      }
 
       this.agvs_info.AGVDisplays.forEach(agv_information => {
+
+
         const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
         const vehicleLength = agv_information.vehicleLength / 100.0; //unit:m
         const vehicleWidth = agv_information.vehicleWidth / 100.0;//unit:m
@@ -908,6 +922,14 @@ export default {
 
         var agvfeatures = this.AGVFeatures[agv_information.AgvName]
         if (agvfeatures) {  //以新增
+          var currentDataJsonStr = JSON.stringify(agv_information);
+          var cacheData = getAgvDataFromLocalStorage(agv_information.AgvName);
+          if (currentDataJsonStr != cacheData) {
+            saveAgvDataToLocalStorage(agv_information.AgvName, currentDataJsonStr);
+          } else {
+            return;
+          }
+
           var coordination = agv_information.Coordination;
           var path_coordinations = agv_information.NavPathCoordinationList
           if (this.map_display_mode == 'router') {
@@ -958,6 +980,7 @@ export default {
           agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_information.CargoStatus)
+
           //this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
         }
         else {//動態新增AGV Feature
@@ -2700,11 +2723,20 @@ export default {
 
     },
     RenderEQLDULDStatus() {//TODO EQ狀態渲染
-      this.eq_data.forEach(eq_states => {
-        let _EQStatusDIDto = new EQStatusDIDto();
-        Object.assign(_EQStatusDIDto, eq_states)
-        this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
-      });
+      
+      var currentEqDataJson=JSON.stringify(this.eq_data);
+      if(this.prviousEQDataJson!=currentEqDataJson){
+
+        this.eq_data.forEach(eq_states => {
+          let _EQStatusDIDto = new EQStatusDIDto();
+          Object.assign(_EQStatusDIDto, eq_states)
+          this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
+        });
+        this.prviousEQDataJson=currentEqDataJson
+      }else{
+        // console.log('eq data not changed yet')
+      }
+      
     },
     RefreshMap() {
       this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
@@ -3215,6 +3247,9 @@ export default {
         watch(() => this.agvs_info, (newval, oldval) => {
           if (!newval)
             return
+          if (JSON.stringify(newval) == JSON.stringify(oldval)) {
+            return;
+          }
           this.UpdateAGVLayer()
         }, { deep: true, immediate: true })
 
@@ -3285,7 +3320,7 @@ export default {
     bus.on('Map-Reload', () => {
       MapStore.dispatch('DownloadMapData')
       this.UpdateStationPointLayer();
-
+      this.RenderEQLDULDStatus();
     })
   },
 }
