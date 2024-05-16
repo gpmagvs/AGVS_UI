@@ -2335,9 +2335,9 @@ export default {
           rotation: rotation * Math.PI / 180.0,
           animation: false,
           duration: 0,
-          smoothResolutionConstraint:false,
-          smoothExtentConstraint:false,
-          showFullExtent:true
+          smoothResolutionConstraint: false,
+          smoothExtentConstraint: false,
+          showFullExtent: true
 
         })
       })
@@ -2749,8 +2749,8 @@ export default {
     RefreshMap() {
       this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
       this.DeepClonePathSegmentData();
-      this.UpdateStationPointLayer();
       this.UpdateStationPathLayer();
+      this.UpdateStationPointLayer();
       this.MapDisplayModeOptHandler(false);
       this.UpdateForbidPointLayer();
       this.ModifyMapRotation(MapStore.getters.Rotation);
@@ -3238,92 +3238,90 @@ export default {
 
 
     setTimeout(() => {
-
-      MapStore.dispatch('DownloadMapData').then(() => {
-        this.DeepClonePathSegmentData();
-        this.InitMap();
-        this.RestoreSettingsFromLocalStorage();
-        this.AddEditMapInteraction();
-        watch(
-          () => this.map_station_data, (newval, oldval) => {
-            if (!newval)
-              return;
-            this.RefreshMap();
-          }, { deep: true, immediate: true }
-        )
-
-        watch(() => this.agvs_info, (newval, oldval) => {
+      this.DeepClonePathSegmentData();
+      this.InitMap();
+      this.RestoreSettingsFromLocalStorage();
+      this.AddEditMapInteraction();
+      watch(
+        () => this.map_station_data, (newval, oldval) => {
           if (!newval)
-            return
-          if (JSON.stringify(newval) == JSON.stringify(oldval)) {
             return;
-          }
-          this.UpdateAGVLayer()
-        }, { deep: true, immediate: true })
+          this.RefreshMap();
+        }, { deep: true, immediate: true }
+      )
+
+      watch(() => this.agvs_info, (newval, oldval) => {
+        if (!newval)
+          return
+        if (JSON.stringify(newval) == JSON.stringify(oldval)) {
+          return;
+        }
+        this.UpdateAGVLayer()
+      }, { deep: true, immediate: true })
 
 
-        watch(() => this.agvs_info_other_system, (newval, oldval) => {
-          if (!newval)
-            return
-          this.UpdateAGVLocationOfOtherSystem(newval)
-        }, { deep: true, immediate: true })
+      watch(() => this.agvs_info_other_system, (newval, oldval) => {
+        if (!newval)
+          return
+        this.UpdateAGVLocationOfOtherSystem(newval)
+      }, { deep: true, immediate: true })
 
-        bus.on('/show_agv_at_center', agv_name => {
-          // alert(agv_name)
-          this.ResetMapCenterViaAGVLoc(agv_name)
-        })
-
-        bus.on('/rerender_agv_layer', () => {
-          console.log('rerender_agv_layer');
-          this.AGVLocLayer.getSource().clear();
-          this.AGVFeatures = {};
-        })
-
-        watch(
-          () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
-            if (this.agv_upload_coordination_mode) {
-              this.HandleAGVUploadData(newval)
-            }
-          }, { deep: true, immediate: true }
-        )
-        bus.on('change_to_select_agv_mode', () => {
-          if (this.editable)
-            return;
-          this.ChangeToSelectAGVMode();
-        })
-        bus.on('change_to_select_eq_station_mode', (option) => {
-          if (this.editable)
-            return;
-          this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
-          this.ChangeToSelectEQStationMode();
-        })
-        bus.on('change_to_normal_view_mode', () => {
-          if (this.editable)
-            return;
-          this.ChangeToNormalViewMode();
-        })
-        bus.on('mark_as_start_station', (tagNumber) => {
-          if (this.editable)
-            return;
-          this.TransferTaskIconLayer.getSource().clear();
-          this.AddMarkIconWithText(tagNumber, '搬運起點');
-        })
-        bus.on('mark_as_destine_station', (tagNumber) => {
-          this.CreateDestineMarkIcon(tagNumber);
-        })
-        this.renderLDULD_StatusTimerId = setInterval(() => {
-          this.RenderEQLDULDStatus();
-        }, 500);
-        var mapdom = document.getElementById(this.id);
-        if (mapdom)
-          mapdom.addEventListener('contextmenu', (ev) => {
-            ev.preventDefault()
-          })
-        this.UpdateAGVLocLocation();
-        this.loading = false;
-        this.MapGridSizeStore = this.MapGridSize;
+      bus.on('/show_agv_at_center', agv_name => {
+        // alert(agv_name)
+        this.ResetMapCenterViaAGVLoc(agv_name)
       })
-    }, 1000);
+
+      bus.on('/rerender_agv_layer', () => {
+        console.log('rerender_agv_layer');
+        this.AGVLocLayer.getSource().clear();
+        this.AGVFeatures = {};
+      })
+
+      watch(
+        () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
+          if (this.agv_upload_coordination_mode) {
+            this.HandleAGVUploadData(newval)
+          }
+        }, { deep: true, immediate: true }
+      )
+      bus.on('change_to_select_agv_mode', () => {
+        if (this.editable)
+          return;
+        this.ChangeToSelectAGVMode();
+      })
+      bus.on('change_to_select_eq_station_mode', (option) => {
+        if (this.editable)
+          return;
+        this.TaskDispatchOptions = JSON.parse(JSON.stringify(option))
+        this.ChangeToSelectEQStationMode();
+      })
+      bus.on('change_to_normal_view_mode', () => {
+        if (this.editable)
+          return;
+        this.ChangeToNormalViewMode();
+      })
+      bus.on('mark_as_start_station', (tagNumber) => {
+        if (this.editable)
+          return;
+        this.TransferTaskIconLayer.getSource().clear();
+        this.AddMarkIconWithText(tagNumber, '搬運起點');
+      })
+      bus.on('mark_as_destine_station', (tagNumber) => {
+        this.CreateDestineMarkIcon(tagNumber);
+      })
+      this.renderLDULD_StatusTimerId = setInterval(() => {
+        this.RenderEQLDULDStatus();
+      }, 200);
+      var mapdom = document.getElementById(this.id);
+      if (mapdom)
+        mapdom.addEventListener('contextmenu', (ev) => {
+          ev.preventDefault()
+        })
+      this.UpdateAGVLocLocation();
+      this.loading = false;
+      this.MapGridSizeStore = this.MapGridSize;
+
+    }, 10);
 
     bus.on('Map-Reload', () => {
       MapStore.dispatch('DownloadMapData')

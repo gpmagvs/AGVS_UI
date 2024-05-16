@@ -383,3 +383,4 @@ export const MapStore = createStore({
     }
 }
 )
+MapStore.dispatch('DownloadMapData')
