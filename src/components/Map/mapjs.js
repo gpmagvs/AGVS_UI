@@ -10,7 +10,7 @@ function IsDev() {
     return process.env.NODE_ENV == 'development'
 }
 
-var agv_image_path_default = IsDev() ? `${gpm_param.backend_host}/images/AGVDisplayImage/ForkAGV_Default.png` : '/agv.png'
+var agv_image_path_default = IsDev() ? `${gpm_param.backend_host}/AGVImages/default.png` : '/agv.png'
 
 /**根據Index取得點位物件 */
 export function GetPointByIndex(index) {
@@ -553,7 +553,7 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
     var height = 64;
 
     var _isblob = imgUrl.substring(0, 4) == 'blob';
-    var _imgUrl = _isblob || !IsDev() ? imgUrl : `${gpm_param.backend_host}/images/AGVDisplayImage/AGV_001-Icon.png`
+    var _imgUrl = _isblob || !IsDev() ? imgUrl : `${gpm_param.backend_host}/AGVImages/AGV_001-Icon.png`
     if (ImageSize) {
         width = ImageSize[0]
         height = ImageSize[1]
@@ -566,7 +566,6 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
         }
         var agv_img = new Image();
         agv_img.src = _imgUrl;
-        delay(200)
         width = agv_img.width == 0 ? 64 : agv_img.width;
         height = agv_img.height == 0 ? 64 : agv_img.height;
     }
