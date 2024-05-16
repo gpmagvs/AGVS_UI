@@ -3281,11 +3281,10 @@ export default {
       })
     }, 1000);
 
-    const eventSource = new EventSource(param.backend_host + '/api/event');
-    eventSource.addEventListener('Reload Map', (event) => {
+    bus.on('Map-Reload',()=>{
       MapStore.dispatch('DownloadMapData')
       this.UpdateStationPointLayer();
-      console.info('Recieved Reload Event', event.data);
+
     })
   },
 }
