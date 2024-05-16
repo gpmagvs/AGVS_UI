@@ -896,12 +896,13 @@ export default {
     UpdateAGVLayer() {
       if (this.agv_display != 'visible')
         return;
+      const isDevelopment = process.env.NODE_ENV === 'development';
 
       this.agvs_info.AGVDisplays.forEach(agv_information => {
         const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
         const vehicleLength = agv_information.vehicleLength / 100.0; //unit:m
         const vehicleWidth = agv_information.vehicleWidth / 100.0;//unit:m
-        const vehicleImageName = '/images/AGVDisplayImage/' + agv_information.AgvName + '-Icon.png';//[length,width]
+        const vehicleImageName = param.backend_host + '/AGVImages/' + agv_information.AgvName + '-Icon.png';//[length,width]
         const vehicleSaftyRotationRadious = Math.sqrt(Math.pow(vehicleLength / 2, 2) + Math.pow(vehicleWidth / 2, 2));//unit:m
         var _polygon_coordinations = this.CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
 
@@ -3281,7 +3282,7 @@ export default {
       })
     }, 1000);
 
-    bus.on('Map-Reload',()=>{
+    bus.on('Map-Reload', () => {
       MapStore.dispatch('DownloadMapData')
       this.UpdateStationPointLayer();
 

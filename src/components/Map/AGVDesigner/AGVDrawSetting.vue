@@ -113,7 +113,7 @@ export default {
             this.agv_feature = new Feature({
                 geometry: new Point([0, 0])
             })
-            this.agv_feature.setStyle(AGVPointStyle(this.raw_props.DisplayText, this.raw_props.DisplayColor, '/images/AGVDisplayImage/' + this.agv_name + '-Icon.png'))
+            this.agv_feature.setStyle(AGVPointStyle(this.raw_props.DisplayText, this.raw_props.DisplayColor, '/AGVImages/' + this.agv_name + '-Icon.png'))
 
             //AGV車體顯示
             const _agvBodyPolygon = new Polygon([[[-3, 4], [3, 4], [3, -4], [-3, -4]]])
