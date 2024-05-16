@@ -15,6 +15,7 @@ import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import './BackendDataFetchWorker.js'
 import './idling_detector.js'
+import './backendNotify.js'
 const i18n = createI18n({
   legacy: false,
   locale: 'zh-TW',
