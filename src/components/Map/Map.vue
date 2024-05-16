@@ -601,7 +601,7 @@ export default {
       featureHighlightTimerID: '',
       highlightingFeatures: [],
       renderLDULD_StatusTimerId: '',
-      prviousEQDataJson:''
+      prviousEQDataJson: ''
     }
   },
   computed: {
@@ -2326,14 +2326,22 @@ export default {
       this.map = new Map({
         layers: [this.ImageLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.RegionLayer],
         target: this.id,
+        renderer: 'canvas',
         view: new View({
           projection: projection,
           center: [0, 0],
           zoom: 1,
           maxZoom: 20,
-          rotation: rotation * Math.PI / 180.0
+          rotation: rotation * Math.PI / 180.0,
+          animation: false,
+          duration: 0,
+          smoothResolutionConstraint:false,
+          smoothExtentConstraint:false,
+          showFullExtent:true
+
         })
       })
+
       this.AGVLocLayer.setVisible(this.agv_show);
       if (this.editable) {
         this.PointLayer.setVisible(false);
@@ -2723,20 +2731,20 @@ export default {
 
     },
     RenderEQLDULDStatus() {//TODO EQ狀態渲染
-      
-      var currentEqDataJson=JSON.stringify(this.eq_data);
-      if(this.prviousEQDataJson!=currentEqDataJson){
+
+      var currentEqDataJson = JSON.stringify(this.eq_data);
+      if (this.prviousEQDataJson != currentEqDataJson) {
 
         this.eq_data.forEach(eq_states => {
           let _EQStatusDIDto = new EQStatusDIDto();
           Object.assign(_EQStatusDIDto, eq_states)
           this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
         });
-        this.prviousEQDataJson=currentEqDataJson
-      }else{
+        this.prviousEQDataJson = currentEqDataJson
+      } else {
         // console.log('eq data not changed yet')
       }
-      
+
     },
     RefreshMap() {
       this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
