@@ -79,12 +79,21 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="允入車款" width="200">
+      <el-table-column label="允入車款" width="120">
         <template #default="scope">
           <el-select size="small" v-model="scope.row.Accept_AGV_Type">
             <el-option :value="0" label="0-不限"></el-option>
             <el-option :value="1" label="1-叉車AGV"></el-option>
             <el-option :value="2" label="2-潛盾AGV"></el-option>
+          </el-select>
+        </template>
+      </el-table-column>
+      <el-table-column label="可移載貨物類型" width="130">
+        <template #default="scope">
+          <el-select size="small" v-model="scope.row.EQAcceeptCargoType">
+            <el-option :value="0" label="0-不限"></el-option>
+            <el-option :value="200" label="200-子母框"></el-option>
+            <el-option :value="201" label="201-Tray"></el-option>
           </el-select>
         </template>
       </el-table-column>
@@ -122,87 +131,37 @@
             </el-select>
           </el-form-item>
           <el-form-item label="IP">
-            <el-input
-              :disabled="selected_eq.ConnOptions.ConnMethod == 1"
-              v-model="selected_eq.ConnOptions.IP"></el-input>
+            <el-input :disabled="selected_eq.ConnOptions.ConnMethod == 1" v-model="selected_eq.ConnOptions.IP"></el-input>
           </el-form-item>
           <el-form-item label="PORT">
-            <el-input
-              :disabled="selected_eq.ConnOptions.ConnMethod == 1"
-              v-model.number="selected_eq.ConnOptions.Port"></el-input>
+            <el-input :disabled="selected_eq.ConnOptions.ConnMethod == 1" v-model.number="selected_eq.ConnOptions.Port"></el-input>
           </el-form-item>
           <el-form-item label="COMPORT">
-            <el-input
-              :disabled="selected_eq.ConnOptions.ConnMethod == 0"
-              v-model="selected_eq.ConnOptions.ComPort"></el-input>
+            <el-input :disabled="selected_eq.ConnOptions.ConnMethod == 0" v-model="selected_eq.ConnOptions.ComPort"></el-input>
           </el-form-item>
         </el-form>
-        <el-button
-          :loading="connection_testing"
-          type="default"
-          @click="ConnectTestHandle(selected_eq)">通訊測試</el-button>
+        <el-button :loading="connection_testing" type="default" @click="ConnectTestHandle(selected_eq)">通訊測試</el-button>
       </div>
     </el-drawer>
     <el-drawer v-model="io_check_drawer" direction="btt">
       <div class="hs-signals d-flex">
         <div class="mx-3">交握訊號-EQ</div>
-        <div
-          class="di-status"
-          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_L_REQ)">L_REQ</div>
-        <div
-          class="di-status"
-          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_U_REQ)">U_REQ</div>
-        <div
-          class="di-status"
-          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'READY', !scope.row.HS_EQ_READY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_READY)">READY</div>
-        <div
-          class="di-status"
-          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'UP_READY', !scope.row.HS_EQ_UP_READY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_UP_READY)">UP_READY</div>
-        <div
-          class="di-status"
-          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'LOW_READY', !scope.row.HS_EQ_LOW_READY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_LOW_READY)">LOW_READY</div>
-        <div
-          v-if="false"
-          class="di-status"
-          @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_EQ_BUSY)">BUSY</div>
+        <div class="di-status" @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'L_REQ', !scope.row.HS_EQ_L_REQ)" v-bind:style="signalOn(selected_eq_io_data.HS_EQ_L_REQ)">L_REQ</div>
+        <div class="di-status" @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'U_REQ', !scope.row.HS_EQ_U_REQ)" v-bind:style="signalOn(selected_eq_io_data.HS_EQ_U_REQ)">U_REQ</div>
+        <div class="di-status" @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'READY', !scope.row.HS_EQ_READY)" v-bind:style="signalOn(selected_eq_io_data.HS_EQ_READY)">READY</div>
+        <div class="di-status" @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'UP_READY', !scope.row.HS_EQ_UP_READY)" v-bind:style="signalOn(selected_eq_io_data.HS_EQ_UP_READY)">UP_READY</div>
+        <div class="di-status" @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'LOW_READY', !scope.row.HS_EQ_LOW_READY)" v-bind:style="signalOn(selected_eq_io_data.HS_EQ_LOW_READY)">LOW_READY</div>
+        <div v-if="false" class="di-status" @click="HandleHSsignaleChange(selected_eq_io_data.EQName, 'BUSY', !scope.row.HS_EQ_BUSY)" v-bind:style="signalOn(selected_eq_io_data.HS_EQ_BUSY)">BUSY</div>
       </div>
       <div class="hs-signals d-flex">
         <div class="mx-3">交握訊號-AGV</div>
-        <div
-          class="di-status"
-          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'To_EQ_Up', !scope.row.To_EQ_Up)"
-          v-bind:style="signalOn(selected_eq_io_data.To_EQ_Up)">To_EQ_Up</div>
-        <div
-          class="di-status"
-          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'To_EQ_Low', !scope.row.To_EQ_Low)"
-          v-bind:style="signalOn(selected_eq_io_data.To_EQ_Low)">To_EQ_Low</div>
-        <div
-          class="di-status"
-          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'VALID', !scope.row.HS_AGV_VALID)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_VALID)">VALID</div>
-        <div
-          class="di-status"
-          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'TR_REQ', !scope.row.HS_AGV_TR_REQ)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_TR_REQ)">TR_REQ</div>
-        <div
-          class="di-status"
-          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'BUSY', !scope.row.HS_AGV_BUSY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_BUSY)">BUSY</div>
-        <div
-          v-if="false"
-          class="di-status"
-          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'READY', !scope.row.HS_AGV_READY)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_READY)">READY</div>
-        <div
-          class="di-status"
-          @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'COMPT', !scope.row.HS_AGV_COMPT)"
-          v-bind:style="signalOn(selected_eq_io_data.HS_AGV_COMPT)">COMPT</div>
+        <div class="di-status" @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'To_EQ_Up', !scope.row.To_EQ_Up)" v-bind:style="signalOn(selected_eq_io_data.To_EQ_Up)">To_EQ_Up</div>
+        <div class="di-status" @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'To_EQ_Low', !scope.row.To_EQ_Low)" v-bind:style="signalOn(selected_eq_io_data.To_EQ_Low)">To_EQ_Low</div>
+        <div class="di-status" @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'VALID', !scope.row.HS_AGV_VALID)" v-bind:style="signalOn(selected_eq_io_data.HS_AGV_VALID)">VALID</div>
+        <div class="di-status" @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'TR_REQ', !scope.row.HS_AGV_TR_REQ)" v-bind:style="signalOn(selected_eq_io_data.HS_AGV_TR_REQ)">TR_REQ</div>
+        <div class="di-status" @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'BUSY', !scope.row.HS_AGV_BUSY)" v-bind:style="signalOn(selected_eq_io_data.HS_AGV_BUSY)">BUSY</div>
+        <div v-if="false" class="di-status" @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'READY', !scope.row.HS_AGV_READY)" v-bind:style="signalOn(selected_eq_io_data.HS_AGV_READY)">READY</div>
+        <div class="di-status" @click="HandleAGVHSSignaleChange(selected_eq_io_data.EQName, 'COMPT', !scope.row.HS_AGV_COMPT)" v-bind:style="signalOn(selected_eq_io_data.HS_AGV_COMPT)">COMPT</div>
       </div>
     </el-drawer>
   </div>
