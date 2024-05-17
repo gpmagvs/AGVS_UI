@@ -16,32 +16,33 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="chart-display h-100 w-100 d-flex justify-content-center">
+    <div class="chart-display h-100 w-100 d-flex justify-content-center" v-loading="loading">
       <div class="w-100 m-1">
-        <el-radio-group v-model="chart_type" @change="HandleChartTypeChanged">
-          <el-radio-button size="large" label="pie">圓餅圖</el-radio-button>
-          <el-radio-button size="large" label="bar">直條圖</el-radio-button>
-          <!-- <el-radio-button size="large" label="edit-station">編輯點位[2]</el-radio-button>
-          <el-radio-button size="large" label="remove-station">移除點位[3]</el-radio-button>-->
-        </el-radio-group>
-        <div class="m-2 p-1">
-          <AvailabilityPieChart v-show="chart_type=='pie'" class ref="piechart"></AvailabilityPieChart>
-          <AvailabilityPieChart v-show="chart_type=='bar'" class ref="barchart"></AvailabilityPieChart>
-        </div>
+        <el-tabs type="border-card" tab-position="top" lazy class="demo-tabs">
+          <el-tab-pane label="圓餅圖">
+            <AvailabilityPieChart class ref="piechart"></AvailabilityPieChart>
+          </el-tab-pane>
+          <el-tab-pane label="直條圖">
+            <AvailabilityPieChart ref="barchart"></AvailabilityPieChart>
+          </el-tab-pane>
+          <el-tab-pane label="MTBF/MTTR">
+            <MeanTimeChart ref="MTChart" id="mtbf-chart" title=""></MeanTimeChart>
+          </el-tab-pane>
+        </el-tabs>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import { Query } from '@/api/AvailabilitysAPI'
 import AGVSelector from '@/components/AGVSelector'
 import AvailabilityPieChart from '@/components/Availabilitys/AvailabilityPieChart.vue';
+import MeanTimeChart from '@/components/Availabilitys/MeanTimeChart.vue';
 import { agv_states_store } from '@/store'
 import moment from 'moment'
 export default {
   components: {
-    AvailabilityPieChart, AGVSelector
+    AvailabilityPieChart, MeanTimeChart, AGVSelector
   },
   data() {
     return {
@@ -60,6 +61,18 @@ export default {
           run: [],
           down: [],
           charge: [],
+        },
+        BarchartMTTR: {
+          dates: [],
+          time: []
+        },
+        BarchartMTBF: {
+          dates: [],
+          time: []
+        },
+        BarchartMissTag: {
+          dates: [],
+          count: []
         }
       }
     }
@@ -79,9 +92,29 @@ export default {
       this.query_data = await Query(this.options.AGVName, this.options.StartDate, this.options.EndDate);
       this.$refs['barchart'].updateStackBarChart(this.query_data.days);
       this.$refs['piechart'].updateChart(this.query_data.total);
+      this.$refs.MTChart.RenderChartWithTimeSeriesData(this.CreateMTData(this.query_data));
+
+      //this.$refs.BarchartMTBF.RenderChartWithTimeSeriesData([this.query_data.BarchartMTBF]);
+      //this.$refs['BarchartMissTag'].updateStackBarChartmttr(this.query_data.BarchartMissTag);
       setTimeout(() => {
         this.loading = false;
       }, 400);
+    },
+    CreateMTData(dataFromBackend) {
+      var mttr = dataFromBackend.BarchartMTTR
+      var mttrData = Object.keys(mttr).map(time => ({
+        x: time,
+        y: mttr[time]
+      }))
+      var mtbf = dataFromBackend.BarchartMTBF
+      var mtbfData = Object.keys(mtbf).map(time => ({
+        x: time,
+        y: mtbf[time]
+      }))
+      return [
+        { name: 'MTTR', data: mttrData },
+        { name: 'MTBF', data: mtbfData },
+      ]
     },
     HandleChartTypeChanged() {
 
@@ -89,10 +122,10 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .avalibity-query {
   height: 100vh;
+
   .options {
     width: 20%;
   }

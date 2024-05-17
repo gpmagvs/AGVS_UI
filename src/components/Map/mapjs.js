@@ -10,7 +10,7 @@ function IsDev() {
     return process.env.NODE_ENV == 'development'
 }
 
-var agv_image_path_default = IsDev() ? `${gpm_param.backend_host}/images/AGVDisplayImage/ForkAGV_Default.png` : '/agv.png'
+var agv_image_path_default = IsDev() ? `${gpm_param.backend_host}/AGVImages/default.png` : '/agv.png'
 
 /**根據Index取得點位物件 */
 export function GetPointByIndex(index) {
@@ -158,12 +158,12 @@ const source_station_mark = new Icon({
 })
 
 /**一般點位 */
-function normal_station_image(map_data = {}) {
+function normal_station_image(stationData = new MapPointModel()) {
     var fillColor = 'orange'
     const stroke = new Stroke({ color: 'black', width: 2 });
 
-    if (map_data) {
-        if (!map_data.Enable) {
+    if (stationData) {
+        if (!stationData.Enable) {
             return new RegularShape({
                 fill: new Fill({
                     color: 'red',
@@ -176,16 +176,16 @@ function normal_station_image(map_data = {}) {
             })
         } else {
 
-            if (map_data.IsVirtualPoint) {
+            if (stationData.IsVirtualPoint) {
                 fillColor = 'grey'
             }
-            else if (map_data.IsTrafficCheckPoint) {
+            else if (stationData.IsTrafficCheckPoint) {
                 fillColor = 'rgb(13, 110, 253)'
             }
             else {
                 fillColor = 'orange'
             }
-            if (map_data.IsAvoid) {
+            if (stationData.IsAvoid) {
                 return new RegularShape({
                     fill: new Fill({
                         color: 'orange',
@@ -216,19 +216,20 @@ export function CreateTransTaskMark(coordinate, text = '') {
         image: source_station_mark,
         text: new Text({
             text: text,
-            font: 'bold 18px Calibri,sans-serif',
+            font: 'bold 20px Calibri,sans-serif',
             offsetX: -7,
             offsetY: -82,
             fill: new Fill({
-                color: 'gold'
+                color: 'white'
             }),
             stroke: new Stroke({
                 color: 'black',
                 width: 2,
             }),
             backgroundFill: new Fill({
-                color: 'black'
-            })
+                color: 'rgb(13, 110, 253)'
+            }),
+            padding: [5, 5, 5, 5]
         })
     }))
     return iconFeture;
@@ -256,7 +257,7 @@ export function CreateLocIcon(coordinate, isStart = true, text = '') {
     return iconFeture;
 }
 
-export function GetStationStyle(text = '', station_type = 0, map_data) {
+export function GetStationStyle(text = '', station_type = 0, map_data = new MapPointModel()) {
     var image = normal_station_image(map_data)
 
     if (station_type == 0) {
@@ -285,14 +286,13 @@ export function GetStationStyle(text = '', station_type = 0, map_data) {
     var _normalStationTextFontSize = MapStore.getters.Settings.normalStationTextFontSize;
     var _workStationTextFontSize = MapStore.getters.Settings.workStationTextFontSize;
 
-    var textFillColor = station_type == 0 ? _normalStationTextColor : _workStationTextColor
+    var textFillColor = !map_data.Enable ? 'rgb(255, 102, 92)' : (station_type == 0 ? _normalStationTextColor : _workStationTextColor);
     var fontSize = station_type == 0 ? _normalStationTextFontSize : _workStationTextFontSize;
 
-    console.log(_normalStationTextColor, _workStationTextColor);
     var textStyle = new Style({
         image: image,
         text: new Text({
-            text: text,
+            text: text + `${map_data.Enable ? '' : '(已禁用)'}`,
             font: `bold ${fontSize}px Calibri,sans-serif`,
             offsetY: -22,
             fill: new Fill({
@@ -306,6 +306,7 @@ export function GetStationStyle(text = '', station_type = 0, map_data) {
                 color: 'black',
                 width: 2,
             }),
+            padding: [4, 4, 4, 4]
         }),
     })
     return textStyle
@@ -351,7 +352,7 @@ export function CreateStationPathStyles(feature, color = undefined) {
                 new Style({
                     geometry: new Point(end),
                     image: new Icon({
-                        src: 'arrow.png',
+                        src: '/arrow.png',
                         anchor: isEQLink ? [1.8, 0.5] : [1.2, 0.5],
                         rotateWithView: true,
                         rotation: -rotation,
@@ -369,7 +370,7 @@ export function CreateStationPathStyles(feature, color = undefined) {
                     new Style({
                         geometry: new Point(start),
                         image: new Icon({
-                            src: 'close.png',
+                            src: '/close.png',
                             anchor: [1.2, 0.5],
                             rotateWithView: true,
                             rotation: -rotation,
@@ -436,19 +437,14 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
     iconFeature.set('feature_type', 'lduld')
     iconFeature.set('data', station.data)
     iconFeature.set('action', 0)
-
-    if (station.station_type != 1)
-        return iconFeature;
-
     var _style = new Style({
         image: undefined,
         text: new Text({
-            text: "",
-            font: 'bold 12px Calibri,sans-serif',
+            font: 'bold 14px Calibri,sans-serif',
             offsetX: 14,
             offsetY: -52,
             stroke: new Stroke({
-                color: null
+                width: 1
             }),
             fill: new Fill({
                 color: 'white',//PointColorSelect(station_type)
@@ -457,9 +453,12 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
                 color: 'seagreen',//PointColorSelect(station_type)
             }),
             backgroundStroke: new Stroke({
-                color: 'black',
-                width: 3,
-            })
+                color: 'grey',
+                width: 2,
+            }),
+            rotation: 0.15,
+            padding: [5, 5, 5, 5]
+
         }),
     })
     iconFeature.setStyle(_style)
@@ -528,16 +527,17 @@ export function AGVCargoIconStyle(cargo_type = 0, cargo_id = '', cst_exist = fal
         text: new Text({
             // text: `${cargo_type.toUpperCase()}\r\n${cargo_id}`,
             text: cargo_id,
-            offsetX: -45,
-            offsetY: -35,
+            offsetX: -55,
+            offsetY: -45,
             textAlign: 'left',
-            font: 'bold 9px Arial',
+            font: 'bold 16px Arial',
             fill: new Fill({
                 color: 'white'
             }),
             backgroundFill: new Fill({
-                color: 'grey',
+                color: 'rgb(13, 110, 253)',
             }),
+            padding: [5, 8, 5, 8]
 
 
         })
@@ -553,7 +553,7 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
     var height = 64;
 
     var _isblob = imgUrl.substring(0, 4) == 'blob';
-    var _imgUrl = _isblob || !IsDev() ? imgUrl : `${gpm_param.backend_host}/images/AGVDisplayImage/AGV_001-Icon.png`
+    var _imgUrl = _isblob || !IsDev() ? imgUrl : `${gpm_param.backend_host}/AGVImages/AGV_001-Icon.png`
     if (ImageSize) {
         width = ImageSize[0]
         height = ImageSize[1]
@@ -566,13 +566,12 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
         }
         var agv_img = new Image();
         agv_img.src = _imgUrl;
-        delay(200)
         width = agv_img.width == 0 ? 64 : agv_img.width;
         height = agv_img.height == 0 ? 64 : agv_img.height;
     }
     return new Icon({
         src: _imgUrl, // 设置PNG图像的路径
-        scale: 32 / width, // 设置PNG图像的缩放比例
+        scale: 48 / width, // 设置PNG图像的缩放比例
         anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
         size: [width, height],// 设置PNG图像的大小
         opacity: 1,
@@ -580,7 +579,37 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
 
     })
 }
+export function SimpleAGVStyle(agv_name, color) {
+    return new Style({
+        image: new Icon({
+            src: '/agv.png', // 设置PNG图像的路径
+            scale: .6, // 设置PNG图像的缩放比例
+            anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
+            size: [64, 64],// 设置PNG图像的大小
+            opacity: 1,
+            rotation: 0 * Math.PI / 180.0 //3.14 180
 
+        }),
+        text: new Text({
+            text: agv_name,
+            offsetX: 0,
+            offsetY: 32,
+            font: 'bold 16px Arial',
+            fill: new Fill({
+                color: 'white'
+            }),
+
+            backgroundFill: new Fill({
+                color: color,
+            }),
+            backgroundStroke: new Stroke({
+                color: 'black',
+            }),
+            textAlign: 'center',
+            padding: [4, 4, 4, 4]
+        }),
+    })
+}
 export function AGVPointStyle(agv_name, color, ImageName = undefined, ImageSize = undefined) {
     return new Style({
         image: AGVIcon(ImageName),
@@ -600,7 +629,7 @@ export function AGVPointStyle(agv_name, color, ImageName = undefined, ImageSize 
                 color: 'black',
             }),
             textAlign: 'center',
-            padding: [4, 4, 4, 4]
+            padding: [6, 8, 6, 8]
         }),
     })
 }
@@ -676,7 +705,7 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "") {
+    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "", vehicleLength = 145, vehicleWidth = 80) {
         this.AgvName = AgvName
         this.TextColor = TextColor
         this.Coordination = initCoordination;
@@ -688,7 +717,8 @@ export class clsAGVDisplay {
         this.CurrentAction = AgvStates.is_executing_task ? GetActionName(CurrentAction, CargoStatus) : ""
         this.AgvStates = AgvStates
         this.DisplayText = DisplayText == "" ? AgvName : DisplayText
-
+        this.vehicleWidth = vehicleWidth;
+        this.vehicleLength = vehicleLength;
     }
 }
 export class clsWaitingInfo {
@@ -822,10 +852,17 @@ export class MapPointModel {
 }
 
 export class MapRegion {
-    constructor(name, coordinations, region_type = 0 | 1) {
+    constructor(name = "", coordinations = [], region_type = 0 | 1) {
         this.Name = name
         this.PolygonCoordinations = coordinations
         this.RegionType = region_type
+        this.IsOpend = true
+        this.IsNarrowPath = true
+        this.MaxVehicleCapacity = 2
+        this.SpeedLimit = 1
+        this.EnteryTags = []
+        this.LeavingTags = []
+        this.ThetaLimitWhenAGVIdling = 0
     }
 }
 export class MapContextMenuOptions {

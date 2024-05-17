@@ -10,6 +10,7 @@
             style="height: 100vh;"
             active-text-color="rgb(13, 110, 253)"
             :collapse="isCollapse"
+            :collapse-transition="false"
             @open="handleOpen"
             @close="handleClose"
             @select="handleSelect">

@@ -17,7 +17,8 @@ export default createStore({
   },
   getters: {
     GetWebsiteSetting: (state) => { return state.websiteSetting; },
-    FieldName: (state) => { return state.websiteSetting.FieldName }
+    FieldName: (state) => { return state.websiteSetting.FieldName },
+    APPVersion: (state) => { return state.websiteSetting.APPVersion }
   },
   mutations: {
     setAgvsystemConfigs(state, configs) {
@@ -27,8 +28,9 @@ export default createStore({
   actions: {
     async GetDynamicWebsiteData({ commit }, user) {
       var response = await axios.get(`${param.backend_host}/api/system/website`)
-      console.log(response.data);
+
       commit('setAgvsystemConfigs', response.data)
+      return response.data;
     },
   }
 })

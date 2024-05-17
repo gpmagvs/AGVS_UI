@@ -15,11 +15,11 @@
                         </div>
                         <el-row class="order-row">
                             <el-col :span="5">
-                                <div class="item-name">動作</div>
+                                <div class="item-name">{{ $t('Action') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">{{ selected_action_display }}</el-col>
                             <el-col class="item-actions" :span="7">
-                                <b-button size="sm" variant="link" @click="() => {
+                                <b-button v-if="IsDeveloper" size="sm" variant="link" @click="() => {
                                     HandleCancelBtnClick();
                                     action_menu_visible = true;
                                 }">重新選取</b-button></el-col>
@@ -27,10 +27,10 @@
                         <!-- 選車 -->
                         <el-row class="order-row" v-bind:style="agv_select_row_class">
                             <el-col :span="5">
-                                <div class="item-name">車輛</div>
+                                <div class="item-name">{{ $t('Vehicle') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="選擇車輛" v-model="selected_agv">
+                                <el-select :placeholder="選擇車輛" v-model="selected_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -43,7 +43,7 @@
                         <!-- 選來源 -->
                         <el-row v-if="selected_action == 'carry'" class="order-row" v-bind:style="source_select_row_class" @click="HandleSelectSoureStationFromMapBtnClick">
                             <el-col :span="5">
-                                <div class="item-name">來源</div>
+                                <div class="item-name">{{ $t('source') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-select placeholder="從地圖或選單選擇來源" @change="HandleFromSelectChanged" @click="HandleSelectSoureStationFromMapBtnClick" v-model="selected_source.TagNumber">
@@ -52,7 +52,7 @@
                                 <!-- {{ selected_source ? selected_source.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
-                                <el-select v-if="IsSourceStationBuffer" placeholder="選擇PORT" v-model="selected_source_slot">
+                                <el-select v-if="selected_source.Graph && IsSourceStationBuffer" placeholder="選擇PORT" v-model="selected_source_slot">
                                     <el-option v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)" :key="selected_source.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
                                     </el-option>
                                 </el-select>
@@ -61,7 +61,7 @@
                         <!-- 選目的地 -->
                         <el-row class="order-row" v-bind:style="destine_select_row_class" @click="HandleSelectDestineStationFromMapBtnClick">
                             <el-col :span="5">
-                                <div class="item-name">目的地</div>
+                                <div class="item-name">{{ $t('TaskDispathActionButton.Destine') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-select placeholder="從地圖或選單選擇目的地" @change="HandleDestineSelectChanged" @click="HandleSelectDestineStationFromMapBtnClick" v-model="selected_destine.TagNumber">
@@ -70,8 +70,8 @@
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
-                                <el-select v-if="IsDestineStationBuffer" placeholder="選擇PORT" v-model="selected_destine_slot">
-                                    <el-option v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)" :key="selected_source.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
+                                <el-select v-if="selected_destine.Graph && IsDestineStationBuffer" placeholder="選擇PORT" v-model="selected_destine_slot">
+                                    <el-option v-for="layer in GetLayersOfBuffer(selected_destine.TagNumber)" :key="selected_destine.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
                                     </el-option>
                                 </el-select>
                             </el-col>
@@ -112,7 +112,7 @@
                                 <div class="item-name">車輛</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="選擇車輛" v-model="selected_transfer_to_destine_agv">
+                                <el-select placeholder="$t('xuan-ze-che-liang')" v-model="selected_transfer_to_destine_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -123,46 +123,55 @@
                             </el-col>
                         </el-row>
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
-                            <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">確認派送</b-button>
-                            <b-button class="w-50 mx-1" variant="light" @click="() => {
+                            <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">{{ $t('TaskDispathActionButton.dispatch-confirm') }}</b-button>
+                            <b-button v-if="IsDeveloper" class="w-50 mx-1" variant="light" @click="() => {
                                 order_info_visible = false;
                                 action_menu_visible = true;
                                 HandleCancelBtnClick();
-                            }">返回選擇動作</b-button>
-                            <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">取消</b-button>
+                            }">{{ $t('TaskDispathActionButton.Back To Select Action') }}</b-button>
+                            <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">{{ $t('Cancel') }}</b-button>
                         </div>
                     </div>
                 </el-popover>
                 <b-button squared variant="primary" @click="() => {
+
+                    if (!IsDeveloper) {
+                        SelectActionHandle('carry');
+                        return;
+                    }
                     // $emit('on-click');
                     if (action_menu_visible) {
                         action_menu_visible = false;
                     }
                     else if (!order_info_visible)
                         action_menu_visible = true
-                }">任務派送</b-button>
+                }">{{ $t('Dispatch') }}</b-button>
             </div>
         </template>
         <div class="actions-btn-conatiner">
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('move')"> 移動</b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('park')"> 停車</b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('unload')"> 取貨 </b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('load')"> 放貨 </b-button>
-            <b-button class="w-100 my-1" variant="primary" @click="SelectActionHandle('carry')"> 搬運 </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('charge')"> 充電 </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('exchange_battery')"> 交換電池 </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('measure')"> 巡檢量測 </b-button>
-            <b-button class="w-100 my-1" variant="danger" @click="() => { HandleCancelBtnClick(); action_menu_visible = false }"> 取消 </b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('move')"> {{ $t('Move') }}</b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('park')"> {{ $t('Park') }}</b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('unload')"> {{ $t('Unload') }} </b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('load')"> {{ $t('Load') }} </b-button>
+            <b-button class="w-100 my-1" variant="primary" @click="SelectActionHandle('carry')"> {{ $t('Transfer') }} </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('charge')"> {{ $t('Charge') }} </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('exchange_battery')"> {{ $t('Exchange Battery') }} </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('measure')"> {{ $t('Measure') }} </b-button>
+            <b-button class="w-100 my-1" variant="danger" @click="() => { HandleCancelBtnClick(); action_menu_visible = false }"> {{ $t('Cancel') }} </b-button>
         </div>
     </el-popover>
 </template>
 <script>
 import bus from '@/event-bus.js'
 import Notifier from '@/api/NotifyHelper';
+import { ElNotification } from 'element-plus'
+import { StationSelectOptions } from '@/components/Map/mapjs';
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
 import { MapStore } from '@/components/Map/store'
-
+import { watch } from 'vue';
+import { useRoute } from 'vue-router'
+import EQStatusDIDto from '@/ViewModels/clsEQStates'
 export default {
     data() {
         return {
@@ -175,17 +184,20 @@ export default {
             selected_source: {
                 Graph: {
                     Display: ''
-                }
+                },
+                StationType: 0,
             },
             selected_destine: {
                 Graph: {
                     Display: ''
-                }
+                },
+                StationType: 0,
             },
             selected_transfer_station: {
                 Graph: {
                     Display: ''
-                }
+                },
+                StationType: 0,
             },
             selected_source_slot: 0,
             selected_destine_slot: 0,
@@ -202,10 +214,11 @@ export default {
                 station_selected: '/map/station_selected'
             },
             bypass_eq_status_check: false,
-            equipments_options: [],
-            downstream_options: [],
+            equipments_options: [new StationSelectOptions()],
+            downstream_options: [new StationSelectOptions()],
             IsTransferTaskNeedChangeAGV: false,
-            tagOfMiddleStationTagOfTransferTask: -1
+            tagOfMiddleStationTagOfTransferTask: -1,
+            routePath: ''
         }
     },
     computed: {
@@ -242,22 +255,22 @@ export default {
         selected_action_display() {
             var _action = this.selected_action;
             if (_action == 'move') {
-                return '移動'
+                return this.$t('Move')
             }
             if (_action == 'unload') {
-                return '取貨'
+                return this.$t('Unload')
             }
             if (_action == 'load') {
-                return '放貨'
+                return this.$t('Load')
             }
             if (_action == 'carry') {
-                return '搬運'
+                return this.$t('Transfer')
             }
             if (_action == 'charge') {
-                return '充電'
+                return this.$t('Charge')
             }
             if (_action == 'park') {
-                return '停車'
+                return this.$t('Park')
             }
         },
         IsAutoSelectAGV() {
@@ -289,6 +302,11 @@ export default {
 
         },
         FromStationOptions() {
+            var eqOptions = [new StationSelectOptions()];
+            Object.assign(eqOptions, this.EQStations);
+            if (this.IsDeveloper) {
+                return eqOptions
+            }
 
             var _agvList = agv_states_store.getters.AGVNameList;
             var _agvOptions = _agvList.length == 0 ? [] : _agvList.map(name => {
@@ -297,15 +315,22 @@ export default {
                     name_display: name
                 }
             })
-            var _stations = [...this.EQStations, ..._agvOptions];
+
+            var eqStatusDtoCollection = [new EQStatusDIDto()];
+            Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
+            var unloadableEqList = eqStatusDtoCollection.filter(eq => eq.Unload_Request);
+            var unloadableTags = unloadableEqList.map(eq => eq.Tag);
+            var unloadableOptions = eqOptions.filter(opt => unloadableTags.includes(opt.tag));
+            var _stations = [...unloadableOptions, ..._agvOptions];
             return _stations;
         },
         IsSourceStationBuffer() {
-            return this.selected_source.StationType == 4;
+            return this.selected_source.StationType == 4 || this.selected_source.StationType == 5;
         },
         IsDestineStationBuffer() {
-            return this.selected_destine.StationType == 4;
-        }
+            return this.selected_destine.StationType == 4 || this.selected_destine.StationType == 5;
+        },
+
     },
     methods: {
         SelectActionHandle(action) {
@@ -319,7 +344,7 @@ export default {
             };
             if (action == 'carry' || action == 'unload') {
 
-                this.selected_agv = '自動選車';
+                this.selected_agv = this.$t('auto-choise-vehicle');
                 if (action == 'carry') {
                     this.HandleSelectSoureStationFromMapBtnClick();
                 } else {
@@ -428,7 +453,7 @@ export default {
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
 
-            bus.emit('change_to_select_eq_station_mode', { action_type: this.selected_action, direction: 'source' });
+            bus.emit('change_to_select_eq_station_mode', { action_type: this.selected_action, direction: 'source', stations_to_show: this.FromStationOptions });
 
             this.current_progress = 'select-source';
             this.is_reselecting_flag = false;
@@ -441,16 +466,18 @@ export default {
 
             bus.on(this.map_events_bus.station_selected, (_station_data) => {
                 console.info(_station_data);
-                const isBuffer = _station_data.StationType == 4
+                const isBuffer = _station_data.StationType == 4 || _station_data.StationType == 5
                 if (_station_data.IsEquipment || isBuffer) {
 
                     if (_station_data == this.selected_destine)
                         return;
                     this.selected_source = _station_data;
                     this.HandleFromSelectChanged(this.selected_source.TagNumber);
-                    bus.emit('mark_as_start_station', this.selected_source.TagNumber);
-                    this.HandleSelectDestineStationFromMapBtnClick();
-                    this.HandleActionSelected('select-destine')
+                    setTimeout(() => {
+                        bus.emit('mark_as_start_station', this.selected_source.TagNumber);
+                        this.HandleSelectDestineStationFromMapBtnClick();
+                        this.HandleActionSelected('select-destine')
+                    }, 100);
                 }
             })
         },
@@ -459,7 +486,12 @@ export default {
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
 
-            var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
+            var _destine_options = this.DetermineDestinOptions()
+            // var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
+
+            if (this.IsSourceStationBuffer) {
+                _destine_options = [..._destine_options, this.BufferStations]
+            }
             console.info('_destine_options:', _destine_options);
             let map_options = {
                 action_type: this.selected_action,
@@ -471,6 +503,8 @@ export default {
             this.is_reselecting_flag = true;
             bus.on(this.map_events_bus.station_selected, (_station_data) => {
                 console.info(_station_data);
+                if (this.selected_action == 'move' && (_station_data.StationType != 0 || _station_data.IsVirtualPoint))
+                    return;
                 if (this.selected_action == 'charge' && !_station_data.IsCharge)
                     return;
                 if ((this.selected_action == 'load' || this.selected_action == 'unload' || this.selected_action == 'carry') && (!_station_data.IsEquipment && _station_data.StationType != 4))
@@ -501,6 +535,7 @@ export default {
 
         },
         HandleConfirmBtnClicked() {
+            this.order_info_visible = false;
             this.$swal.fire(
                 {
                     title: '確定要派送此任務?',
@@ -513,6 +548,8 @@ export default {
                 }).then(res => {
                     if (res.isConfirmed) {
                         this.TaskDeliveryHandle()
+                    } else {
+                        this.order_info_visible = true;
                     }
                 })
         },
@@ -561,38 +598,53 @@ export default {
                 response = await TaskAllocation.ParkTask(new clsParkTaskData(_selected_agv, _destinTag, 50, this.bypass_eq_status_check));
             }
             if (response.status != 200) {
-                const is_Unauthorized = response.status == 401;
-                this.$swal.fire({
-                    title: is_Unauthorized ? '須重新進行登入' : '任務派送失敗!',
-                    text: is_Unauthorized ? '' : response.mesage,
-                    icon: 'error',
-                    showCancelButton: false,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    customClass: 'my-sweetalert',
-                }).then(res => {
-                    if (is_Unauthorized) {
-                        userStore.dispatch('logout', '')
-                        bus.emit('/show-login-view-invoke')
 
-                    }
-                })
+
+                this.HandleCancelBtnClick();
+                const is_Unauthorized = response.status == 401;
+                setTimeout(() => {
+                    this.$swal.fire({
+                        title: is_Unauthorized ? '須重新進行登入' : '任務派送失敗!',
+                        text: is_Unauthorized ? '' : response.mesage,
+                        icon: 'error',
+                        showCancelButton: false,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        customClass: 'my-sweetalert',
+                    }).then(res => {
+
+                        this.HandleCancelBtnClick();
+                        if (is_Unauthorized) {
+                            userStore.dispatch('logout', '')
+                            bus.emit('/show-login-view-invoke')
+
+                        }
+                    })
+                }, 200);
+
             }
             else {
                 //{confirm:true,message:''}
                 if (response.data.confirm) {
                     this.HandleCancelBtnClick();
-                    Notifier.Success(`任務-[${this.selected_action_display}] 已派送!`, 'bottom', 2000);
+                    ElNotification.success({
+                        message: `任務-[${this.selected_action_display}] 已派送!`,
+                        position: 'top-right',
+                        duration: 3000
+                    })
                 } else {
-                    this.$swal.fire(
-                        {
-                            text: response.data.message,
-                            title: '任務派送失敗!',
-                            icon: 'error',
-                            showCancelButton: false,
-                            confirmButtonText: 'OK',
-                            customClass: 'my-sweetalert'
-                        })
+                    this.HandleCancelBtnClick();
+                    setTimeout(() => {
+                        this.$swal.fire(
+                            {
+                                text: response.data.message,
+                                title: '任務派送失敗!',
+                                icon: 'error',
+                                showCancelButton: false,
+                                confirmButtonText: 'OK',
+                                customClass: 'my-sweetalert'
+                            })
+                    }, 200);
                 }
             }
 
@@ -644,18 +696,40 @@ export default {
                 return MapStore.getters.AllNormalStationOptions;
             else if (this.selected_action == 'park')
                 return MapStore.getters.AllParkingStationOptions;
-            else if (this.selected_action == 'load' || this.selected_action == 'unload')
-                return MapStore.getters.AllEqStation;
+            else if (this.IsSourceStationBuffer || this.selected_action == 'load' || this.selected_action == 'unload')
+                return this.EQStations;
             else if (this.selected_action == 'charge')
                 return MapStore.getters.AllChargeStation;
-            else if (this.selected_action == 'carry')
-                return this.downstream_options;
+            else if (this.selected_action == 'carry') {
+
+                if (this.IsDeveloper) {
+                    return this.downstream_options;
+                }
+                var eqStatusDtoCollection = [new EQStatusDIDto()];
+                Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
+                var loadableEqList = eqStatusDtoCollection.filter(eq => eq.Load_Request);
+                var loadableTags = loadableEqList.map(eq => eq.Tag);
+                var loadableOptions = this.downstream_options.filter(opt => loadableTags.includes(opt.tag));
+                return loadableOptions;
+            }
             else if (this.selected_action == 'exchange_battery')
                 return MapStore.getters.AllExangeBatteryStation;
             else
                 return [];
 
         },
+    },
+    mounted() {
+        this.routePath = this.$route.path;
+        const route = useRoute()
+        watch(
+            () => route.path,
+            (newValue, oldValue) => {
+                if (newValue != this.routePath) {
+                    this.HandleCancelBtnClick();
+                }
+            }
+        )
     }
 }
 </script>

@@ -46,5 +46,17 @@
         "Time": "Time"
       }
     }
+<<<<<<< HEAD
   }
 }
+=======
+  },
+  "source": "From",
+  "TaskDispathActionButton": {
+    "Destine": "To",
+    "dispatch-confirm": "Dispatch",
+    "Back To Select Action": "Back"
+  },
+  "auto-choise-vehicle": "Auto"
+}
+>>>>>>> d8a07b32d8860e4f1cda0c8d0aa706b39c585b26

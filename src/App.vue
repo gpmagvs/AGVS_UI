@@ -13,8 +13,8 @@
       <el-container>
         <el-header style="padding:0;">
           <Header ref="header" :MenuExpanded="menu_collapse" v-show="!loading"
-            @update:HasSystemAlarm="(val) => { HeaderShowSysAlarm = val; }"
-            @update:HasEqpAlarm="(val) => { HeaderShowEqpAlarm = val; }"
+            @update:HasSystemAlarm="(val) => { HeaderShowSysAlarm = true; }"
+            @update:HasEqpAlarm="(val) => { HeaderShowEqpAlarm = true; }"
             @onMenuToggleClicked="ToggleMenu"></Header>
         </el-header>
         <el-main style="padding:0;overflow-y: hidden;" v-bind:style="router_view_style"><router-view v-show="!loading" v-slot="{ Component }"> <keep-alive>
@@ -33,11 +33,10 @@
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
-    <MoveAGVNotifty></MoveAGVNotifty>
+    <!-- <MoveAGVNotifty></MoveAGVNotifty> -->
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
     <ConnectionState :IsMenuExpanded="!menu_collapse"></ConnectionState>
   </div>
-  <SideMenuDrawer @close="SideMenuCloseHandler" ref="side_menu"></SideMenuDrawer>
 </template>
 <script>
 import Menu from '@/components/Menu.vue'
@@ -51,11 +50,18 @@ import { IsLoginLastTime } from '@/api/AuthHelper.js'
 import { userStore } from '@/store'
 import MoveAGVNotifty from '@/components/Traffic/MoveAGVNotify.vue'
 import AGVAlarmMessageDisplay from '@/components/App/AGVAlarmUI/AGVAlarmMessageDisplay.vue'
-
+import { tableHeaderStyle } from '@/ViewModels/GlobalStyles'
+import param from './gpm_param'
+import { ElNotification } from 'element-plus'
 export default {
   components: {
     Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay,
 
+  },
+  provide() {
+    return {
+      tableHeaderStyle
+    }
   },
   data() {
     return {
@@ -69,8 +75,8 @@ export default {
         content: '',
         title_variant: 'primary'
       },
-      HeaderShowSysAlarm: false,
-      HeaderShowEqpAlarm: false
+      HeaderShowSysAlarm: true,
+      HeaderShowEqpAlarm: true
     }
   },
   computed: {
@@ -78,7 +84,7 @@ export default {
 
       var _paddingTop = '18px';
       if (this.HeaderShowEqpAlarm && this.HeaderShowSysAlarm)
-        _paddingTop = '60px'
+        _paddingTop = '65px'
       else if (!this.HeaderShowEqpAlarm && !this.HeaderShowSysAlarm)
         _paddingTop = '1px';
       else
@@ -104,10 +110,24 @@ export default {
     },
     SideMenuCloseHandler() {
       this.showMenuToggleIcon = true;
+    },
+    RegistNotifies() {
+      const eqMaintainNotify = new EventSource(param.agvsystem_notify_url);
+      eqMaintainNotify.addEventListener('Equipment_Maintain', (event) => {
+        var eqname = event.data;
+        ElNotification.warning({
+          message: `設備 ${eqname} 維修中!`
+        })
+
+      })
     }
   },
   mounted() {
-    document.title = "GPM 派車系統";
+    this.$store.dispatch('GetDynamicWebsiteData').then(response => {
+      var fieldName = response.FieldName;
+      document.title = `[${fieldName}]-GPM AGVS`
+    });
+
     let login_states = IsLoginLastTime();
 
     //嘗試存取前次的登入狀態，並更新 userStore的值
@@ -155,7 +175,7 @@ export default {
           return;
         } else {
 
-          this.OpenLoading();
+          // this.OpenLoading();
           // if (newValue == "/alarm") {
           //   this.router_view_style.paddingTop = '50px';
           // }
@@ -182,6 +202,7 @@ export default {
     setTimeout(() => {
       this.loading = false
     }, 1000)
+    this.RegistNotifies();
   },
 };
 

@@ -9,6 +9,7 @@ export const MapStore = createStore({
         MapData: new clsMap(),
         MapGeoJson: null,
         AGVDynamicPathInfo: undefined,
+        OthersAGVLocateInfo: [],
         /**被系統交通管制的路徑字典 */
         ControledPathesBySystem: {},
         AGVLocUpload: {},
@@ -138,22 +139,30 @@ export const MapStore = createStore({
             var index = 0;
             Object.keys(agv_nav_info).forEach(name => {
                 var data = agv_nav_info[name]
+                var vehicleLength = data.vehicleLength
+                var vehicleWidth = data.vehicleWidth
+
                 var pathtags = data.nav_path
                 var pathCoordinations = []
 
-                if (pathtags) {
-
-                    pathtags.forEach(tag => {
-                        var pt = getters.MapStations.find(st => st.tag == tag)
-                        if (pt) {
-                            pathCoordinations.push(pt.coordination)
-                        }
-                    })
-                }
                 var coordination = [0, 0]
                 if (data.currentCoordication) {
                     coordination = [data.currentCoordication.X, data.currentCoordication.Y]
                 }
+                if (pathtags) {
+
+                    var pathTagsLen = pathtags.length;
+                    pathCoordinations.push(coordination);
+                    for (let index = 1; index < pathTagsLen; index++) {
+                        const tag = pathtags[index];
+                        var pt = getters.MapStations.find(st => st.tag == tag)
+                        if (pt) {
+                            pathCoordinations.push(pt.coordination)
+                        }
+                    }
+                }
+
+
                 var _agv_style_custom = getters.CustomAGVStyles[name];
                 var _agv_color = 'black'
                 var _agv_display_text = name
@@ -164,11 +173,16 @@ export const MapStore = createStore({
                 } else {
                     _agv_color = state.agv_colors[index];
                 }
-                agvDataLs.push(new clsAGVDisplay(name, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text))
+                var agvDisplayModel = new clsAGVDisplay(name, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text, vehicleLength, vehicleWidth);
+                agvDataLs.push(agvDisplayModel)
                 index += 1;
             })
             var _AGVOption = new AGVOption(agv_num, agvDataLs)
             return _AGVOption;
+        },
+        /**[ {"AGVName":"AGV_001","Location":"DEMOS001"}] */
+        OthersAGVLocateInfo: state => {
+            return state.OthersAGVLocateInfo;
         },
         AllNormalStationOptions: state => {
             //[{tag:1,name:'' }]
@@ -176,10 +190,18 @@ export const MapStore = createStore({
             var points = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return points;
         },
-        AllEqStation: state => {
+        AllEqStation: (state, getters) => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => pt.IsEquipment).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
-            return options;
+            var eqs = points.filter(pt => pt.StationType != 0 && pt.StationType != 3).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+
+            // 使用 sort 方法按照 name_display 進行排序
+            eqs.sort((a, b) => {
+                return a.name_display.localeCompare(b.name_display);
+            });
+            return eqs;
+
+            var buffers = getters.AllBufferStationOptions
+            return [...eqs, ...buffers];
         },
         AllChargeStation: state => {
             var points = Object.values(state.MapData.Points)
@@ -198,7 +220,7 @@ export const MapStore = createStore({
         },
         AllBufferStationOptions: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 4).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 4 || pt.StationType == 5)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllPointsOptions: state => {
@@ -234,6 +256,9 @@ export const MapStore = createStore({
         },
         setAGVDynamicPathInfo(state, info) {
             state.AGVDynamicPathInfo = info
+        },
+        setOtherAGVLocateInfo(state, data) {
+            state.OthersAGVLocateInfo = data;
         },
         setAGVLocUpload(state, data) {
             state.AGVLocUpload = data
@@ -283,7 +308,7 @@ export const MapStore = createStore({
     actions: {
         async DownloadMapData({ commit, getters }) {
             await getters.MapBackednAxios.get('api/Map').then(response => {
-                console.log('[MapStore] get map data', response.data);
+                //console.log('[MapStore] get map data', response.data);
                 commit('setMapData', response.data)
             });
         },
@@ -358,3 +383,4 @@ export const MapStore = createStore({
     }
 }
 )
+MapStore.dispatch('DownloadMapData')

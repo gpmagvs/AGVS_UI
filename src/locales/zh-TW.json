@@ -46,5 +46,29 @@
         "Time": "時間"
       }
     }
+<<<<<<< HEAD
   }
 }
+=======
+  },
+  "Action": "動作",
+  "Vehicle": "車輛",
+  "source": "來源",
+  "TaskDispathActionButton": {
+    "Destine": "目的地",
+    "dispatch-confirm": "派送",
+    "Back To Select Action": "返回選擇動作"
+  },
+  "Cancel": "取消",
+  "auto-choise-vehicle": "自動選車",
+  "Transfer": "搬運",
+  "Charge": "充電",
+  "Exchange Battery": "交換電池",
+  "Measure": "巡檢量測",
+  "Move": "移動",
+  "Park": "停車",
+  "Unload": "取貨",
+  "Load": "放貨",
+  "Dispatch": "任務派送"
+}
+>>>>>>> d8a07b32d8860e4f1cda0c8d0aa706b39c585b26

@@ -5,20 +5,19 @@
       <span class="flex-fill"></span>
       <el-button
         @click="() => {
-        NewUser = {
-          UserName: '',
-          Password: '',
-          Role: 1
-        },
-          AddNewUserDialogShow = true
-      }"
+          NewUser = {
+            UserName: '',
+            Password: '',
+            Role: 1
+          },
+            AddNewUserDialogShow = true
+        }"
         style="font-weight: bold;font-size: 20px;"
         type="primary"
-        size="large"
-      >新增使用者</el-button>
+        size="large">新增使用者</el-button>
     </div>
     <div class="border">
-      <el-table :data="UserData" empty-text="沒有使用者" size="large">
+      <el-table :data="UserData" empty-text="沒有使用者" size="large" :header-cell-style="tableHeaderStyle">
         <el-table-column label="使用者名稱" prop="UserName" width="180"></el-table-column>
         <el-table-column label="使用者密碼" prop="Password" width="220">
           <template #default="scope">
@@ -35,8 +34,7 @@
                   v-for="role in RoleOptions"
                   :key="role.value"
                   :value="role.value"
-                  :label="role.label"
-                ></el-option>
+                  :label="role.label"></el-option>
               </el-select>
             </div>
           </template>
@@ -61,36 +59,28 @@
           </el-form-item>
           <el-form-item label="使用者群組">
             <el-select v-model="NewUser.Role">
-              <el-option
-                v-for="role in RoleOptions"
-                :key="role.value"
-                :value="role.value"
-                :label="role.label"
-              ></el-option>
+              <el-option v-for="role in RoleOptions" :key="role.value" :value="role.value" :label="role.label"></el-option>
             </el-select>
           </el-form-item>
-          <b-button
-            :disabled="NewUser.UserName == '' || NewUser.Password == ''"
-            @click="HandleAddNewUserClick"
-            class="w-100"
-            variant="primary"
-          >新增</b-button>
+          <b-button :disabled="NewUser.UserName == '' || NewUser.Password == ''" @click="HandleAddNewUserClick" class="w-100" variant="primary">新增</b-button>
         </el-form>
       </div>
     </el-dialog>
   </div>
 </template>
-
 <script>
 import OperatieButtonSet from './OperatieButtonSet.vue'
 import { Modify, GetUsers, Delete, Add } from '@/api/UserAPI'
 import Notifier from '@/api/NotifyHelper'
+import { tableHeaderStyle } from '@/ViewModels/GlobalStyles'
 export default {
   components: {
     OperatieButtonSet,
   },
+
   data() {
     return {
+      tableHeaderStyle,
       AddNewUserDialogShow: false,
       UserData: [
         {
@@ -215,8 +205,6 @@ export default {
   },
 }
 </script>
-
 <style lang="scss">
-.user-manager {
-}
+.user-manager {}
 </style>

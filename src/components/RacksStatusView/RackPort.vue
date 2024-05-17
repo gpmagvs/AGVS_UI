@@ -47,7 +47,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import Clipboard from 'clipboard'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
@@ -102,10 +101,10 @@ export default {
     ModifyButtonText() {
       return !this.port_info.CarrierID || this.port_info.CarrierID == '' ? '新增帳籍' : '修改帳籍';
     },
-    ExistSensorTray_1() { return this.port_info.ExistSensorStates["TRAY_1"]; },
-    ExistSensorTray_2() { return this.port_info.ExistSensorStates["TRAY_2"]; },
-    ExistSensorRack_1() { return this.port_info.ExistSensorStates["RACK_1"]; },
-    ExistSensorRack_2() { return this.port_info.ExistSensorStates["RACK_2"]; },
+    ExistSensorTray_1() { return this.port_info.ExistSensorStates["TRAY_1"] === 0 || !this.port_info.ExistSensorStates["TRAY_1"]; },
+    ExistSensorTray_2() { return this.port_info.ExistSensorStates["TRAY_2"] === 0 || !this.port_info.ExistSensorStates["TRAY_2"]; },
+    ExistSensorRack_1() { return this.port_info.ExistSensorStates["RACK_1"] === 0 || !this.port_info.ExistSensorStates["RACK_1"]; },
+    ExistSensorRack_2() { return this.port_info.ExistSensorStates["RACK_2"] === 0 || !this.port_info.ExistSensorStates["RACK_2"]; },
     IsDeveloperLogining() {
       return userStore.getters.IsDeveloperLogining;
     }
@@ -165,11 +164,10 @@ export default {
   },
 }
 </script>
-
 <style lang="scss">
 .rack-port {
   width: 360px;
-  height: 255px;
+  height: 190px;
   //   background-color: rgb(236, 236, 236);
   border: 2px solid grey;
   margin: 2px;

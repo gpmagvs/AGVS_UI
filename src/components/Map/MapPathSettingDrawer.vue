@@ -17,6 +17,9 @@
                     <el-form-item label="Path ID">
                         <el-input disabled v-model="PathDataEdit.PathID"></el-input>
                     </el-form-item>
+                    <el-form-item label="權重">
+                        <el-input-number v-model="PathDataEdit.Weight" :step="0.1" :min="0.0001" :max="100"></el-input-number>
+                    </el-form-item>
                     <el-form-item label="起點(Index)">
                         <el-input disabled v-model="PathDataEdit.StartPtIndex"></el-input>
                     </el-form-item>
@@ -52,7 +55,6 @@
         </el-drawer>
     </div>
 </template>
-
 <script>
 export default {
     data() {
@@ -73,7 +75,8 @@ export default {
                 Speed: 1,
                 LsrMode: 0,
                 DodgeMode: 0,
-                SpinMode: 0
+                SpinMode: 0,
+                Weight: 1
             }
         }
     },
@@ -97,7 +100,6 @@ export default {
     },
 }
 </script>
-
 <style lang="scss">
 .draw-content {
     top: 67px;

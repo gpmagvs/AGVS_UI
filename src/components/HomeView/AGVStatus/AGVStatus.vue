@@ -82,7 +82,13 @@
                       @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
                     <b>{{ scope.row.StationName }}</b>
                   </div>
+<<<<<<< HEAD
                   <el-button class v-show="scope.row.Model == 2"
+=======
+                  <el-button
+                    class
+                    v-show="scope.row.Model == 2 || scope.row.Simulation"
+>>>>>>> d8a07b32d8860e4f1cda0c8d0aa706b39c585b26
                     @click="HandleAGVLocatingClick(scope.row)">定位</el-button>
                 </div>
               </el-col>
@@ -255,20 +261,21 @@
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
   </div>
+<<<<<<< HEAD
   <el-dialog v-model="ShowAGVLocatingDialog" width="400" draggable :modal="false" :close-on-click-modal="false"
     :title="AGVLocatingPayload.Name + '-定位'">
     <el-checkbox-group>
+=======
+  <el-dialog v-model="ShowAGVLocatingDialog" width="400" draggable :modal="false" :close-on-click-modal="false" :title="AGVLocatingPayload.Name + '-定位'">
+    <!-- <el-checkbox-group>
+>>>>>>> d8a07b32d8860e4f1cda0c8d0aa706b39c585b26
       <el-checkbox></el-checkbox>
       <el-checkbox></el-checkbox>
-    </el-checkbox-group>
+    </el-checkbox-group> -->
+    <div v-if="AGVLocatingPayload.isAMCAGV">AMC</div>
     <el-form>
       <el-form-item label="Point ID">
-        <el-input v-model="AGVLocatingPayload.currentID"></el-input>
-      </el-form-item>
-    </el-form>
-    <el-form>
-      <el-form-item label="Point ID">
-        <el-input v-model="AGVLocatingPayload.currentID"></el-input>
+        <el-input type="number" :min="0" clearable placeholder="0" ref="locating-tag-input" v-model="AGVLocatingPayload.currentID"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -307,7 +314,8 @@ export default {
         currentID: 100,
         x: 0,
         y: 0,
-        theata: 0
+        theata: 0,
+        isAMCAGV: false
       }
     }
   },
@@ -435,7 +443,12 @@ export default {
       console.log(agv)
       this.AGVLocatingPayload.currentID = Number.parseInt(agv.CurrentLocation)
       this.AGVLocatingPayload.Name = agv.AGV_Name
+      this.AGVLocatingPayload.isAMCAGV = agv.Model == 2
       this.ShowAGVLocatingDialog = true;
+      setTimeout(() => {
+        this.$refs['locating-tag-input'].focus();
+        this.$refs['locating-tag-input'].select();
+      }, 500)
     },
     async HandleAGVLocatingCinfirm() {
       this.ShowAGVLocatingDialog = false;
@@ -544,7 +557,7 @@ export default {
         } else {
           this.$swal.fire(
             {
-              text: result.data.alarm_code,
+              text: 'Error Code: ' + result.data.alarm_code,
               title: result.data.message,
               icon: 'error',
               showCancelButton: false,
@@ -620,6 +633,8 @@ export default {
         return "退出設備中"
       else if (status_code == 8)
         return "退出停車點/充電站"
+      else if (status_code == 13)
+        return "避車"
       else
         return "Unknown"
     },

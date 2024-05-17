@@ -20,10 +20,16 @@
       </div>
       <el-table row-key="no" :data="hotRunScripts" :default-expand-all="false" border>
         <el-table-column label="NO." prop="no" width="60" align="center"></el-table-column>
+        <el-table-column label="ID" prop="scriptID" width="210" align="center"></el-table-column>
+        <el-table-column label="隨機搬運" prop="IsRandomCarryRun" align="center">
+          <template #default="scope">
+            <el-checkbox v-model="scope.row.IsRandomCarryRun"></el-checkbox>
+          </template>
+        </el-table-column>
         <el-table-column label="執行AGV" prop="agv_name" width="150">
           <template #default="scope">
             <div>
-              <el-select v-model="scope.row.agv_name">
+              <el-select :disabled="scope.row.IsRandomCarryRun" v-model="scope.row.agv_name">
                 <el-option
                   v-for="agv_name in AgvNameList"
                   :key="agv_name"
@@ -50,6 +56,7 @@
         <el-table-column label="Loop次數" prop="finish_num" width="120" align="center">
           <template #default="scope">
             <el-input-number
+              :disabled="scope.row.IsRandomCarryRun"
               size="small"
               style="width:80px"
               :step="1"
@@ -61,13 +68,13 @@
           <template #default="scope">
             <div>
               <span class="mx-2">{{ scope.row.actions.length }}</span>
-              <el-button
+              <el-button :disabled="scope.row.IsRandomCarryRun"
                 size="small"
                 @click="() => {
-            action_drawer_visible = true;
-            selected_script_name = scope.row.agv_name;
-            selected_script_actions = scope.row.actions;
-          }">動作設定</el-button>
+                  action_drawer_visible = true;
+                  selected_script_name = scope.row.agv_name;
+                  selected_script_actions = scope.row.actions;
+                }">動作設定</el-button>
             </div>
           </template>
         </el-table-column>
@@ -75,6 +82,8 @@
           <template #default="scope">
             <el-input v-model="scope.row.comment"></el-input>
           </template>
+        </el-table-column>
+        <el-table-column label="即時資訊" prop="RealTimeMessage" width="auto">
         </el-table-column>
         <el-table-column>
           <template #default="scope">
@@ -96,10 +105,7 @@
             :class="titleClass">HOT RUN Actions Setting : {{ selected_script_name }}</h4>
         </template>
         <div class="px-2 text-start">
-          <el-button
-            class="mx-2"
-            type="danger"
-            @click="() => {
+          <el-button class="mx-2" type="danger" @click="() => {
             selected_script_actions.push({
               no: selected_script_actions.length + 1,
               action: 'move',
@@ -108,12 +114,7 @@
             })
           }">新增動作</el-button>
           <el-button class="mx-2" @click="HandleSaveBtnClickInDrawer" type="primary">儲存設定</el-button>
-          <el-table
-            row-key="no"
-            style="width:1024px"
-            border
-            class="m-2"
-            :data="selected_script_actions">
+          <el-table row-key="no" style="width:1024px" border class="m-2" :data="selected_script_actions">
             <el-table-column width="50">
               <template #default="scope">
                 <div class="text-start w-100">
@@ -150,6 +151,18 @@
                     :label="option.name"
                     :value="option.tag"></el-option>
                 </el-select>
+                <el-select
+                  v-if="slotSelectable(scope.row.action)"
+                  :disabled="scope.row.action != 'carry'"
+                  class="w-100"
+                  v-model="scope.row.source_slot"
+                  placeholder="請選擇Slot">
+                  <el-option
+                    v-for="option in SlotOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value"></el-option>
+                </el-select>
               </template>
             </el-table-column>
             <el-table-column label="卡匣ID" width="150">
@@ -159,20 +172,31 @@
             </el-table-column>
             <el-table-column label="終點" prop="destine_tag" width="250">
               <template #default="scope">
-                <el-select v-if="scope.row.action != 'measure'" class="w-100" v-model="scope.row.destine_tag" placeholder="請選擇終點">
-                  <el-option
-                    v-for="option in GetOption(scope.row.action)"
-                    :key="option"
-                    :label="option.name"
-                    :value="option.tag"></el-option>
-                </el-select>
-                <el-select v-else class="w-100" v-model="scope.row.destine_name" placeholder="請選擇終點">
-                  <el-option
-                    v-for="option in GetOption(scope.row.action)"
-                    :key="option"
-                    :label="option.name"
-                    :value="option.tag"></el-option>
-                </el-select>
+                <div v-if="scope.row.action != 'measure'">
+                  <el-select class="w-100" v-model="scope.row.destine_tag" placeholder="請選擇終點">
+                    <el-option
+                      v-for="option in GetOption(scope.row.action)"
+                      :key="option"
+                      :label="option.name"
+                      :value="option.tag"></el-option>
+                  </el-select>
+                  <el-select v-if="slotSelectable(scope.row.action)" class="w-100" v-model="scope.row.destine_slot" placeholder="請選擇Slot">
+                    <el-option
+                      v-for="option in SlotOptions"
+                      :key="option.value"
+                      :label="option.label"
+                      :value="option.value"></el-option>
+                  </el-select>
+                </div>
+                <div v-else>
+                  <el-select class="w-100" v-model="scope.row.destine_name" placeholder="請選擇終點">
+                    <el-option
+                      v-for="option in GetOption(scope.row.action)"
+                      :key="option"
+                      :label="option.name"
+                      :value="option.tag"></el-option>
+                  </el-select>
+                </div>
               </template>
             </el-table-column>
             <el-table-column>
@@ -200,16 +224,21 @@ export default {
       hotRunScripts: [
         {
           no: 1,
+          scriptID: '',
           agv_name: 'AGV_001',
           loop_num: 10,
           finish_num: 0,
           state: 'IDLE',
+          RealTimeMessage: '',
+          IsRandomCarryRun: false,
           actions: [
             {
               no: 1,
               action: 'move',
               source_tag: 0,
+              source_slot: 0,
               destine_tag: 2,
+              destine_slot: 0,
               cst_id: "",
             },
             {
@@ -235,7 +264,7 @@ export default {
         return this.moveable_tags
       if (action == 'park')
         return this.parkable_tags
-      if (action == 'load' | action == 'unload' | action == 'carry')
+      if (action == 'load' || action == 'unload' || action == 'carry')
         return this.stock_tags
       if (action == 'charge' || action == 'exchangebattery')
         return this.chargable_tags
@@ -285,6 +314,9 @@ export default {
         return arr;
       }
     },
+    slotSelectable(action) {
+      return action == "carry" || action == "unload" || action == "load";
+    },
     async HandleStartBtnClick(script) {
       if (script.state == 'IDLE') {
 
@@ -298,7 +330,7 @@ export default {
             customClass: 'my-sweetalert'
           }).then(async (res) => {
             if (res.isConfirmed) {
-              var response = await StartHotRun(script.no)
+              var response = await StartHotRun(script.scriptID)
               if (!response.confirm) {
                 this.$swal.fire(
                   {
@@ -334,14 +366,17 @@ export default {
             customClass: 'my-sweetalert'
           }).then(res => {
             if (res.isConfirmed) {
-              StopHotRun(script.no)
+              StopHotRun(script.scriptID)
             }
           })
       }
     },
     async HandleSaveBtnClick() {
+      this.hotRunScripts.forEach(element => {
+        if (!element.RealTimeMessage)
+          element.RealTimeMessage = ''
+      });
       var response = await SaveHotRunSettings(this.hotRunScripts)
-
       this.$swal.fire(
         {
           text: response.result ? '' : response.message,
@@ -405,6 +440,13 @@ export default {
     },
     hot_run_states() {
       return agv_states_store.getters.HotRunStates
+    },
+    SlotOptions() {
+      return [
+        { value: 0, label: "第1層" },
+        { value: 1, label: "第2層" },
+        { value: 2, label: "第3層" }
+      ]
     }
   },
   mounted() {
@@ -417,10 +459,13 @@ export default {
 
         for (let index = 0; index < newValue.length; index++) {
           const _script = newValue[index];
-          var script_exist = this.hotRunScripts.find(scr => scr.no == _script.no);
+          var script_exist = this.hotRunScripts.find(scr => scr.scriptID === _script.scriptID);
+          // console.log(_script.scriptID, _script.RealTimeMessage)
           if (script_exist) {
+            // console.log(script_exist.scriptID, script_exist.RealTimeMessage)
             script_exist.state = _script.state;
             script_exist.finish_num = _script.finish_num;
+            script_exist.RealTimeMessage = _script.RealTimeMessage;
           }
         }
 
