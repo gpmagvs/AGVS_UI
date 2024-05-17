@@ -92,8 +92,8 @@
         <template #default="scope">
           <el-select size="small" v-model="scope.row.EQAcceeptCargoType">
             <el-option :value="0" label="0-不限"></el-option>
-            <el-option :value="200" label="200-子母框"></el-option>
-            <el-option :value="201" label="201-Tray"></el-option>
+            <el-option :value="200" label="200-Tray"></el-option>
+            <el-option :value="201" label="201-子母框"></el-option>
           </el-select>
         </template>
       </el-table-column>
