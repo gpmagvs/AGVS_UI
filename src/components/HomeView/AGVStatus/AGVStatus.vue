@@ -4,46 +4,26 @@
       <div class="flex-fill">
         <i class="bi bi-three-dots-vertical"></i> {{ $t('HomeView.AGVStatus.AGVStatus.vehicle-status') }}
       </div>
-      <div class="text-danger" v-if="!IsVMSConnect">VMS已斷線</div>
+      <div class="text-danger" v-if="!IsVMSConnect">{{ $t('HomeView.AGVStatus.AGVStatus.vms_disconnect') }}</div>
     </div>
-    <el-table
-      v-if="!IsEasyMode"
+    <el-table v-if="!IsEasyMode"
       :header-cell-style="{ color: 'white', border: '1px solid rgb(222, 226, 230)', backgroundColor: IsVMSConnect ? 'rgb(13, 110, 253)' : 'red' }"
-      :data="AGVDatas"
-      size="small"
-      height="93%"
-      empty-text="尚無AGV"
-      :row-class-name="connected_class"
-      style="width:100%"
-      row-key="AGV_Name"
-      border
-      @row-click="HandleRowClick">
-      <el-table-column
-        :label="$t('HomeView.AGVStatus.AGVStatus.vehicle-name')"
-        prop="AGV_Name"
-        align="center"
-        min-width="130px"
-        type="index">
+      :data="AGVDatas" size="small" height="93%" empty-text="尚無AGV" :row-class-name="connected_class" style="width:100%"
+      row-key="AGV_Name" border @row-click="HandleRowClick">
+      <el-table-column :label="$t('HomeView.AGVStatus.AGVStatus.vehicle-name')" prop="AGV_Name" align="center"
+        min-width="130px" type="index">
         <template #default="scope">
           <div class="d-flex flex-column">
             <div style="font-size: 18px;">
               <!-- <b>{{ scope.row.AGV_Name.toUpperCase() }}</b> -->
               <b>{{ GetDisplayName(scope.row.AGV_Name) }}</b>
             </div>
-            <div
-              class="agv-color-display"
-              v-bind:style="StyleOfAGVDisplayColor(scope.row.AGV_Name)"></div>
-            <b-button
-              v-if="!IsRunMode"
-              class="w-20 my-1 mx-2"
-              @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
-              size="sm"
-              v-bind:style="scope.row.OnlineStatus == 1 ? { backgroundColor: 'red' } : StyleOfAGVDisplayColor(scope.row.AGV_Name)">{{ scope.row.OnlineStatus == 1 ? '請求下線' : '請求上線' }}</b-button>
-            <b-button
-              v-if="!IsRunMode"
-              class="w-20 my-1 mx-2"
-              @click="ShowAGVChargeConfirmDialog(scope.row)"
-              size="sm"
+            <div class="agv-color-display" v-bind:style="StyleOfAGVDisplayColor(scope.row.AGV_Name)"></div>
+            <b-button v-if="!IsRunMode" class="w-20 my-1 mx-2"
+              @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)" size="sm"
+              v-bind:style="scope.row.OnlineStatus == 1 ? { backgroundColor: 'red' } : StyleOfAGVDisplayColor(scope.row.AGV_Name)">{{
+          scope.row.OnlineStatus == 1 ? '請求下線' : '請求上線' }}</b-button>
+            <b-button v-if="!IsRunMode" class="w-20 my-1 mx-2" @click="ShowAGVChargeConfirmDialog(scope.row)" size="sm"
               variant="warning">
               <i class="bi bi-lightning-charge-fill"></i> {{ scope.row.Model == 2 ? '交換電池' : '充電' }} </b-button>
           </div>
@@ -51,25 +31,25 @@
       </el-table-column>
       <!-- <el-table-column label="AGV ID" prop="AGV_ID"></el-table-column> -->
       <!-- <el-table-column label="通訊狀態"></el-table-column> -->
-      <el-table-column label="AGV 狀態" align="left" width="300">
+      <el-table-column :label="$t('HomeView.AGVStatus.AGVStatus.vehicle-statuslist')" prop="AGV_Status" align="left"
+        width="340">
         <template #default="scope">
           <div class="w-100" style="position: absolute; top:0;left:0">
             <el-row class="h-50">
               <el-col :span="3">
-                <div class="h-100 border px-1 py-2 text-center bg-light">狀態</div>
+                <div class="h-100 border px-1 py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.status') }}
+                </div>
               </el-col>
               <el-col :span="6">
                 <div class="h-100 border p-1">
-                  <el-tag
-                    class="h-100 w-100"
-                    effect="dark"
-                    :type="AGV_Status_TagType(scope.row.MainStatus)">
+                  <el-tag class="h-100 w-100" effect="dark" :type="AGV_Status_TagType(scope.row.MainStatus)">
                     <b>{{ AGVStatusFormatter(scope.row) }}</b>
                   </el-tag>
                 </div>
               </el-col>
               <el-col :span="4">
-                <div class="h-100 border py-2 text-center bg-light">載物ID</div>
+                <div class="h-100 border py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.carrierid') }}
+                </div>
               </el-col>
               <el-col :span="11">
                 <div class="h-100 w-100 border p-2">
@@ -79,13 +59,12 @@
             </el-row>
             <el-row class="h-50">
               <el-col :span="3">
-                <div class="h-100 border px-1 py-2 text-center bg-light">派車</div>
+                <div class="h-100 border px-1 py-2 text-center bg-light">{{
+          $t('HomeView.AGVStatus.AGVStatus.vehicleconn') }}</div>
               </el-col>
               <el-col :span="6">
                 <div class="h-100 border p-1">
-                  <el-tag
-                    class="h-100 w-100"
-                    effect="dark"
+                  <el-tag class="h-100 w-100" effect="dark"
                     @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
                     :type="scope.row.OnlineStatus == 0 ? 'info' : 'success'">
                     <b>{{ scope.row.OnlineStatus == 1 ? '已上線' : '離線中' }}</b>
@@ -93,55 +72,43 @@
                 </div>
               </el-col>
               <el-col :span="4">
-                <div class="h-100 border py-2 text-center bg-light">位置</div>
+                <div class="h-100 border py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.position') }}
+                </div>
               </el-col>
               <el-col :span="11" class>
                 <div class="w-100 h-100 border p-1 d-flex flex-row">
                   <div class="flex-fill">
-                    <i
-                      class="bi bi-geo-alt-fill"
-                      style="font-size:20px;cursor:pointer"
+                    <i class="bi bi-geo-alt-fill" style="font-size:20px;cursor:pointer"
                       @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"></i>
                     <b>{{ scope.row.StationName }}</b>
                   </div>
-                  <el-button
-                    class
-                    v-show="scope.row.Model == 2"
+                  <el-button class v-show="scope.row.Model == 2"
                     @click="HandleAGVLocatingClick(scope.row)">定位</el-button>
                 </div>
               </el-col>
             </el-row>
             <el-row class="h-50">
-              <el-col :span="3">
-                <div class="h-100 border px-1 py-2 text-center bg-light">電量</div>
+              <el-col :span="4">
+                <div class="h-100 border px-1 py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.power') }}
+                </div>
               </el-col>
-              <el-col :span="21">
+              <el-col :span="20">
                 <div class="h-100 border px-2 py-1 d-flex">
                   <b-progress class="flex-fill" :max="100" :min="0" animated>
-                    <i
-                      v-if="scope.row.IsCharging && IsVMSConnect"
+                    <i v-if="scope.row.IsCharging && IsVMSConnect"
                       v-bind:class="BatteryClass(scope.row.BatteryLevel_1, IsVMSConnect ? scope.row.IsCharging : false)"
-                      style="color:white"
-                      class="bi bi-lightning-charge battery-icon"></i>
-                    <b-progress-bar
-                      :animated="true"
+                      style="color:white" class="bi bi-lightning-charge battery-icon"></i>
+                    <b-progress-bar :animated="true"
                       v-bind:class="BatteryClass(scope.row.BatteryLevel_1, IsVMSConnect ? scope.row.IsCharging : false)"
                       :value="!IsVMSConnect ? 0 : scope.row.BatteryLevel_1"
                       :label="`${((!IsVMSConnect ? 0 : scope.row.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                   </b-progress>
-                  <b-progress
-                    v-if="scope.row.BatteryLevel_2 != -1.0"
-                    class="flex-fill mx-1"
-                    :max="100"
-                    :min="0"
+                  <b-progress v-if="scope.row.BatteryLevel_2 != -1.0" class="flex-fill mx-1" :max="100" :min="0"
                     animated>
-                    <i
-                      v-if="scope.row.IsCharging && IsVMSConnect"
+                    <i v-if="scope.row.IsCharging && IsVMSConnect"
                       v-bind:class="BatteryClass(scope.row.BatteryLevel_2, IsVMSConnect ? scope.row.IsCharging : false)"
-                      style="color:white"
-                      class="bi bi-lightning-charge battery-icon"></i>
-                    <b-progress-bar
-                      :animated="true"
+                      style="color:white" class="bi bi-lightning-charge battery-icon"></i>
+                    <b-progress-bar :animated="true"
                       v-bind:class="BatteryClass(scope.row.BatteryLevel_2, IsVMSConnect ? scope.row.IsCharging : false)"
                       :value="!IsVMSConnect ? 0 : scope.row.BatteryLevel_2"
                       :label="`${((!IsVMSConnect ? 0 : scope.row.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
@@ -152,7 +119,8 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="任務狀態" align="left" min-width="420">
+      <el-table-column :label="$t('HomeView.AGVStatus.AGVStatus.task-status')" prop="Task_Status" align="left"
+        min-width="380">
         <template #default="scope">
           <div class="w-100" style="position: absolute; top:0;left:0">
             <el-row class="h-50">
@@ -167,7 +135,8 @@
             </el-row>
             <el-row class="h-50">
               <el-col :span="3">
-                <div class="h-100 border px-1 py-2 text-center bg-light">起點</div>
+                <div class="h-100 border px-1 py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.From') }}
+                </div>
               </el-col>
               <el-col :span="9">
                 <div class="h-100 border p-1">
@@ -177,7 +146,7 @@
                 </div>
               </el-col>
               <el-col :span="3">
-                <div class="h-100 border py-2 text-center bg-light">目的地</div>
+                <div class="h-100 border py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.To') }}</div>
               </el-col>
               <el-col :span="9">
                 <div class="h-100 border p-1">
@@ -189,21 +158,24 @@
             </el-row>
             <el-row class="h-50">
               <el-col :span="3">
-                <div class="h-100 border px-1 py-2 text-center bg-light">動作</div>
+                <div class="h-100 border px-1 py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.action') }}
+                </div>
               </el-col>
               <el-col :span="9">
                 <div class="h-100 border p-1 d-flex">
                   <el-tag class="h-100 w-100" effect="light">
-                    <b>{{ GetTransferProcessDescription(scope.row, scope.row.TransferProcess, scope.row.CurrentAction, scope.row.TaskRunAction) }}</b>
+                    <b>{{ GetTransferProcessDescription(scope.row, scope.row.TransferProcess, scope.row.CurrentAction,
+          scope.row.TaskRunAction) }}</b>
                   </el-tag>
                 </div>
               </el-col>
               <el-col :span="3">
-                <div class="h-100 border px-1 py-2 text-center bg-light">時間</div>
+                <div class="h-100 border px-1 py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.Time') }}
+                </div>
               </el-col>
               <el-col :span="9">
-                <div
-                  class="h-100 border px-1 py-2 text-center bg-light">{{ scope.row.TaskName == '' ? '' : '預計抵達時間:' + Timeformat(scope.row.TaskETA, 'HH:mm:ss') }}</div>
+                <div class="h-100 border px-1 py-2 text-center bg-light">{{ scope.row.TaskName == '' ? '' : '預計抵達時間:' +
+          Timeformat(scope.row.TaskETA, 'HH:mm:ss') }}</div>
               </el-col>
             </el-row>
           </div>
@@ -216,14 +188,16 @@
       </el-table-column>
     </el-table>
     <div v-else class="easy-mode">
-      <div v-for="state in AGVDatas" :key="state.AGV_Name" class="easy-mode-car-card border rounded my-2 p-2" v-bind:style="{ backgroundColor: state.Connected ? 'rgb(229, 255, 240)' : 'rgb(255, 184, 182)' }">
+      <div v-for="state in AGVDatas" :key="state.AGV_Name" class="easy-mode-car-card border rounded my-2 p-2"
+        v-bind:style="{ backgroundColor: state.Connected ? 'rgb(229, 255, 240)' : 'rgb(255, 184, 182)' }">
         <!-- {{ state.AGV_Name }} -->
         <div class="d-flex">
           <div class="mx-1 border-end px-1">
             <span class="border-bottom" style="font-weight:bolder">{{ state.AGV_Name }}</span>
             <div class="py-1">
               <img src="agv.png" @click="HandleShowAGVInMapCenter(state.AGV_Name)" />
-              <el-tag effect="dark" @click="ShowOnlineStateChangeModal(state.AGV_Name, state.OnlineStatus, state.Model)" :type="state.OnlineStatus == 0 ? 'danger' : 'success'">
+              <el-tag effect="dark" @click="ShowOnlineStateChangeModal(state.AGV_Name, state.OnlineStatus, state.Model)"
+                :type="state.OnlineStatus == 0 ? 'danger' : 'success'">
                 <b>{{ state.OnlineStatus == 1 ? 'ONLINE' : 'OFFLINE' }}</b>
               </el-tag>
             </div>
@@ -242,19 +216,24 @@
               <div class="w-100 px-1 text-start">
                 <div style="width:110px">
                   <b-progress class="flex-fill" :max="100" :min="0" animated>
-                    <b-progress-bar :animated="true" v-bind:class="BatteryClass(state.BatteryLevel_1)" :value="state.BatteryLevel_1" :label="`${((state.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                    <b-progress-bar :animated="true" v-bind:class="BatteryClass(state.BatteryLevel_1)"
+                      :value="state.BatteryLevel_1"
+                      :label="`${((state.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                   </b-progress>
                   <b-progress v-if="state.BatteryLevel_2 != -1.0" class="flex-fill my-1" :max="100" :min="0" animated>
-                    <b-progress-bar :animated="true" v-bind:class="BatteryClass(state.BatteryLevel_2)" :value="state.BatteryLevel_2" :label="`${((state.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
+                    <b-progress-bar :animated="true" v-bind:class="BatteryClass(state.BatteryLevel_2)"
+                      :value="state.BatteryLevel_2"
+                      :label="`${((state.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"></b-progress-bar>
                   </b-progress>
                 </div>
               </div>
             </div>
             <div class="d-flex w-100 my-1">
               <div class="item-title">位置</div>
-              <div class="w-100 text-start" style="font-size:font-size: 14px;">
+              <div class="w-100 text-start" style="font-size:14px;">
                 <b>{{ state.StationName }}</b>
-                <i class="bi bi-geo-alt-fill" style="font-size:20px;cursor:pointer" @click="HandleShowAGVInMapCenter(state.AGV_Name)"></i>
+                <i class="bi bi-geo-alt-fill" style="font-size:20px;cursor:pointer"
+                  @click="HandleShowAGVInMapCenter(state.AGV_Name)"></i>
               </div>
             </div>
             <div class="d-flex w-100 my-1">
@@ -270,11 +249,14 @@
   </div>
   <!--Modals-->
   <div class="modals">
-    <b-modal v-model="ShowOnlineStateChange" title="ONLINE / OFFLINE REQUEST CONFIRM." :centered="true" @ok="SendOnlineStateChangeRequest" :no-close-on-esc="true" header-bg-variant="warning" header-text-variant="light">
+    <b-modal v-model="ShowOnlineStateChange" title="ONLINE / OFFLINE REQUEST CONFIRM." :centered="true"
+      @ok="SendOnlineStateChangeRequest" :no-close-on-esc="true" header-bg-variant="warning"
+      header-text-variant="light">
       <p ref="online_status_change_noti_txt"></p>
     </b-modal>
   </div>
-  <el-dialog v-model="ShowAGVLocatingDialog" width="400" draggable :modal="false" :close-on-click-modal="false" :title="AGVLocatingPayload.Name + '-定位'">
+  <el-dialog v-model="ShowAGVLocatingDialog" width="400" draggable :modal="false" :close-on-click-modal="false"
+    :title="AGVLocatingPayload.Name + '-定位'">
     <el-checkbox-group>
       <el-checkbox></el-checkbox>
       <el-checkbox></el-checkbox>

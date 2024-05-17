@@ -9,17 +9,17 @@
   "Menu": {
     "Home": "Home",
     "System Alarm": "System Alarm",
-    "wip_manager": "WIPS",
-    "vehicle manager": "Vehicles",
+    "wip_manager": "Rack Status",
+    "vehicle manager": "Vehicles Settings",
     "system settings": "System Settings",
     "map and display": "Map and Display",
     "map edit": "Map Edit",
     "agv display": "AGV Visualize",
-    "vehicle battery managnment": "AGV PM",
-    "equipment management": "Equipments",
-    "racks management": "Racks",
-    "charge station management": "Chargers",
-    "user management": "Users",
+    "vehicle battery managnment": "AGV battery Settings",
+    "equipment management": "Equipments Settings",
+    "racks management": "Racks Settings",
+    "charge station management": "Chargers Data",
+    "user management": "Users settings",
     "Querys": "Data Query",
     "Task History": "Task History",
     "Alarm History": "Alarm History",
@@ -31,7 +31,19 @@
     "AGVStatus": {
       "AGVStatus": {
         "vehicle-status": "Vehicle Status",
-        "vehicle-name": "Vehicle Name"
+        "vms_disconnect": "VMS DisConnect",
+        "vehicle-name": "Vehicle Name",
+        "vehicle-statuslist": "Vehicle Statuslist",
+        "task-status": "Task Status",
+        "status": "status",
+        "carrierid": "Carrier ID",
+        "vehicleconn": "AGVC",
+        "position": "POS",
+        "power": "power",
+        "From": "From",
+        "To": "To",
+        "action": "Action",
+        "Time": "Time"
       }
     }
   }

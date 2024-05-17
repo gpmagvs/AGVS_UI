@@ -31,7 +31,19 @@
     "AGVStatus": {
       "AGVStatus": {
         "vehicle-status": "車輛狀態",
-        "vehicle-name": "車輛名稱"
+        "vms_disconnect": "VMS 斷線",
+        "vehicle-name": "車輛名稱",
+        "vehicle-statuslist": "AGV 狀態",
+        "task-status": "任務狀態",
+        "status": "狀態",
+        "carrierid": "載物ID",
+        "vehicleconn": "車載",
+        "position": "位置",
+        "power": "電量",
+        "From": "起點",
+        "To": "目的地",
+        "action": "動作",
+        "Time": "時間"
       }
     }
   }
