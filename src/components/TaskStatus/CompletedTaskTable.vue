@@ -8,7 +8,7 @@
       border
       :height="height"
       :row-class-name="row_class_name"
-      empty-text="沒有任務">
+      :empty-text="$t('TaskTable.NoTasks')">
       <el-table-column :label="$t('TaskTable.TaskName')" prop="TaskName" width="180"></el-table-column>
       <el-table-column :label="$t('TaskTable.ExcuteAgvName')" prop="DesignatedAGVName"> </el-table-column>
       <el-table-column :label="$t('TaskTable.RecievedTime')" prop="RecieveTime_Formated" width="80"></el-table-column>
