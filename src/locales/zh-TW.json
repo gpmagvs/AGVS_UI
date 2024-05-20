@@ -43,7 +43,12 @@
         "From": "起點",
         "To": "目的地",
         "action": "動作",
-        "Time": "時間"
+        "Time": "時間",
+        "Online": "已上線",
+        "Offline": "離線",
+        "Location": "定位",
+        "OnlineRequest": "請求上線",
+        "OfflineRequest": "請求離線"
       }
     }
   },

@@ -32,18 +32,23 @@
       "AGVStatus": {
         "vehicle-status": "Vehicle Status",
         "vms_disconnect": "VMS DisConnect",
-        "vehicle-name": "Vehicle Name",
-        "vehicle-statuslist": "Vehicle Statuslist",
+        "vehicle-name": "Name",
+        "vehicle-statuslist": "Status",
         "task-status": "Task Status",
-        "status": "status",
+        "status": "Status",
         "carrierid": "Carrier ID",
         "vehicleconn": "AGVC",
-        "position": "POS",
-        "power": "power",
+        "position": "Locate",
+        "power": "Bat LV",
         "From": "From",
         "To": "To",
         "action": "Action",
-        "Time": "Time"
+        "Time": "Time",
+        "Online": "Online",
+        "Offline": "Offline",
+        "Location": "Locate",
+        "OnlineRequest": "Online Reqeust",
+        "OfflineRequest": "Offline Requset"
       }
     }
   },
