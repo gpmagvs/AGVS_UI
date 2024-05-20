@@ -46,10 +46,6 @@
         "Time": "Time"
       }
     }
-<<<<<<< HEAD
-  }
-}
-=======
   },
   "source": "From",
   "TaskDispathActionButton": {
@@ -59,4 +55,3 @@
   },
   "auto-choise-vehicle": "Auto"
 }
->>>>>>> d8a07b32d8860e4f1cda0c8d0aa706b39c585b26
