@@ -32,8 +32,8 @@ agvsNotifyWs.onmessage = (evt) => {
     var data = evt.data;
     let notify = new NotifyMessage()
     Object.assign(notify, JSON.parse(data))
-    if (notify.message === 'Map-Reload') {
-        bus.emit('Map-Reload')
+    if (notify.message === 'Map-Point-Enabled-Property-Changed') {
+        bus.emit('Map-Point-Enabled-Property-Changed')
     }
     if (notify.show) {
         ElNotification({
@@ -47,8 +47,8 @@ vmsNotifyWs.onmessage = (evt) => {
     var data = evt.data;
     let notify = new NotifyMessage()
     Object.assign(notify, JSON.parse(data))
-    if (notify.message === 'Map-Reload') {
-        bus.emit('Map-Reload')
+    if (notify.message === 'Map-Point-Enabled-Property-Changed') {
+        bus.emit('Map-Point-Enabled-Property-Changed')
     }
     if (notify.show) {
         ElNotification({

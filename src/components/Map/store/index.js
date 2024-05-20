@@ -312,6 +312,10 @@ export const MapStore = createStore({
                 commit('setMapData', response.data)
             });
         },
+        async GetPointEnableMap({ getters }) {
+            var response = await getters.MapBackednAxios.get('api/Map/GetPointEnableMap');
+            return response.data;
+        },
         Save({ commit }) {
 
         },

@@ -158,7 +158,7 @@ const source_station_mark = new Icon({
 })
 
 /**一般點位 */
-function normal_station_image(stationData = new MapPointModel()) {
+export function normal_station_image(stationData = new MapPointModel()) {
     var fillColor = 'orange'
     const stroke = new Stroke({ color: 'black', width: 2 });
 

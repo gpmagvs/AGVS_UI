@@ -364,7 +364,7 @@ import { noModifierKeys } from 'ol/events/condition';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image } from './mapjs';
 import { MapStore } from './store'
 import { EqStore, agv_states_store } from '@/store'
 import MapSettingsDialog from './MapSettingsDialog.vue';
@@ -3219,6 +3219,52 @@ export default {
           feature.setStyle(oriStyles);
         }
       });
+    },
+    ResetPointEnableStatus(enableMap = { 1: true }) {
+
+      var featuresOfCoordMode = this.PointLayer.getSource().getFeatures();
+      var featuresOfRouteMode = this.PointRouteLayer.getSource().getFeatures();
+      let _getFeatures = (tag = 1) => {
+        var featureInCoordModeLayer = featuresOfCoordMode.find(ft => ft.get('data').TagNumber == tag);
+        var featureInRouteModeLayer = featuresOfRouteMode.find(ft => ft.get('data').TagNumber == tag);
+        return [featureInCoordModeLayer, featureInRouteModeLayer]
+      }
+      let _settingEnableStyle = (feature = new Feature(), enble = true) => {
+        if (!feature)
+          return;
+        var _normalStationTextColor = MapStore.getters.Settings.normalStationTextColor;
+        var _workStationTextColor = MapStore.getters.Settings.workStationTextColor;
+        var ptData = feature.get('data');
+        ptData.Enable = enble;
+        feature.set('data', ptData)
+        var isNormalPt = ptData.StationType == 0;
+        var displayText = ptData.Graph.Display;
+        var _style = feature.getStyle().clone();
+        var text = _style.getText();
+        var fill = text.getFill().clone();
+        var oriColor = isNormalPt ? _normalStationTextColor : _workStationTextColor;
+        var textFillColor = !enble ? 'rgb(255, 102, 92)' : oriColor;
+
+        fill.setColor(textFillColor);
+        text.setFill(fill);
+        text.setText(`${displayText}${enble ? '' : '(已禁用)'}`);
+        if (isNormalPt) {
+          var image = normal_station_image(ptData);
+          _style.setImage(image);
+        }
+        _style.setText(text);
+        feature.setStyle(_style);
+        feature.changed();
+
+      }
+      Object.keys(enableMap).forEach(tag => {
+        let enable = enableMap[tag];
+        //console.info(tag, enable);
+        var features = _getFeatures(tag)
+        _settingEnableStyle(features[0], enable)
+        _settingEnableStyle(features[1], enable)
+
+      });
     }
   },
 
@@ -3323,10 +3369,10 @@ export default {
 
     }, 10);
 
-    bus.on('Map-Reload', () => {
-      MapStore.dispatch('DownloadMapData')
-      this.UpdateStationPointLayer();
-      this.RenderEQLDULDStatus();
+    bus.on('Map-Point-Enabled-Property-Changed', async () => {
+      //await MapStore.dispatch('DownloadMapData')
+      var enableStateOfPointTags = await MapStore.dispatch('GetPointEnableMap')
+      this.ResetPointEnableStatus(enableStateOfPointTags);
     })
   },
 }
