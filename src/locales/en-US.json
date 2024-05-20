@@ -50,7 +50,8 @@
         "OnlineRequest": "Online Reqeust",
         "OfflineRequest": "Offline Requset"
       }
-    }
+    },
+    "TaskStatus": "TASK STATUS"
   },
   "source": "From",
   "TaskDispathActionButton": {
@@ -58,5 +59,21 @@
     "dispatch-confirm": "Dispatch",
     "Back To Select Action": "Back"
   },
-  "auto-choise-vehicle": "Auto"
+  "auto-choise-vehicle": "Auto",
+  "IncompleteTasks": "Incomplete",
+  "CompleteTasks": "Completed",
+  "TaskTable": {
+    "NoTasks": "No Tasks",
+    "TaskName": "ID",
+    "Time": "Time",
+    "Action": "Action",
+    "TaskStatus": "Status",
+    "ExcuteAgvName": "AGV Name",
+    "Source": "From",
+    "Destine": "Destine",
+    "Dispatcher": "Dispatcher",
+    "CstID": "Cargo ID",
+    "FinishTime": "End Time",
+    "RecievedTime": "Recieve Time"
+  }
 }

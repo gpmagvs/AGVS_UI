@@ -50,7 +50,8 @@
         "OnlineRequest": "請求上線",
         "OfflineRequest": "請求離線"
       }
-    }
+    },
+    "TaskStatus": "任務狀態"
   },
   "Action": "動作",
   "Vehicle": "車輛",
@@ -70,5 +71,21 @@
   "Park": "停車",
   "Unload": "取貨",
   "Load": "放貨",
-  "Dispatch": "任務派送"
+  "Dispatch": "任務派送",
+  "IncompleteTasks": "未完成任務",
+  "CompleteTasks": "已完成任務",
+  "TaskTable": {
+    "NoTasks": "沒有任務",
+    "TaskName": "任務ID",
+    "Time": "時間",
+    "Action": "動作",
+    "TaskStatus": "狀態",
+    "ExcuteAgvName": "執行車輛",
+    "Source": "起點",
+    "Destine": "終點",
+    "Dispatcher": "派工人原",
+    "CstID": "貨物ID",
+    "FinishTime": "結束時間",
+    "RecievedTime": "接收時間"
+  }
 }

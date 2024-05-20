@@ -1,15 +1,15 @@
 <template>
   <div class="task-status card-like">
     <div v-show="show_card_title" class="title d-flex flex-row justify-content-between">
-      <div><i class="bi bi-three-dots-vertical"></i>任務狀態 TASK STATUS</div>
+      <div><i class="bi bi-three-dots-vertical"></i>{{ $t('HomeView.TaskStatus') }} </div>
       <div><i class="bi bi-sliders" @click="ShowSettingsDrawer = true"></i></div>
     </div>
     <div class="" v-if="display_mode == 'tabs'">
       <el-tabs lazy size type="border-card">
-        <el-tab-pane label="未完成任務">
+        <el-tab-pane :label="$t('IncompleteTasks')">
           <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskListTbData"></RunningTaskTable>
         </el-tab-pane>
-        <el-tab-pane label="已結束任務">
+        <el-tab-pane :label="$t('CompleteTasks')">
           <CompletedTaskTable :height="height" :CompletedTaskList="CompletedTaskListTbData"></CompletedTaskTable>
         </el-tab-pane>
       </el-tabs>
