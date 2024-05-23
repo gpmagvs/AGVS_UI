@@ -2904,8 +2904,6 @@ export default {
     },
     /**地圖變更為選擇設備站點模式 */
     ChangeToSelectEQStationMode() {
-
-
       var _isMoveOrder = this.TaskDispatchOptions.action_type == 'move';
       var _isOnlyLoadOrder = this.TaskDispatchOptions.action_type == 'load';
       var _isOnlyUnloadOrder = this.TaskDispatchOptions.action_type == 'unload';
@@ -2977,7 +2975,6 @@ export default {
       if (!_isMoveOrder) {
         var _index = 0;
         this.featureHighlightTimerID = setInterval(() => {
-          console.info(this.highlightingFeatures);
           var SetTextColor = (_feature, textColor, bgColor) => {
             var newStyle = _feature.getStyle().clone();
             var text = newStyle.getText();

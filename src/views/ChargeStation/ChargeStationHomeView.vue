@@ -1,13 +1,13 @@
 <template>
   <div class="charge-station-setup" style="height:100%">
-    <el-tabs lazy type="border-card" tab-position="top" @tab-change="HandleTabChange" v-model="selectedTabName">
-      <el-tab-pane
+    <el-tabs class="h-100" lazy type="border-card" tab-position="top" @tab-change="HandleTabChange" v-model="selectedTabName">
+      <el-tab-pane class="h-100"
         v-for="(data, name) in charge_station_data"
         :key="name"
         :label="name"
         :name="name">
-        <div class="charger-states border rounded text-start">
-          <h3 class="px-2">{{ name }}</h3>
+        <div class="charger-states rounded text-start py-3" style="height:80%">
+          <h3 class="px-3">{{ name }}</h3>
           <div class="d-flex w-100">
             <div class="state p-3">
               <h5 class="title">充電樁配置</h5>
@@ -42,6 +42,7 @@
                         :value="agv_name" />
                     </el-select>
                     <el-button
+                      class="mx-2"
                       :type="IsModify ? 'success' : ''"
                       size="large"
                       @click="() => {
@@ -52,11 +53,22 @@
                           SaveUsableAGVSetting(name, UsableAGVNamesEdit)
                       }">{{ IsModify ? '儲存' : '修改' }}</el-button>
                     <el-button
+                      class="mx-2"
                       v-if="IsModify"
                       type="danger"
                       size="large"
                       @click="() => { IsModify = false }">取消</el-button>
                   </div>
+                </el-form-item>
+                <el-form-item label="Tag">
+                  <div class="w-100 d-flex"></div>
+                  <el-input-number
+                    size="large" class="flex-fill" v-model="data.TagNumber" v-if="!IsTagNumberModify" :disabled="true"></el-input-number>
+                  <el-input-number
+                    size="large" class="flex-fill" v-model="TagNumberForEdit" v-else></el-input-number>
+                  <el-button size="large" class="mx-2" type="success" v-if="IsTagNumberModify" @click="() => { IsTagNumberModify = !IsTagNumberModify; ChangeTagNumerOfStation(name, TagNumberForEdit); }">儲存</el-button>
+                  <el-button size="large" class="mx-2" v-else @click="() => { IsTagNumberModify = !IsTagNumberModify; TagNumberForEdit = data.TagNumber; }">修改</el-button>
+                  <el-button size="large" class="mx-2" type="danger" v-if="IsTagNumberModify" @click="() => { IsTagNumberModify = !IsTagNumberModify; }">取消</el-button>
                 </el-form-item>
               </el-form>
             </div>
@@ -136,7 +148,7 @@
           </div>
         </div>
         <div class="text-start" style="font-size: 14px;">
-          <span>更新時間</span> {{ FormatTime(data.UpdateTime) }}
+          <span>前次更新時間 : </span> {{ FormatTime(data.Time) }}
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -187,7 +199,9 @@ export default {
         UsableAGVNames: []
       },
       UsableAGVNamesEdit: [],
-      IsModify: false
+      IsModify: false,
+      IsTagNumberModify: false,
+      TagNumberForEdit: 0
     }
   },
   mounted() {
@@ -230,6 +244,8 @@ export default {
         this.IsModify = false;
         this.previousSelectedTabName = name;
       }
+
+      this.IsTagNumberModify = false;
     },
     GetTagType(data) {
       if (!data.Connected) {
@@ -302,6 +318,30 @@ export default {
           {
             text: response.message,
             title: `${stationName} 可用車輛設定失敗!`,
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+      }
+    },
+    async ChangeTagNumerOfStation(stationName = '', tagNumber = -1) {
+      var response = await ChargerAPI.ModifyTagNumber(stationName, tagNumber);
+      if (response.confirm) {
+        this.$swal.fire(
+          {
+            title: `${stationName} Tag 設定成功!`,
+            icon: 'info',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+      } else {
+        this.IsTagNumberModify = true;
+        this.$swal.fire(
+          {
+            text: response.message,
+            title: `${stationName} Tag 設定失敗!`,
             icon: 'error',
             showCancelButton: false,
             confirmButtonText: 'OK',

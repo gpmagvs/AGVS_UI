@@ -65,7 +65,7 @@
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-select placeholder="從地圖或選單選擇目的地" @change="HandleDestineSelectChanged" @click="HandleSelectDestineStationFromMapBtnClick" v-model="selected_destine.TagNumber">
-                                    <el-option v-for="tag in DetermineDestinOptions()" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
+                                    <el-option v-for="tag in downstream_options" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
@@ -286,6 +286,7 @@ export default {
             else
                 return _isagvSelected && _isDestineSelected;
         },
+        /**包含主設備與WIP */
         EQStations() {
             return MapStore.getters.AllEqStation
         },
@@ -321,14 +322,15 @@ export default {
             var unloadableEqList = eqStatusDtoCollection.filter(eq => eq.Unload_Request);
             var unloadableTags = unloadableEqList.map(eq => eq.Tag);
             var unloadableOptions = eqOptions.filter(opt => unloadableTags.includes(opt.tag));
-            var _stations = [...unloadableOptions, ..._agvOptions];
+
+            var _stations = [...this.BufferStations, ...unloadableOptions, ..._agvOptions];
             return _stations;
         },
         IsSourceStationBuffer() {
-            return this.selected_source.StationType == 4 || this.selected_source.StationType == 5;
+            return this.selected_source.StationType == 4 || this.selected_source.StationType == 41 || this.selected_source.StationType == 5;
         },
         IsDestineStationBuffer() {
-            return this.selected_destine.StationType == 4 || this.selected_destine.StationType == 5;
+            return this.selected_destine.StationType == 4 || this.selected_source.StationType == 41 || this.selected_destine.StationType == 5;
         },
 
     },
@@ -353,8 +355,8 @@ export default {
             }
             else {
                 this.selected_agv = this.AgvNameList[0].label
-                console.log(this.selected_agv)
                 this.HandleSelectAGVFromMapBtnClick();
+                console.log(this.selected_agv)
             }
         },
         HandleActionSelected(action) {
@@ -422,6 +424,7 @@ export default {
             bus.off(this.map_events_bus.station_selected)
 
             var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
+
             console.info('_destine_options:', _destine_options);
             let map_options = {
                 action_type: this.selected_action,
@@ -466,7 +469,7 @@ export default {
 
             bus.on(this.map_events_bus.station_selected, (_station_data) => {
                 console.info(_station_data);
-                const isBuffer = _station_data.StationType == 4 || _station_data.StationType == 5
+                const isBuffer = _station_data.StationType == 4 || _station_data.StationType == 5 || _station_data.StationType == 41
                 if (_station_data.IsEquipment || isBuffer) {
 
                     if (_station_data == this.selected_destine)
@@ -477,7 +480,7 @@ export default {
                         bus.emit('mark_as_start_station', this.selected_source.TagNumber);
                         this.HandleSelectDestineStationFromMapBtnClick();
                         this.HandleActionSelected('select-destine')
-                    }, 100);
+                    }, 200);
                 }
             })
         },
@@ -486,7 +489,8 @@ export default {
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
 
-            var _destine_options = this.DetermineDestinOptions()
+            var _destine_options = this.downstream_options
+            // this.DetermineDestinOptions()
             // var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
 
             if (this.IsSourceStationBuffer) {
@@ -515,7 +519,7 @@ export default {
                     if (!this.downstream_options.some(st => st.tag == _station_data.TagNumber))
                         return
                 }
-                console.log(this.downstream_options)
+                console.log('123', this.downstream_options)
                 bus.emit('mark_as_destine_station', _station_data.TagNumber);
                 this.selected_destine = _station_data;
             })
@@ -653,26 +657,50 @@ export default {
 
             this.selected_source = await MapStore.dispatch('GetMapPointByTag', source_tag)
             this.selected_destine = { TagNumber: undefined }
-            //console.log(source_tag)
             this.downstream_options = this.GetDownStreamEQOptions(source_tag);
+            console.log('validable downstream of ', source_tag, this.downstream_options)
         },
         GetDownStreamEQOptions(sourceTag) {
+
             var _results = [];
+            var isBufferSource = this.BufferStations.find(bf => bf.tag == sourceTag);
             var _eq_options = EqStore.getters.EqOptions;
             var source_eq = _eq_options.find(eq => eq.TagID == sourceTag)
-            if (source_eq) {
+            if (source_eq || isBufferSource) {
 
-                var downstream_eq_names = source_eq.ValidDownStreamEndPointNames
-                var isAllEqIsSelectable = downstream_eq_names.includes('ALL')
-                var downstread_eq_options = isAllEqIsSelectable ? _eq_options : _eq_options.filter(eq => downstream_eq_names.includes(eq.Name))
+                if (isBufferSource) {
 
-                Object.values(downstread_eq_options).forEach(element => {
-                    _results.push({
-                        tag: element.TagID,
-                        name: `${element.Name}(Tag=${element.TagID})`,
-                        name_display: element.Name
-                    })
-                });
+                    //TODO BUFFER Select Downstream
+                    var eqStatusDtoCollection = [new EQStatusDIDto()];
+                    Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
+                    var loadableEqList = eqStatusDtoCollection.filter(eq => eq.Load_Request);
+                    var loadableTags = loadableEqList.map(eq => eq.Tag);
+                    console.log(loadableTags);
+                    Object.values(_eq_options).filter(element => loadableTags.includes(element.TagID))
+                        .forEach(element => {
+                            _results.push({
+                                tag: element.TagID,
+                                name: `${element.Name}(Tag=${element.TagID})`,
+                                name_display: element.Name
+                            })
+                        });
+
+                } else {
+
+                    var downstream_eq_names = source_eq.ValidDownStreamEndPointNames
+                    var isAllEqIsSelectable = downstream_eq_names.includes('ALL')
+                    var downstread_eq_options = isAllEqIsSelectable ? _eq_options : _eq_options.filter(eq => downstream_eq_names.includes(eq.Name))
+
+                    Object.values(downstread_eq_options).forEach(element => {
+                        _results.push({
+                            tag: element.TagID,
+                            name: `${element.Name}(Tag=${element.TagID})`,
+                            name_display: element.Name
+                        })
+                    });
+                    //加入WIP為下游設備
+                }
+                _results = [..._results, ...this.BufferStations]
             }
             return _results;
 
@@ -709,6 +737,12 @@ export default {
                 Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
                 var loadableEqList = eqStatusDtoCollection.filter(eq => eq.Load_Request);
                 var loadableTags = loadableEqList.map(eq => eq.Tag);
+
+                //把WIP Tags 加入
+                var wipTags = this.BufferStations.map(opt => opt.tag);
+                loadableTags = [...loadableTags, ...wipTags]
+
+
                 var loadableOptions = this.downstream_options.filter(opt => loadableTags.includes(opt.tag));
                 return loadableOptions;
             }

@@ -220,7 +220,7 @@ export const MapStore = createStore({
         },
         AllBufferStationOptions: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 4 || pt.StationType == 5)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 4 || pt.StationType == 41 || pt.StationType == 5)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllPointsOptions: state => {

@@ -95,5 +95,10 @@ export const ChargerAPI = {
     var url = `/api/Equipment/ChargeStation/SaveUsableAGVSetting?ChargeStationName=${encodeURIComponent(stationName)}`; //避免帶有特殊符號的時候字串參數會不完整
     var ret = await axios_entity.post(url, AGVList)
     return ret.data
+  },
+  async ModifyTagNumber(stationName, newTag) {
+    var url = `/api/Equipment/ChargeStation/ModifyTagNumber?ChargeStationName=${encodeURIComponent(stationName)}`; //避免帶有特殊符號的時候字串參數會不完整
+    var ret = await axios_entity.post(url, [newTag])
+    return ret.data
   }
 }
