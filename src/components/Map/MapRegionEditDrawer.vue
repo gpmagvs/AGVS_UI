@@ -15,28 +15,39 @@
             <div class="draw-content">
                 <el-form label-width="140" label-position="left">
                     <el-form-item label="名稱">
-                        <el-input v-model="RegionData.Name"></el-input>
+                        <el-input v-model="RegionData.Name" @input="ChangeNameDisplay"></el-input>
                     </el-form-item>
                     <el-form-item label="類型">
-                        <el-select v-model="RegionData.RegionType">
-                            <el-option :value="0" label="禁制區"></el-option>
+                        <el-select v-model="RegionData.RegionType">2 <el-option :value="0" label="禁制區"></el-option>
                             <el-option :value="1" label="通行區"></el-option>
                         </el-select>
+                    </el-form-item>
+                    <el-form-item label="可容納車輛數">
+                        <el-input-number @change="HandlePropChanged" :min="1" :max="20" :step="1" v-model="RegionData.MaxVehicleCapacity"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="閒置時停車角度限制">
+                        <el-input-number @change="HandlePropChanged" :min="-180" :max="180" :step="0.1" v-model="RegionData.ThetaLimitWhenAGVIdling"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="窄道區域">
+                        <el-checkbox @change="HandlePropChanged" v-model="RegionData.IsNarrowPath"></el-checkbox>
                     </el-form-item>
                 </el-form>
             </div>
         </el-drawer>
     </div>
 </template>
-
 <script>
 import { MapStore } from '@/components/Map/store'
 import { MapRegion } from './mapjs'
+import Feature from 'ol/Feature.js';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 export default {
     data() {
         return {
             show: false,
             region_name: '',
+            textFeature: new Feature(),
+            ploygonFeature: new Feature(),
             /** { "StartPtIndex": 5, "EndPtIndex": 0, "StartCoordination": [ 2.653, 6.213 ], "EndCoordination": [ 0.531, 6.217 ], "PathID": "5_0", "IsEQLink": false, "IsSingleCar": false, "IsPassable": false, "IsExtinguishingPath": false, "Speed": 1, "LsrMode": 0, "DodgeMode": 0, "SpinMode": 0 }*/
             RegionData: new MapRegion('', [])
         }
@@ -51,17 +62,41 @@ export default {
         }
     },
     methods: {
-        Show(region_name) {
+        Show(region_name, textFeature = new Feature(), ploygonFeature = new Feature()) {
             this.region_name = region_name
+            this.textFeature = textFeature
+            this.ploygonFeature = ploygonFeature
             setTimeout(async () => {
                 this.RegionData = JSON.parse(JSON.stringify(await MapStore.dispatch('GetRegionByName', region_name)))
                 this.show = true
             }, 10)
+        },
+        ChangeNameDisplay(newName) {
+            var newStyle = this.textFeature.getStyle().clone();
+            var textProp = newStyle.getText().clone();;
+            textProp.setText(newName);
+            newStyle.setText(textProp);
+            this.textFeature.setStyle(newStyle)
+            this.textFeature.set('name', newName);
+            this.ploygonFeature.set('name', newName);
+
+            let _regionData = new MapRegion("", [], -1);
+            Object.assign(_regionData, this.ploygonFeature.get('data'))
+            _regionData.Name = newName;
+            this.ploygonFeature.set('data', _regionData)
+
+            console.log(newName);
+            console.log(_regionData);
+
+        },
+        HandlePropChanged() {
+            this.ploygonFeature.set('data', this.RegionData)
         }
+
+
     },
 }
 </script>
-
 <style lang="scss">
 .draw-content {
     top: 67px;

@@ -470,7 +470,8 @@ export function CreateEQLDULDFeature(station = new clsMapStation(), mode = 'rout
 export function CreateRegionPolygon(name = "禁制區", polygon_coordinations = [], region_type = 0 | 1) {
 
     var _isForbidRegion = region_type == 0;
-    var _fillColor = _isForbidRegion ? 'rgba(255, 0, 0,0.5)' : 'rgba(116, 249, 42,0.5)';
+    var _fillColor = _isForbidRegion ? 'rgba(255, 0, 0,0.5)' : 'rgba(116, 249, 42,0.3)';
+    var _textBgColor = _isForbidRegion ? 'orange' : 'rgb(139, 171, 206)';
     var _strokeColor = _isForbidRegion ? 'red' : 'seagreen';
     var _region_type = _isForbidRegion ? 'forbid' : 'passible';
     var polygon = new Feature(
@@ -501,10 +502,16 @@ export function CreateRegionPolygon(name = "禁制區", polygon_coordinations = 
     text.setStyle(new Style({
         text: new Text({
             text: text.get('name'),
-            scale: 1.2,
+            scale: 1.1,
+            font: 'bold 22px Arial',
             fill: new Fill({
-                color: 'black'
-            })
+                color: 'white'
+            }),
+            backgroundFill: new Fill({
+                color: _textBgColor
+            }),
+            padding: [5, 5, 5, 5]
+
         })
     }));
     return { region_feature: polygon, text_feature: text }

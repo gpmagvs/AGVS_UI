@@ -346,7 +346,7 @@
 <script>
 
 import Feature from 'ol/Feature.js';
-import Map from 'ol/Map.js';
+import Map from 'ol/Map.js'; 2
 import Point from 'ol/geom/Point.js';
 import VectorSource from 'ol/source/Vector.js';
 import LineString from 'ol/geom/LineString';
@@ -518,7 +518,7 @@ export default {
             features: []
           }
         ),
-        zIndex: 22
+        zIndex: 1
       }),
       AGVFeatures: {},
       MouseCoordination: undefined,
@@ -1254,6 +1254,7 @@ export default {
         this.RemoveInteraction(this.edit_forbid_regions_interaction);
       }
       _RemoveInteractions();
+      this.regionsVisible = true;
       var _displayModeChanged = this.map_display_mode != 'coordination'
       this.map_display_mode = 'coordination'
       this.MapDisplayModeOptHandler(_displayModeChanged);
@@ -1564,7 +1565,7 @@ export default {
         ///繪製完成後的事件觸發
         this.draw_forbid_regions_interaction.on('drawend', (event) => {
           var currnetForbidRegionCount = _isForbidRegion ? that.GetForbidRegionCount() : that.GetPassibleRegionCount();
-
+          var _textBgColor = _isForbidRegion ? 'orange' : 'rgb(139, 171, 206)';
           var _name = _isForbidRegion ? `禁制區-${currnetForbidRegionCount + 1}` : `通行區-${currnetForbidRegionCount + 1}`;
           const feature = event.feature; // 獲取繪製的多邊形要素
           feature.set('type', 'polygon')
@@ -1593,11 +1594,17 @@ export default {
           // 定義文字樣式
           textFeature.setStyle(new Style({
             text: new Text({
-              text: _name, // 使用文字內容
-              scale: 1.2, // 文字標籤的縮放比例
+              text: _name,
+              scale: 1.1,
+              font: 'bold 22px Arial',
               fill: new Fill({
-                color: 'black' // 文字顏色
-              })
+                color: 'white'
+              }),
+              backgroundFill: new Fill({
+                color: _textBgColor
+              }),
+              padding: [5, 5, 5, 5]
+
             })
           }));
           that.RegionLayer.getSource().addFeature(textFeature);
@@ -1641,6 +1648,7 @@ export default {
       this.RemoveInteraction(this.draw_global_path_regions_interaction);
       var _forbid_region_editor = this.$refs['forbid_region_editor'];
       var _remove_keyboard_press_event_listner = this.RemoveKeyboardPressEventListener;
+      let _this = this;
       this.edit_forbid_regions_interaction = new Pointer({
         handleDownEvent: function (event) {
           var _map = event.map;
@@ -1651,8 +1659,13 @@ export default {
             return;
 
           var _forbidRegionName = feature.get('name');
+
+          let featuresInLayer=_this.RegionLayer.getSource().getFeatures();
+          var textFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'text')
+          var ploygonFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'polygon')
+
           _remove_keyboard_press_event_listner();
-          _forbid_region_editor.Show(_forbidRegionName);
+          _forbid_region_editor.Show(_forbidRegionName, textFeature, ploygonFeature);
         }
       })
       this.map.addInteraction(this.edit_forbid_regions_interaction)
@@ -2324,7 +2337,7 @@ export default {
         source: new VectorSource({ features: [] }),
       })
       this.map = new Map({
-        layers: [this.ImageLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.RegionLayer],
+        layers: [this.ImageLayer, this.RegionLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
         target: this.id,
         renderer: 'canvas',
         view: new View({
@@ -2434,7 +2447,7 @@ export default {
       var _polygons = _features.filter(f => f.get('type') == 'polygon' && f.get('region_type') == 'path')
       return _polygons.length;
     },
-    GetRegionsDataFromLayer() {
+    GetRegionsDataFromLayer() {//TODO GetRegionsDataFromLayer
       let output = [];
       var _features = this.RegionLayer.getSource().getFeatures()
 
