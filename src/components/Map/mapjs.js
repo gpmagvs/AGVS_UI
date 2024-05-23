@@ -269,7 +269,7 @@ export function GetStationStyle(text = '', station_type = 0, map_data = new MapP
     else if (station_type == 2 || station_type == 12 || station_type == 22) {
         image = stocker_icon(map_data.Graph.ImageName)
     }
-    else if (station_type == 4) {
+    else if (station_type == 4 || station_type == 41) {
         image = rack_station_icon(map_data.Graph.ImageName)
     }
     else if (station_type == 5 || station_type == 6) {

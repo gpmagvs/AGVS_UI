@@ -141,6 +141,10 @@ export const pointTypes = [
     value: 4
   },
   {
+    label: 'Buffer_EQ',
+    value: 41
+  },
+  {
     label: 'Charge & Buffer',
     value: 5
   },

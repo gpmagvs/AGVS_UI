@@ -330,7 +330,7 @@ export default {
             return this.selected_source.StationType == 4 || this.selected_source.StationType == 41 || this.selected_source.StationType == 5;
         },
         IsDestineStationBuffer() {
-            return this.selected_destine.StationType == 4 || this.selected_source.StationType == 41 || this.selected_destine.StationType == 5;
+            return this.selected_destine.StationType == 4 || this.selected_destine.StationType == 41 || this.selected_destine.StationType == 5;
         },
 
     },
@@ -488,10 +488,11 @@ export default {
             this.HandleActionSelected("select-destine");
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
+            if (this.selected_action == 'load' || this.selected_action == 'unload') {
+                this.downstream_options = this.EQStations;
+            }
 
             var _destine_options = this.downstream_options
-            // this.DetermineDestinOptions()
-            // var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
 
             if (this.IsSourceStationBuffer) {
                 _destine_options = [..._destine_options, this.BufferStations]
@@ -668,6 +669,8 @@ export default {
             var source_eq = _eq_options.find(eq => eq.TagID == sourceTag)
             if (source_eq || isBufferSource) {
 
+
+
                 if (isBufferSource) {
 
                     //TODO BUFFER Select Downstream
@@ -725,7 +728,7 @@ export default {
             else if (this.selected_action == 'park')
                 return MapStore.getters.AllParkingStationOptions;
             else if (this.IsSourceStationBuffer || this.selected_action == 'load' || this.selected_action == 'unload')
-                return this.EQStations;
+                return [...this.BufferStations, ...this.EQStations];
             else if (this.selected_action == 'charge')
                 return MapStore.getters.AllChargeStation;
             else if (this.selected_action == 'carry') {

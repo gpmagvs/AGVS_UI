@@ -12,7 +12,7 @@
           @click="() => { $emit('OnTaskBtnClick', { action: 'move', station_data: station_data }) }">移動</b-button>
       </div>
       <div v-if="station_type == 1 || station_type == 2 || station_type == 4 || station_type == 5" class="d-flex flex-column">
-        <b-button v-if="station_type == 4 || station_type == 5"
+        <b-button v-if="station_type == 4 || station_type == 41 || station_type == 5"
           variant="primary"
           @click="ShowRackInfoBtnClick">RACK資訊</b-button>
         <!-- EQ可指派之任務 -->
