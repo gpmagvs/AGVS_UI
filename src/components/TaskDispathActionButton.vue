@@ -6,7 +6,7 @@
         content="">
         <template #reference>
             <div class="task-dispatch-btn-container">
-                <el-popover :show-arrow="false" :popper-style="order_info_style" :visible="order_info_visible" placement="right-start" :width="455">
+                <el-popover @hide="HandleDispathDialogHidden" :show-arrow="false" :popper-style="order_info_style" :visible="order_info_visible" placement="right-start" :width="455">
                     <template #reference>
                         <span></span>
                     </template>
@@ -358,6 +358,9 @@ export default {
                 this.HandleSelectAGVFromMapBtnClick();
                 console.log(this.selected_agv)
             }
+        },
+        HandleDispathDialogHidden(evt) {
+            this.HandleCancelBtnClick();
         },
         HandleActionSelected(action) {
             this.source_select_row_class =
