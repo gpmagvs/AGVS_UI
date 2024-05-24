@@ -40,7 +40,7 @@
               class="w-20 my-1 mx-2"
               @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
               size="sm"
-              v-bind:style="scope.row.OnlineStatus == 1 ? { backgroundColor: 'red' } : StyleOfAGVDisplayColor(scope.row.AGV_Name)"> {{ scope.row.OnlineStatus == 1 ? $t('HomeView.AGVStatus.AGVStatus.OfflineRequest') : $t('HomeView.AGVStatus.AGVStatus.OnlineRequest') }} </b-button>
+              v-bind:style="{ backgroundColor: scope.row.OnlineStatus == 1 ? 'red' : '#0d6efd' }"> {{ scope.row.OnlineStatus == 1 ? $t('HomeView.AGVStatus.AGVStatus.OfflineRequest') : $t('HomeView.AGVStatus.AGVStatus.OnlineRequest') }} </b-button>
             <b-button
               v-if="!IsRunMode"
               class="w-20 my-1 mx-2"
@@ -86,12 +86,11 @@
                 <div class="h-100 border px-1 py-2 text-center bg-light"> {{ $t('HomeView.AGVStatus.AGVStatus.vehicleconn') }} </div>
               </el-col>
               <el-col :span="6">
-                <div class="h-100 border p-1">
+                <div class="h-100 border p-1" style="cursor: pointer">
                   <el-tag
                     class="h-100 w-100"
-                    effect="dark"
                     @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
-                    :type="scope.row.OnlineStatus == 0 ? 'info' : 'success'">
+                    :type="scope.row.OnlineStatus == 0 ? 'danger' : 'success'">
                     <b>{{ scope.row.OnlineStatus == 1 ? $t('HomeView.AGVStatus.AGVStatus.Online') : $t('HomeView.AGVStatus.AGVStatus.Offline') }}</b>
                   </el-tag>
                 </div>
@@ -764,6 +763,11 @@ export default {
   .connect {
     background-color: rgb(229, 255, 240);
   }
+
+  .connect-name-cell {
+    background-color: rgb(175, 255, 208);
+  }
+
 
   .disconnect {
     background-color: rgb(255, 184, 182);

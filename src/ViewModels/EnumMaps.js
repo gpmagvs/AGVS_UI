@@ -11,7 +11,7 @@ export const MainStatusDisplay = {
     1: { label: 'IDLE', labelCN: '閒置', color: 'orange' },
     2: { label: 'RUN', labelCN: '執行', color: 'green' },
     3: { label: 'DOWN', labelCN: '當機', color: 'red' },
-    4: { label: 'Charging', labelCN: '充電', color: 'blue' },
+    4: { label: 'Charging', labelCN: '充電', color: '#0d6efd' },
 }
 
 /**AGV車款 */

@@ -38,6 +38,8 @@ class clsAGVStateDto {
       this.UIOptions = {
 
       }
+      this.AppVersion = "1.0.0"
+
     } else {
       this.AGV_Name = dto.AGV_Name
       this.AGV_Description = dto.AGV_Description
@@ -73,6 +75,7 @@ class clsAGVStateDto {
       this.LowBatLvThreshold = dto.LowBatLvThreshold
       this.MiddleBatLvThreshold = dto.MiddleBatLvThreshold
       this.HighBatLvThreshold = dto.HighBatLvThreshold
+      this.AppVersion = dto.AppVersion
     }
   }
 }
