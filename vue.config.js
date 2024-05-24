@@ -11,7 +11,7 @@ module.exports = defineConfig({
       }
     }
   },
-  transpileDependencies: [],
+  filenameHashing: false,
   outputDir: '../AGVSystem/wwwroot',
   runtimeCompiler: isDevelopment, // 開發模式為 true，否則為 false
 });
