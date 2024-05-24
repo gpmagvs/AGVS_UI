@@ -178,6 +178,7 @@ export default {
             action_menu_visible: false,
             order_info_visible: false,
             isSelectTransferToDestinAGV: false,
+            isDispatchConfirming: false,
             selected_action: '',
             selected_agv: '',
             selected_transfer_to_destine_agv: '',
@@ -360,7 +361,11 @@ export default {
             }
         },
         HandleDispathDialogHidden(evt) {
-            this.HandleCancelBtnClick();
+            if (this.isDispatchConfirming)
+                return;
+            setTimeout(() => {
+                this.HandleCancelBtnClick();
+            }, 300);
         },
         HandleActionSelected(action) {
             this.source_select_row_class =
@@ -494,6 +499,9 @@ export default {
             if (this.selected_action == 'load' || this.selected_action == 'unload') {
                 this.downstream_options = this.EQStations;
             }
+            if (this.selected_action == 'move') {
+                this.downstream_options = MapStore.getters.AllNormalStationOptions;
+            }
 
             var _destine_options = this.downstream_options
 
@@ -523,9 +531,10 @@ export default {
                     if (!this.downstream_options.some(st => st.tag == _station_data.TagNumber))
                         return
                 }
-                console.log('123', this.downstream_options)
                 bus.emit('mark_as_destine_station', _station_data.TagNumber);
                 this.selected_destine = _station_data;
+                console.log('123A', _station_data)
+                console.log('123B', this.selected_destine)
             })
         },
         async HandleDestineSelectChanged(tag) {
@@ -543,6 +552,7 @@ export default {
 
         },
         HandleConfirmBtnClicked() {
+            this.isDispatchConfirming = true;
             this.order_info_visible = false;
             this.$swal.fire(
                 {
@@ -559,6 +569,7 @@ export default {
                     } else {
                         this.order_info_visible = true;
                     }
+                    this.isDispatchConfirming = false;
                 })
         },
         HandleTransferStationSelectChanged(tag) {
@@ -575,6 +586,7 @@ export default {
                     this.bypass_eq_status_check = false;
 
             var response = { confirm: true, message: '' }
+            console.info('Final', this.selected_destine);
             var _destinTag = this.selected_destine ? this.selected_destine.TagNumber : -1;
             var _sourceTag = this.selected_source ? this.selected_source.TagNumber : -1;
             var _selected_agv = this.selected_agv == '自動選車' || this.selected_agv == '' ? '' : this.selected_agv;
