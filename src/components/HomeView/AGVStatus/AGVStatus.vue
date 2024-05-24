@@ -40,7 +40,7 @@
               class="w-20 my-1 mx-2"
               @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
               size="sm"
-              v-bind:style="scope.row.OnlineStatus == 1 ? { backgroundColor: 'red' } : StyleOfAGVDisplayColor(scope.row.AGV_Name)"> {{ scope.row.OnlineStatus == 1 ? $t('HomeView.AGVStatus.AGVStatus.OfflineRequest') : $t('HomeView.AGVStatus.AGVStatus.OnlineRequest') }} </b-button>
+              v-bind:style="{ backgroundColor: scope.row.OnlineStatus == 1 ? 'red' : '#0d6efd' }"> {{ scope.row.OnlineStatus == 1 ? $t('HomeView.AGVStatus.AGVStatus.OfflineRequest') : $t('HomeView.AGVStatus.AGVStatus.OnlineRequest') }} </b-button>
             <b-button
               v-if="!IsRunMode"
               class="w-20 my-1 mx-2"

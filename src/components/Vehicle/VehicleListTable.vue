@@ -21,6 +21,7 @@
             <el-table-column label="PORT" prop="Port"></el-table-column>
             <el-table-column label="車長(cm)" prop="VehicleLength"></el-table-column>
             <el-table-column label="車寬(cm)" prop="VehicleWidth"></el-table-column>
+            <el-table-column label="版本號" prop="AppVersion"></el-table-column>
             <el-table-column label="啟用模擬" prop="Simulation">
                 <template #default="scope">
                     <el-checkbox :disabled="true" v-model="scope.row.Simulation">
