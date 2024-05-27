@@ -502,7 +502,12 @@ export default {
             if (this.selected_action == 'move') {
                 this.downstream_options = MapStore.getters.AllNormalStationOptions;
             }
-
+            if (this.selected_action == 'park') {
+                this.downstream_options = MapStore.getters.AllParkableStationOptions;
+            }
+            if (this.selected_action == 'charge') {
+                this.downstream_options = MapStore.getters.AllChargeStation;
+            }
             var _destine_options = this.downstream_options
 
             if (this.IsSourceStationBuffer) {

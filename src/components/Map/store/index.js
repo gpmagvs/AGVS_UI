@@ -190,6 +190,11 @@ export const MapStore = createStore({
             var points = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return points;
         },
+        AllParkableStationOptions: state => {
+            var points = Object.values(state.MapData.Points)
+            var points = points.filter(pt => pt.IsParking).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            return points;
+        },
         AllEqStation: (state, getters) => {
             var points = Object.values(state.MapData.Points)
             var eqs = points.filter(pt => pt.StationType != 0 && pt.StationType != 3).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
