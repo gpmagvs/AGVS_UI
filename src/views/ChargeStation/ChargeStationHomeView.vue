@@ -75,17 +75,22 @@
             <div class="state p-3">
               <h5 class="title">狀態</h5>
               <el-form label-width="120" label-position="left">
-                <el-form-item label="連線狀態">
+                <el-form-item label="通訊狀態">
                   <el-tag
                     effect="dark"
-                    :type="data.Connected ? 'success' : 'danger'">{{ data.Connected ? 'Connected' : 'Disconnect' }}</el-tag>
+                    :type="data.Connected ? 'success' : 'danger'">{{ data.Connected ? '正常' : '斷線' }}</el-tag>
                 </el-form-item>
-                <el-form-item label="狀態">
+                <el-form-item v-if="data.IsUsing" label="運轉狀態">
                   <el-tag
                     effect="dark"
                     :type="GetTagType(data)">{{ !data.Connected ? 'Disconnect' : data.ErrorCodes.length == 0 ? 'Normal' : 'Warning' }}</el-tag>
                 </el-form-item>
-                <el-form-item label="異常碼">
+                <el-form-item v-else label="運轉狀態">
+                  <el-tag
+                    effect="dark"
+                    type="warning">閒置中</el-tag>
+                </el-form-item>
+                <el-form-item v-if="false" label="異常碼">
                   <div class="row" style="width:390px;padding-left:12px">
                     <el-tag
                       effect="dark"
@@ -103,6 +108,21 @@
                 </el-form-item>
                 <el-form-item label="輸出電流">
                   <el-tag>{{ data.Iout }} A</el-tag>
+                </el-form-item>
+                <el-form-item label="充電器溫度">
+                  <el-tag>{{ data.Temperature }} °C</el-tag>
+                </el-form-item>
+                <el-form-item label="異常">
+                  <div class="d-flex flex-column w-100">
+                    <el-tag v-if="data.ErrorCodesDescrptions.length == 0" type="success">尚無異常</el-tag>
+                    <el-tag
+                      v-else
+                      effect="dark"
+                      class="w-100"
+                      v-for="error_code in data.ErrorCodesDescrptions"
+                      :key="error_code"
+                      type="danger">{{ error_code }}</el-tag>
+                  </div>
                 </el-form-item>
               </el-form>
             </div>
