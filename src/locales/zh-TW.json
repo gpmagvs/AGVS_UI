@@ -83,7 +83,7 @@
     "ExcuteAgvName": "執行車輛",
     "Source": "起點",
     "Destine": "終點",
-    "Dispatcher": "派工人原",
+    "Dispatcher": "派工人員",
     "CstID": "貨物ID",
     "FinishTime": "結束時間",
     "RecievedTime": "接收時間"
