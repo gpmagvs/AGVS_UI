@@ -78,6 +78,10 @@ function InitWSNotification(agvs = true, vms = true) {
             if (notify.message === 'Map-Point-Enabled-Property-Changed') {
                 bus.emit('Map-Point-Enabled-Property-Changed')
             }
+            if (notify.message === 'Update-Maintain-State') {
+                bus.emit('Update-Maintain-State');
+            }
+
             if (notify.show) {
                 ElNotification({
                     title: "VMS " + notify.evt,

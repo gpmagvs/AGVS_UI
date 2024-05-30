@@ -78,7 +78,8 @@ export default {
                 Port: 7025,
                 VehicleLength: 145,
                 VehicleWidth: 70,
-                Simulation: false
+                Simulation: false,
+                MaintainSettings: []
             },
             oriAGVID: '',
             adding: false

@@ -3,8 +3,9 @@
         <el-table
             header-cell-class-name="my-el-table-cell-class"
             row-key="AGV_Name"
-            border :data="GetAGVStatesData"
+            border
             :header-cell-style="tableHeaderStyle"
+            :data="GetAGVStatesData"
             size="large">
             <el-table-column label="AGV ID" prop="AGV_Name"></el-table-column>
             <el-table-column label="類型" prop="Model">

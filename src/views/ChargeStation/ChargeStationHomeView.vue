@@ -8,6 +8,11 @@
         :name="name">
         <div class="charger-states rounded text-start py-3" style="height:80%">
           <h3 class="px-3">{{ name }}</h3>
+          <div class="state p-3">
+            <h5 class="title">使用中車輛</h5>
+            <el-tag v-if="!data.UseVehicleName || data.UseVehicleName == ''">無</el-tag>
+            <el-tag v-else> {{ data.UseVehicleName }} </el-tag>
+          </div>
           <div class="d-flex w-100">
             <div class="state p-3">
               <h5 class="title">充電樁配置</h5>
@@ -74,7 +79,7 @@
             </div>
             <div class="state p-3">
               <h5 class="title">狀態</h5>
-              <el-form label-width="120" label-position="left">
+              <el-form label-width="150" label-position="left">
                 <el-form-item label="通訊狀態">
                   <el-tag
                     effect="dark"
@@ -90,20 +95,14 @@
                     effect="dark"
                     type="warning">閒置中</el-tag>
                 </el-form-item>
-                <el-form-item v-if="false" label="異常碼">
-                  <div class="row" style="width:390px;padding-left:12px">
-                    <el-tag
-                      effect="dark"
-                      class="col-sm-3"
-                      v-for="error_code in data.ErrorCodes"
-                      :key="error_code"
-                      type="danger">{{ error_code }}</el-tag>
-                  </div>
+                <el-form-item v-if="data.IsUsing" label="當前充電模式" class="d-flex">
+                  <el-tag> {{ GetChargeMode(data.CurrentChargeMode) }} </el-tag>
+                  <el-tag v-if="data.IsBatteryFull" type="success" effect="dark">已充飽電</el-tag>
                 </el-form-item>
-                <el-form-item label="輸入電壓">
+                <el-form-item label="輸入電壓(AC)">
                   <el-tag>{{ data.Vin }} V</el-tag>
                 </el-form-item>
-                <el-form-item label="輸出電壓">
+                <el-form-item label="輸出電壓(DC)">
                   <el-tag>{{ data.Vout }} V</el-tag>
                 </el-form-item>
                 <el-form-item label="輸出電流">
@@ -117,7 +116,6 @@
                     <el-tag v-if="data.ErrorCodesDescrptions.length == 0" type="success">尚無異常</el-tag>
                     <el-tag
                       v-else
-                      effect="dark"
                       class="w-100"
                       v-for="error_code in data.ErrorCodesDescrptions"
                       :key="error_code"
@@ -276,6 +274,13 @@ export default {
       else {
         return 'warning'
       }
+    },
+    GetChargeMode(mode_int) {
+      if (mode_int != 0 && mode_int != 1 && mode_int != 2)
+        return '未知'
+
+      var map = { 0: '定電壓模式', 1: '浮充模式', 2: '定電流模式' }
+      return map[mode_int];
     },
     FormatTime(time) {
       return moment(time).format('yyyy/MM/DD HH:mm:ss');

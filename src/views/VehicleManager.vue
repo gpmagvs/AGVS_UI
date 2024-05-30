@@ -7,6 +7,11 @@
                         <VehicleListTable></VehicleListTable>
                     </div>
                 </b-tab>
+                <b-tab title="維修保養">
+                    <div class="">
+                        <VehicleMaintain></VehicleMaintain>
+                    </div>
+                </b-tab>
                 <b-tab title="新增車輛">
                     <div class="">
                         <AddVehicle></AddVehicle>
@@ -19,9 +24,10 @@
 <script>
 import AddVehicle from '@/components/Vehicle/AddVehicle.vue'
 import VehicleListTable from '@/components/Vehicle/VehicleListTable.vue'
+import VehicleMaintain from '@/components/Vehicle/VehicleMaintain.vue'
 export default {
     components: {
-        AddVehicle, VehicleListTable
+        AddVehicle, VehicleMaintain, VehicleListTable
     },
     data() {
         return {
