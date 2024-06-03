@@ -521,9 +521,9 @@ function GetCargoIcon(cargo_type, exist = false) {
     if (!exist)
         return null
     return new Icon({
-        src: cargo_type == 1 ? 'images/rack2.png' : 'images/tray.png',
-        scale: cargo_type == 1 ? .6 : .8, // 设置PNG图像的缩放比例
-        anchor: cargo_type == 1 ? [1.3, 0.95] : [.8, 0.65], // 设置PNG图像的锚点，即图片的中心点位置
+        src: cargo_type == 201 ? 'images/rack2.png' : 'images/tray.png',
+        scale: cargo_type == 201 ? .8 : .8, // 设置PNG图像的缩放比例
+        anchor: cargo_type == 201 ? [1.3, 0.95] : [.8, 0.65], // 设置PNG图像的锚点，即图片的中心点位置
         size: [60, 60],// 设置PNG图像的大小
         opacity: 1,
     })
