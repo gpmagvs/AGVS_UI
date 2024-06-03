@@ -17,7 +17,7 @@
             <i class="bi bi-qr-code"> </i>
             <label for="">0</label>
         </div>
-        <div class="selected-border" style="width: 100%; height: 170px; position: absolute; top:0;"></div>
+        <div class="selected-border" style="width: 84%;height: 156px;position: absolute;top: 12px;left: 12px;"></div>
     </div>
 </template>
 <script>
@@ -111,7 +111,7 @@ export default {
 }
 
 .selected-border:hover {
-    border: 5px solid orange;
+    border: 7px solid orange;
     z-index: 1232;
 }
 

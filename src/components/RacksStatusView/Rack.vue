@@ -95,7 +95,7 @@ export default {
     },
     methods: {
         HandlePortClicked(payload) {
-            alert(JSON.stringify(payload))
+            //alert(JSON.stringify(payload))
         },
         GetPortByColRow(col, row) {
             if (!this.RackData || !this.RackData.Ports) return undefined;
