@@ -16,7 +16,7 @@
                 <el-table-column label="目前累計里程" prop="currentHorizonMotorVal">
                     <template #default="scope">
                         <div class="w-100 d-flex value-display">
-                            <div class="flex-fill text-center">{{ scope.row.currentHorizonMotorVal.toFixed(2) }} km</div>
+                            <div class="flex-fill text-center">{{ scope.row.currentHorizonMotorVal.toFixed(3) }} km</div>
                             <el-button @click="ResetCurrentValue(scope.row.agv_name, 100)">重設</el-button>
                         </div>
                     </template>
