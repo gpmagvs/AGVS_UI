@@ -26,7 +26,7 @@
         <el-table-column label="發生時間" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
         </el-table-column>
-        <el-table-column label="AGV名稱" prop="Equipment_Name" width="80" align="center"></el-table-column>
+        <el-table-column label="設備名稱" prop="Equipment_Name" width="80" align="center"></el-table-column>
         <el-table-column label="警報碼" prop="AlarmCode" width="60" align="center"></el-table-column>
         <el-table-column label="警報描述" prop="Description_En" min-width="320">
           <template #default="scope">
@@ -40,9 +40,7 @@
         </el-table-column>
         <el-table-column label="任務名稱" prop="Task_Name" width="210">
           <template #default="scope">
-            <div>
-              {{ scope.row.Task_Name }}
-              <el-tooltip placement="top-start" content="複製到剪貼簿">
+            <div> {{ scope.row.Task_Name }} <el-tooltip placement="top-start" content="複製到剪貼簿">
                 <i v-if="scope.row.Task_Name != ''" @click="CopyText(scope.row.Task_Name)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
@@ -52,8 +50,8 @@
         <el-table-column label="排除方法" prop="TrobleShootingMethod" width="320" align="center">
           <template #default="scope">
             <div>
-              <span v-if="scope.row.TrobleShootingReference==''">{{scope.row.TrobleShootingMethod}}</span>
-              <a  v-else :href="getFullFilePath(scope.row.TrobleShootingReference)" target = "_blank"> 📕 {{scope.row.TrobleShootingMethod}} </a>
+              <span v-if="scope.row.TrobleShootingReference == ''">{{ scope.row.TrobleShootingMethod }}</span>
+              <a v-else :href="getFullFilePath(scope.row.TrobleShootingReference)" target="_blank"> 📕 {{ scope.row.TrobleShootingMethod }} </a>
             </div>
           </template>
         </el-table-column>
@@ -62,15 +60,11 @@
       </el-table>
       <div class="d-flex flex-row justify-content-center">
         <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="alarmtable" class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
-        <div class="mx-3 py-2">
-          共
-          <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆
-        </div>
+        <div class="mx-3 py-2"> 共 <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆 </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import { QueryAlarm } from "@/api/AlarmAPI.js";
 import { SaveTocsv } from "@/api/AlarmAPI.js";
@@ -197,14 +191,13 @@ export default {
       CopyText(text);
     },
     getFullFilePath(filePath) {
-      const baseURL =param.backend_host ;
-      return baseURL +"/TrobleShootingFiles/" +filePath; // 構建完整的 URL
+      const baseURL = param.backend_host;
+      return baseURL + "/TrobleShootingFiles/" + filePath; // 構建完整的 URL
     }
   },
 };
 </script>
-
-<style lang="scss" >
+<style lang="scss">
 .alarm-query {
   overflow-y: scroll;
   padding: 0px;

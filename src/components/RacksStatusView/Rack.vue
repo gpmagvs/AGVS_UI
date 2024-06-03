@@ -6,7 +6,8 @@
                 v-bind:class="_col > 1 ? 'shit-left' : ''"
                 :col="_col"
                 :row="_row"
-                :hasRack="CargoExist(_col, _row)"
+                :hasRack="hasRack(_col, _row)"
+                :hasTray="hasTray(_col, _row)"
                 :CarrierID="CarrierID(_col, _row)"
                 @on-port-click="HandlePortClicked"
                 :isBottom="_row == 0"></RackPortImageVue>
@@ -106,6 +107,20 @@ export default {
             var port = this.GetPortByColRow(col, row);
             if (!port) return false;
             return port.CargoExist;
+        },
+        hasTray(col, row) {
+            if (this.isEdit) return false;
+
+            var port = this.GetPortByColRow(col, row);
+            if (!port) return false;
+            return port.TrayPlacementState != 0;
+        },
+        hasRack(col, row) {
+            if (this.isEdit) return false;
+
+            var port = this.GetPortByColRow(col, row);
+            if (!port) return false;
+            return port.RackPlacementState != 0;
         },
         CarrierID(col, row) {
             if (this.isEdit) return "";
