@@ -75,6 +75,7 @@ export default {
   padding: 5px 25px 5px 1px;
   opacity: 0.9;
   border-top-right-radius: 22px;
+  z-index: auto;
 
   i,
   .sys-time {

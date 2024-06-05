@@ -1,41 +1,38 @@
 <template>
     <div class="vehicle-list-table">
-        <el-table header-cell-class-name="my-el-table-cell-class" header-row-class-name="my-el-table-row-class" row-key="AGV_Name" border :data="GetAGVStatesData" style="width: 100%">
-            <el-table-column label="AGV ID" prop="AGV_Name"></el-table-column>
-            <el-table-column label="類型" prop="Model">
-                <template #default="scope"><el-tag effect="dark"> {{ VehicleModels[scope.row.Model].labelCN }}</el-tag> </template>
-            </el-table-column>
-            <el-table-column label="當前狀態" prop="MainStatus">
-                <template #default="scope"><el-tag effect="dark" :color="AGVMainStatus[scope.row.MainStatus].color"> {{ AGVMainStatus[scope.row.MainStatus].label }}</el-tag> </template>
-            </el-table-column>
-            <el-table-column label="當前位置" prop="CurrentLocation"></el-table-column>
-            <el-table-column label="通訊方式" prop="Protocol">
-                <template #default="scope"> <el-tag> {{ ProtocolText[scope.row.Protocol] }} </el-tag></template>
-            </el-table-column>
-            <el-table-column label="IP" prop="IP"></el-table-column>
-            <el-table-column label="PORT" prop="Port"></el-table-column>
-            <el-table-column label="車長(cm)" prop="VehicleLength"></el-table-column>
-            <el-table-column label="車寬(cm)" prop="VehicleWidth"></el-table-column>
-            <el-table-column label="啟用模擬" prop="Simulation">
+        <el-table :data="GetRackTableData"
+            size="large"
+            row-key="AGV_Name"
+            border
+            style="width: 100%"
+            :header-cell-style="tableHeaderStyle">
+            <el-table-column label="Rack 名稱" prop="Name"></el-table-column>
+            <el-table-column label="Row (層數)" prop="Rows"> </el-table-column>
+            <el-table-column label="Column" prop="Columns"> </el-table-column>
+            <el-table-column label="通訊方式" prop="Protocol">MODBUS/TCP</el-table-column>
+            <el-table-column label="IP" prop="ConnOptions.IP"></el-table-column>
+            <el-table-column label="PORT" prop="ConnOptions.Port"></el-table-column>
+            <el-table-column label="啟用模擬" prop="IsEmulation">
                 <template #default="scope">
-                    <el-checkbox :disabled="true" v-model="scope.row.Simulation">
+                    <el-checkbox :disabled="true" v-model="scope.row.IsEmulation">
                     </el-checkbox>
                 </template>
             </el-table-column>
-            <el-table-column fixed="right" label="Operations" width="160">
+            <el-table-column fixed="right" label="Operations" width="180">
                 <template #default="scope">
                     <el-button
-                        type="success"
-                        size="small"
-                        @click.prevent="edit_row(scope.row)"> 編輯 </el-button>
+                        type="primary"
+                        @click="() => {
+                            selectedWIPName = scope.row.Name
+                            this.$refs['rackEditor'].openDrawer();
+                        }">編輯</el-button>
                     <el-button
                         type="danger"
-                        size="small"
                         @click.prevent="delete_row(scope.row)"> 刪除 </el-button>
                 </template>
             </el-table-column>
         </el-table>
-        <el-drawer z-index="1" v-model="ShowEditAGVPropertyDrawer">
+        <el-drawer z-index="1" v-model="ShowEditAGVPropertyDrawer" size="70%">
             <template #header="{}">
                 <h3 class="text-start">{{ drawerText }}</h3>
             </template>
@@ -44,26 +41,31 @@
             </div>
         </el-drawer>
     </div>
+    <EditRackVue ref="rackEditor" :wipName="selectedWIPName"></EditRackVue>
 </template>
 <script>
-import { agv_states_store } from '@/store';
+import { agv_states_store, EqStore } from '@/store';
 import AddRack from './AddRack.vue';
 import { ProtocolDisplay, MainStatusDisplay, VehicleModelDisplay } from '@/ViewModels/EnumMaps.js'
 import { VehicleManagerAPI } from '@/api/VMSAPI'
+import EditRackVue from './EditRack.vue';
 export default {
     components: {
-        AddRack,
+        AddRack, EditRackVue
     },
+    inject: ['tableHeaderStyle'],
     data() {
         return {
             table: [],
             selectAGVProertyToEdit: {},
-            ShowEditAGVPropertyDrawer: false
+            ShowEditAGVPropertyDrawer: false,
+            selectedWIPName: ''
         }
     },
     computed: {
-        GetAGVStatesData() {
-            return agv_states_store.getters.AGVStatesData;
+        GetRackTableData() {
+            var WIPOptions = EqStore.getters.WIPOptions;
+            return WIPOptions;
         },
         ProtocolText() {
             return ProtocolDisplay
@@ -84,8 +86,10 @@ export default {
             this.ShowEditAGVPropertyDrawer = true;
             setTimeout(() => {
                 this.$refs['AgvPropertyEditor'].UpdatePayload(agv_row);
+
             }, 1);
         },
+        //comment this function
         async delete_row(agv_row) {
             var _DeleteVehicleAction = async () => {
                 var result = await VehicleManagerAPI.DeleteVehicle(agv_row.AGV_Name);

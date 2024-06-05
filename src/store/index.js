@@ -246,6 +246,7 @@ export const EqStore = createStore({
     },
     EqOptions: state => state.EqOptions,
     WIPData: state => state.WIPsData,
+    WIPOptions: state => state.WIPOptions,
     GetRowsByStationTag: state => (tag) => {
       return 3
     }

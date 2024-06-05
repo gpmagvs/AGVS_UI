@@ -6,22 +6,6 @@
                 <el-form-item label="RACK名稱">
                     <el-input class="add-rack-input" v-model="payload.AGV_Name"></el-input>
                 </el-form-item>
-                <el-form-item label="車輛類型">
-                    <!--  FORK = 0,YUNTECH_FORK_AGV = 1,INSPECTION_AGV = 2,SUBMERGED_SHIELD = 3,SUBMERGED_SHIELD_Parts = 4, -->
-                    <el-select class="add-rack-input" v-model="payload.Model">
-                        <el-option label="叉車 AGV" :value="0"></el-option>
-                        <el-option label="巡檢 AGV" :value="2"></el-option>
-                        <el-option label="潛盾 AGV" :value="3"></el-option>
-                        <el-option label="Parts AGV" :value="4"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="通訊方式">
-                    <!--TCP=0,RESTFulAPI=1 -->
-                    <el-select class="add-rack-input" v-model="payload.Protocol">
-                        <el-option label="TCP/Socket" :value="0"></el-option>
-                        <el-option label="RESTFul API" :value="1"></el-option>
-                    </el-select>
-                </el-form-item>
                 <el-form-item label="IP">
                     <el-input class="add-rack-input" v-model="payload.IP"></el-input>
                 </el-form-item>

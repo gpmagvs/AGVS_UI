@@ -4,6 +4,57 @@ import param from "./gpm_param";
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 import { GetEQOptions, GetWIPOptions } from '@/api/EquipmentAPI.js';
 import { Throttle } from '@/api/Common/UtilityTools.js'
+
+import * as signalR from "@microsoft/signalr";
+var agvsHubConnection = null;
+var vmsHubConnection = null;
+function StartHubsConnection() {
+    let hubUrls = param.hubs;
+    agvsHubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(hubUrls.agvs)
+        .withAutomaticReconnect([0, 2000, 1000, 5000])
+        .build();
+
+    vmsHubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(hubUrls.vms)
+        .withAutomaticReconnect([0, 2000, 1000, 5000])
+        .build();
+
+    agvsHubConnection.on("ReceiveData", (user, data) => {
+        EqStore.commit('setData', data.EQStatus)
+        agv_states_store.commit('setHotRunStates', data.HotRun)
+        TaskStore.commit('StoreTaskData', data.TaskData);
+        AlarmStore.commit('StoreAlarmData', data.UncheckedAlarm);
+        MapStore.commit('setControledPathesBySystem', data.ControledPathesByTraffic)
+        UIStore.commit('SetVMSAlive', data.VMSAliveCheck);
+    });
+
+    vmsHubConnection.on("ReceiveData", (user, data) => {
+        if (data.VMSStatus) {
+            agv_states_store.commit('storeAgvStates', data.VMSStatus)
+            console.log('storeAgvStates', data.VMSStatus);
+        }
+        MapStore.commit('setAGVDynamicPathInfo', data.AGVNaviPathsInfoVM);
+        MapStore.commit('setOtherAGVLocateInfo', data.OtherAGVLocations);
+    });
+
+    vmsHubConnection.onreconnected((connectionId) => {
+        console.log(`VMS Hub Connection reestablished. Connected with connectionId "${connectionId}".`);
+    });
+    try {
+        agvsHubConnection.start();
+        console.log("AGVS SignalR connected");
+    } catch (err) {
+        console.error("AGVS SignalR connection error: ", err);
+    }
+    try {
+        vmsHubConnection.start();
+        console.log("VMS SignalR connected");
+    } catch (err) {
+        console.error("VMS SignalR connection error: ", err);
+    }
+}
+
 function generateRandomUserID(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -19,40 +70,4 @@ userStore.commit('setUserID', user_id);
 
 GetEQOptions().then(option => EqStore.commit('EqOptions', option));
 GetWIPOptions().then(option => EqStore.commit('WIPOptions', option));
-
-const throttledHandleAGVSData = Throttle(function (event) {
-    if (event.data != 'error' && event.data != 'closed') {
-
-        EqStore.commit('setData', event.data.EQStatus)
-        agv_states_store.commit('setHotRunStates', event.data.HotRun)
-        TaskStore.commit('StoreTaskData', event.data.TaskData);
-        AlarmStore.commit('StoreAlarmData', event.data.UncheckedAlarm);
-        MapStore.commit('setControledPathesBySystem', event.data.ControledPathesByTraffic)
-        UIStore.commit('SetVMSAlive', event.data.VMSAliveCheck);
-    }
-}, 110);
-
-const agvs_websocket_worker = new Worker('/websocket_worker.js')
-agvs_websocket_worker.onmessage = (event) => throttledHandleAGVSData(event)
-agvs_websocket_worker.postMessage({ command: 'connect', ws_url: param.backend_ws_host + `/ws?user_id=${user_id}` });
-
-
-
-const throttledHandleVMSData = Throttle(function (event) {
-    if (event.data != 'error' && event.data != 'closed') {
-
-
-        if (event.data.VMSStatus) {
-            var data = Object.values(event.data.VMSStatus).map(d => Object.assign(new clsAGVStateDto(), d));
-            agv_states_store.commit('storeAgvStates', data)
-        }
-
-        MapStore.commit('setAGVDynamicPathInfo', event.data.AGVNaviPathsInfoVM);
-        MapStore.commit('setOtherAGVLocateInfo', event.data.OtherAGVLocations);
-
-    }
-}, 33);
-
-const vms_websocket_worker = new Worker('/websocket_worker.js')
-vms_websocket_worker.onmessage = (event) => throttledHandleVMSData(event)
-vms_websocket_worker.postMessage({ command: 'connect', ws_url: param.vms_ws_host + `/ws?user_id=${user_id}` });
+StartHubsConnection();

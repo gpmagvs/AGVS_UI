@@ -4,8 +4,8 @@ var param = {
   get backend_host() {
     if (process.env.NODE_ENV == 'development') {
       return 'http://localhost:5216'
-      return 'http://192.168.0.1:5216'
       return 'http://192.168.0.2:5216'
+      return 'http://192.168.0.1:5216'
       return 'http://192.168.0.55:5216'
       return 'http://192.168.0.192:5216'
       return 'http://192.168.0.55:5216'
@@ -25,6 +25,12 @@ var param = {
   },
   get agvsystem_notify_url() {
     return this.backend_host + '/api/event'
+  },
+  get hubs() {
+    return {
+      agvs: `${this.backend_host}/FrontEndDataHub`,
+      vms: `${this.vms_host}/FrontEndDataHub`,
+    }
   }
 }
 
