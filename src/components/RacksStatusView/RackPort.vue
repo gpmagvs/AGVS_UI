@@ -164,10 +164,10 @@ export default {
   },
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .rack-port {
   width: 360px;
-  height: 190px;
+  height: 250px;
   //   background-color: rgb(236, 236, 236);
   border: 2px solid grey;
   margin: 2px;
