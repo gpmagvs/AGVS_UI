@@ -6,6 +6,7 @@ import { GetEQOptions, GetWIPOptions } from '@/api/EquipmentAPI.js';
 import { Throttle } from '@/api/Common/UtilityTools.js'
 
 import * as signalR from "@microsoft/signalr";
+import { MessagePackHubProtocol } from "@microsoft/signalr-protocol-msgpack";
 var agvsHubConnection = null;
 var vmsHubConnection = null;
 function StartHubsConnection() {
