@@ -12,12 +12,12 @@ function StartHubsConnection() {
     let hubUrls = param.hubs;
     agvsHubConnection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrls.agvs)
-        .withAutomaticReconnect([0, 2000, 1000, 5000])
+        .withAutomaticReconnect([0, 1000, 2000, 3000])
         .build();
 
     vmsHubConnection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrls.vms)
-        .withAutomaticReconnect([0, 2000, 1000, 5000])
+        .withAutomaticReconnect([0, 1000, 2000, 3000])
         .build();
 
     agvsHubConnection.on("ReceiveData", (user, data) => {
@@ -27,15 +27,16 @@ function StartHubsConnection() {
         AlarmStore.commit('StoreAlarmData', data.UncheckedAlarm);
         MapStore.commit('setControledPathesBySystem', data.ControledPathesByTraffic)
         UIStore.commit('SetVMSAlive', data.VMSAliveCheck);
+        data = null;
     });
 
     vmsHubConnection.on("ReceiveData", (user, data) => {
         if (data.VMSStatus) {
             agv_states_store.commit('storeAgvStates', data.VMSStatus)
-            console.log('storeAgvStates', data.VMSStatus);
         }
         MapStore.commit('setAGVDynamicPathInfo', data.AGVNaviPathsInfoVM);
         MapStore.commit('setOtherAGVLocateInfo', data.OtherAGVLocations);
+        data = null;
     });
 
     vmsHubConnection.onreconnected((connectionId) => {

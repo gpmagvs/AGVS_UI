@@ -2,7 +2,7 @@
   <div class="rack-status-view custom-tabs-head p-1">
     <b-tabs>
       <b-tab v-for="Rack in WIPData" :key="Rack.WIPName" :title="Rack.WIPName">
-        <div class="rack-container d-flex flex-row justify-content-center">
+        <div class="rack-container d-flex flex-row justify-content-center border">
           <RackStatus :rack_info="Rack"></RackStatus>
         </div>
       </b-tab>

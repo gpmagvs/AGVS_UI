@@ -1,6 +1,6 @@
 <template>
   <div class="rack-port ">
-    <div class="bg-primary text-light border-bottom">{{ PortNameDisplay }}</div>
+    <div class="bg-dark text-light border-bottom">{{ PortNameDisplay }}</div>
     <div class="item">
       <div class="title">Carrier ID</div>
       <div class="values d-flex">
@@ -13,6 +13,9 @@
         </el-tooltip>
       </div>
     </div>
+
+    
+
     <div class="item">
       <div class="title">Exist Sensor(Tray)</div>
       <div class="values d-flex">
@@ -29,14 +32,15 @@
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
+
     <div class="item">
       <div class="title">Install Time</div>
       <div class="values">{{ port_info.InstallTime }}</div>
     </div>
-    <div class="item">
+    <!-- <div class="item">
       <div class="title"></div>
       <div class="values">BBB</div>
-    </div>
+    </div> -->
     <div class="item">
       <el-button
         ref="modify_btn"
@@ -96,7 +100,7 @@ export default {
   },
   computed: {
     PortNameDisplay() {
-      return `${this.rack_name} | ${this.port_info.Properties.ID}`
+      return `${this.port_info.Properties.ID}`
     },
     ModifyButtonText() {
       return !this.port_info.CarrierID || this.port_info.CarrierID == '' ? '新增帳籍' : '修改帳籍';
@@ -169,7 +173,7 @@ export default {
   width: 360px;
   height: 250px;
   //   background-color: rgb(236, 236, 236);
-  border: 2px solid grey;
+  border: 3px solid rgb(0, 0, 0);
   margin: 2px;
 
   .item {
