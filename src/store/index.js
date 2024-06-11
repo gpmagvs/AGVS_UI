@@ -77,8 +77,6 @@ export const agv_states_store = createStore({
   mutations: {
     storeAgvStates(state, data) {
       state.agv_states = data;
-      if (data.length > 0)
-        localStorage.setItem(cachesKeyMap.agvStates, JSON.stringify(data));
     },
     setHotRunStates(state, data) {
       state.hotrun_states = data
