@@ -104,13 +104,13 @@ function InitWSNotification(agvs = true, vms = true) {
         }
     }
 }
-window.onfocus = function () {
-    isWindowShowing = true;
-    console.log('Window is focused');
-};
-
-window.onblur = function () {
-    isWindowShowing = false;
-    console.log('Window is blurred');
-};
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+        isWindowShowing = true;
+        console.log('Tab is active');
+    } else {
+        isWindowShowing = false;
+        console.log('Tab is inactive');
+    }
+});
 InitWSNotification();

@@ -23,15 +23,13 @@ function StoreAGVSData(data) {
     if (agvsStoreTimout) {
         clearTimeout(agvsStoreTimout);
     }
-    agvsStoreTimout = setTimeout(() => {
 
-        EqStore.commit('setData', data.EQStatus)
-        TaskStore.commit('StoreTaskData', data.TaskData);
-        AlarmStore.commit('StoreAlarmData', data.UncheckedAlarm);
-        MapStore.commit('setControledPathesBySystem', data.ControledPathesByTraffic)
-        UIStore.commit('SetVMSAlive', data.VMSAliveCheck);
+    EqStore.commit('setData', data.EQStatus)
+    TaskStore.commit('StoreTaskData', data.TaskData);
+    AlarmStore.commit('StoreAlarmData', data.UncheckedAlarm);
+    MapStore.commit('setControledPathesBySystem', data.ControledPathesByTraffic)
+    UIStore.commit('SetVMSAlive', data.VMSAliveCheck);
 
-    }, 60);
 }
 
 function StoreVMSData(data) {
@@ -43,14 +41,13 @@ function StoreVMSData(data) {
     if (vmsStoreTimout) {
         clearTimeout(agvsStoreTimout);
     }
-
     vmsStoreTimout = setTimeout(() => {
         if (data.VMSStatus) {
             agv_states_store.commit('storeAgvStates', data.VMSStatus)
         }
         MapStore.commit('setAGVDynamicPathInfo', data.AGVNaviPathsInfoVM);
         MapStore.commit('setOtherAGVLocateInfo', data.OtherAGVLocations);
-    }, 100);
+    }, 50);
 
 }
 
@@ -67,17 +64,7 @@ function StartHubsConnection() {
         .build();
 
     agvsHubConnection.on("ReceiveData", (user, data) => {
-
-        // if (isLeader) {
-        //     channel.postMessage({
-        //         type: 'data',
-        //         source: 'agvs',
-        //         payload: data
-        //     })
-        // }
         StoreAGVSData(data);
-
-        //data = null;
     });
 
     agvsHubConnection.on('Notify', message => {
@@ -85,16 +72,7 @@ function StartHubsConnection() {
     })
 
     vmsHubConnection.on("ReceiveData", (user, data) => {
-
-        // if (isLeader) {
-        //     channel.postMessage({
-        //         type: 'data',
-        //         source: 'vms',
-        //         payload: data
-        //     })
-        // }
         StoreVMSData(data);
-        //data = null;
     });
 
     vmsHubConnection.onreconnected((connectionId) => {
@@ -145,12 +123,15 @@ function StartHeartBeatSend() {
             source: 'agvs',
             payload: _previousAGVSData
         })
+
+    }, 50);
+
+    setInterval(() => {
         channel.postMessage({
             type: 'data',
             source: 'vms',
             payload: _previousVMSData
         })
-
     }, 100);
 }
 
@@ -201,20 +182,18 @@ function StartWithLeaderCheck() {
     setTimeout(() => {
         if (!leaderExist) {
             BecomeLeader();
-
         }
     }, 2000);
 }
-
-window.onfocus = function () {
-    isWindowShowing = true;
-    console.log('Window is focused');
-};
-
-window.onblur = function () {
-    isWindowShowing = false;
-    console.log('Window is blurred');
-};
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+        isWindowShowing = true;
+        console.log('Tab is active');
+    } else {
+        isWindowShowing = false;
+        console.log('Tab is inactive');
+    }
+});
 
 //StartHubsConnection();
 StartWithLeaderCheck();
