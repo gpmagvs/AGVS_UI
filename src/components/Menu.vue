@@ -5,12 +5,14 @@
             <div v-else class="gpm-text" @click="GoToHomePage">GPM</div>
         </div>
         <el-menu
-            default-active="2"
+            :default-active="ActiveSubItem"
             class="el-menu-vertical-demo"
             style="height: 100vh;"
             active-text-color="rgb(13, 110, 253)"
             :collapse="isCollapse"
             :collapse-transition="false"
+            :router="true"
+            :default-openeds="['/map']"
             @open="handleOpen"
             @close="handleClose"
             @select="handleSelect">
@@ -172,7 +174,8 @@ export default {
     },
     data() {
         return {
-            IconColor: 'rgb(6, 53, 125)'
+            IconColor: 'rgb(6, 53, 125)',
+            ActiveSubItem: 4
         }
     },
     computed: {
@@ -197,7 +200,7 @@ export default {
             var current_route = this.$router.currentRoute.value.path;
             if (route_name != current_route) {
                 setTimeout(() => {
-                    this.$router.push(route_name);
+                    //this.$router.push(route_name);
                     bus.emit('/router-change', { route_display_name: display_name, route_name: route_name });
                 }, 100);
             }

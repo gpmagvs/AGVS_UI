@@ -173,29 +173,6 @@ export default {
               window.location.href = '/'
             })
           return;
-        } else {
-
-          // this.OpenLoading();
-          // if (newValue == "/alarm") {
-          //   this.router_view_style.paddingTop = '50px';
-          // }
-          // else
-          //   this.router_view_style.paddingTop = '150px';
-
-          setTimeout(async () => {
-            var result = await userStore.dispatch('user_route_change', newValue);
-            if (newValue == '/map' && result.isOtherUserEditingMap) {
-              this.$swal.fire(
-                {
-                  text: '',
-                  title: '注意!目前有其他使用者正在地圖編輯頁面',
-                  icon: 'warning',
-                  showCancelButton: false,
-                  confirmButtonText: 'OK',
-                  customClass: 'my-sweetalert'
-                })
-            }
-          }, 100)
         }
       }
     )

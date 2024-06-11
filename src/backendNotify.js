@@ -54,9 +54,9 @@ function InitWSNotification(agvs = true, vms = true) {
         agvsNotifyWs.onclose = (evt) => {
             setTimeout(() => {
 
-                ElNotification.error({
-                    message: 'Notification Disconnect to AGVS'
-                })
+                // ElNotification.error({
+                //     message: 'Notification Disconnect to AGVS'
+                // })
                 InitWSNotification(true, false);
             }, 1000);
         }
@@ -92,11 +92,10 @@ function InitWSNotification(agvs = true, vms = true) {
         }
         vmsNotifyWs.onclose = (evt) => {
             setTimeout(() => {
-
                 InitWSNotification(false, true);
-                ElNotification.error({
-                    message: 'Notification Disconnect to VMS'
-                })
+                // ElNotification.error({
+                //     message: 'Notification Disconnect to VMS'
+                // })
             }, 1000);
         }
     }

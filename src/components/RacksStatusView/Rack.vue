@@ -6,11 +6,14 @@
                 v-bind:class="_col > 1 ? 'shit-left' : ''"
                 :col="_col"
                 :row="_row"
+                :ioLocations="GetIOLocation(_col, _row)"
                 :hasRack="hasRack(_col, _row)"
                 :hasTray="hasTray(_col, _row)"
                 :CarrierID="CarrierID(_col, _row)"
+                :showIOLocationEdit="showIOLocationEdit"
                 @on-port-click="HandlePortClicked"
-                :isBottom="_row == 0"></RackPortImageVue>
+                :isBottom="_row == 0">
+            </RackPortImageVue>
         </div>
     </div>
     <!-- <el-divider>Selected-Rack</el-divider>
@@ -19,12 +22,12 @@
     <p>{{ RacksData }}</p> -->
 </template>
 <script>
-import RackPortImageVue from './RackPortImage.vue';
 import { EqStore } from '@/store'
+import RackPortImageVue from './RackPortImage.vue';
 
 export default {
     components: {
-        RackPortImageVue
+        RackPortImageVue,
     },
     props: {
         rackName: {
@@ -43,12 +46,17 @@ export default {
                     row: 1
                 }
             }
+        },
+        showIOLocationEdit: {
+            type: Boolean,
+            default() { return false }
         }
     },
     data() {
         return {
             col: 3,
             row: 3,
+            speficRackData: undefined
         }
     },
     computed: {
@@ -89,6 +97,8 @@ export default {
             return EqStore.getters.WIPData
         },
         RackData() {
+            if (this.speficRackData)
+                return this.speficRackData;
             return this.RacksData.find(dat => dat.WIPName == this.rackName)
         }
 
@@ -128,6 +138,21 @@ export default {
             var port = this.GetPortByColRow(col, row);
             if (!port) return false;
             return port.CarrierID;
+        },
+        GetIOLocation(col, row) {
+
+            var port = this.GetPortByColRow(col, row);
+            if (!port) return {
+                Tray_Sensor1: 0,
+                Tray_Sensor2: 1,
+                Box_Sensor1: 2,
+                Box_Sensor2: 3,
+            };
+
+            return port.Properties.IOLocation
+        },
+        ChangeToIOLocationEditMode() {
+            alert('!')
         }
     },
     mounted() {

@@ -1,6 +1,10 @@
 <template>
   <div class="rack-port ">
-    <div class="bg-dark text-light border-bottom">{{ PortNameDisplay }}</div>
+    <div class="bg-light border-bottom">
+      <div v-show="AnySensorFlash" class="text-danger bg-light w-100 text-start"
+        style=" max-height: 0;  position: relative;left:3px;top:0px;"><i class="bi bi-exclamation "></i>在席Sensor 閃爍</div>
+      <span> {{ PortNameDisplay }} </span>
+    </div>
     <div class="item">
       <div class="title">Carrier ID</div>
       <div class="values d-flex">
@@ -13,9 +17,6 @@
         </el-tooltip>
       </div>
     </div>
-
-    
-
     <div class="item">
       <div class="title">Exist Sensor(Tray)</div>
       <div class="values d-flex">
@@ -32,7 +33,6 @@
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
-
     <div class="item">
       <div class="title">Install Time</div>
       <div class="values">{{ port_info.InstallTime }}</div>
@@ -41,20 +41,24 @@
       <div class="title"></div>
       <div class="values">BBB</div>
     </div> -->
-    <div class="item">
+    <div class="item  justify-content-center">
+      <div v-if="IsCarrierIDExist" class="w-100 d-flex justify-content-center">
+        <el-button ref="modify_btn"
+          @click="CstIDEditHandle" type="success">修改帳籍</el-button>
+        <el-button @click="RemoveCSTID" type="danger">刪除帳籍</el-button>
+      </div>
       <el-button
-        ref="modify_btn"
+        v-else
         @click="CstIDEditHandle"
-        class="m-1 w-100"
-        :type="ModifyButtonText == '新增帳籍' ? 'info' : 'success'"
-        size="large">{{ ModifyButtonText }}</el-button>
+        class="m-1"
+        type="info">新增帳籍</el-button>
     </div>
   </div>
 </template>
 <script>
 import Clipboard from 'clipboard'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
-import { ModifyCargoID } from '@/api/WIPAPI.js'
+import { ModifyCargoID, RemoveCargoID } from '@/api/WIPAPI.js'
 import { userStore } from '@/store'
 import { RackEmuAPI } from '@/api/EquipmentAPI'
 export default {
@@ -102,13 +106,21 @@ export default {
     PortNameDisplay() {
       return `${this.port_info.Properties.ID}`
     },
+    IsCarrierIDExist() {
+      return this.port_info.CarrierID && this.port_info.CarrierID != '';
+    },
     ModifyButtonText() {
-      return !this.port_info.CarrierID || this.port_info.CarrierID == '' ? '新增帳籍' : '修改帳籍';
+      return !this.IsCarrierIDExist ? '新增帳籍' : '修改帳籍';
     },
     ExistSensorTray_1() { return this.port_info.ExistSensorStates["TRAY_1"] != 0; },
     ExistSensorTray_2() { return this.port_info.ExistSensorStates["TRAY_2"] != 0; },
     ExistSensorRack_1() { return this.port_info.ExistSensorStates["RACK_1"] != 0; },
     ExistSensorRack_2() { return this.port_info.ExistSensorStates["RACK_2"] != 0; },
+    AnySensorFlash() {
+      var states = Object.values(this.port_info.ExistSensorStates)
+      var flashs = states.filter(sta => sta == 2);
+      return flashs.length != 0;
+    },
     IsDeveloperLogining() {
       return userStore.getters.IsDeveloperLogining;
     }
@@ -137,7 +149,14 @@ export default {
         title: `${this.ModifyButtonText} : ${this.PortNameDisplay}`,
         draggable: true,
         inputValue: this.port_info.CarrierID,
-        type: 'warning'
+        type: 'warning',
+        // cancelButtonClass: 'bg-danger text-light rounded',
+        confirmButtonText: '修改',
+        inputErrorMessage: '帳籍ID不得為空',
+        inputPlaceholder: '請輸入ID',
+        inputValidator: (_input) => {
+          return _input != '';
+        }
 
       }).then((msg_data) => {
         console.info(msg_data)
@@ -147,6 +166,9 @@ export default {
       }).catch(() => {
 
       })
+    },
+    RemoveCSTID() {
+      RemoveCargoID(this.rack_name, this.port_info.Properties.ID);
     },
     CopyText(text) {
       const clipboard = new Clipboard('.copy-button', {

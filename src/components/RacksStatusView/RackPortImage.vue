@@ -17,11 +17,17 @@
             <i class="bi bi-qr-code"> </i>
             <label for="">0</label>
         </div>
+        <PortSensorEditViewVue v-if="showIOLocationEdit" class="sensor-edit" :ioLocations="ioLocations"></PortSensorEditViewVue>
         <div class="selected-border" style="width: 84%;height: 156px;position: absolute;top: 12px;left: 12px;"></div>
     </div>
 </template>
 <script>
+import PortSensorEditViewVue from './PortSensorEditView.vue';
+
 export default {
+    components: {
+        PortSensorEditViewVue,
+    },
     props: {
         isBottom: {
             type: Boolean,
@@ -50,6 +56,21 @@ export default {
         CarrierID: {
             type: String,
             default: ""
+        },
+        ioLocations: {
+            type: Object,
+            default() {
+                return {
+                    Tray_Sensor1: 2,
+                    Tray_Sensor2: 3,
+                    Box_Sensor1: 4,
+                    Box_Sensor2: 5,
+                }
+            }
+        },
+        showIOLocationEdit: {
+            type: Boolean,
+            default() { return false }
         }
     },
     data() {
@@ -122,5 +143,15 @@ export default {
         left: 0px;
         transform: scale(0.73);
     }
+}
+
+.sensor-edit {
+    position: absolute;
+    min-width: 100%;
+    min-height: 40%;
+    top: 10px;
+    z-index: 10;
+    // color: rgb(13, 110, 253);
+    background-color: rgba(0, 0, 0, 0.568);
 }
 </style>

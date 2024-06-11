@@ -6,25 +6,25 @@
             border
             style="width: 100%"
             :header-cell-style="tableHeaderStyle">
-            <el-table-column label="Rack 名稱" prop="Name"></el-table-column>
-            <el-table-column label="Row (層數)" prop="Rows"> </el-table-column>
-            <el-table-column label="Column" prop="Columns"> </el-table-column>
-            <el-table-column label="通訊方式" prop="Protocol">MODBUS/TCP</el-table-column>
-            <el-table-column label="IP" prop="ConnOptions.IP"></el-table-column>
-            <el-table-column label="PORT" prop="ConnOptions.Port"></el-table-column>
-            <el-table-column label="啟用模擬" prop="IsEmulation">
+            <el-table-column label="Rack 名稱" prop="Name" width="180"></el-table-column>
+            <el-table-column label="Row (層數)" prop="Rows" width="110"> </el-table-column>
+            <el-table-column label="Column" prop="Columns" width="100"> </el-table-column>
+            <el-table-column label="通訊方式" prop="Protocol" width="120">MODBUS/TCP</el-table-column>
+            <el-table-column label="IP" prop="ConnOptions.IP" width="110"></el-table-column>
+            <el-table-column label="PORT" prop="ConnOptions.Port" width="80"></el-table-column>
+            <el-table-column label="啟用模擬" prop="IsEmulation" width="90">
                 <template #default="scope">
                     <el-checkbox :disabled="true" v-model="scope.row.IsEmulation">
                     </el-checkbox>
                 </template>
             </el-table-column>
-            <el-table-column fixed="right" label="Operations" width="180">
+            <el-table-column fixed="right" label="Operations" min-width="180">
                 <template #default="scope">
                     <el-button
                         type="primary"
                         @click="() => {
                             selectedWIPName = scope.row.Name
-                            this.$refs['rackEditor'].openDrawer();
+                            this.$refs['rackEditor'].openDrawer(scope.row);
                         }">編輯</el-button>
                     <el-button
                         type="danger"
