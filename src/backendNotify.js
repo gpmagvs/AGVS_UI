@@ -1,7 +1,7 @@
 import param from './gpm_param'
 import { ElNotification } from 'element-plus'
 import bus from './event-bus'
-
+var isWindowShowing = true;
 class NotifyMessage {
     constructor() {
         this.type = 0 //0:info , 1:warning, 2:error, 3:success
@@ -37,6 +37,8 @@ function InitWSNotification(agvs = true, vms = true) {
             })
         }
         agvsNotifyWs.onmessage = (evt) => {
+            if (!isWindowShowing)
+                return;
             var data = evt.data;
             let notify = new NotifyMessage()
             Object.assign(notify, JSON.parse(data))
@@ -72,6 +74,8 @@ function InitWSNotification(agvs = true, vms = true) {
             })
         }
         vmsNotifyWs.onmessage = (evt) => {
+            if (!isWindowShowing)
+                return;
             var data = evt.data;
             let notify = new NotifyMessage()
             Object.assign(notify, JSON.parse(data))
@@ -100,5 +104,13 @@ function InitWSNotification(agvs = true, vms = true) {
         }
     }
 }
+window.onfocus = function () {
+    isWindowShowing = true;
+    console.log('Window is focused');
+};
 
+window.onblur = function () {
+    isWindowShowing = false;
+    console.log('Window is blurred');
+};
 InitWSNotification();
