@@ -35,6 +35,7 @@ export default createStore({
   }
 })
 
+/**車輛狀態儲存 */
 export const agv_states_store = createStore({
   state: {
     agv_states: undefined,
@@ -60,6 +61,12 @@ export const agv_states_store = createStore({
     AGVNameList: state => {
       if (state.agv_states)
         return state.agv_states.map(agv => agv.AGV_Name)
+      else
+        return []
+    },
+    AGVIPCollection: state => {
+      if (state.agv_states)
+        return state.agv_states.map(agv => agv.IP)
       else
         return []
     },
@@ -229,6 +236,7 @@ export const UIStore = createStore({
   }
 })
 
+/**設備狀態管理 */
 export const EqStore = createStore({
   state: {
     EQ: [],
@@ -268,6 +276,8 @@ export const EqStore = createStore({
   }
 })
 
+
+/**車輛狀態管理 */
 export const TaskStore = createStore({
   state: {
     IncompletedTaskListData: [],
@@ -284,6 +294,9 @@ export const TaskStore = createStore({
     }
   }
 })
+
+
+/**異常管理 */
 export const AlarmStore = createStore({
   state: {
     alarmsCollection: [],
