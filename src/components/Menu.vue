@@ -12,10 +12,8 @@
             :collapse="isCollapse"
             :collapse-transition="false"
             :router="true"
-            :default-openeds="['/map']"
             @open="handleOpen"
-            @close="handleClose"
-            @select="handleSelect">
+            @close="handleClose">
             <el-menu-item index="/">
                 <el-icon>
                     <home_icon />
@@ -40,7 +38,7 @@
                 </el-icon>
                 <template #title>{{ $t('Menu.vehicle manager') }}</template>
             </el-menu-item>
-            <el-sub-menu v-if="IsAdmin" index="/map">
+            <el-sub-menu v-if="IsAdmin">
                 <template #title>
                     <el-icon>
                         <map_icon :color="IconColor" />
