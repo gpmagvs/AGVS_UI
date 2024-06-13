@@ -100,34 +100,56 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column sortable label="Tag" prop="Tag" width="60" align="center"></el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" width="110" label="主狀態" prop="MainStatus">
+      <el-table-column sortable label="Tag" prop="Tag" width="80" align="center">
         <template #default="scope">
-          <el-tag style="width:80px" :type="GetMainStatusTagtype(scope.row.MainStatus, scope.row.IsConnected)"
+          <div style="color:grey"> {{ scope.row.Tag }} </div>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="show_lduld_state" align="center" width="130" label="主狀態" prop="MainStatus">
+        <template #default="scope">
+          <el-tag
+            style="width:80px"
+            :type="GetMainStatusTagtype(scope.row.MainStatus, scope.row.IsConnected)"
             effect="dark">{{ GetMainStatusStr(scope.row.MainStatus, scope.row.IsConnected) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" width="110" label="移載狀態" prop="TransferStatus">
+      <el-table-column v-if="show_lduld_state" align="center" width="130" label="移載請求" prop="TransferStatus">
         <template #default="scope">
           <el-tag style="width:80px" :type="GetTransferStatusTagtype(scope.row.TransferStatus, scope.row.IsConnected)"
             effect="dark">{{ GetTransferStatusStr(scope.row.TransferStatus, scope.row.IsConnected) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" label="帳籍狀態" prop="TransferStatus">
+      <!-- <el-table-column v-if="show_lduld_state" align="center" label="帳籍狀態" prop="TransferStatus">
         <template #default="scope">
-          <el-table-column v-if="show_lduld_state" align="center" label="帳籍狀態">
+        </template>
+      </el-table-column> -->
+      <el-table-column v-if="show_lduld_state" align="center" width="130" label="帳籍狀態">
             <template #default="scope">
-              <div class="d-flex">
-                <el-tag v-if="scope.row.Port_Exist" class="mx-1" type="success" effect="dark">有貨</el-tag>
-                <el-tag v-if="scope.row.Port_Exist" class="mx-1" type="info" effect="dark">滿框</el-tag>
-                <el-tag v-if="scope.row.Port_Exist" class="mx-1" type="info" effect="dark">空框</el-tag>
-                <el-tag v-if="!scope.row.Port_Exist" class="mx-1" type="warning" effect="dark">無貨</el-tag>
+          <div class="d-flex  w-100 justify-content-center">
+            <el-tag
+              v-if="scope.row.Port_Exist"
+              class="mx-1"
+              type="success"
+              effect="dark">有貨</el-tag>
+            <!-- <el-tag
+              v-if="scope.row.Port_Exist"
+              class="mx-1"
+              type="info"
+              effect="dark">滿框</el-tag>
+            <el-tag
+              v-if="scope.row.Port_Exist"
+              class="mx-1"
+              type="info"
+              effect="dark">空框</el-tag> -->
+            <el-tag
+              v-if="!scope.row.Port_Exist"
+              class="mx-1"
+              type="warning"
+              effect="dark">無貨</el-tag>
               </div>
             </template>
           </el-table-column>
-          <el-table-column v-if="show_lduld_state" align="center" label="ID"></el-table-column>
-        </template>
-      </el-table-column>
+      <el-table-column v-if="show_lduld_state" align="center" label="貨物ID"></el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <!-- IO訊號 -->
       <el-table-column v-if="!show_lduld_state" label="可移入" prop="Load_Request" :min-width="column_width">

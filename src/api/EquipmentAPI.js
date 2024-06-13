@@ -15,9 +15,15 @@ export async function GetWIPOptions() {
   var ret = await axios_entity.get(`/api/Equipment/GetWIPOptions`)
   return ret.data;
 }
-/**GetEQSettings */
+/**Save EQ Options */
 export async function SaveEQOptions(options) {
-  var ret = await axios_entity.post(`/api/Equipment/SaveEQOptions`, options)
+  var ret = await axios_entity.post(`/api/Equipment/SaveEQOptions`,
+    options,
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
   return ret.data;
 }
 

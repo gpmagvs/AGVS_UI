@@ -35,6 +35,7 @@ export default createStore({
   }
 })
 
+/**車輛狀態儲存 */
 export const agv_states_store = createStore({
   state: {
     agv_states: undefined,
@@ -63,6 +64,12 @@ export const agv_states_store = createStore({
       else
         return []
     },
+    AGVIPCollection: state => {
+      if (state.agv_states)
+        return state.agv_states.map(agv => agv.IP)
+      else
+        return []
+    },
     HotRunStates: state => state.hotrun_states,
     VehicleSize: state => (name) => {
       if (!state.agv_states)
@@ -77,8 +84,6 @@ export const agv_states_store = createStore({
   mutations: {
     storeAgvStates(state, data) {
       state.agv_states = data;
-      if (data.length > 0)
-        localStorage.setItem(cachesKeyMap.agvStates, JSON.stringify(data));
     },
     setHotRunStates(state, data) {
       state.hotrun_states = data
@@ -229,6 +234,7 @@ export const UIStore = createStore({
   }
 })
 
+/**設備狀態管理 */
 export const EqStore = createStore({
   state: {
     EQ: [],
@@ -268,6 +274,8 @@ export const EqStore = createStore({
   }
 })
 
+
+/**車輛狀態管理 */
 export const TaskStore = createStore({
   state: {
     IncompletedTaskListData: [],
@@ -284,6 +292,9 @@ export const TaskStore = createStore({
     }
   }
 })
+
+
+/**異常管理 */
 export const AlarmStore = createStore({
   state: {
     alarmsCollection: [],

@@ -5,15 +5,15 @@
             <div v-else class="gpm-text" @click="GoToHomePage">GPM</div>
         </div>
         <el-menu
-            default-active="2"
+            :default-active="ActiveSubItem"
             class="el-menu-vertical-demo"
             style="height: 100vh;"
             active-text-color="rgb(13, 110, 253)"
             :collapse="isCollapse"
             :collapse-transition="false"
+            :router="true"
             @open="handleOpen"
-            @close="handleClose"
-            @select="handleSelect">
+            @close="handleClose">
             <el-menu-item index="/">
                 <el-icon>
                     <home_icon />
@@ -38,7 +38,7 @@
                 </el-icon>
                 <template #title>{{ $t('Menu.vehicle manager') }}</template>
             </el-menu-item>
-            <el-sub-menu v-if="IsAdmin" index="/map">
+            <el-sub-menu v-if="IsAdmin">
                 <template #title>
                     <el-icon>
                         <map_icon :color="IconColor" />
@@ -172,7 +172,8 @@ export default {
     },
     data() {
         return {
-            IconColor: 'rgb(6, 53, 125)'
+            IconColor: 'rgb(6, 53, 125)',
+            ActiveSubItem: 4
         }
     },
     computed: {
@@ -197,7 +198,7 @@ export default {
             var current_route = this.$router.currentRoute.value.path;
             if (route_name != current_route) {
                 setTimeout(() => {
-                    this.$router.push(route_name);
+                    //this.$router.push(route_name);
                     bus.emit('/router-change', { route_display_name: display_name, route_name: route_name });
                 }, 100);
             }

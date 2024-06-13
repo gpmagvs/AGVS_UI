@@ -10,3 +10,9 @@ export async function ModifyCargoID(WIPID, PortID, NewCargoID) {
     var ret = await axios_entity.post(`/api/WIP/ModifyCargoID?WIPID=${WIPID}&PortID=${PortID}&NewCargoID=${NewCargoID}`)
     return ret.data;
 }
+
+// create a Delete CargoID fucntion
+export async function RemoveCargoID(WIPID, PortID) {
+    var ret = await axios_entity.post(`/api/WIP/RemoveCargoID?WIPID=${WIPID}&PortID=${PortID}`)
+    return ret.data;
+}

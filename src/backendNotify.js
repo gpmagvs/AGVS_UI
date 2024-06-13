@@ -1,7 +1,7 @@
 import param from './gpm_param'
 import { ElNotification } from 'element-plus'
 import bus from './event-bus'
-
+var isWindowShowing = true;
 class NotifyMessage {
     constructor() {
         this.type = 0 //0:info , 1:warning, 2:error, 3:success
@@ -37,6 +37,8 @@ function InitWSNotification(agvs = true, vms = true) {
             })
         }
         agvsNotifyWs.onmessage = (evt) => {
+            if (!isWindowShowing)
+                return;
             var data = evt.data;
             let notify = new NotifyMessage()
             Object.assign(notify, JSON.parse(data))
@@ -54,9 +56,9 @@ function InitWSNotification(agvs = true, vms = true) {
         agvsNotifyWs.onclose = (evt) => {
             setTimeout(() => {
 
-                ElNotification.error({
-                    message: 'Notification Disconnect to AGVS'
-                })
+                // ElNotification.error({
+                //     message: 'Notification Disconnect to AGVS'
+                // })
                 InitWSNotification(true, false);
             }, 1000);
         }
@@ -72,6 +74,8 @@ function InitWSNotification(agvs = true, vms = true) {
             })
         }
         vmsNotifyWs.onmessage = (evt) => {
+            if (!isWindowShowing)
+                return;
             var data = evt.data;
             let notify = new NotifyMessage()
             Object.assign(notify, JSON.parse(data))
@@ -92,14 +96,21 @@ function InitWSNotification(agvs = true, vms = true) {
         }
         vmsNotifyWs.onclose = (evt) => {
             setTimeout(() => {
-
                 InitWSNotification(false, true);
-                ElNotification.error({
-                    message: 'Notification Disconnect to VMS'
-                })
+                // ElNotification.error({
+                //     message: 'Notification Disconnect to VMS'
+                // })
             }, 1000);
         }
     }
 }
-
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+        isWindowShowing = true;
+        console.log('Tab is active');
+    } else {
+        isWindowShowing = false;
+        console.log('Tab is inactive');
+    }
+});
 InitWSNotification();

@@ -22,7 +22,13 @@
       <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm" style="float:right">輸出csv檔</b-button>
     </div>
     <div>
-      <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small" style="width: 100%;font-weight: bold;" aria-current="currentpage" id="alarmtable">
+      <el-table
+        border
+        :data="alarms"
+        empty-text="No Alarms"
+        :row-class-name="row_state_class_name"
+        size="small"
+        style="width: 100%; height: 770px;font-weight: bold;" aria-current="currentpage" id="alarmtable">
         <el-table-column label="發生時間" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
         </el-table-column>
@@ -58,7 +64,7 @@
         <el-table-column label="持續時間(s)" prop="Duration" width="90" align="center"></el-table-column>
         <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" min-width="120"></el-table-column>
       </el-table>
-      <div class="d-flex flex-row justify-content-center">
+      <div class="d-flex flex-row justify-content-center fixed-bottom py-4">
         <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="alarmtable" class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
         <div class="mx-3 py-2"> 共 <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆 </div>
       </div>

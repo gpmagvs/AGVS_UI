@@ -1,12 +1,15 @@
 <template>
   <div class="rack-status rounded m-3 p-1">
-    <h3>{{ rack_info.WIPName }}</h3>
-    <div class="my-1 d-flex flex-row">
+    <div class="my-1 d-flex flex-row bg-light">
+      <h3 class="w-50 text-start px-2">{{ rack_info.WIPName }}</h3>
       <div class="p-1">
         <b>水位</b>
       </div>
       <div class="flex-fill p-2">
-        <el-progress :stroke-width="18" :percentage="Level" text-inside>
+        <el-progress :stroke-width="18" :percentage="Level" text-inside
+          striped
+          striped-flow
+          :duration="40">
           <span>{{ this.HasCstPortNum }}/{{ this.TotalPorts }}</span>
         </el-progress>
       </div>
@@ -90,7 +93,6 @@ export default {
       return count;
     },
     Level() {
-
       return this.HasCstPortNum / this.TotalPorts * 100;
     }
   },
