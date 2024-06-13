@@ -23,7 +23,7 @@ function StoreAGVSData(data) {
     if (agvsStoreTimout) {
         clearTimeout(agvsStoreTimout);
     }
-
+    agv_states_store.commit('setHotRunStates', data.HotRun)
     EqStore.commit('setData', data.EQStatus)
     TaskStore.commit('StoreTaskData', data.TaskData);
     AlarmStore.commit('StoreAlarmData', data.UncheckedAlarm);

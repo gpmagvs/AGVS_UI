@@ -18,7 +18,7 @@
           }">新增動作</el-button>
         <el-button @click="HandleSaveBtnClick" type="primary">儲存設定</el-button>
       </div>
-      <el-table row-key="no" :data="hotRunScripts" :default-expand-all="false" border>
+      <el-table row-key="scriptID" :data="hotRunScripts" :default-expand-all="false" border>
         <el-table-column label="NO." prop="no" width="60" align="center"></el-table-column>
         <el-table-column label="ID" prop="scriptID" width="210" align="center"></el-table-column>
         <el-table-column label="隨機搬運" prop="IsRandomCarryRun" align="center">
