@@ -52,7 +52,7 @@
         empty-text="No Tasks"
         row-class-name="row_state_class_name"
         size="small"
-        style="width: 100%;font-weight: bold;"
+        style="width: 100%; height: 770px ;font-weight: bold;"
         border
         aria-current="currentpage"
         id="Tasktable">
@@ -111,7 +111,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="d-flex flex-row justify-content-center">
+      <div class="d-flex flex-row justify-content-center fixed-bottom py-4">
         <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="Tasktable" class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
         <div class="mx-3 py-2"> 共 <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆 </div>
       </div>
@@ -208,7 +208,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .Task-query {
-  overflow-y: scroll;
   padding: 0px;
 
   .Task-options {
