@@ -7,33 +7,36 @@
             :header-cell-style="tableHeaderStyle"
             :data="GetAGVStatesData"
             size="large">
-            <el-table-column label="AGV ID" prop="AGV_Name"></el-table-column>
-            <el-table-column label="類型" prop="Model">
+            <el-table-column label="AGV ID" prop="AGV_Name" width="130" align="center"></el-table-column>
+            <el-table-column label="類型" prop="Model" width="90" align="center">
                 <template #default="scope"><el-tag effect="dark"> {{ VehicleModels[scope.row.Model].labelCN }}</el-tag> </template>
             </el-table-column>
-            <el-table-column label="當前狀態" prop="MainStatus">
-                <template #default="scope"><el-tag effect="dark" :color="AGVMainStatus[scope.row.MainStatus].color"> {{ AGVMainStatus[scope.row.MainStatus].label }}</el-tag> </template>
+            <el-table-column label="當前狀態" prop="MainStatus" width="90" align="center">
+                <template #default="scope">
+                    <el-tag v-if="!scope.row.Connected" effect="dark" type="danger">斷線</el-tag>
+                    <el-tag v-else effect="dark" :color="AGVMainStatus[scope.row.MainStatus].color"> {{ AGVMainStatus[scope.row.MainStatus].label }} </el-tag>
+                </template>
             </el-table-column>
-            <el-table-column label="當前位置" prop="CurrentLocation"></el-table-column>
-            <el-table-column label="通訊方式" prop="Protocol">
+            <el-table-column label="當前位置" prop="CurrentLocation" align="center" width="100"></el-table-column>
+            <el-table-column label="通訊方式" prop="Protocol" width="120" align="center">
                 <template #default="scope"> <el-tag> {{ ProtocolText[scope.row.Protocol] }} </el-tag></template>
             </el-table-column>
-            <el-table-column label="IP" prop="IP"></el-table-column>
-            <el-table-column label="PORT" prop="Port"></el-table-column>
-            <el-table-column label="車長(cm)" prop="VehicleLength"></el-table-column>
-            <el-table-column label="車寬(cm)" prop="VehicleWidth"></el-table-column>
-            <el-table-column label="版本號" prop="AppVersion">
+            <el-table-column label="IP" prop="IP" width="150" align="center"></el-table-column>
+            <el-table-column label="PORT" prop="Port" width="90"></el-table-column>
+            <el-table-column label="車長(cm)" prop="VehicleLength" width="100" align="center"></el-table-column>
+            <el-table-column label="車寬(cm)" prop="VehicleWidth" width="100" align="center"></el-table-column>
+            <el-table-column label="版本號" prop="AppVersion" width="120" align="center">
                 <template #default="scope">
                     <el-tag>{{ scope.row.AppVersion }}</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column label="啟用模擬" prop="Simulation">
+            <el-table-column label="啟用模擬" prop="Simulation" width="100" align="center">
                 <template #default="scope">
                     <el-checkbox :disabled="true" v-model="scope.row.Simulation">
                     </el-checkbox>
                 </template>
             </el-table-column>
-            <el-table-column fixed="right" label="Operations" width="160">
+            <el-table-column fixed="right" label="Operations" min-width="160">
                 <template #default="scope">
                     <el-button
                         type="success"

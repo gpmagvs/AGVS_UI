@@ -1,5 +1,7 @@
 import axios from 'axios'
 import param from '@/gpm_param'
+import { agv_states_store } from '@/store'
+import { ElMessage } from 'element-plus'
 var axios_entity = axios.create({
   baseURL: param.backend_host,
 })
@@ -53,6 +55,32 @@ export var VehicleManagerAPI = {
   DeleteVehicle: async (agv_name) => {
     var response = await axios_entity_vms.delete(`/api/VmsManager/DeleteVehicle?AGV_Name=${agv_name}`);
     return response.data;
+  },
+  /**將所有車輛關機 */
+  ShutDownAllVehicles: async () => {
+    var agvIpCollection = agv_states_store.getters.AGVIPCollection;
+    agvIpCollection.forEach(agvIP => {
+      setTimeout(() => {
+        var _axios = axios.create({
+          baseURL: `http://${agvIP}:7025`,
+          timeout: 1000
+        })
+        _axios.post(`/api/System/ShutDownPC`)
+          .then(response => {
+            ElMessage({
+              type: 'success',
+              message: `${agvIP} ${response.data}`
+            })
+          })
+          .catch(error => {
+            ElMessage({
+              type: 'error',
+              message: `${agvIP} 關機失敗:${error.message}`,
+              duration: 3000
+            })
+          });
+      }, 100);
+    });
   }
 }
 
