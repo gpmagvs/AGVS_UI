@@ -189,6 +189,11 @@ document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible') {
         isWindowShowing = true;
         console.log('Tab is active');
+        if (isLeader) {
+            agvsHubConnection.invoke("SendMessage", "test", "fetch-data");
+            vmsHubConnection.invoke("SendMessage", "test", "fetch-data");
+        }
+
     } else {
         isWindowShowing = false;
         console.log('Tab is inactive');
