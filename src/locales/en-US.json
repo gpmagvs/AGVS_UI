@@ -51,15 +51,40 @@
         "OfflineRequest": "Offline Requset"
       }
     },
-    "TaskStatus": "TASK STATUS"
+    "TaskStatus": "TASK STATUS",
+    "Map": "Map",
+    "EQ_Status": "EQ_Status",
+    "EQStatus": {
+      "EQStatus": {
+        "ViewMode": "ViewMode",
+        "IO": "IO",
+        "DisConnect": "DisConnect",
+        "ON": "Signal[ON]",
+        "OFF": "Signal[OFF]",
+        "Handshake_EQ": "Handshake-EQ",
+        "Handshake_AGV": "Handshake-AGV"
+      }
+    }
   },
+  "Action": "Action",
+  "Vehicle": "Vehicle",
   "source": "From",
   "TaskDispathActionButton": {
     "Destine": "To",
     "dispatch-confirm": "Dispatch",
     "Back To Select Action": "Back"
   },
-  "auto-choise-vehicle": "Auto",
+  "Cancel": "Cancel",
+  "auto-choise-vehicle": "Auto Choise",
+  "Transfer": "Transfer",
+  "Charge": "Charge",
+  "Exchange Battery": "Exchange Battery",
+  "Measure": "Measure",
+  "Move": "Move",
+  "Park": "Park",
+  "Unload": "Unload",
+  "Load": "Load",
+  "Dispatch": "Dispatch",
   "IncompleteTasks": "Incomplete",
   "CompleteTasks": "Completed",
   "TaskTable": {

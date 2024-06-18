@@ -51,7 +51,20 @@
         "OfflineRequest": "請求離線"
       }
     },
-    "TaskStatus": "任務狀態"
+    "TaskStatus": "任務狀態",
+    "Map": "地圖",
+    "EQ_Status": "設備狀態",
+    "EQStatus": {
+      "EQStatus": {
+        "ViewMode": "顯示模式",
+        "IO": "IO狀態",
+        "DisConnect": "斷線",
+        "ON": "訊號[ON]",
+        "OFF": "訊號[OFF]",
+        "Handshake_EQ": "交握訊號-EQ",
+        "Handshake_AGV": "交握訊號-AGV"
+      }
+    }
   },
   "Action": "動作",
   "Vehicle": "車輛",
