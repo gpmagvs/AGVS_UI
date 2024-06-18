@@ -1,5 +1,5 @@
 <template>
-    <div class="vehicle-controls  bg-light w-100 text-end py-3">
+    <div class="vehicle-controls  bg-light w-100 text-start py-3">
         <el-button type="danger" size="large" @click="HandleShutdownAllVehicleClick">Shutdown Vehicles</el-button>
     </div>
 </template>
