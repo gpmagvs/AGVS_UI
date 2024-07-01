@@ -1,7 +1,9 @@
 <template>
   <div>
-    <div class="border p-2 text-start">
+    <el-divider content-position="left">腳本</el-divider>
+    <div class=" p-2 text-start">
       <div class="w-100 border-bottom my-1">
+        <el-button @click="HandleSaveBtnClick" type="primary">儲存腳本設定</el-button>
         <el-button
           class="my-1"
           type="danger"
@@ -16,7 +18,6 @@
               actions: []
             })
           }">新增動作</el-button>
-        <el-button @click="HandleSaveBtnClick" type="primary">儲存設定</el-button>
       </div>
       <el-table row-key="scriptID" :data="hotRunScripts" :default-expand-all="false" border>
         <el-table-column label="NO." prop="no" width="60" align="center"></el-table-column>
@@ -211,6 +212,20 @@
         </div>
       </el-drawer>
     </div>
+    <el-divider content-position="left">進階設置</el-divider>
+    <div class="w-100 bg-light px-2 text-start">
+      <!-- <div class="w-100 border-bottom py-1 my-1">
+        <el-button @click="HandleSaveBtnClick" type="primary">儲存設定</el-button>
+      </div> -->
+      <el-form label-position="left">
+        <el-form-item label="*不接受隨機搬運任務AGV清單" class="d-flex">
+          <el-select class="flex-fill" multiple v-model="noJoinRamdomCarryScriptAGVList">
+            <el-option v-for="agv in AgvNameList" :key="agv" :label="agv" :value="agv"></el-option>
+          </el-select>
+          <el-button @click="HandleSaveNoJoinRamdomCarryTaskAGVList" type="primary">儲存設定</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
   </div>
 </template>
 <script>
@@ -218,6 +233,9 @@ import { watch } from 'vue'
 import { userStore, agv_states_store } from '@/store';
 import { MapStore } from '@/components/Map/store'
 import { SaveHotRunSettings, GetHotRunSettings, StartHotRun, StopHotRun } from '@/api/TaskAllocation'
+import axios from 'axios';
+import param from '@/gpm_param';
+import { ElMessage } from 'element-plus';
 export default {
   data() {
     return {
@@ -254,7 +272,8 @@ export default {
       ],
       action_drawer_visible: false,
       selected_script_name: '123',
-      selected_script_actions: []
+      selected_script_actions: [],
+      noJoinRamdomCarryScriptAGVList: []
     }
 
   },
@@ -421,6 +440,18 @@ export default {
             }
           }
         })
+    },
+    async HandleSaveNoJoinRamdomCarryTaskAGVList() {
+      var _axios = axios.create({
+        baseURL: `${param.vms_host}`
+      })
+      var response = await _axios.post('/api/task/SettingNoRunRandomCarryHotRunAGVList', this.noJoinRamdomCarryScriptAGVList);
+      if (response.data) {
+        ElMessage.success({
+          message: '設置成功'
+        })
+      }
+
     }
   },
   computed: {

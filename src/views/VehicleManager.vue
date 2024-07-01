@@ -4,8 +4,8 @@
             <b-tabs pills vertical justified nav-class="my-nav" content-class="my-nav-tabs">
                 <b-tab title="車輛列表" active>
                     <div class="">
-                        <VehicleControlVue v-if="isDeveloperUser"></VehicleControlVue>
                         <VehicleListTable></VehicleListTable>
+                        <VehicleControlVue v-if="isDeveloperUser"></VehicleControlVue>
                     </div>
                 </b-tab>
                 <b-tab title="維修保養">
