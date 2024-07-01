@@ -5,7 +5,7 @@ import { getAuthHeaders } from './AuthHelper'
 import { userStore } from '@/store'
 var axios_entity = axios.create({
   baseURL: param.backend_host,
-  headers: {},
+  headers: getAuthHeaders(),
 })
 
 export class clsMoveTaskData {
@@ -153,7 +153,7 @@ export class clsCarryTaskData {
 export var TaskAllocation = {
   async Task() {
     axios_entity
-      .get(`/api/Task/Allocation`, { headers: getAuthHeaders() })
+      .get(`/api/Task/Allocation`)
       .then((response) => {
         console.log('Response:', response.data)
       })
@@ -163,9 +163,7 @@ export var TaskAllocation = {
   },
   async Cancel(taskName) {
     try {
-      var ret = await axios_entity.get(`/api/Task/Cancel?task_name=${taskName}`, {
-        headers: getAuthHeaders(),
-      })
+      var ret = await axios_entity.get(`/api/Task/Cancel?task_name=${taskName}`)
       return ret.data;
     } catch (err) {
       throw err
@@ -223,7 +221,7 @@ async function CallAPI(path, data) {
   var user_param = `?user=${userStore.getters.UserName}`
   path += user_param;
   return axios_entity
-    .post(path, data, { headers: getAuthHeaders() })
+    .post(path, data)
     .then((response) => {
       console.log('Response:', response.data)
       return {

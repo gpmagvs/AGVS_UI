@@ -62,7 +62,6 @@
           </el-popover>
         </div>
       </div>
-      <Login ref="login" :IsLogin="IsLogin"></Login>
     </div>
     <!--Alarm-->
     <div v-show="showAlarm" class="alarm text-dark">
@@ -98,7 +97,6 @@
   </div>
 </template>
 <script>
-import Login from '@/views/Login.vue';
 import bus from '@/event-bus.js'
 import { GetOperationStates, RunMode, HostConnMode, HostOperationMode, TransferMode } from '@/api/SystemAPI';
 import { IsLoginLastTime } from '@/api/AuthHelper';
@@ -112,7 +110,7 @@ import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@ele
 import { ElNotification } from 'element-plus';
 export default {
   components: {
-    Login, MenuExpandIcon, MenuFoldIcon, UserFilled, Switch
+    MenuExpandIcon, MenuFoldIcon, UserFilled, Switch
   },
   data() {
     return {
@@ -292,7 +290,16 @@ export default {
       }
     },
     LoginClickHandler(action = '') {
-      this.$refs['login'].Show(this.current_route_info.route_name);
+      var currpath = this.$route.path;
+      if (currpath.toLocaleLowerCase().includes('/login'))
+        return;
+      this.$router.push({
+        path: '/Login',
+        query: {
+          pre: currpath
+        }
+      })
+      // this.$refs['login'].Show(this.current_route_info.route_name);
     },
     LogoutQickly() {
 

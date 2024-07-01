@@ -3,18 +3,22 @@ import param from '@/gpm_param'
 import { getAuthHeaders, getJWTAuthorizationVal } from './AuthHelper'
 var axios_entity = axios.create({
   baseURL: param.backend_host,
+  headers: {
+    'Authorization': getJWTAuthorizationVal()
+  }
 })
 
+
 export async function GetUsers() {
-  const JWTAuthorizationVal = getJWTAuthorizationVal()
-  var headers = {}
-  headers['Authorization'] = JWTAuthorizationVal
-  var ret = await axios_entity.get('api/Auth/Users', {
-    headers: headers,
-  })
+  var ret = await axios_entity.get('api/Auth/Users',)
   return ret.data
 }
 
+/**驗證身分 */
+export async function Verify() {
+  var ret = await axios_entity.post('api/Auth/Verify')
+  return ret.data.Success
+}
 export async function Login(user) {
   try {
     var ret = await axios_entity.post('api/Auth/login', user)
@@ -27,12 +31,7 @@ export async function Login(user) {
 }
 
 export async function Modify(users) {
-  const JWTAuthorizationVal = getJWTAuthorizationVal()
-  var headers = {}
-  headers['Authorization'] = JWTAuthorizationVal
-  var ret = await axios_entity.post('api/Auth/modify', users, {
-    headers: headers,
-  })
+  var ret = await axios_entity.post('api/Auth/modify', users)
   return ret.data
 }
 
