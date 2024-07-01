@@ -2,6 +2,9 @@ import { EqStore, agv_states_store, userStore, TaskStore, AlarmStore, UIStore } 
 import { MapStore } from '@/components/Map/store'
 import param from "./gpm_param";
 import { GetEQOptions, GetWIPOptions } from '@/api/EquipmentAPI.js';
+
+import { ElMessage } from "element-plus";
+
 import * as signalR from "@microsoft/signalr";
 let channel = new BroadcastChannel('agvschannel');
 let leaderExist = false;
@@ -68,7 +71,9 @@ function StartHubsConnection() {
     });
 
     agvsHubConnection.on('Notify', message => {
-
+        ElMessage.info({
+            message: message
+        })
     })
 
     vmsHubConnection.on("ReceiveData", (user, data) => {

@@ -1,5 +1,5 @@
 import param from './gpm_param'
-import { ElNotification } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import bus from './event-bus'
 var isWindowShowing = true;
 class NotifyMessage {
@@ -32,7 +32,7 @@ function InitWSNotification(agvs = true, vms = true) {
         let agvsNotifyWs = new WebSocket(param.backend_ws_host + '/api/event');
 
         agvsNotifyWs.onopen = (evt) => {
-            ElNotification.success({
+            ElMessage.success({
                 message: 'Notification Connect to AGVS'
             })
         }
@@ -46,7 +46,7 @@ function InitWSNotification(agvs = true, vms = true) {
                 bus.emit('Map-Point-Enabled-Property-Changed')
             }
             if (notify.show) {
-                ElNotification({
+                ElMessage({
                     title: "AGVSystem " + notify.evt,
                     type: notify.typeStr,
                     message: notify.message
@@ -69,7 +69,7 @@ function InitWSNotification(agvs = true, vms = true) {
         let vmsNotifyWs = new WebSocket(param.vms_ws_host + '/api/event');
 
         vmsNotifyWs.onopen = (evt) => {
-            ElNotification.success({
+            ElMessage.success({
                 message: 'Notification Connect to VMS'
             })
         }
@@ -87,8 +87,7 @@ function InitWSNotification(agvs = true, vms = true) {
             }
 
             if (notify.show) {
-                ElNotification({
-                    title: "VMS " + notify.evt,
+                ElMessage({
                     type: notify.typeStr,
                     message: notify.message
                 })
