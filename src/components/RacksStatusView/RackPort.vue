@@ -1,9 +1,14 @@
 <template>
-  <div class="rack-port ">
-    <div class="bg-light border-bottom">
+  <div class="rack-port" v-bind:class="ProductQualityClassName">
+    <div class="bg-light border-bottom d-flex py-1">
       <div v-show="AnySensorFlash" class="text-danger bg-light w-100 text-start"
         style=" max-height: 0;  position: relative;left:3px;top:0px;"><i class="bi bi-exclamation "></i>在席Sensor 閃爍</div>
-      <span> {{ PortNameDisplay }} </span>
+      <span class="flex-fill text-start px-1">
+        <el-tag effect="dark">{{ PortNameDisplay }}</el-tag> </span>
+      <div class="px-2">
+        <el-tag v-bind:class="ProductQualityClassName + ' text-dark'" v-if="port_info.Properties.ProductionQualityStore == 0" effect="dark">NORMAL PORT</el-tag>
+        <el-tag v-bind:class="ProductQualityClassName + ' text-dark'" v-else effect="dark">NG PORT</el-tag>
+      </div>
     </div>
     <div class="item">
       <div class="title">Carrier ID</div>
@@ -17,7 +22,7 @@
         </el-tooltip>
       </div>
     </div>
-    <div class="item">
+    <div class="item" v-if="port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0">
       <div class="title">Exist Sensor(Tray)</div>
       <div class="values d-flex">
         <div class="exist-sensor round my-1" v-bind:style="ExistSensorTray_1 ? ExistSensorOnStyle : ExistSensorOFFStyle" @click="HandleExistSensorStateClick('tray', 0)"></div>
@@ -25,7 +30,7 @@
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
-    <div class="item">
+    <div class="item" v-if="port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1">
       <div class="title">Exist Sensor(Rack)</div>
       <div class="values d-flex">
         <div class="exist-sensor round my-1" v-bind:style="ExistSensorRack_1 ? ExistSensorOnStyle : ExistSensorOFFStyle" @click="HandleExistSensorStateClick('rack', 0)"></div>
@@ -84,6 +89,8 @@ export default {
             ID: "0-0",
             Row: 0,
             Column: 0,
+            ProductionQualityStore: 0,//0: ok | 1: ng
+            CargoTypeStore: 2, // 0:tray | 1:Rack| 2:Mixed
             IOLocation: { Tray_Sensor1: 0, Tray_Sensor2: 1, Box_Sensor1: 2, Box_Sensor2: 3 },
           },
           RackPlacementState: 0,
@@ -103,6 +110,9 @@ export default {
     }
   },
   computed: {
+    ProductQualityClassName() {
+      return this.port_info.Properties.ProductionQualityStore == 0 ? 'ok-port' : 'ng-port';
+    },
     PortNameDisplay() {
       return `${this.port_info.Properties.ID}`
     },
@@ -225,5 +235,15 @@ export default {
       cursor: pointer;
     }
   }
+}
+
+.ok-port {
+  font-weight: bold;
+  background: rgb(217, 232, 255);
+}
+
+.ng-port {
+  background: rgb(255, 196, 196);
+
 }
 </style>

@@ -8,11 +8,18 @@ import HomeView from '../views/HomeView.vue'
 import DataVue from '../views/DataView.vue'
 import AlarmView from '@/views/AlarmView.vue'
 import ChargeStationView from '@/views/ChargeStation/ChargeStationHomeView.vue'
+import Login from '@/views/Login.vue'
+import { Verify } from '@/api/UserAPI'
 const routes = [
   {
     path: '/',
     name: 'home',
     component: HomeView
+  },
+  {
+    path: '/Login',
+    name: 'Login',
+    component: Login
   },
   {
     path: '/OP',
@@ -59,30 +66,48 @@ const routes = [
   {
     path: '/sys_settings',
     name: 'sys_settings',
+    meta: {
+      requiresAuth: true
+    },
     children: [
       {
         path: 'AGV_Battery_Setting',
         name: 'AGV_Battery_Setting',
+        meta: {
+          requiresAuth: true
+        },
         component: () => import('@/components/SystemSettings/AGVBatterySetting.vue')
       },
       {
         path: 'Equipment_Setting',
         name: 'Equipment_Setting',
+        meta: {
+          requiresAuth: true
+        },
         component: () => import('@/components/SystemSettings/EquipmentManager.vue')
       },
       {
         path: 'RacksManagement',
         name: 'RacksManagement',
+        meta: {
+          requiresAuth: true
+        },
         component: () => import('@/components/SystemSettings/RacksManager.vue')
       },
       {
         path: 'User_Setting',
         name: 'User_Setting',
+        meta: {
+          requiresAuth: true
+        },
         component: () => import('@/components/SystemSettings/UserManager.vue')
       },
       {
         path: 'Charge_Station_Setting',
         name: 'Charge_Station_Setting',
+        meta: {
+          requiresAuth: true
+        },
         component: ChargeStationView
       }
     ],
@@ -129,11 +154,17 @@ const routes = [
   {
     path: '/playground',
     name: 'dev_ui',
+    meta: {
+      requiresAuth: true
+    },
     component: () => import('../views/Playground.vue'),
   },
   {
     path: '/hotrun',
     name: 'hotrun',
+    meta: {
+      requiresAuth: true
+    },
     component: () => import('../views/HotRun.vue'),
   },
 ]
@@ -191,5 +222,19 @@ const router = createRouter({
   // routes: tsmc_routes,
   routes: routes,
 })
-
+router.beforeEach(async (to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    try {
+      if (await Verify()) {
+        next();
+      } else {
+        next('/login');
+      }
+    } catch (error) {
+      next('/login');
+    }
+  } else {
+    next();
+  }
+})
 export default router

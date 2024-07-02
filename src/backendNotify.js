@@ -32,9 +32,9 @@ function InitWSNotification(agvs = true, vms = true) {
         let agvsNotifyWs = new WebSocket(param.backend_ws_host + '/api/event');
 
         agvsNotifyWs.onopen = (evt) => {
-            ElNotification.success({
-                message: 'Notification Connect to AGVS'
-            })
+            // ElNotification.success({
+            //     message: 'Notification Connect to AGVS'
+            // })
         }
         agvsNotifyWs.onmessage = (evt) => {
             if (!isWindowShowing)
@@ -69,9 +69,9 @@ function InitWSNotification(agvs = true, vms = true) {
         let vmsNotifyWs = new WebSocket(param.vms_ws_host + '/api/event');
 
         vmsNotifyWs.onopen = (evt) => {
-            ElNotification.success({
-                message: 'Notification Connect to VMS'
-            })
+            // ElNotification.success({
+            //     message: 'Notification Connect to VMS'
+            // })
         }
         vmsNotifyWs.onmessage = (evt) => {
             if (!isWindowShowing)
