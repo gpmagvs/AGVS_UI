@@ -79,20 +79,27 @@
               v-bind:style="signalOn(scope.row.HS_AGV_COMPT)">COMPT</div>
           </div>
           <div v-if="IsDeveloperLogining" class="d-flex">
-            <div class="mx-3">模擬器:</div>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">切換為Busy</el-button>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'load')">切換為Load</el-button>
-            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'unload')">切換為Unload</el-button>
+            <div class="mx-3">{{ $t('HomeView.EQStatus.EQStatus.emulator') }}</div>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">{{
+            $t('HomeView.EQStatus.EQStatus.changetoBusy') }}</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'load')">{{
+            $t('HomeView.EQStatus.EQStatus.changetoLoad') }}</el-button>
+            <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'unload')">{{
+            $t('HomeView.EQStatus.EQStatus.changetoUnload') }}</el-button>
             <el-button :type="scope.row.IsMaintaining ? 'success' : 'danger'"
-              @click="MaintainEmulation(scope.row, 'maintain')">{{ scope.row.IsMaintaining ? '取消維修' : '維修模擬'
+              @click="MaintainEmulation(scope.row, 'maintain')">{{ scope.row.IsMaintaining ?
+            $t('HomeView.EQStatus.EQStatus.Cancel_maintenance') :
+            $t('HomeView.EQStatus.EQStatus.Maintenance_Simulation')
               }}</el-button>
             <el-button :type="scope.row.IsPartsReplacing ? 'success' : 'danger'"
-              @click="PartsReplacingEmulation(scope.row)">{{ scope.row.IsPartsReplacing ? '取消零件更換' : '零件更換模擬'
+              @click="PartsReplacingEmulation(scope.row)">{{ scope.row.IsPartsReplacing ?
+            $t('HomeView.EQStatus.EQStatus.Cancel_replacement_parts') :
+            $t('HomeView.EQStatus.EQStatus.Part_replacement_simulation')
               }}</el-button>
           </div>
         </template>
       </el-table-column>
-      <el-table-column sortable label="設備名稱" prop="EQName" width="170">
+      <el-table-column sortable :label="$t('HomeView.EQStatus.EQStatus.EQ_Name')" prop="EQName" width="170">
         <template #default="scope">
           <div> {{ scope.row.EQName }} <el-tooltip placement="top-start" content="複製到剪貼簿">
               <i @click="CopyText(scope.row.EQName)" class="copy-button copy-icon bi bi-clipboard"></i>
@@ -105,15 +112,15 @@
           <div style="color:grey"> {{ scope.row.Tag }} </div>
         </template>
       </el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" width="130" label="主狀態" prop="MainStatus">
+      <el-table-column v-if="show_lduld_state" align="center" width="130"
+        :label="$t('HomeView.EQStatus.EQStatus.Main_Status')" prop="MainStatus">
         <template #default="scope">
-          <el-tag
-            style="width:80px"
-            :type="GetMainStatusTagtype(scope.row.MainStatus, scope.row.IsConnected)"
+          <el-tag style="width:80px" :type="GetMainStatusTagtype(scope.row.MainStatus, scope.row.IsConnected)"
             effect="dark">{{ GetMainStatusStr(scope.row.MainStatus, scope.row.IsConnected) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" width="130" label="移載請求" prop="TransferStatus">
+      <el-table-column v-if="show_lduld_state" align="center" width="130"
+        :label="$t('HomeView.EQStatus.EQStatus.TransferStatus')" prop="TransferStatus">
         <template #default="scope">
           <el-tag style="width:80px" :type="GetTransferStatusTagtype(scope.row.TransferStatus, scope.row.IsConnected)"
             effect="dark">{{ GetTransferStatusStr(scope.row.TransferStatus, scope.row.IsConnected) }}</el-tag>
@@ -123,14 +130,12 @@
         <template #default="scope">
         </template>
       </el-table-column> -->
-      <el-table-column v-if="show_lduld_state" align="center" width="130" label="帳籍狀態">
-            <template #default="scope">
+      <el-table-column v-if="show_lduld_state" align="center" width="130"
+        :label="$t('HomeView.EQStatus.EQStatus.Exist')">
+        <template #default="scope">
           <div class="d-flex  w-100 justify-content-center">
-            <el-tag
-              v-if="scope.row.Port_Exist"
-              class="mx-1"
-              type="success"
-              effect="dark">有貨</el-tag>
+            <el-tag v-if="scope.row.Port_Exist" class="mx-1" type="success" effect="dark">{{
+            $t('HomeView.EQStatus.EQStatus.Instock') }}</el-tag>
             <!-- <el-tag
               v-if="scope.row.Port_Exist"
               class="mx-1"
@@ -141,30 +146,34 @@
               class="mx-1"
               type="info"
               effect="dark">空框</el-tag> -->
-            <el-tag
-              v-if="!scope.row.Port_Exist"
-              class="mx-1"
-              type="warning"
-              effect="dark">無貨</el-tag>
-              </div>
-            </template>
-          </el-table-column>
-      <el-table-column v-if="show_lduld_state" align="center" label="貨物ID"></el-table-column>
+            <el-tag v-if="!scope.row.Port_Exist" class="mx-1" type="warning" effect="dark">{{
+            $t('HomeView.EQStatus.EQStatus.SoldOut') }}</el-tag>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="show_lduld_state" align="center"
+        :label="$t('HomeView.EQStatus.EQStatus.CarrierID')"></el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <!-- IO訊號 -->
-      <el-table-column v-if="!show_lduld_state" label="可移入" prop="Load_Request" :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" :label="$t('HomeView.EQStatus.EQStatus.Load')" prop="Load_Request"
+        :min-width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Load_Request)">可移入</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Load_Request)">
+            {{ $t('HomeView.EQStatus.EQStatus.Load') }}</div>
         </template>
       </el-table-column>
-      <el-table-column v-if="!show_lduld_state" label="可移出" prop="Unload_Request" :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" :label="$t('HomeView.EQStatus.EQStatus.UnLoad')" prop="Unload_Request"
+        :min-width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">可移出</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.Unload_Request)">
+            {{ $t('HomeView.EQStatus.EQStatus.UnLoad') }}</div>
         </template>
       </el-table-column>
-      <el-table-column v-if="!show_lduld_state" label="貨物在席" prop="Port_Exist" :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" :label="$t('HomeView.EQStatus.EQStatus.Exist')" prop="Port_Exist"
+        :min-width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">{{ scope.row.Port_Exist ? '有貨' : '無貨' }}
+          <div class="di-status" v-bind:style="signalOn(scope.row.Port_Exist)">{{ scope.row.Port_Exist ?
+            $t('HomeView.EQStatus.EQStatus.Instock') : $t('HomeView.EQStatus.EQStatus.SoldOut') }}
           </div>
         </template>
       </el-table-column>
@@ -196,9 +205,11 @@
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Idle)">Idle</div>
         </template>
       </el-table-column>
-      <el-table-column v-if="!show_lduld_state" label="維修" prop="IsMaintaining" :min-width="column_width">
+      <el-table-column v-if="!show_lduld_state" :label="$t('HomeView.EQStatus.EQStatus.IsMaintaining')"
+        prop="IsMaintaining" :min-width="column_width">
         <template #default="scope">
-          <div class="di-status" v-bind:style="signalOn(scope.row.IsMaintaining, false, 'red')">維修</div>
+          <div class="di-status" v-bind:style="signalOn(scope.row.IsMaintaining, false, 'red')">
+            {{ $t('HomeView.EQStatus.EQStatus.IsMaintaining')}}</div>
         </template>
       </el-table-column>
     </el-table>

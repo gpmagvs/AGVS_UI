@@ -2,8 +2,8 @@
   "App": {
     "Header": {
       "view_mode": "View Mode",
-      "chinese": "Chinese",
-      "english": "English"
+      "chinese": "中文",
+      "english": "英文"
     }
   },
   "Menu": {
@@ -62,7 +62,25 @@
         "ON": "Signal[ON]",
         "OFF": "Signal[OFF]",
         "Handshake_EQ": "Handshake-EQ",
-        "Handshake_AGV": "Handshake-AGV"
+        "Handshake_AGV": "Handshake-AGV",
+        "emulator": "Emulator:",
+        "changetoBusy": "Change to Busy",
+        "changetoLoad": "Change to Load",
+        "changetoUnload": "Change to Unload",
+        "Cancel_maintenance": "Cancel Maintenance",
+        "Maintenance_Simulation": "Maintenance Simulation",
+        "Cancel_replacement_parts": "Cancel replacement parts",
+        "Part_replacement_simulation": "Part replacement simulation",
+        "EQ_Name": "EQ Name",
+        "Main_Status": "Main Status",
+        "TransferStatus": "Transfer Status",
+        "Exist": "Exist",
+        "Instock": "In stock",
+        "SoldOut": "Sold Out",
+        "CarrierID": "Carrier ID",
+        "Load": "Load Request",
+        "UnLoad": "UnLoad Request",
+        "IsMaintaining": "IsMaintaining"
       }
     }
   },
