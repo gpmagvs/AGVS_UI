@@ -33,16 +33,13 @@
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
               <b-button class="mx-1" style="border: none;background-color: transparent;color:white">
-                <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? $t('App.Header.chinese')
-        : $t('App.Header.english') }} <i class="bi bi-caret-down-fill"></i>
+                <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? $t('App.Header.chinese') : $t('App.Header.english') }} <i class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
               <div class="d-flex flex-column">
-                <b-button @click="LangSwitch('zh-TW')" :variant="$i18n.locale == 'zh-TW' ? 'primary' : 'light'">{{
-        $t('App.Header.chinese') }}</b-button>
-                <b-button @click="LangSwitch('en-US')" :variant="$i18n.locale == 'en-US' ? 'primary' : 'light'">{{
-        $t('App.Header.english') }}</b-button>
+                <b-button @click="LangSwitch('zh-TW')" :variant="$i18n.locale == 'zh-TW' ? 'primary' : 'light'">{{ $t('App.Header.chinese') }}</b-button>
+                <b-button @click="LangSwitch('en-US')" :variant="$i18n.locale == 'en-US' ? 'primary' : 'light'">{{ $t('App.Header.english') }}</b-button>
               </div>
             </template>
           </el-popover>
@@ -57,11 +54,9 @@
             </template>
             <template #default>
               <div class="d-flex flex-column">
-                <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">{{ $t('App.Header.LOGIN')
-                  }}</b-button>
+                <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">{{ $t('App.Header.LOGIN') }}</b-button>
                 <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">{{ $t('App.Header.LOGOUT') }}</b-button>
-                <b-button v-if="IsLogin" class="my-1 bg-light text-dark" @click="LoginClickHandler('switch')">{{
-        $t('App.Header.Switch user') }}</b-button>
+                <b-button v-if="IsLogin" class="my-1 bg-light text-dark" @click="LoginClickHandler('switch')">{{ $t('App.Header.Switch user') }}</b-button>
               </div>
             </template>
           </el-popover>
@@ -79,8 +74,7 @@
         </div>
         <div class="opt">
           <div>
-            <b-button v-if="current_user_role != 0" @click="ResetSysAlarmsHandler" class="mb-0" size="sm"
-              variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
+            <b-button @click="ResetSysAlarmsHandler" class="mb-0" size="sm" variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -94,8 +88,7 @@
         </div>
         <div class="opt">
           <div>
-            <b-button v-if="false" @click="ResetEqpAlarmsHandler" class="mb-2" size="sm" variant="danger">{{
-        $t('App.Header.alarmreset') }}</b-button>
+            <b-button v-if="false" @click="ResetEqpAlarmsHandler" class="mb-2" size="sm" variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -579,7 +572,7 @@ export default {
       }
 
       .type-text {
-        width: 85px;
+        width: 110px;
         border-radius: 3px;
         background-color: rgb(255, 90, 90);
         color: white;
@@ -600,6 +593,10 @@ export default {
         display: flex;
         flex-direction: row;
         z-index: 1;
+
+        button {
+          width: 110px;
+        }
 
         div {
           width: 85px;

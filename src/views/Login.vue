@@ -2,12 +2,13 @@
   <div class="login-view">
     <el-form class="border p-5 rounded" label-position="top">
       <img class="border-bottom py-2" src="/GPM_Logo.png" alt="">
-      <p class="login-title-text">派車系統-用戶登入</p>
+      <p class="login-title-text">USER LOGIN</p>
       <el-form-item label="User Name" :required="true">
-        <b-form-input autofocus autocomplete="new-password" :disabled="IsLogin" ref="account" @keyup.enter="FocusPasswordInput" @keyup.down="FocusPasswordInput" @keyup.esc="UserName = ''" v-model="UserName" :state="UserName != ''" placeholder="請輸入帳號" required></b-form-input>
+        <b-form-input autofocus autocomplete="new-password" :disabled="IsLogin" ref="account" @keyup.enter="FocusPasswordInput" @keyup.down="FocusPasswordInput" @keyup.esc="UserName = ''" v-model="UserName" :state="UserName != ''" placeholder="Please Enter Your User Name" required></b-form-input>
       </el-form-item>
       <el-form-item label="Password" :required="true">
-        <b-form-input autocomplete="new-password" type="password" :disabled="IsLogin" ref="pw_input" @keyup.enter="PasswordEnterClickHandler" @keyup.up="FocusAccountInput" @keyup.esc="Password = ''" v-model="Password" :state="Password != ''" placeholder="請輸入密碼" required></b-form-input>
+        <b-form-input autocomplete="new-password" type="password" :disabled="IsLogin" ref="pw_input" @keyup.enter="PasswordEnterClickHandler" @keyup.up="FocusAccountInput" @keyup.esc="Password = ''" v-model="Password" :state="Password != ''" placeholder="Please Enter Your Password"
+          required></b-form-input>
       </el-form-item>
       <el-form-item v-if="IsLogin">
         <b-button @click="LogoutHandle()" :loading="logouting" class="w-100" variant="danger">Logout</b-button>
@@ -77,12 +78,12 @@ export default {
     async LoginHandle() {
 
       if (this.UserName == '') {
-        this.message = '請輸入 User Name'
+        this.message = 'Please Enter User Name'
         this.FocusAccountInput();
         return;
       }
       if (this.Password == '') {
-        this.message = '請輸入 Passowrd'
+        this.message = 'Please Enter Passowrd'
         this.FocusPasswordInput();
         return;
       }
