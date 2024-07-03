@@ -121,8 +121,8 @@ export default {
       setTimeout(() => {
         ClearLoginCookie();
         userStore.commit('setUser', null)
-        //bus.emit('/logout', undefined);
-        //this.$emit('RoleChanged', 0);
+        bus.emit('/logout', undefined);
+        this.$emit('RoleChanged', 0);
         this.UserName = this.Password = '';
         this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 2000 })
         setTimeout(() => {
