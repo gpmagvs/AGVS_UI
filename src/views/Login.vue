@@ -1,69 +1,28 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    :show-close="true"
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    :modal="true"
-    draggable
-    width="400"
-    style="z-index:9900">
-    <template #header="{ titleId, login_title }">
-      <div class="login-header">
-        <h3 :id="titleId" :class="login_title">使用者登入</h3>
-        <el-divider></el-divider>
-      </div>
-    </template>
-    <div class="login-content">
-      <el-form label-position="top">
-        <el-form-item label="Username" :required="true">
-          <b-form-input
-            autofocus
-            autocomplete="new-password"
-            :disabled="IsLogin"
-            ref="account"
-            @keyup.enter="FocusPasswordInput"
-            @keyup.down="FocusPasswordInput"
-            @keyup.esc="UserName = ''"
-            v-model="UserName"
-            :state="UserName != ''"
-            placeholder="請輸入帳號"
-            required></b-form-input>
-        </el-form-item>
-        <el-form-item label="Password" :required="true">
-          <b-form-input
-            autocomplete="new-password"
-            type="password"
-            :disabled="IsLogin"
-            ref="pw_input"
-            @keyup.enter="PasswordEnterClickHandler"
-            @keyup.up="FocusAccountInput"
-            @keyup.esc="Password = ''"
-            v-model="Password"
-            :state="Password != ''"
-            placeholder="請輸入密碼"
-            required></b-form-input>
-        </el-form-item>
-        <el-form-item v-if="IsLogin">
-          <b-button
-            @click="LogoutHandle()"
-            :loading="logouting"
-            class="w-100"
-            variant="danger">Logout</b-button>
-        </el-form-item>
-        <el-form-item v-if="!IsLogin">
-          <b-button @click="LoginHandle()" :loading="logining" class="w-100" variant="primary">Login</b-button>
-        </el-form-item>
-        <el-form-item>
-          <b-button @click="dialogVisible = false" class="w-100">Cancel</b-button>
-        </el-form-item>
-      </el-form>
+  <div class="login-view">
+    <el-form class="border p-5 rounded" label-position="top">
+      <img class="border-bottom py-2" src="/GPM_Logo.png" alt="">
+      <p class="login-title-text">派車系統-用戶登入</p>
+      <el-form-item label="User Name" :required="true">
+        <b-form-input autofocus autocomplete="new-password" :disabled="IsLogin" ref="account" @keyup.enter="FocusPasswordInput" @keyup.down="FocusPasswordInput" @keyup.esc="UserName = ''" v-model="UserName" :state="UserName != ''" placeholder="請輸入帳號" required></b-form-input>
+      </el-form-item>
+      <el-form-item label="Password" :required="true">
+        <b-form-input autocomplete="new-password" type="password" :disabled="IsLogin" ref="pw_input" @keyup.enter="PasswordEnterClickHandler" @keyup.up="FocusAccountInput" @keyup.esc="Password = ''" v-model="Password" :state="Password != ''" placeholder="請輸入密碼" required></b-form-input>
+      </el-form-item>
+      <el-form-item v-if="IsLogin">
+        <b-button @click="LogoutHandle()" :loading="logouting" class="w-100" variant="danger">Logout</b-button>
+      </el-form-item>
+      <el-form-item v-if="!IsLogin">
+        <b-button @click="LoginHandle()" :disabled="logining" :loading="logining" class="w-100" variant="primary">Login</b-button>
+      </el-form-item>
       <div class="login-message">{{ message }}</div>
-    </div>
-    <!-- <KeyBoard @onChange="onChange" :input="keyboard_input"></KeyBoard> -->
-  </el-dialog>
+      <!-- <el-form-item>
+        <b-button @click="dialogVisible = false" class="w-100">Cancel</b-button>
+      </el-form-item> -->
+    </el-form>
+  </div>
+  <!-- <KeyBoard @onChange="onChange" :input="keyboard_input"></KeyBoard> -->
 </template>
-
 <script>
 import { userStore } from '@/store'
 import bus from '@/event-bus.js';
@@ -74,7 +33,7 @@ export default {
   },
   data() {
     return {
-      dialogVisible: false,
+      dialogVisible: true,
       UserName: '',
       Password: '',
       focus_input: 'account',
@@ -118,7 +77,7 @@ export default {
     async LoginHandle() {
 
       if (this.UserName == '') {
-        this.message = '請輸入 Account'
+        this.message = '請輸入 User Name'
         this.FocusAccountInput();
         return;
       }
@@ -127,7 +86,7 @@ export default {
         this.FocusPasswordInput();
         return;
       }
-
+      this.message = ''
       this.logining = true;
       setTimeout(async () => {
 
@@ -140,13 +99,18 @@ export default {
         if (response != undefined) {
           if (response.confirm) {
             this.dialogVisible = false;
-            this.$swal.fire({ title: '登入成功!', icon: 'success', timer: 2000 })
+            this.$swal.fire({ title: '登入成功!', icon: 'success', timer: 1000 })
+            if (this.$route.query.pre)
+              this.$router.push(this.$route.query.pre)
+            else
+              this.$router.push('/')
+
           } else {
             this.message = response.message;
           }
         }
         this.logining = false;
-      }, 10);
+      }, 300);
 
     },
     LogoutHandle() {
@@ -156,15 +120,13 @@ export default {
       setTimeout(() => {
         ClearLoginCookie();
         userStore.commit('setUser', null)
-        bus.emit('/logout', undefined);
-        this.$emit('RoleChanged', 0);
+        //bus.emit('/logout', undefined);
+        //this.$emit('RoleChanged', 0);
         this.UserName = this.Password = '';
         this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 2000 })
         setTimeout(() => {
           //this.dialogVisible = this.isLogin = false;
-          if (this.$route.meta.isAdminUse) {
-            this.$router.push('/')
-          }
+          //this.$router.push('/')
         }, 1000);
 
         this.logouting = false;
@@ -196,7 +158,6 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .login-header {
   h3 {
@@ -205,10 +166,25 @@ export default {
   }
 }
 
-.login-content {
-  position: relative;
-  top: -50px;
-  left: 10px;
+.login-view {
+  background: rgb(255, 255, 255);
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 500000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+  .login-title-text {
+    font-size: 30px;
+    padding-top: 30px;
+    font-weight: bold;
+    letter-spacing: 5px;
+  }
 
   .login-message {
     color: red;
@@ -218,6 +194,11 @@ export default {
   .btn,
   input {
     margin-right: 21px;
+  }
+
+  button {
+    height: 60px;
+    font-size: 30px;
   }
 }
 </style>
