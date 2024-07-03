@@ -1,9 +1,21 @@
 {
   "App": {
     "Header": {
+      "agvs": "AGVS",
       "view_mode": "View Mode",
+      "operating_mode": "Operating mode",
+      "op mode": "OP mode",
+      "Maintenance mode": "MA mode",
+      "Simple mode": "Simple mode",
+      "ENG mode": "ENG mode",
       "chinese": "中文",
-      "english": "英文"
+      "english": "英文",
+      "LOGIN": "LOGIN",
+      "LOGOUT": "LOGOUT",
+      "Switch user": "Switch user",
+      "systemalarm": "System Alarm",
+      "alarmreset": "Alarm Reset",
+      "eqalarm": "EQP Alarm"
     }
   },
   "Menu": {
@@ -58,6 +70,7 @@
       "EQStatus": {
         "ViewMode": "ViewMode",
         "IO": "IO",
+        "Connected": "Connected",
         "DisConnect": "DisConnect",
         "ON": "Signal[ON]",
         "OFF": "Signal[OFF]",
@@ -87,6 +100,13 @@
   "Action": "Action",
   "Vehicle": "Vehicle",
   "source": "From",
+  "Remove": "Remove",
+  "Choose_Sourse_from_Map": "Choose Sourse from Map",
+  "Choose_Dest_from_Map": "Choose Dest from Map",
+  "Choose_Port": "Choose Port",
+  "Transport": "Transport",
+  "Transport_Port": "Transport Port",
+  "Choose_Transport_Port_from_Map": "Choose Transport Port from Map",
   "TaskDispathActionButton": {
     "Destine": "To",
     "dispatch-confirm": "Dispatch",
