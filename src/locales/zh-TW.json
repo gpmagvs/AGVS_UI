@@ -2,8 +2,8 @@
   "App": {
     "Header": {
       "view_mode": "檢視模式",
-      "chinese": "中文",
-      "english": "英文"
+      "chinese": "Chinese",
+      "english": "English"
     }
   },
   "Menu": {
@@ -62,7 +62,25 @@
         "ON": "訊號[ON]",
         "OFF": "訊號[OFF]",
         "Handshake_EQ": "交握訊號-EQ",
-        "Handshake_AGV": "交握訊號-AGV"
+        "Handshake_AGV": "交握訊號-AGV",
+        "emulator": "模擬器:",
+        "changetoBusy": "切換為Busy",
+        "changetoLoad": "切換為Load",
+        "changetoUnload": "切換為Unload",
+        "Cancel_maintenance": "取消維修",
+        "Maintenance_Simulation": "維修模擬",
+        "Cancel_replacement_parts": "取消更換零件",
+        "Part_replacement_simulation": "零件更換模擬",
+        "EQ_Name": "設備名稱",
+        "Main_Status": "主狀態",
+        "TransferStatus": "移載請求",
+        "Exist": "帳籍狀態",
+        "Instock": "有貨",
+        "SoldOut": "無貨",
+        "CarrierID": "貨物ID",
+        "Load": "可移入",
+        "UnLoad": "可移出",
+        "IsMaintaining": "維修"
       }
     }
   },
