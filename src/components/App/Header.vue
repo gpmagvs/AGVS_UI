@@ -22,8 +22,9 @@
         <div class="op-mode-switch-container">
           <span class="mx-1">{{ $t('App.Header.view_mode') }}</span>
           <el-switch v-model="isEasyMode" @change="HandleViewModeChanged" :before-change="CheckUserLoginState"
-            active-color="rgb(95, 171, 80)" inactive-color="red" active-text="簡易模式" inactive-text="工程模式"
-            border-color="grey" inline-prompt size="large" width="80px"></el-switch>
+            active-color="rgb(95, 171, 80)" inactive-color="red" :active-text="$t('App.Header.Simple mode')"
+            :inactive-text="$t('App.Header.ENG mode')" border-color="grey" inline-prompt size="large"
+            width="80px"></el-switch>
         </div>
         <!-- <div>
           <Switch darkBackground="#fff" lightBackground="#2D2D2D"></Switch>
@@ -32,13 +33,16 @@
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
               <b-button class="mx-1" style="border: none;background-color: transparent;color:white">
-                <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? $t('App.Header.chinese') : $t('App.Header.english') }} <i class="bi bi-caret-down-fill"></i>
+                <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? $t('App.Header.chinese')
+        : $t('App.Header.english') }} <i class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
               <div class="d-flex flex-column">
-                <b-button @click="LangSwitch('zh-TW')" :variant="$i18n.locale == 'zh-TW' ? 'primary' : 'light'">{{ $t('App.Header.chinese') }}</b-button>
-                <b-button @click="LangSwitch('en-US')" :variant="$i18n.locale == 'en-US' ? 'primary' : 'light'">{{ $t('App.Header.english') }}</b-button>
+                <b-button @click="LangSwitch('zh-TW')" :variant="$i18n.locale == 'zh-TW' ? 'primary' : 'light'">{{
+        $t('App.Header.chinese') }}</b-button>
+                <b-button @click="LangSwitch('en-US')" :variant="$i18n.locale == 'en-US' ? 'primary' : 'light'">{{
+        $t('App.Header.english') }}</b-button>
               </div>
             </template>
           </el-popover>
@@ -53,10 +57,11 @@
             </template>
             <template #default>
               <div class="d-flex flex-column">
-                <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">登入</b-button>
-                <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">登出</b-button>
-                <b-button v-if="IsLogin" class="my-1 bg-light text-dark"
-                  @click="LoginClickHandler('switch')">切換使用者</b-button>
+                <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">{{ $t('App.Header.LOGIN')
+                  }}</b-button>
+                <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">{{ $t('App.Header.LOGOUT') }}</b-button>
+                <b-button v-if="IsLogin" class="my-1 bg-light text-dark" @click="LoginClickHandler('switch')">{{
+        $t('App.Header.Switch user') }}</b-button>
               </div>
             </template>
           </el-popover>
@@ -69,12 +74,13 @@
       <div class="alarm-container" v-bind:class="system_alarms_classes">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 系統警報 </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> {{ $t('App.Header.systemalarm') }} </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
         <div class="opt">
           <div>
-            <b-button v-if="current_user_role != 0" @click="ResetSysAlarmsHandler" class="mb-0" size="sm" variant="danger">警報復歸</b-button>
+            <b-button v-if="current_user_role != 0" @click="ResetSysAlarmsHandler" class="mb-0" size="sm"
+              variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -83,12 +89,13 @@
       <div class="alarm-container" v-bind:class="equipment_alarms_classes">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 設備警報 </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> {{ $t('App.Header.eqalarm') }} </span>
           <span class="alarm-text">{{ eq_alrm_text }}</span>
         </div>
         <div class="opt">
           <div>
-            <b-button v-if="false" @click="ResetEqpAlarmsHandler" class="mb-2" size="sm" variant="danger">警報復歸</b-button>
+            <b-button v-if="false" @click="ResetEqpAlarmsHandler" class="mb-2" size="sm" variant="danger">{{
+        $t('App.Header.alarmreset') }}</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
