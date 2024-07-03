@@ -304,12 +304,6 @@ export default {
 
         },
         FromStationOptions() {
-            var eqOptions = [new StationSelectOptions()];
-            Object.assign(eqOptions, this.EQStations);
-            if (this.IsDeveloper) {
-                return eqOptions
-            }
-
             var _agvList = agv_states_store.getters.AGVNameList;
             var _agvOptions = _agvList.length == 0 ? [] : _agvList.map(name => {
                 return {
@@ -318,13 +312,20 @@ export default {
                 }
             })
 
+            var eqOptions = [new StationSelectOptions()];
+            Object.assign(eqOptions, this.EQStations);
+
+            if (this.IsDeveloper) {
+                return [..._agvOptions, ...eqOptions]
+            }
+
             var eqStatusDtoCollection = [new EQStatusDIDto()];
             Object.assign(eqStatusDtoCollection, EqStore.getters.EQData);
             var unloadableEqList = eqStatusDtoCollection.filter(eq => eq.Unload_Request);
             var unloadableTags = unloadableEqList.map(eq => eq.Tag);
             var unloadableOptions = eqOptions.filter(opt => unloadableTags.includes(opt.tag));
 
-            var _stations = [...this.BufferStations, ...unloadableOptions, ..._agvOptions];
+            var _stations = [..._agvOptions, ...this.BufferStations, ...unloadableOptions];
             return _stations;
         },
         IsSourceStationBuffer() {
@@ -548,12 +549,15 @@ export default {
         },
 
         HandleCancelBtnClick() {
+
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
+            console.info('HandleCancelBtnClick-busoff end');
             this.order_info_visible = false;
             this.selected_source = this.selected_destine = { Graph: { Display: '' } };
             this.source_select_row_class = this.destine_select_row_class = this.agv_select_row_class = this.transfer_station_select_row_class = '';
             bus.emit('change_to_normal_view_mode');
+            console.info('HandleCancelBtnClick-change_to_normal_view_mode end');
 
         },
         HandleConfirmBtnClicked() {
@@ -675,23 +679,41 @@ export default {
 
         },
         async HandleFromSelectChanged(source_tag) {
-
-            this.selected_source = await MapStore.dispatch('GetMapPointByTag', source_tag)
+            console.log('HandleFromSelectChanged selected tag:', source_tag)
             this.selected_destine = { TagNumber: undefined }
-            this.downstream_options = this.GetDownStreamEQOptions(source_tag);
-            console.log('validable downstream of ', source_tag, this.downstream_options)
+            var isSourceAGV = false;
+
+            try {
+                isSourceAGV = source_tag.includes('AGV');
+            } catch (error) {
+
+            }
+            if (isSourceAGV) {
+                //若是選擇 AGV 比如AGV_001 ..
+                var agvName = source_tag;
+                this.selected_source = {
+                    isAGV: true,
+                    agvName: agvName,
+                    TagNumber: agvName
+                }
+                this.selected_agv = agvName;
+                this.downstream_options = this.GetDownStreamEQOptions(this.selected_source);
+
+            } else {
+                this.selected_source = await MapStore.dispatch('GetMapPointByTag', source_tag)
+                this.downstream_options = this.GetDownStreamEQOptions(source_tag);
+                console.log('validable downstream of ', source_tag, this.downstream_options)
+            }
         },
         GetDownStreamEQOptions(sourceTag) {
 
             var _results = [];
+            var isSourceIsAGV = sourceTag.isAGV;
             var isBufferSource = this.BufferStations.find(bf => bf.tag == sourceTag);
             var _eq_options = EqStore.getters.EqOptions;
             var source_eq = _eq_options.find(eq => eq.TagID == sourceTag)
-            if (source_eq || isBufferSource) {
-
-
-
-                if (isBufferSource) {
+            if (source_eq || isBufferSource || isSourceIsAGV) {
+                if (isBufferSource || isSourceIsAGV) {
 
                     //TODO BUFFER Select Downstream
                     var eqStatusDtoCollection = [new EQStatusDIDto()];
