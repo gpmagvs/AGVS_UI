@@ -118,5 +118,18 @@
     "CstID": "貨物ID",
     "FinishTime": "結束時間",
     "RecievedTime": "接收時間"
-  }
+  },
+  "Map": {
+    "Options": {
+      "DisplayMode": "顯示模式",
+      "MapMode": "地圖模式",
+      "AgvVisible": "顯示 AGV",
+      "BackgroundImage": "地圖背景",
+      "PathVisible": "路網顯示",
+      "RegionVisible": "顯示區域"
+    }
+  },
+  "hidden": "隱藏",
+  "Show": "顯示",
+  "PathNetwork": "路網"
 }

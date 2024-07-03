@@ -232,7 +232,7 @@
             <!-- 設定 -->
             <div class="options bg-light border-start text-start px-1 py-3">
               <div v-if="station_show" class="rounded d-flex flex-column">
-                <span class="border-bottom">顯示名稱</span>
+                <span class="border-bottom">{{ $t('Map.Options.DisplayMode') }}</span>
                 <el-radio-group v-model="station_name_display_mode" @change="StationNameDisplayOptHandler">
                   <el-radio label="index" size="large">Index</el-radio>
                   <el-radio label="name" size="large">Name</el-radio>
@@ -240,20 +240,20 @@
                 </el-radio-group>
               </div>
               <div>
-                <span class="mx-1">地圖模式</span>
-                <el-switch @change="MapDisplayModeOptHandler" inactive-value="router" active-value="coordination" width="70" v-model="map_display_mode" inline-prompt inactive-text="路網" active-text="Slam" inactive-color="seagreen"></el-switch>
+                <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
+                <el-switch @change="MapDisplayModeOptHandler" inactive-value="router" active-value="coordination" width="70" v-model="map_display_mode" inline-prompt :inactive-text="$t('PathNetwork')" active-text="Slam" inactive-color="seagreen"></el-switch>
               </div>
               <div v-if="agv_show">
-                <span class="mx-1">AGV 顯示</span>
-                <el-switch @change="AgvDisplayOptHandler" inactive-value="none" active-value="visible" width="70" v-model="agv_display" inline-prompt inactive-text="隱藏" active-text="顯示" inactive-color="rgb(146, 148, 153)"></el-switch>
+                <span class="mx-1">{{ $t('Map.Options.AgvVisible') }}</span>
+                <el-switch @change="AgvDisplayOptHandler" inactive-value="none" active-value="visible" width="70" v-model="agv_display" inline-prompt :inactive-text="$t('hidden')" :active-text="$t('Show')" inactive-color="rgb(146, 148, 153)"></el-switch>
               </div>
               <div>
-                <span class="mx-1">地圖背景</span>
-                <el-switch v-model="map_image_display" inactive-value="none" inactive-text="隱藏" active-value="visible" active-text="顯示" inactive-color="rgb(146, 148, 153)" inline-prompt width="70" @change="SlamImageDisplayOptHandler"></el-switch>
+                <span class="mx-1">{{ $t('Map.Options.BackgroundImage') }}</span>
+                <el-switch v-model="map_image_display" inactive-value="none" :inactive-text="$t('hidden')" active-value="visible" :active-text="$t('show')" inactive-color="rgb(146, 148, 153)" inline-prompt width="70" @change="SlamImageDisplayOptHandler"></el-switch>
               </div>
               <div>
-                <span class="mx-1">路網顯示</span>
-                <el-switch v-model="routePathsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
+                <span class="mx-1">{{ $t('Map.Options.PathVisible') }}</span>
+                <el-switch v-model="routePathsVisible" :inactive-text="$t('hidden')" :active-text="$t('show')" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
                   if (visible) {
                     if (map_display_mode == 'router') {
                       PathLayerForCoordination.setVisible(false);
@@ -270,8 +270,8 @@
                 }"></el-switch>
               </div>
               <div>
-                <span class="mx-1">管制區顯示</span>
-                <el-switch :disabled="map_display_mode != 'coordination'" v-model="regionsVisible" inactive-text="隱藏" active-text="顯示" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
+                <span class="mx-1">{{ $t('Map.Options.RegionVisible') }}</span>
+                <el-switch :disabled="map_display_mode != 'coordination'" v-model="regionsVisible" :inactive-text="$t('hidden')" :active-text="$t('show')" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
                   RegionLayer.setVisible(visible && map_display_mode == 'coordination');
                 }"></el-switch>
               </div>
@@ -1660,7 +1660,7 @@ export default {
 
           var _forbidRegionName = feature.get('name');
 
-          let featuresInLayer=_this.RegionLayer.getSource().getFeatures();
+          let featuresInLayer = _this.RegionLayer.getSource().getFeatures();
           var textFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'text')
           var ploygonFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'polygon')
 
@@ -3491,7 +3491,7 @@ export default {
 
   .options {
     text-align: left;
-    width: 108px;
+    width: 115px;
     font-size: 16px;
 
     label {

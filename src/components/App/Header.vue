@@ -13,7 +13,7 @@
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
         <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="mode.name">
-          <span class="mx-1">{{ mode.name }}</span>
+          <span class="mx-1">{{ $i18n.locale == 'zh-TW' ? mode.name : mode.name_eng }}</span>
           <el-switch v-model="mode.actived" active-color="rgb(95, 171, 80)" inactive-color="red"
             :active-text="mode.active_text" :inactive-text="mode.inactive_text" border-color="grey" inline-prompt
             :before-change="mode.beforeChangeHandler" :loading="mode.loading" size="large" width="75px"></el-switch>
@@ -123,6 +123,7 @@ export default {
       modes: {
         system_operation_mode: {
           name: '操作模式',
+          name_eng: 'Operation Mode',
           actived: false,
           active_text: '運轉',
           inactive_text: '維護',
@@ -131,6 +132,7 @@ export default {
         },
         transfer_mode: {
           name: "派工模式",
+          name_eng: 'Dispatch Mode',
           enabled: false,
           active_text: '自動',
           inactive_text: '手動',
@@ -139,6 +141,7 @@ export default {
         },
         host_conn_mode: {
           name: 'HOST連線',
+          name_eng: 'Host Connect',
           enabled: false,
           active_text: 'Online',
           inactive_text: 'Offline',
@@ -147,6 +150,7 @@ export default {
         },
         host_operation_mode: {
           name: 'HOST模式',
+          name_eng: 'Host Mode',
           enabled: false,
           active_text: 'Remote',
           inactive_text: 'Local',

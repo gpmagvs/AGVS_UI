@@ -118,5 +118,18 @@
     "CstID": "Cargo ID",
     "FinishTime": "End Time",
     "RecievedTime": "Recieve Time"
-  }
+  },
+  "Map": {
+    "Options": {
+      "DisplayMode": "Display",
+      "MapMode": "Map Mode",
+      "AgvVisible": "AGV Visible",
+      "BackgroundImage": "Background Image",
+      "PathVisible": "Path Visible",
+      "RegionVisible": "Region Visible"
+    }
+  },
+  "hidden": "Hidden",
+  "Show": "Show",
+  "PathNetwork": "Path Network"
 }
