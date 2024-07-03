@@ -1,6 +1,8 @@
 <template>
-  <div class="login-content bg-dark">
-    <el-form label-position="top">
+  <div class="login-view">
+    <el-form class="border p-5 rounded" label-position="top">
+      <img class="border-bottom py-2" src="/GPM_Logo.png" alt="">
+      <p class="login-title-text">派車系統-用戶登入</p>
       <el-form-item label="User Name" :required="true">
         <b-form-input autofocus autocomplete="new-password" :disabled="IsLogin" ref="account" @keyup.enter="FocusPasswordInput" @keyup.down="FocusPasswordInput" @keyup.esc="UserName = ''" v-model="UserName" :state="UserName != ''" placeholder="請輸入帳號" required></b-form-input>
       </el-form-item>
@@ -13,11 +15,11 @@
       <el-form-item v-if="!IsLogin">
         <b-button @click="LoginHandle()" :disabled="logining" :loading="logining" class="w-100" variant="primary">Login</b-button>
       </el-form-item>
-      <el-form-item>
+      <div class="login-message">{{ message }}</div>
+      <!-- <el-form-item>
         <b-button @click="dialogVisible = false" class="w-100">Cancel</b-button>
-      </el-form-item>
+      </el-form-item> -->
     </el-form>
-    <div class="login-message">{{ message }}</div>
   </div>
   <!-- <KeyBoard @onChange="onChange" :input="keyboard_input"></KeyBoard> -->
 </template>
@@ -98,7 +100,10 @@ export default {
           if (response.confirm) {
             this.dialogVisible = false;
             this.$swal.fire({ title: '登入成功!', icon: 'success', timer: 1000 })
-            this.$router.push(this.$route.query.pre)
+            if (this.$route.query.pre)
+              this.$router.push(this.$route.query.pre)
+            else
+              this.$router.push('/')
 
           } else {
             this.message = response.message;
@@ -115,13 +120,13 @@ export default {
       setTimeout(() => {
         ClearLoginCookie();
         userStore.commit('setUser', null)
-        bus.emit('/logout', undefined);
-        this.$emit('RoleChanged', 0);
+        //bus.emit('/logout', undefined);
+        //this.$emit('RoleChanged', 0);
         this.UserName = this.Password = '';
         this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 2000 })
         setTimeout(() => {
           //this.dialogVisible = this.isLogin = false;
-          this.$router.push('/')
+          //this.$router.push('/')
         }, 1000);
 
         this.logouting = false;
@@ -161,10 +166,25 @@ export default {
   }
 }
 
-.login-content {
-  position: relative;
-  top: 50px;
-  left: 10px;
+.login-view {
+  background: rgb(255, 255, 255);
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 500000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+  .login-title-text {
+    font-size: 30px;
+    padding-top: 30px;
+    font-weight: bold;
+    letter-spacing: 5px;
+  }
 
   .login-message {
     color: red;
@@ -174,6 +194,11 @@ export default {
   .btn,
   input {
     margin-right: 21px;
+  }
+
+  button {
+    height: 60px;
+    font-size: 30px;
   }
 }
 </style>
