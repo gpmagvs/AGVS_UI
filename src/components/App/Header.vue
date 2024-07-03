@@ -13,7 +13,7 @@
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
         <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="mode.name">
-          <span class="mx-1">{{ mode.name }}</span>
+          <span class="mx-1">{{ $i18n.locale == 'zh-TW' ? mode.name : mode.name_eng }}</span>
           <el-switch v-model="mode.actived" active-color="rgb(95, 171, 80)" inactive-color="red"
             :active-text="mode.active_text" :inactive-text="mode.inactive_text" border-color="grey" inline-prompt
             :before-change="mode.beforeChangeHandler" :loading="mode.loading" size="large" width="75px"></el-switch>
@@ -22,8 +22,9 @@
         <div class="op-mode-switch-container">
           <span class="mx-1">{{ $t('App.Header.view_mode') }}</span>
           <el-switch v-model="isEasyMode" @change="HandleViewModeChanged" :before-change="CheckUserLoginState"
-            active-color="rgb(95, 171, 80)" inactive-color="red" active-text="簡易模式" inactive-text="工程模式"
-            border-color="grey" inline-prompt size="large" width="80px"></el-switch>
+            active-color="rgb(95, 171, 80)" inactive-color="red" :active-text="$t('App.Header.Simple mode')"
+            :inactive-text="$t('App.Header.ENG mode')" border-color="grey" inline-prompt size="large"
+            width="80px"></el-switch>
         </div>
         <!-- <div>
           <Switch darkBackground="#fff" lightBackground="#2D2D2D"></Switch>
@@ -53,10 +54,9 @@
             </template>
             <template #default>
               <div class="d-flex flex-column">
-                <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">登入</b-button>
-                <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">登出</b-button>
-                <b-button v-if="IsLogin" class="my-1 bg-light text-dark"
-                  @click="LoginClickHandler('switch')">切換使用者</b-button>
+                <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">{{ $t('App.Header.LOGIN') }}</b-button>
+                <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">{{ $t('App.Header.LOGOUT') }}</b-button>
+                <b-button v-if="IsLogin" class="my-1 bg-light text-dark" @click="LoginClickHandler('switch')">{{ $t('App.Header.Switch user') }}</b-button>
               </div>
             </template>
           </el-popover>
@@ -69,12 +69,12 @@
       <div class="alarm-container" v-bind:class="system_alarms_classes">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 系統警報 </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> {{ $t('App.Header.systemalarm') }} </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
         <div class="opt">
           <div>
-            <b-button v-if="current_user_role != 0" @click="ResetSysAlarmsHandler" class="mb-0" size="sm" variant="danger">警報復歸</b-button>
+            <b-button @click="ResetSysAlarmsHandler" class="mb-0" size="sm" variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -83,12 +83,12 @@
       <div class="alarm-container" v-bind:class="equipment_alarms_classes">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> 設備警報 </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> {{ $t('App.Header.eqalarm') }} </span>
           <span class="alarm-text">{{ eq_alrm_text }}</span>
         </div>
         <div class="opt">
           <div>
-            <b-button v-if="false" @click="ResetEqpAlarmsHandler" class="mb-2" size="sm" variant="danger">警報復歸</b-button>
+            <b-button v-if="false" @click="ResetEqpAlarmsHandler" class="mb-2" size="sm" variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -123,6 +123,7 @@ export default {
       modes: {
         system_operation_mode: {
           name: '操作模式',
+          name_eng: 'Operation Mode',
           actived: false,
           active_text: '運轉',
           inactive_text: '維護',
@@ -131,6 +132,7 @@ export default {
         },
         transfer_mode: {
           name: "派工模式",
+          name_eng: 'Dispatch Mode',
           enabled: false,
           active_text: '自動',
           inactive_text: '手動',
@@ -139,6 +141,7 @@ export default {
         },
         host_conn_mode: {
           name: 'HOST連線',
+          name_eng: 'Host Connect',
           enabled: false,
           active_text: 'Online',
           inactive_text: 'Offline',
@@ -147,6 +150,7 @@ export default {
         },
         host_operation_mode: {
           name: 'HOST模式',
+          name_eng: 'Host Mode',
           enabled: false,
           active_text: 'Remote',
           inactive_text: 'Local',
@@ -568,7 +572,7 @@ export default {
       }
 
       .type-text {
-        width: 85px;
+        width: 110px;
         border-radius: 3px;
         background-color: rgb(255, 90, 90);
         color: white;
@@ -589,6 +593,10 @@ export default {
         display: flex;
         flex-direction: row;
         z-index: 1;
+
+        button {
+          width: 110px;
+        }
 
         div {
           width: 85px;

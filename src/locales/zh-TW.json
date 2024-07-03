@@ -1,9 +1,21 @@
 {
   "App": {
     "Header": {
+      "agvs": "派車系統",
+      "operating_mode": "操作模式",
+      "op mode": "運轉",
+      "Maintenance mode": "維護",
       "view_mode": "檢視模式",
+      "Simple mode": "簡易模式",
+      "ENG mode": "工程模式",
       "chinese": "Chinese",
-      "english": "English"
+      "english": "English",
+      "LOGIN": "登入",
+      "LOGOUT": "登出",
+      "Switch user": "切換使用者",
+      "systemalarm": "系統警報",
+      "alarmreset": "清除警報",
+      "eqalarm": "設備警報"
     }
   },
   "Menu": {
@@ -58,6 +70,7 @@
       "EQStatus": {
         "ViewMode": "顯示模式",
         "IO": "IO狀態",
+        "Connected": "已連線",
         "DisConnect": "斷線",
         "ON": "訊號[ON]",
         "OFF": "訊號[OFF]",
@@ -87,6 +100,13 @@
   "Action": "動作",
   "Vehicle": "車輛",
   "source": "來源",
+  "Remove": "重新選取",
+  "Choose_Sourse_from_Map": "從地圖或選單選擇來源",
+  "Choose_Dest_from_Map": "從地圖或選單選擇目的地",
+  "Choose_Port": "選擇port",
+  "Transport": "轉運",
+  "Transport_Port": "轉運站",
+  "Choose_Transport_Port_from_Map": "從地圖或選單選擇轉換站",
   "TaskDispathActionButton": {
     "Destine": "目的地",
     "dispatch-confirm": "派送",
@@ -118,5 +138,18 @@
     "CstID": "貨物ID",
     "FinishTime": "結束時間",
     "RecievedTime": "接收時間"
-  }
+  },
+  "Map": {
+    "Options": {
+      "DisplayMode": "顯示模式",
+      "MapMode": "地圖模式",
+      "AgvVisible": "顯示 AGV",
+      "BackgroundImage": "地圖背景",
+      "PathVisible": "路網顯示",
+      "RegionVisible": "顯示區域"
+    }
+  },
+  "hidden": "隱藏",
+  "Show": "顯示",
+  "PathNetwork": "路網"
 }

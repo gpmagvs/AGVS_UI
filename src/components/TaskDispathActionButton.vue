@@ -1,12 +1,9 @@
 <template>
-    <el-popover
-        placement="right"
-        :visible="action_menu_visible && !order_info_visible"
-        :width="200"
-        content="">
+    <el-popover placement="right" :visible="action_menu_visible && !order_info_visible" :width="200" content="">
         <template #reference>
             <div class="task-dispatch-btn-container">
-                <el-popover @hide="HandleDispathDialogHidden" :show-arrow="false" :popper-style="order_info_style" :visible="order_info_visible" placement="right-start" :width="455">
+                <el-popover @hide="HandleDispathDialogHidden" :show-arrow="false" :popper-style="order_info_style"
+                    :visible="order_info_visible" placement="right-start" :width="455">
                     <template #reference>
                         <span></span>
                     </template>
@@ -20,9 +17,9 @@
                             <el-col class="item-value" :span="12">{{ selected_action_display }}</el-col>
                             <el-col class="item-actions" :span="7">
                                 <b-button v-if="IsDeveloper" size="sm" variant="link" @click="() => {
-                                    HandleCancelBtnClick();
-                                    action_menu_visible = true;
-                                }">重新選取</b-button></el-col>
+        HandleCancelBtnClick();
+        action_menu_visible = true;
+    }">{{ $t('Remove') }}</b-button></el-col>
                         </el-row>
                         <!-- 選車 -->
                         <el-row class="order-row" v-bind:style="agv_select_row_class">
@@ -31,7 +28,8 @@
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-select :placeholder="選擇車輛" v-model="selected_agv">
-                                    <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
+                                    <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value"
+                                        :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
                             <!-- <el-col class="item-value" :span="12">{{ IsAutoSelectAGV ? '自動選車' : selected_agv }}</el-col> -->
@@ -41,37 +39,52 @@
                             </el-col>
                         </el-row>
                         <!-- 選來源 -->
-                        <el-row v-if="selected_action == 'carry'" class="order-row" v-bind:style="source_select_row_class" @click="HandleSelectSoureStationFromMapBtnClick">
+                        <el-row v-if="selected_action == 'carry'" class="order-row"
+                            v-bind:style="source_select_row_class" @click="HandleSelectSoureStationFromMapBtnClick">
                             <el-col :span="5">
                                 <div class="item-name">{{ $t('source') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇來源" @change="HandleFromSelectChanged" @click="HandleSelectSoureStationFromMapBtnClick" v-model="selected_source.TagNumber">
-                                    <el-option v-for="tag in FromStationOptions" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
+                                <el-select :placeholder="$t('Choose_Sourse_from_Map')" @change="HandleFromSelectChanged"
+                                    @click="HandleSelectSoureStationFromMapBtnClick"
+                                    v-model="selected_source.TagNumber">
+                                    <el-option v-for="tag in FromStationOptions" :key="tag.tag"
+                                        :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_source ? selected_source.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
-                                <el-select v-if="selected_source.Graph && IsSourceStationBuffer" placeholder="選擇PORT" v-model="selected_source_slot">
-                                    <el-option v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)" :key="selected_source.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
+                                <el-select v-if="selected_source.Graph && IsSourceStationBuffer"
+                                    :placeholder="$t('Choose_Port')" v-model="selected_source_slot">
+                                    <el-option v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)"
+                                        :key="selected_source.Graph.Display + '-' + layer.value" :label="layer.label"
+                                        :value="layer.value">
                                     </el-option>
                                 </el-select>
                             </el-col>
                         </el-row>
                         <!-- 選目的地 -->
-                        <el-row class="order-row" v-bind:style="destine_select_row_class" @click="HandleSelectDestineStationFromMapBtnClick">
+                        <el-row class="order-row" v-bind:style="destine_select_row_class"
+                            @click="HandleSelectDestineStationFromMapBtnClick">
                             <el-col :span="5">
                                 <div class="item-name">{{ $t('TaskDispathActionButton.Destine') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇目的地" @change="HandleDestineSelectChanged" @click="HandleSelectDestineStationFromMapBtnClick" v-model="selected_destine.TagNumber">
-                                    <el-option v-for="tag in downstream_options" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
+                                <el-select :placeholder="$t('Choose_Dest_from_Map')"
+                                    @change="HandleDestineSelectChanged"
+                                    @click="HandleSelectDestineStationFromMapBtnClick"
+                                    v-model="selected_destine.TagNumber">
+                                    <el-option v-for="tag in downstream_options" :key="tag.tag"
+                                        :label="tag.name_display" :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
                             <el-col class="item-actions" :span="7">
-                                <el-select v-if="selected_destine.Graph && IsDestineStationBuffer" placeholder="選擇PORT" v-model="selected_destine_slot">
-                                    <el-option v-for="layer in GetLayersOfBuffer(selected_destine.TagNumber)" :key="selected_destine.Graph.Display + '-' + layer.value" :label="layer.label" :value="layer.value">
+                                <el-select v-if="selected_destine.Graph && IsDestineStationBuffer"
+                                    :placeholder="$t('Choose_Port')" v-model="selected_destine_slot">
+                                    <el-option v-for="layer in GetLayersOfBuffer(selected_destine.TagNumber)"
+                                        :key="selected_destine.Graph.Display + '-' + layer.value" :label="layer.label"
+                                        :value="layer.value">
                                     </el-option>
                                 </el-select>
                             </el-col>
@@ -79,7 +92,7 @@
                         <!-- 是否轉運 -->
                         <el-row class="order-row" v-if="IsDeveloper && selected_action == 'carry'">
                             <el-col :span="5">
-                                <div class="item-name">轉運</div>
+                                <div class="item-name">{{ $t('Transport') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
                                 <el-checkbox v-model="IsTransferTaskNeedChangeAGV"></el-checkbox>
@@ -91,13 +104,19 @@
                             </el-col>
                         </el-row>
                         <!-- 選擇轉運站 -->
-                        <el-row class="order-row" v-bind:style="transfer_station_select_row_class" v-if="IsDeveloper && IsTransferTaskNeedChangeAGV" @click="HandleSelectTransferStationFromMapBtnClick">
+                        <el-row class="order-row" v-bind:style="transfer_station_select_row_class"
+                            v-if="IsDeveloper && IsTransferTaskNeedChangeAGV"
+                            @click="HandleSelectTransferStationFromMapBtnClick">
                             <el-col :span="5">
-                                <div class="item-name">轉運站</div>
+                                <div class="item-name">{{ $t('Transport_Port') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="從地圖或選單選擇轉運站" @change="HandleTransferStationSelectChanged" @click="HandleSelectTransferStationFromMapBtnClick" v-model="selected_transfer_station.TagNumber">
-                                    <el-option v-for="tag in BufferStations" :key="tag.tag" :label="tag.name_display" :value="tag.tag"></el-option>
+                                <el-select :placeholder="$t('Choose_Transport_Port_from_Map')"
+                                    @change="HandleTransferStationSelectChanged"
+                                    @click="HandleSelectTransferStationFromMapBtnClick"
+                                    v-model="selected_transfer_station.TagNumber">
+                                    <el-option v-for="tag in BufferStations" :key="tag.tag" :label="tag.name_display"
+                                        :value="tag.tag"></el-option>
                                 </el-select>
                                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
                             </el-col>
@@ -109,11 +128,12 @@
                         <!-- 選擇轉運車輛 -->
                         <el-row class="order-row" v-if="IsTransferTaskNeedChangeAGV">
                             <el-col :span="5">
-                                <div class="item-name">車輛</div>
+                                <div class="item-name">{{ $t('Vehicle') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="12">
-                                <el-select placeholder="$t('xuan-ze-che-liang')" v-model="selected_transfer_to_destine_agv">
-                                    <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
+                                <el-select :placeholder="選擇車輛" v-model="selected_transfer_to_destine_agv">
+                                    <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value"
+                                        :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
                             <!-- <el-col class="item-value" :span="12">{{ IsAutoSelectAGV ? '自動選車' : selected_agv }}</el-col> -->
@@ -123,41 +143,56 @@
                             </el-col>
                         </el-row>
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
-                            <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">{{ $t('TaskDispathActionButton.dispatch-confirm') }}</b-button>
+                            <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">{{
+        $t('TaskDispathActionButton.dispatch-confirm') }}</b-button>
                             <b-button v-if="IsDeveloper" class="w-50 mx-1" variant="light" @click="() => {
-                                order_info_visible = false;
-                                action_menu_visible = true;
-                                HandleCancelBtnClick();
-                            }">{{ $t('TaskDispathActionButton.Back To Select Action') }}</b-button>
-                            <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">{{ $t('Cancel') }}</b-button>
+        order_info_visible = false;
+        action_menu_visible = true;
+        HandleCancelBtnClick();
+    }">{{ $t('TaskDispathActionButton.Back To Select Action') }}</b-button>
+                            <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">{{ $t('Cancel')
+                                }}</b-button>
                         </div>
                     </div>
                 </el-popover>
                 <b-button squared variant="primary" @click="() => {
 
-                    if (!IsDeveloper) {
-                        SelectActionHandle('carry');
-                        return;
-                    }
-                    // $emit('on-click');
-                    if (action_menu_visible) {
-                        action_menu_visible = false;
-                    }
-                    else if (!order_info_visible)
-                        action_menu_visible = true
-                }">{{ $t('Dispatch') }}</b-button>
+        if (!IsDeveloper) {
+            SelectActionHandle('carry');
+            return;
+        }
+        // $emit('on-click');
+        if (action_menu_visible) {
+            action_menu_visible = false;
+        }
+        else if (!order_info_visible)
+            action_menu_visible = true
+    }">{{ $t('Dispatch') }}</b-button>
             </div>
         </template>
         <div class="actions-btn-conatiner">
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('move')"> {{ $t('Move') }}</b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('park')"> {{ $t('Park') }}</b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('unload')"> {{ $t('Unload') }} </b-button>
-            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper" @click="SelectActionHandle('load')"> {{ $t('Load') }} </b-button>
-            <b-button class="w-100 my-1" variant="primary" @click="SelectActionHandle('carry')"> {{ $t('Transfer') }} </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('charge')"> {{ $t('Charge') }} </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('exchange_battery')"> {{ $t('Exchange Battery') }} </b-button>
-            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('measure')"> {{ $t('Measure') }} </b-button>
-            <b-button class="w-100 my-1" variant="danger" @click="() => { HandleCancelBtnClick(); action_menu_visible = false }"> {{ $t('Cancel') }} </b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper"
+                @click="SelectActionHandle('move')">
+                {{ $t('Move') }}</b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper"
+                @click="SelectActionHandle('park')">
+                {{ $t('Park') }}</b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper"
+                @click="SelectActionHandle('unload')">
+                {{ $t('Unload') }} </b-button>
+            <b-button class="w-100 my-1" variant="light" v-if="!IsRunMode || IsDeveloper"
+                @click="SelectActionHandle('load')">
+                {{ $t('Load') }} </b-button>
+            <b-button class="w-100 my-1" variant="primary" @click="SelectActionHandle('carry')"> {{ $t('Transfer') }}
+            </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('charge')"> {{ $t('Charge') }}
+            </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('exchange_battery')"> {{
+        $t('Exchange Battery') }} </b-button>
+            <b-button class="w-100 my-1" variant="warning" @click="SelectActionHandle('measure')"> {{ $t('Measure') }}
+            </b-button>
+            <b-button class="w-100 my-1" variant="danger"
+                @click="() => { HandleCancelBtnClick(); action_menu_visible = false }"> {{ $t('Cancel') }} </b-button>
         </div>
     </el-popover>
 </template>
