@@ -3,10 +3,10 @@ var param = {
   // backend_host: 'http://192.168.0.103:7025',
   get backend_host() {
     if (process.env.NODE_ENV == 'development') {
-      return 'http://192.168.0.2:5216'
       return 'http://localhost:5216'
-      return 'http://192.168.0.1:5216'
       return 'http://10.22.132.237:5216'
+      return 'http://192.168.0.2:5216'
+      return 'http://192.168.0.1:5216'
       return 'http://192.168.0.55:5216'
       return 'http://192.168.0.192:5216'
       return 'http://192.168.0.55:5216'
@@ -19,7 +19,8 @@ var param = {
     return this.backend_host.replace('http', 'ws')
   },
   get vms_host() {
-    return this.backend_host.replace('5216', '5036')
+    return this.backend_host.replace(/:\d+/, ':5036')
+    //return this.backend_host.replace('5216', '5036')
   },
   get vms_ws_host() {
     return this.vms_host.replace('http', 'ws')

@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import { Login, StoreToLocalStorage, UserRouteChange } from '@/api/UserAPI';
+import { clsUserLoginState } from '@/api/AuthHelper'
 import MapAPI from '@/api/MapAPI'
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 import param from '@/gpm_param.js'
@@ -136,18 +137,14 @@ export const agvs_settings_store = createStore({
 /**用戶狀態管理 */
 export const userStore = createStore({
   state: {
-    user: null,
+    user: new clsUserLoginState(),
     current_route: '',
     web_user_id: ''
   },
   mutations: {
     setUser(state, user) {
       state.user = user
-      if (user) {
-        StoreToLocalStorage(user)
-      } else {
-        localStorage.removeItem('user')
-      }
+      StoreToLocalStorage(user)
     },
     setUserID(state, user_id) {
       state.web_user_id = user_id;
@@ -161,17 +158,18 @@ export const userStore = createStore({
   actions: {
     async login({ commit }, user) {
       var server_reply = await Login(user);
-      if (server_reply.Success) {
-        commit('setUser', server_reply);
-      } else {
-        commit('setUser', null);
+      var loginState = new clsUserLoginState();
+      Object.assign(loginState, server_reply);
+      if (loginState.Success) {
+        loginState.LoginTime = Date.now();
       }
-      console.log(server_reply);
-      return { confirm: server_reply.Success, message: server_reply.Message }
+      commit('setUser', loginState);
+      console.log(loginState);
+      return { confirm: loginState.Success, message: loginState.Message }
     },
 
     logout({ commit }) {
-      commit('setUser', null)
+      commit('setUser', new clsUserLoginState())
     },
     async user_route_change({ commit, state }, route) {
       commit('setRoute', route);
@@ -180,8 +178,33 @@ export const userStore = createStore({
     }
   },
   getters: {
+    // enum ERole
+    // {
+    //     VISITOR = -1,
+    //     Operator = 0,
+    //     Engineer = 1,
+    //     Developer = 2,
+    //     GOD = 3,
+    // }
     IsLogin: state => {
-      return state.user != null;
+      return state.user != null && state.user.Success;
+    },
+    IsOPLogining: (state, getters) => {
+      if (!getters.IsLogin)
+        return false;
+      return state.user.Role == 0;
+    },
+    IsEngineerLogining: (state, getters) => {
+      if (!getters.IsLogin)
+        return false;
+      return state.user.Role == 1;
+    },
+    IsDeveloperLogining: (state, getters) => {
+      if (!getters.IsLogin)
+        return false;
+      if (state.user.Role != 2 && state.user.Role != 3)
+        return false;
+      return true;
     },
     level: state => {
       if (state.user)
@@ -195,16 +218,10 @@ export const userStore = createStore({
       else
         return ""
     },
-    IsDeveloperLogining: state => {
-      if (state.user == null)
-        return false;
-      if (state.user.Role != 2 && state.user.Role != 3)
-        return false;
-      return true;
-    },
     WebUserID: state => {
       return state.web_user_id;
     }
+
   },
 })
 

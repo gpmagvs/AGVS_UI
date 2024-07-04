@@ -13,7 +13,7 @@ setTimeout(() => {
             idleTime += 1;
             if (idleTime >= options.WebUserLogoutExipreTime) {
                 if (userStore.getters.IsLogin) {
-                    userStore.dispatch('logout', null)
+                    userStore.dispatch('logout')
                     bus.emit('auto_logout_notify_invoke', "");
                 }
 

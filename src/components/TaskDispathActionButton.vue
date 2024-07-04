@@ -27,7 +27,7 @@
                                 <div class="item-name">{{ $t('Vehicle') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="18">
-                                <el-select :disabled="!IsDeveloper" class="w-100 px-1" :placeholder="選擇車輛" v-model="selected_agv">
+                                <el-select :disabled="!IsDeveloper" class="w-100 px-1" :placeholder="$t('select-vehicle')" v-model="selected_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>
@@ -100,7 +100,7 @@
                                 <div class="item-name">{{ $t('Vehicle') }}</div>
                             </el-col>
                             <el-col class="item-value" :span="18">
-                                <el-select :placeholder="選擇車輛" v-model="selected_transfer_to_destine_agv">
+                                <el-select :placeholder="$t('select-vehicle')" v-model="selected_transfer_to_destine_agv">
                                     <el-option v-for="obj in AgvNameList" :key="obj.value" :value="obj.value" :label="obj.label"></el-option>
                                 </el-select>
                             </el-col>

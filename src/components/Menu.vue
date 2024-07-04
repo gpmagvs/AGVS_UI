@@ -32,7 +32,7 @@
                 </el-icon>
                 <template #title>{{ $t('Menu.wip_manager') }}</template>
             </el-menu-item>
-            <el-menu-item index="/vehicle">
+            <el-menu-item v-if="IsAdmin" index="/vehicle">
                 <el-icon>
                     <Van :color="IconColor" />
                 </el-icon>
@@ -178,7 +178,7 @@ export default {
     },
     computed: {
         IsAdmin() {
-            return userStore.getters.IsLogin
+            return userStore.getters.IsEngineerLogining || userStore.getters.IsDeveloperLogining
         }
     },
     methods: {
@@ -192,7 +192,7 @@ export default {
             this.PageSwitch(key)
         },
         GoToHomePage() {
-            this.PageSwitch('/')
+            location.href = '/'
         },
         PageSwitch(route_name, display_name = '') {
             var current_route = this.$router.currentRoute.value.path;

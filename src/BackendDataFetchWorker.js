@@ -85,13 +85,11 @@ function StartHubsConnection() {
     });
     try {
         agvsHubConnection.start();
-        console.log("AGVS SignalR connected");
     } catch (err) {
         console.error("AGVS SignalR connection error: ", err);
     }
     try {
         vmsHubConnection.start();
-        console.log("VMS SignalR connected");
     } catch (err) {
         console.error("VMS SignalR connection error: ", err);
     }
@@ -141,7 +139,6 @@ function StartHeartBeatSend() {
 }
 
 function BecomeLeader() {
-    console.info('become leader ');
     isLeader = true;
     StartHeartBeatSend();
     StartHubsConnection();

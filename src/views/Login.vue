@@ -1,6 +1,6 @@
 <template>
   <div class="login-view">
-    <el-form class="border p-5 rounded" label-position="top">
+    <el-form class="login-form border p-5 rounded" label-position="top">
       <img class="border-bottom py-2" src="/GPM_Logo.png" alt="">
       <p class="login-title-text">USER LOGIN</p>
       <el-form-item label="User Name" :required="true">
@@ -26,15 +26,11 @@
 </template>
 <script>
 import { userStore } from '@/store'
-import bus from '@/event-bus.js';
-import { ClearLoginCookie, IsLoginLastTime } from '@/api/AuthHelper.js'
-// import { OkModal, OkCancelModal } from '@/components/ModalHelper.js'
 export default {
   components: {
   },
   data() {
     return {
-      dialogVisible: true,
       UserName: '',
       Password: '',
       focus_input: 'account',
@@ -73,7 +69,6 @@ export default {
         this.UserName = userStore.getters.UserName;
         this.Password = '********************';
       }
-      this.dialogVisible = true;
     },
     async LoginHandle() {
 
@@ -99,14 +94,29 @@ export default {
         var response = await userStore.dispatch('login', user)
         if (response != undefined) {
           if (response.confirm) {
-            this.dialogVisible = false;
-            this.$swal.fire({ title: '登入成功!', icon: 'success', timer: 1000 })
-            if (this.$route.query.pre)
-              this.$router.push(this.$route.query.pre)
-            else
-              this.$router.push('/')
+
+            this.$swal.fire(
+              {
+                title: '登入成功',
+                icon: 'success',
+                showCancelButton: false,
+                showConfirmButton: false,
+                confirmButtonText: 'OK',
+                customClass: 'my-sweetalert',
+                timer: 1000
+              }).then(() => {
+                const isloginAfterLogout = this.$route.query.action && this.$route.query.action == 'switch';
+                if (!isloginAfterLogout && this.$route.query.pre) {
+                  location.href = this.$route.query.pre
+                }
+                else
+                  location.href = '/'
+
+              })
+
 
           } else {
+
             this.message = response.message;
           }
         }
@@ -115,21 +125,14 @@ export default {
 
     },
     LogoutHandle() {
-
       this.logouting = true;
-
       setTimeout(() => {
-        ClearLoginCookie();
-        userStore.commit('setUser', null)
-        bus.emit('/logout', undefined);
-        this.$emit('RoleChanged', 0);
+        userStore.dispatch('logout')
         this.UserName = this.Password = '';
-        this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 2000 })
-        setTimeout(() => {
-          //this.dialogVisible = this.isLogin = false;
-          //this.$router.push('/')
-        }, 1000);
-
+        this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 300 })
+          .then(() => {
+            location.reload();
+          })
         this.logouting = false;
       }, 100);
 
@@ -157,6 +160,12 @@ export default {
       }
     }
   },
+  mounted() {
+    if (this.IsLogin) {
+      this.UserName = userStore.state.user.UserName;
+      this.Password = '*************************';
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -168,17 +177,20 @@ export default {
 }
 
 .login-view {
-  background: rgb(255, 255, 255);
+  background: rgba(255, 255, 255, 0.96);
   height: 100vh;
   width: 100vw;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 500000;
+  z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
 
+  .login-form {
+    box-shadow: 0px 10px 3rem 0.2rem;
+  }
 
   .login-title-text {
     font-size: 30px;

@@ -249,11 +249,11 @@
               </div>
               <div>
                 <span class="mx-1">{{ $t('Map.Options.BackgroundImage') }}</span>
-                <el-switch v-model="map_image_display" inactive-value="none" :inactive-text="$t('hidden')" active-value="visible" :active-text="$t('show')" inactive-color="rgb(146, 148, 153)" inline-prompt width="70" @change="SlamImageDisplayOptHandler"></el-switch>
+                <el-switch v-model="map_image_display" inactive-value="none" :inactive-text="$t('hidden')" active-value="visible" :active-text="$t('Show')" inactive-color="rgb(146, 148, 153)" inline-prompt width="70" @change="SlamImageDisplayOptHandler"></el-switch>
               </div>
               <div>
                 <span class="mx-1">{{ $t('Map.Options.PathVisible') }}</span>
-                <el-switch v-model="routePathsVisible" :inactive-text="$t('hidden')" :active-text="$t('show')" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
+                <el-switch v-model="routePathsVisible" :inactive-text="$t('hidden')" :active-text="$t('Show')" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
                   if (visible) {
                     if (map_display_mode == 'router') {
                       PathLayerForCoordination.setVisible(false);
@@ -271,7 +271,7 @@
               </div>
               <div>
                 <span class="mx-1">{{ $t('Map.Options.RegionVisible') }}</span>
-                <el-switch :disabled="map_display_mode != 'coordination'" v-model="regionsVisible" :inactive-text="$t('hidden')" :active-text="$t('show')" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
+                <el-switch :disabled="map_display_mode != 'coordination'" v-model="regionsVisible" :inactive-text="$t('hidden')" :active-text="$t('Show')" inline-prompt inactive-color="rgb(146, 148, 153)" width="70" @change="(visible) => {
                   RegionLayer.setVisible(visible && map_display_mode == 'coordination');
                 }"></el-switch>
               </div>
@@ -546,6 +546,7 @@ export default {
       map_display_mode: 'router',
       station_name_display_mode: 'name',
       agv_display: 'visible',
+      /**地圖背景顯示 */
       map_image_display: 'visible',
       left_tab_class_name: 'tab-open',
       previousSelectedFeatures: [],
@@ -1016,7 +1017,8 @@ export default {
                 width: 1
               }),
             }))
-            var _style = AGVPointStyle(agv_information.DisplayText, nameFillColor, vehicleImageName + `?version=${Date.now()}`)
+            var _style = AGVPointStyle(agv_information.DisplayText, nameFillColor, vehicleImageName)
+            // var _style = AGVPointStyle(agv_information.DisplayText, nameFillColor, vehicleImageName + `?version=${Date.now()}`)
             _agvfeature.setStyle(_style)
             _agvfeature.set('agvname', agv_information.AgvName)
             _agvfeature.set("feature_type", this.FeatureKeys.agv)
@@ -1732,22 +1734,23 @@ export default {
         mode: this.map_display_mode,
         center: this.center,
         center_route: this.center_route,
-        station_name_display_mode: this.station_name_display_mode
+        station_name_display_mode: this.station_name_display_mode,
+        map_image_display: this.map_image_display
       }))
 
     },
     RestoreSettingsFromLocalStorage() {
       var settings_json = localStorage.getItem(this.map_name_with_url)
-      console.log(settings_json);
       if (settings_json) {
         var settings = JSON.parse(settings_json)
         this.station_name_display_mode = settings.station_name_display_mode
+        this.map_image_display = settings.map_image_display
         this.map_display_mode = this.editable ? 'router' : settings.mode
         this.zoom = settings.zoom;
 
         this.map.getView().setCenter(settings.center);
         this.map.getView().setZoom(settings.zoom);
-
+        this.ImageLayer.setVisible(this.map_image_display == 'visible')
         //this.center = settings.center
         //this.zoom_route = settings.zoom_route;
         //this.center_route = settings.center_route
@@ -2160,6 +2163,7 @@ export default {
         this.UpdateStationPathLayer()
       }
       this.ImageLayer.setVisible(this.map_image_display == 'visible')
+      this.SaveSettingsToLocalStorage();
     },
     MapDisplayModeOptHandler(setViewCenter = true) {
 
@@ -3067,7 +3071,7 @@ export default {
             var oriImage = newStyle.getImage();
             if (oriImage) {
               var newImage = oriImage.clone();
-              newImage.setScale(0.75)
+              //newImage.setScale(0.75)
               newStyle.setImage(newImage);
             }
             var text = newStyle.getText();

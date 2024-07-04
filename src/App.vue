@@ -130,7 +130,7 @@ export default {
 
     let login_states = IsLoginLastTime();
 
-    //嘗試存取前次的登入狀態，並更新 userStore的值
+    //嘗試存取前次的登入狀態，並自動登入
     if (login_states.isLogin) {
       userStore.commit('setUser', login_states.login_info)
     }

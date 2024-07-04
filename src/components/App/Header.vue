@@ -56,7 +56,7 @@
               <div class="d-flex flex-column">
                 <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">{{ $t('App.Header.LOGIN') }}</b-button>
                 <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">{{ $t('App.Header.LOGOUT') }}</b-button>
-                <b-button v-if="IsLogin" class="my-1 bg-light text-dark" @click="LoginClickHandler('switch')">{{ $t('App.Header.Switch user') }}</b-button>
+                <b-button v-if="IsLogin" class="my-1 bg-light text-dark" @click="SwitchUserBtnClick">{{ $t('App.Header.Switch user') }}</b-button>
               </div>
             </template>
           </el-popover>
@@ -72,7 +72,7 @@
             <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> {{ $t('App.Header.systemalarm') }} </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
-        <div class="opt">
+        <div v-if="IsLogin" class="opt">
           <div>
             <b-button @click="ResetSysAlarmsHandler" class="mb-0" size="sm" variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
           </div>
@@ -293,14 +293,27 @@ export default {
         route_name: '/'
       }
     },
-    LoginClickHandler(action = '') {
+    LoginClickHandler() {
       var currpath = this.$route.path;
       if (currpath.toLocaleLowerCase().includes('/login'))
         return;
       this.$router.push({
         path: '/Login',
         query: {
-          pre: currpath
+          pre: currpath,
+        }
+      })
+      // this.$refs['login'].Show(this.current_route_info.route_name);
+    },
+    SwitchUserBtnClick() {
+      var currpath = this.$route.path;
+      if (currpath.toLocaleLowerCase().includes('/login'))
+        return;
+      this.$router.push({
+        path: '/Login',
+        query: {
+          pre: currpath,
+          action: 'switch'
         }
       })
       // this.$refs['login'].Show(this.current_route_info.route_name);
@@ -315,12 +328,11 @@ export default {
         confirmButtonText: 'Yes'
       }).then(ret => {
         if (ret.isConfirmed) {
-          userStore.commit('setUser', null)
-
-          if (this.$route.meta.isAdminUse) {
-            this.$router.push('/')
-          }
-          this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 3000 })
+          userStore.dispatch('logout')
+          this.$swal.fire({ title: '登出成功!', icon: 'success', timer: 1000 })
+            .then(() => {
+              location.href = '/'
+            })
 
         }
       })

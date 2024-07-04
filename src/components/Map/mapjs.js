@@ -72,12 +72,12 @@ export function SetPathColor(color) {
     pathColor = color;
 }
 
-function eq_station_icon(image) {
+function eq_station_icon(image, size = [64, 64], scale = 0.45) {
     return new Icon({
         src: image == '' ? '/images/eq-icon.png' : image, // 设置PNG图像的路径
-        scale: 0.45,
-        anchor: [0.5, 0.5],
-        size: [64, 64],
+        scale: scale,
+        anchor: [0.5, 0.2],
+        size: size,
         opacity: 1,
         color: 'transparent',
 
@@ -257,14 +257,16 @@ export function CreateLocIcon(coordinate, isStart = true, text = '') {
     return iconFeture;
 }
 
-export function GetStationStyle(text = '', station_type = 0, map_data = new MapPointModel()) {
+export function GetStationStyle(text = '', station_type = 0, map_data = new MapPointModel(), size = [64, 64], scale = 0.45) {
     var image = normal_station_image(map_data)
 
     if (station_type == 0) {
         image = normal_station_image(map_data)
     }
     else if (station_type == 1) {
-        image = eq_station_icon(map_data.Graph.ImageName)
+        const scale = map_data.Graph.ImageScale;
+        const size = map_data.Graph.ImageSize;
+        image = eq_station_icon(map_data.Graph.ImageName, size, scale)
     }
     else if (station_type == 2 || station_type == 12 || station_type == 22) {
         image = stocker_icon(map_data.Graph.ImageName)
@@ -560,7 +562,8 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
     var height = 64;
 
     var _isblob = imgUrl.substring(0, 4) == 'blob';
-    var _imgUrl = _isblob || !IsDev() ? imgUrl : `${gpm_param.backend_host}/AGVImages/AGV_001-Icon.png`
+    var _imgUrl = imgUrl
+    // var _imgUrl = _isblob || !IsDev() ? imgUrl : `${gpm_param.backend_host}/AGVImages/AGV_001-Icon.png`
     if (ImageSize) {
         width = ImageSize[0]
         height = ImageSize[1]
@@ -825,6 +828,8 @@ export class MapPointModel {
             X: 0,
             Y: 0,
             ImageName: '',
+            ImageScale: 0.45,
+            ImageSize: [64, 64],
             IsBezierCurvePoint: false,
             BezierCurveID: ''
         }

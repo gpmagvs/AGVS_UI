@@ -151,5 +151,6 @@
   },
   "hidden": "隱藏",
   "Show": "顯示",
-  "PathNetwork": "路網"
+  "PathNetwork": "路網",
+  "select-vehicle": "選擇車輛"
 }

@@ -40,16 +40,17 @@
                   </div>
                 </el-form-item>
                 <el-form-item v-if="IsWorkStation" label="顯示圖示">
-                  <div class="d-flex mx-1 bg-light" style="flex-wrap:wrap">
-                    <div class="icon-container" style="width:64px;height:84px" v-for="path in EqIcons" :key="path">
+                  <div class="d-flex mx-1 py-4 bg-light  w-100" style="flex-wrap:wrap;height:200px">
+                    <div class="icon-container mx-2" style="width:64px;height:84px" v-for="path in EqIcons" :key="path">
                       <el-image v-bind:style="{
-                        border: path == pointData_editing.Graph.ImageName ? '3px solid rgb(49, 132, 253)' : ''
+                        border: path == pointData_editing.Graph.ImageName ? '4px solid rgb(41, 215, 92)' : ''
                       }" style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer" :src="path" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2" fit="cover" @click="HandleImageClick(path)">
                         <template #error>
                           <div class="image-slot"> 錯誤 </div>
                         </template>
                       </el-image>
-                      <b-button squared class="delete-btn" style="position:relative;bottom:26px;width:100%;" variant="danger" size="sm" @click="HandleIconDelete(path)">刪除</b-button>
+                      <div squared class="image-name-display" style="position:relative;bottom:26px;width:100%;" @click="HandleImageClick(path)">{{ path.split('/').pop() }}</div>
+                      <!-- <b-button squared class="delete-btn" style="position:relative;bottom:26px;width:100%;" variant="danger" size="sm" @click="HandleIconDelete(path)">刪除</b-button> -->
                     </div>
                     <!-- Upload images preview2-->
                     <el-image v-for="path in fileList" :key="path" v-bind:style="{
@@ -244,6 +245,12 @@ export default {
         TagID: 2
       },
       fileList: [],
+      AOIEqIcons: [
+        "/images/qv.jpg",
+        "/images/aoi.jpg",
+        "/images/aos.jpg",
+        "/images/VRS.jpg"
+      ]
     }
   },
   mounted() {
@@ -273,9 +280,15 @@ export default {
       return 'http://localhost:5216/api/map/IconUpload'
     },
     EqIcons() {
-      return MapStore.getters.EqIcons;
-    },
-
+      return [
+        "/images/eq-icon.png",
+        "/images/rack.png",
+        "/images/qv.jpg",
+        "/images/aoi.jpg",
+        "/images/aos.jpg",
+        "/images/VRS.jpg"
+      ]
+    }
   },
   methods: {
     async Show(ptObj) {
@@ -319,18 +332,15 @@ export default {
     },
 
     SaveBtnClickHandle() {
-      // if (this.CheckTagRepeat()) {
-      //   this.$swal.fire(
-      //     {
-      //       text: '',
-      //       title: `$Tag {this.pointData_editing.TagNumber}已被其他暫ㄉ點設置`,
-      //       icon: 'warning',
-      //       showCancelButton: false,
-      //       confirmButtonText: 'OK',
-      //       customClass: 'my-sweetalert'
-      //     })
-      //   return;
-      // }
+      var imageScale = 0.45;
+      var imageSize = [64, 64];
+      if (this.AOIEqIcons.includes(this.pointData_editing.Graph.ImageName)) {
+        imageScale = 0.20;
+        imageSize = [470, 470];
+      }
+      this.pointData_editing.Graph.ImageSize = imageSize;
+      this.pointData_editing.Graph.ImageScale = imageScale;
+
       this.ResetRegistPointIndexData();
       this.$emit('OnPointSettingChanged', { index: this.index, pointData: this.pointData_editing })
       ElNotification({

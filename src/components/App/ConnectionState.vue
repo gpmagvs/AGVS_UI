@@ -7,8 +7,7 @@
       <i class="bi bi-three-dots-vertical"></i>
       <div class="conn-block px-1 border-end">
         <label>VMS</label>
-        <el-tag effect="dark" :type="VMSAlive ? 'success' : 'danger'">{{ VMSAlive ?
-      $t('HomeView.EQStatus.EQStatus.Connected') : $t('HomeView.EQStatus.EQStatus.DisConnect') }}</el-tag>
+        <el-tag effect="dark" :type="VMSAlive ? 'success' : 'danger'">{{ VMSAlive ? $t('HomeView.EQStatus.EQStatus.Connected') : $t('HomeView.EQStatus.EQStatus.DisConnect') }}</el-tag>
       </div>
     </div>
     <div>V{{ APPVersion }}</div>
@@ -44,11 +43,14 @@ export default {
   },
   methods: {
 
-    handleTimeDoubleClick() {
-      userStore.dispatch('login', {
+    async handleTimeDoubleClick() {
+      var result = await userStore.dispatch('login', {
         UserName: 'dev',
         Password: '12345678'
       })
+      if (result.confirm) {
+        location.reload();
+      }
     }
   },
   props: {
