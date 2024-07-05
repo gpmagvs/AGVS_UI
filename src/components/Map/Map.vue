@@ -462,7 +462,7 @@ export default {
         source: new VectorSource({
           features: [],
         }),
-        zIndex: 4
+        zIndex: 20
       }),
       PathLayerForCoordination: new VectorLayer({
         source: new VectorSource({
@@ -2927,7 +2927,9 @@ export default {
       var normal_pt_features = this.StationPointsFeatures.filter(ft => ft.get('data').StationType == 0);
       var parkable_features = this.StationPointsFeatures.filter(ft => ft.get('data').IsParking || ft.get('data').StationType == 4 || ft.get('data'.StationType == 5))
       var normal_virtual_pt_features = normal_pt_features.filter(ft => ft.get('data').IsVirtualPoint)
-      this.AGVLocLayer.setVisible(false);
+
+      //this.AGVLocLayer.setVisible(false);
+
       this.RestoredFillColorOfChangedFeature();
       //把AGV圖層Feature變為不明顯
       this.ChangeFeaturesAsIgnoreStyle(this.AGVMapFeatures);
@@ -3041,7 +3043,7 @@ export default {
             var oriImage = newStyle.getImage();
             if (oriImage) {
               var newImage = oriImage.clone();
-              newImage.setOpacity(.5)
+              newImage.setOpacity(.7)
               newStyle.setImage(newImage);
             }
             var text = newStyle.getText();
@@ -3395,6 +3397,10 @@ export default {
 .map-component {
   width: 100%;
   height: 90vh;
+
+  .select-mode {
+    font-size: 21px;
+  }
 
   .notify-text {
     .el-alert__title {

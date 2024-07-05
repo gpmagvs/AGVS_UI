@@ -32,9 +32,9 @@ function InitWSNotification(agvs = true, vms = true) {
         let agvsNotifyWs = new WebSocket(param.backend_ws_host + '/api/event');
 
         agvsNotifyWs.onopen = (evt) => {
-            ElMessage.success({
-                message: 'Notification Connect to AGVS'
-            })
+            // ElMessage.success({
+            //     message: 'Notification Connect to AGVS'
+            // })
         }
         agvsNotifyWs.onmessage = (evt) => {
             if (!isWindowShowing)
@@ -49,7 +49,8 @@ function InitWSNotification(agvs = true, vms = true) {
                 ElMessage({
                     title: "AGVSystem " + notify.evt,
                     type: notify.typeStr,
-                    message: notify.message
+                    message: notify.message,
+                    duration: 1000
                 })
             }
         }
@@ -69,9 +70,9 @@ function InitWSNotification(agvs = true, vms = true) {
         let vmsNotifyWs = new WebSocket(param.vms_ws_host + '/api/event');
 
         vmsNotifyWs.onopen = (evt) => {
-            ElMessage.success({
-                message: 'Notification Connect to VMS'
-            })
+            // ElMessage.success({
+            //     message: 'Notification Connect to VMS'
+            // })
         }
         vmsNotifyWs.onmessage = (evt) => {
             if (!isWindowShowing)
@@ -89,7 +90,8 @@ function InitWSNotification(agvs = true, vms = true) {
             if (notify.show) {
                 ElMessage({
                     type: notify.typeStr,
-                    message: notify.message
+                    message: notify.message,
+                    duration: 1000
                 })
             }
         }

@@ -30,19 +30,18 @@
           <Switch darkBackground="#fff" lightBackground="#2D2D2D"></Switch>
         </div> -->
         <div>
-          <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
-            <template #reference>
-              <b-button class="mx-1" style="border: none;background-color: transparent;color:white">
-                <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? $t('App.Header.chinese') : $t('App.Header.english') }} <i class="bi bi-caret-down-fill"></i>
-              </b-button>
-            </template>
-            <template #default>
+          <!-- <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
+            <template #reference> -->
+          <b-button class="mx-1" style="border: none;background-color: transparent;color:white" @click="LangSwitch($i18n.locale == 'zh-TW' ? 'en-US' : 'zh-TW')">
+            <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? 'ENGLISH' : "中文" }} </b-button>
+          <!-- </template>
+<template #default>
               <div class="d-flex flex-column">
                 <b-button @click="LangSwitch('zh-TW')" :variant="$i18n.locale == 'zh-TW' ? 'primary' : 'light'">{{ $t('App.Header.chinese') }}</b-button>
                 <b-button @click="LangSwitch('en-US')" :variant="$i18n.locale == 'en-US' ? 'primary' : 'light'">{{ $t('App.Header.english') }}</b-button>
               </div>
             </template>
-          </el-popover>
+</el-popover> -->
         </div>
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">

@@ -125,29 +125,17 @@
                             </el-col>
                         </el-row>
                         <div class="w-100 py-1 d-flex border-top" style="height: 50px;">
-                            <b-button @click="HandleConfirmBtnClicked" class="w-50 mx-1" variant="primary">{{ $t('TaskDispathActionButton.dispatch-confirm') }}</b-button>
+                            <b-button @click="HandleConfirmBtnClicked" class="mx-1" v-bind:class="IsOpLogining ? 'w-100' : 'w-50'" variant="primary">{{ $t('TaskDispathActionButton.dispatch-confirm') }}</b-button>
                             <b-button v-if="IsDeveloper" class="w-50 mx-1" variant="light" @click="() => {
                                 order_info_visible = false;
                                 action_menu_visible = true;
                                 HandleCancelBtnClick();
                             }">{{ $t('TaskDispathActionButton.Back To Select Action') }}</b-button>
-                            <b-button class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">{{ $t('Cancel') }}</b-button>
+                            <b-button v-if="!IsOpLogining" class="w-50 mx-1" variant="danger" @click="HandleCancelBtnClick">{{ $t('Cancel') }}</b-button>
                         </div>
                     </div>
                 </el-popover>
-                <b-button squared variant="primary" @click="() => {
-
-                    if (!IsDeveloper) {
-                        SelectActionHandle('carry');
-                        return;
-                    }
-                    // $emit('on-click');
-                    if (action_menu_visible) {
-                        action_menu_visible = false;
-                    }
-                    else if (!order_info_visible)
-                        action_menu_visible = true
-                }">{{ $t('Dispatch') }}</b-button>
+                <b-button v-if="!IsOpLogining" squared variant="primary" @click="HandleDispatchButtonClick">{{ $t('Dispatch') }}</b-button>
             </div>
         </template>
         <div class="actions-btn-conatiner">
@@ -230,6 +218,9 @@ export default {
         },
         IsDeveloper() {
             return userStore.getters.IsDeveloperLogining;
+        },
+        IsOpLogining() {
+            return userStore.getters.IsOPLogining;
         },
         AgvNameList() {
             var namelist = [];
@@ -339,6 +330,19 @@ export default {
 
     },
     methods: {
+        HandleDispatchButtonClick() {
+
+            if (!this.IsDeveloper) {
+                this.SelectActionHandle('carry');
+                return;
+            }
+            // $emit('on-click');
+            if (this.action_menu_visible) {
+                this.action_menu_visible = false;
+            }
+            else if (!this.order_info_visible)
+                this.action_menu_visible = true
+        },
         SelectActionHandle(action) {
             this.$emit('onTaskDispatch')
             this.selected_action = action;
@@ -485,6 +489,14 @@ export default {
 
                     if (_station_data == this.selected_destine)
                         return;
+
+                    console.log(_station_data);
+
+                    var isSelectdNotInOptions = this.FromStationOptions.findIndex(option => option.tag == _station_data.TagNumber) == -1;
+
+                    if (isSelectdNotInOptions)
+                        return;
+
                     this.selected_source = _station_data;
                     this.HandleFromSelectChanged(this.selected_source.TagNumber);
                     setTimeout(() => {
@@ -539,6 +551,12 @@ export default {
                     if (!this.downstream_options.some(st => st.tag == _station_data.TagNumber))
                         return
                 }
+
+
+                var isSelectdNotInOptions = this.downstream_options.findIndex(option => option.tag == _station_data.TagNumber) == -1;
+                if (isSelectdNotInOptions)
+                    return;
+
                 bus.emit('mark_as_destine_station', _station_data.TagNumber);
                 this.selected_destine = _station_data;
                 console.log('123A', _station_data)
@@ -577,7 +595,11 @@ export default {
                 }).then(res => {
                     if (res.isConfirmed) {
                         this.TaskDeliveryHandle()
-                    } else {
+                        if (this.IsOpLogining) {
+                            this.order_info_visible = true;
+                        }
+                    }
+                    else {
                         this.order_info_visible = true;
                     }
                     this.isDispatchConfirming = false;
@@ -630,8 +652,9 @@ export default {
             }
             if (response.status != 200) {
 
-
-                this.HandleCancelBtnClick();
+                if (!this.IsOpLogining) {
+                    this.HandleCancelBtnClick();
+                }
                 const is_Unauthorized = response.status == 401;
                 setTimeout(() => {
                     this.$swal.fire({
@@ -644,27 +667,37 @@ export default {
                         customClass: 'my-sweetalert',
                     }).then(res => {
 
-                        this.HandleCancelBtnClick();
+                        if (!this.IsOpLogining) {
+                            this.HandleCancelBtnClick();
+                        }
                         if (is_Unauthorized) {
                             userStore.dispatch('logout', '')
                             bus.emit('/show-login-view-invoke')
 
                         }
                     })
+                    if (this.IsOpLogining) {
+
+                        this.HandleSelectSoureStationFromMapBtnClick();
+                    }
                 }, 200);
 
             }
             else {
                 //{confirm:true,message:''}
                 if (response.data.confirm) {
-                    this.HandleCancelBtnClick();
+                    if (!this.IsOpLogining) {
+                        this.HandleCancelBtnClick();
+                    }
                     ElNotification.success({
                         message: `任務-[${this.selected_action_display}] 已派送!`,
                         position: 'top-right',
                         duration: 3000
                     })
                 } else {
-                    this.HandleCancelBtnClick();
+                    if (!this.IsOpLogining) {
+                        this.HandleCancelBtnClick();
+                    }
                     setTimeout(() => {
                         this.$swal.fire(
                             {
@@ -676,6 +709,12 @@ export default {
                                 customClass: 'my-sweetalert'
                             })
                     }, 200);
+
+
+                }
+                if (this.IsOpLogining) {
+
+                    this.HandleSelectSoureStationFromMapBtnClick();
                 }
             }
 
@@ -811,6 +850,19 @@ export default {
                 }
             }
         )
+        setTimeout(() => {
+            if (this.IsOpLogining) {
+
+                this.HandleDispatchButtonClick();
+
+                setTimeout(() => {
+                    this.HandleSelectSoureStationFromMapBtnClick();
+
+                }, 1000);
+
+            }
+        }, 3000);
+
     }
 }
 </script>
