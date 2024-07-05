@@ -3,13 +3,10 @@
     <div class="my-1 d-flex flex-row bg-light">
       <h3 class="w-50 text-start px-2">{{ rack_info.WIPName }}</h3>
       <div class="p-1">
-        <b>水位</b>
+        <b>{{ $t('Rack.Cargo_Spaces') }}</b>
       </div>
       <div class="flex-fill p-2">
-        <el-progress :stroke-width="18" :percentage="Level" text-inside
-          striped
-          striped-flow
-          :duration="40">
+        <el-progress :stroke-width="18" :percentage="Level" text-inside striped striped-flow :duration="40">
           <span>{{ this.HasCstPortNum }}/{{ this.TotalPorts }}</span>
         </el-progress>
       </div>

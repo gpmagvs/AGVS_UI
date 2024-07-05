@@ -1,52 +1,53 @@
 <template>
   <div class="alarm-view">
     <div class="d-flex flex-row mb-2">
-      <h3 class="flex-fill">系統警報</h3>
-      <b-button v-if="is_user_login" variant="danger" @click="ResetSystemAlarm()">警報復歸</b-button>
+      <h3 class="flex-fill">{{ $t('App.Header.systemalarm') }}</h3>
+      <b-button v-if="is_user_login" variant="danger" @click="ResetSystemAlarm()">{{ $t('App.Header.alarmreset')
+        }}</b-button>
     </div>
     <el-table :data="sys_alarms" border :row-class-name="row_state_class_name">
-      <el-table-column label="時間" prop="Time" width="160">
+      <el-table-column :label="$t('AlarmTable.Time')" prop="Time" width="160">
         <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
       </el-table-column>
-      <el-table-column label="設備名稱" prop="Equipment_Name" width="120"></el-table-column>
-      <el-table-column label="警報碼" prop="AlarmCode" width="120"></el-table-column>
-      <el-table-column label="警報描述" prop="Description_En">
+      <el-table-column :label="$t('AlarmTable.EQ_Name')" prop="Equipment_Name" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Alarm_code')" prop="AlarmCode" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Alarm_description')" prop="Description_En">
         <template #default="scope">
           <div>{{ scope.row.Description_En }}({{ scope.row.Description_Zh }})</div>
         </template>
       </el-table-column>
-      <el-table-column label="警報類型" prop="Level" width="120">
+      <el-table-column :label="$t('AlarmTable.Alarm_Type')" prop="Level" width="120">
         <template #default="scope">
           <div>{{ scope.row.Level == 1 ? 'ALARM' : 'WARNING' }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="任務名稱" prop="Task_Name" width="160"></el-table-column>
-      <el-table-column label="發生地點" prop="OccurLocation" width="120"></el-table-column>
-      <el-table-column label="持續時間" prop="Duration" width="120"></el-table-column>
-      <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.TaskName')" prop="Task_Name" width="160"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Occur_Tag')" prop="OccurLocation" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Duration')" prop="Duration" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Clear_OP')" prop="ResetAalrmMemberName" width="120"></el-table-column>
     </el-table>
     <el-divider></el-divider>
-    <h3>設備警報</h3>
+    <h3>{{ $t('App.Header.eqalarm') }}</h3>
     <el-table :data="eq_alarms" border :row-class-name="row_state_class_name">
-      <el-table-column label="時間" prop="Time" width="160">
+      <el-table-column :label="$t('AlarmTable.Time')" prop="Time" width="160">
         <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
       </el-table-column>
-      <el-table-column label="設備名稱" prop="Equipment_Name" width="150"></el-table-column>
-      <el-table-column label="警報碼" prop="AlarmCode" width="120"></el-table-column>
-      <el-table-column label="警報描述" prop="Description_En">
+      <el-table-column :label="$t('AlarmTable.EQ_Name')" prop="Equipment_Name" width="150"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Alarm_code')" prop="AlarmCode" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Alarm_description')" prop="Description_En">
         <template #default="scope">
           <div>{{ scope.row.Description_En }}({{ scope.row.Description_Zh }})</div>
         </template>
       </el-table-column>
-      <el-table-column label="警報類型" prop="Level" width="120">
+      <el-table-column :label="$t('AlarmTable.Alarm_Type')" prop="Level" width="120">
         <template #default="scope">
           <div>{{ scope.row.Level == 1 ? 'ALARM' : 'WARNING' }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="任務名稱" prop="Task_Name" width="160"></el-table-column>
-      <el-table-column label="發生地點" prop="OccurLocation" width="120"></el-table-column>
-      <el-table-column label="持續時間" prop="Duration" width="120"></el-table-column>
-      <el-table-column label="清除警報人員" prop="ResetAalrmMemberName" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.TaskName')" prop="Task_Name" width="160"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Occur_Tag')" prop="OccurLocation" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Duration')" prop="Duration" width="120"></el-table-column>
+      <el-table-column :label="$t('AlarmTable.Clear_OP')" prop="ResetAalrmMemberName" width="120"></el-table-column>
     </el-table>
   </div>
 </template>

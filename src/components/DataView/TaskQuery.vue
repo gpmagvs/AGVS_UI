@@ -1,109 +1,91 @@
 <template>
   <div class="Task-query">
     <div class="Task-options bg-light d-flex border-bottom w-100 py-2">
-      <label>Start Time</label>
+      <label>{{ $t('Search.Start_Time') }}</label>
       <input type="datetime-local" v-model="start_time" prop="Start Time" />
-      <label>End Time</label>
+      <label>{{ $t('Search.End_Time') }}</label>
       <input type="datetime-local" v-model="end_time" prop="End Time" />
-      <label>任務名稱</label>
+      <label>{{ $t('TaskTable.TaskName') }}</label>
       <input type="text" v-model="TaskName" placeholder="ALL" size="20" />
-      <label>EQ Name</label>
+      <label>{{ $t('TaskTable.EQ_Name') }}</label>
       <select prop="EQ Name" v-model="AGVSelected">
         <option>ALL</option>
         <option v-for="name in AgvNameList" :key="name">{{ name }}</option>
       </select>
-      <label>任務類型</label>
+      <label>{{ $t('TaskTable.Action') }}</label>
       <select prop="EQ Name" v-model="ActionTypeSelected">
         <option>ALL</option>
-        <option>移動</option>
-        <option>取貨</option>
-        <option>放貨</option>
-        <option>搬運</option>
-        <option>充電</option>
-        <option>量測</option>
-        <option>交換電池</option>
+        <option>{{ $t('Search.Move') }}</option>
+        <option>{{ $t('Search.Load') }}</option>
+        <option>{{ $t('Search.UnLoad') }}</option>
+        <option>{{ $t('Search.Transfer') }}</option>
+        <option>{{ $t('Search.Charge') }}</option>
+        <option>{{ $t('Search.Measure') }}</option>
+        <option>{{ $t('Search.ExchangeBattrey') }}</option>
       </select>
-      <label>執行結果</label>
+      <label>{{ $t('TaskTable.Final') }}</label>
       <select prop="EQ Name" v-model="ExecuteResultSelected">
         <option>ALL</option>
-        <option>完成</option>
-        <option>失敗</option>
-        <option>取消</option>
+        <option>{{ $t('Search.Completed') }}</option>
+        <option>{{ $t('Search.Fail') }}</option>
+        <option>{{ $t('Search.Cancel') }}</option>
       </select>
-      <b-button
-        @click="TaskQuery()"
-        :TaskQuery="TaskQuery"
-        class="Select-Query"
-        variant="primary mx-1"
-        size="sm"
-        style="float:right">搜尋</b-button>
-      <b-button
-        @click="SaveTocsv()"
-        :SaveTocsv="SaveTocsv"
-        class="SaveTocsv mx-2"
-        variant="primary"
-        size="sm"
-        style="float:right">輸出csv檔</b-button>
+      <b-button @click="TaskQuery()" :TaskQuery="TaskQuery" class="Select-Query" variant="primary mx-1" size="sm"
+        style="float:right">{{ $t('Search.Search') }}</b-button>
+      <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm"
+        style="float:right">{{ $t('Search.Output_csv_file') }}</b-button>
     </div>
     <div>
-      <el-table
-        v-loading="loading"
-        :data="tasks"
-        empty-text="No Tasks"
-        row-class-name="row_state_class_name"
-        size="small"
-        style="width: 100%; height: 770px ;font-weight: bold;"
-        border
-        aria-current="currentpage"
+      <el-table v-loading="loading" :data="tasks" empty-text="No Tasks" row-class-name="row_state_class_name"
+        size="small" style="width: 100%; height: 770px ;font-weight: bold;" border aria-current="currentpage"
         id="Tasktable">
-        <el-table-column label="任務名稱" prop="TaskName" width="230">
+        <el-table-column :label="$t('TaskTable.TaskName')" prop="TaskName" width="230">
           <template #default="scope">
-            <div> {{ scope.row.TaskName }} <el-tooltip placement="top-start" content="複製到剪貼簿">
-                <i
-                  @click="CopyText(scope.row.TaskName)"
-                  class="copy-button copy-icon bi bi-clipboard"></i>
+            <div> {{ scope.row.TaskName }} <el-tooltip placement="top-start" :content="$t('Rack.copy')">
+                <i @click="CopyText(scope.row.TaskName)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="接收時間" prop="RecieveTime" width="160">
+        <el-table-column :label="$t('TaskTable.RecievedTime')" prop="RecieveTime" width="160">
           <template #default="scope">{{ formatTime(scope.row.RecieveTime) }}</template>
         </el-table-column>
-        <el-table-column label="結束時間" prop="FinishTime" width="160">
+        <el-table-column :label="$t('TaskTable.FinishTime')" prop="FinishTime" width="160">
           <template #default="scope">{{ formatTime(scope.row.FinishTime) }}</template>
         </el-table-column>
-        <el-table-column label="執行結果" prop="StateName" width="100" align="center">
+        <el-table-column :label="$t('TaskTable.Final')" prop="StateName" width="100" align="center">
           <template #default="scope">
-            <el-tag
-              effect="dark"
-              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'">{{ scope.row.StateName }}</el-tag>
+            <el-tag effect="dark"
+              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'">{{
+        scope.row.StateName }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="AGV名稱" prop="DesignatedAGVName" width="100" align="center"></el-table-column>
-        <el-table-column label="任務類型" prop="ActionName" min-width="30" align="center"></el-table-column>
-        <el-table-column label="起點" prop="From_Station_Display" width="120" align="center">
+        <el-table-column :label="$t('TaskTable.AGV_Name')" prop="DesignatedAGVName" width="100"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Action')" prop="ActionName" min-width="30"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Source')" prop="From_Station_Display" width="120" align="center">
         </el-table-column>
-        <el-table-column label="起點Slot" prop="From_Slot" width="120" align="center">
+        <el-table-column :label="$t('TaskTable.Source_Slot')" prop="From_Slot" width="120" align="center">
           <template #default="scope"> {{ scope.row.From_Slot == -1 ? '-' : scope.row.From_Slot }} </template>
         </el-table-column>
-        <el-table-column label="終點" prop="To_Station_Display" width="120" align="center">
+        <el-table-column :label="$t('TaskTable.Destine')" prop="To_Station_Display" width="120" align="center">
         </el-table-column>
-        <el-table-column label="終點Slot" prop="To_Slot" width="120" align="center">
+        <el-table-column :label="$t('TaskTable.Destine_Slot')" prop="To_Slot" width="120" align="center">
           <template #default="scope"> {{ scope.row.To_Slot == -1 ? '-' : scope.row.To_Slot }} </template>
         </el-table-column>
-        <el-table-column label="載物ID" prop="Carrier_ID" min-width="30">
+        <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID" min-width="30">
           <template #default="scope">
-            <div> {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }} <el-tooltip placement="top-start" content="複製到剪貼簿">
-                <i
-                  v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
-                  @click="CopyText(scope.row.Carrier_ID)"
-                  class="copy-button copy-icon bi bi-clipboard"></i>
+            <div> {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }} <el-tooltip placement="top-start"
+                :content="$t('Rack.copy')">
+                <i v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
+                  @click="CopyText(scope.row.Carrier_ID)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="派工人員" prop="DispatcherName" width="100"></el-table-column>
-        <el-table-column label="失敗原因" prop="FailureReason" min-width="120">
+        <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName" width="100"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Fail_reason')" prop="FailureReason" min-width="120">
           <template #default="scope">
             <div class="text-danger">
               <div v-for="alarm in scope.row.FailureReason.split(',')" :key="alarm">{{ alarm }}</div>
@@ -112,8 +94,11 @@
         </el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center fixed-bottom py-4">
-        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="Tasktable" class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
-        <div class="mx-3 py-2"> 共 <span style="font-weight: bold; font-size: large;">{{ rows }}</span>筆 </div>
+        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="Tasktable"
+          class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
+        <div class="mx-3 py-2"> {{ $t('Search.Total_First') }} <span style="font-weight: bold; font-size: large;">{{
+        rows
+      }}</span>{{ $t('Search.Total_Last') }} </div>
       </div>
     </div>
   </div>
