@@ -2,11 +2,14 @@
   <div class="rack-port" v-bind:class="ProductQualityClassName">
     <div class="bg-light border-bottom d-flex py-1">
       <div v-show="AnySensorFlash" class="text-danger bg-light w-100 text-start"
-        style=" max-height: 0;  position: relative;left:3px;top:0px;"><i class="bi bi-exclamation "></i>在席Sensor 閃爍</div>
+        style=" max-height: 0;  position: relative;left:3px;top:0px;"><i class="bi bi-exclamation "></i>{{
+    $t('Rack.Sensor_Flash') }}
+      </div>
       <span class="flex-fill text-start px-1">
         <el-tag effect="dark">{{ PortNameDisplay }}</el-tag> </span>
       <div class="px-2">
-        <el-tag v-bind:class="ProductQualityClassName + ' text-dark'" v-if="port_info.Properties.ProductionQualityStore == 0" effect="dark">NORMAL PORT</el-tag>
+        <el-tag v-bind:class="ProductQualityClassName + ' text-dark'"
+          v-if="port_info.Properties.ProductionQualityStore == 0" effect="dark">NORMAL PORT</el-tag>
         <el-tag v-bind:class="ProductQualityClassName + ' text-dark'" v-else effect="dark">NG PORT</el-tag>
       </div>
     </div>
@@ -14,10 +17,8 @@
       <div class="title">Carrier ID</div>
       <div class="values d-flex">
         <el-input type="text" disabled size="small" v-model="port_info.CarrierID"></el-input>
-        <el-tooltip placement="top-start" content="複製到剪貼簿">
-          <i
-            v-if="port_info.CarrierID != ''"
-            @click="CopyText(port_info.CarrierID)"
+        <el-tooltip placement="top-start" :content="$t('Rack.copy')">
+          <i v-if="port_info.CarrierID != ''" @click="CopyText(port_info.CarrierID)"
             class="copy-button copy-icon bi bi-clipboard"></i>
         </el-tooltip>
       </div>
@@ -25,16 +26,22 @@
     <div class="item" v-if="port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0">
       <div class="title">Exist Sensor(Tray)</div>
       <div class="values d-flex">
-        <div class="exist-sensor round my-1" v-bind:style="ExistSensorTray_1 ? ExistSensorOnStyle : ExistSensorOFFStyle" @click="HandleExistSensorStateClick('tray', 0)"></div>
-        <div class="exist-sensor round my-1 mx-3" v-bind:style="ExistSensorTray_2 ? ExistSensorOnStyle : ExistSensorOFFStyle" @click="HandleExistSensorStateClick('tray', 1)"></div>
+        <div class="exist-sensor round my-1" v-bind:style="ExistSensorTray_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
+          @click="HandleExistSensorStateClick('tray', 0)"></div>
+        <div class="exist-sensor round my-1 mx-3"
+          v-bind:style="ExistSensorTray_2 ? ExistSensorOnStyle : ExistSensorOFFStyle"
+          @click="HandleExistSensorStateClick('tray', 1)"></div>
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
     <div class="item" v-if="port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1">
       <div class="title">Exist Sensor(Rack)</div>
       <div class="values d-flex">
-        <div class="exist-sensor round my-1" v-bind:style="ExistSensorRack_1 ? ExistSensorOnStyle : ExistSensorOFFStyle" @click="HandleExistSensorStateClick('rack', 0)"></div>
-        <div class="exist-sensor round my-1 mx-3" v-bind:style="ExistSensorRack_2 ? ExistSensorOnStyle : ExistSensorOFFStyle" @click="HandleExistSensorStateClick('rack', 1)"></div>
+        <div class="exist-sensor round my-1" v-bind:style="ExistSensorRack_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
+          @click="HandleExistSensorStateClick('rack', 0)"></div>
+        <div class="exist-sensor round my-1 mx-3"
+          v-bind:style="ExistSensorRack_2 ? ExistSensorOnStyle : ExistSensorOFFStyle"
+          @click="HandleExistSensorStateClick('rack', 1)"></div>
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
@@ -48,15 +55,10 @@
     </div> -->
     <div class="item  justify-content-center">
       <div v-if="IsCarrierIDExist" class="w-100 d-flex justify-content-center">
-        <el-button ref="modify_btn"
-          @click="CstIDEditHandle" type="success">修改帳籍</el-button>
-        <el-button @click="RemoveCSTID" type="danger">刪除帳籍</el-button>
+        <el-button ref="modify_btn" @click="CstIDEditHandle" type="success">{{ $t('Rack.Edit_ID') }}</el-button>
+        <el-button @click="RemoveCSTID" type="danger">{{ $t('Rack.Remove_ID') }}</el-button>
       </div>
-      <el-button
-        v-else
-        @click="CstIDEditHandle"
-        class="m-1"
-        type="info">新增帳籍</el-button>
+      <el-button v-else @click="CstIDEditHandle" class="m-1" type="info">{{ $t('Rack.Creat_ID') }}</el-button>
     </div>
   </div>
 </template>
