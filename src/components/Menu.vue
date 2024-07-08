@@ -188,21 +188,9 @@ export default {
         handleClose() {
 
         },
-        handleSelect(key, keypath) {
-            this.PageSwitch(key)
-        },
         GoToHomePage() {
             location.href = '/'
-        },
-        PageSwitch(route_name, display_name = '') {
-            var current_route = this.$router.currentRoute.value.path;
-            if (route_name != current_route) {
-                setTimeout(() => {
-                    //this.$router.push(route_name);
-                    bus.emit('/router-change', { route_display_name: display_name, route_name: route_name });
-                }, 100);
-            }
-        },
+        }
     }
 }
 </script>

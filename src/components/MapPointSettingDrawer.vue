@@ -246,10 +246,10 @@ export default {
       },
       fileList: [],
       AOIEqIcons: [
-        "/images/qv.jpg",
-        "/images/aoi.jpg",
-        "/images/aos.jpg",
-        "/images/VRS.jpg"
+        "/images/qv.png",
+        "/images/aoi.png",
+        "/images/aos.png",
+        "/images/VRS.png"
       ]
     }
   },
@@ -283,10 +283,10 @@ export default {
       return [
         "/images/eq-icon.png",
         "/images/rack.png",
-        "/images/qv.jpg",
-        "/images/aoi.jpg",
-        "/images/aos.jpg",
-        "/images/VRS.jpg"
+        "/images/qv.png",
+        "/images/aoi.png",
+        "/images/aos.png",
+        "/images/VRS.png"
       ]
     }
   },

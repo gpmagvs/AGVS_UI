@@ -225,7 +225,7 @@ export default {
         AgvNameList() {
             var namelist = [];
             if (this.IsRunMode) {
-                namelist.push({ value: '', label: '自動選車' });
+                namelist.push({ value: '', label: this.$t('auto-choise-vehicle') });
                 if (this.IsDeveloper)
                     createdAgvNameOptions(namelist);
             }
@@ -570,6 +570,9 @@ export default {
 
         HandleCancelBtnClick() {
 
+            if (this.IsOpLogining)
+                return;
+
             bus.off(this.map_events_bus.agv_selected)
             bus.off(this.map_events_bus.station_selected)
             console.info('HandleCancelBtnClick-busoff end');
@@ -622,7 +625,7 @@ export default {
             console.info('Final', this.selected_destine);
             var _destinTag = this.selected_destine ? this.selected_destine.TagNumber : -1;
             var _sourceTag = this.selected_source ? this.selected_source.TagNumber : -1;
-            var _selected_agv = this.selected_agv == '自動選車' || this.selected_agv == '' ? '' : this.selected_agv;
+            var _selected_agv = this.selected_agv == this.$t('auto-choise-vehicle') || this.selected_agv == '' ? '' : this.selected_agv;
             if (this.selected_action == 'move') {
                 response = await TaskAllocation.MoveTask(new clsMoveTaskData(_selected_agv, _destinTag, 50));
             }
@@ -667,9 +670,7 @@ export default {
                         customClass: 'my-sweetalert',
                     }).then(res => {
 
-                        if (!this.IsOpLogining) {
-                            this.HandleCancelBtnClick();
-                        }
+                        this.HandleCancelBtnClick();
                         if (is_Unauthorized) {
                             userStore.dispatch('logout', '')
                             bus.emit('/show-login-view-invoke')
@@ -686,18 +687,14 @@ export default {
             else {
                 //{confirm:true,message:''}
                 if (response.data.confirm) {
-                    if (!this.IsOpLogining) {
-                        this.HandleCancelBtnClick();
-                    }
+                    this.HandleCancelBtnClick();
                     ElNotification.success({
                         message: `任務-[${this.selected_action_display}] 已派送!`,
                         position: 'top-right',
                         duration: 3000
                     })
                 } else {
-                    if (!this.IsOpLogining) {
-                        this.HandleCancelBtnClick();
-                    }
+                    this.HandleCancelBtnClick();
                     setTimeout(() => {
                         this.$swal.fire(
                             {
@@ -847,19 +844,17 @@ export default {
             (newValue, oldValue) => {
                 if (newValue != this.routePath) {
                     this.HandleCancelBtnClick();
+                } else if (this.IsOpLogining) {
+                    location.reload();
                 }
             }
         )
         setTimeout(() => {
             if (this.IsOpLogining) {
-
                 this.HandleDispatchButtonClick();
-
                 setTimeout(() => {
                     this.HandleSelectSoureStationFromMapBtnClick();
-
                 }, 1000);
-
             }
         }, 3000);
 

@@ -101,12 +101,12 @@
   "Vehicle": "Vehicle",
   "source": "From",
   "Remove": "Remove",
-  "Choose_Sourse_from_Map": "Choose Sourse from Map",
-  "Choose_Dest_from_Map": "Choose Dest from Map",
-  "Choose_Port": "Choose Port",
+  "Choose_Sourse_from_Map": "Select Sourse",
+  "Choose_Dest_from_Map": "Select Destine",
+  "Choose_Port": "Select Port",
   "Transport": "Transport",
   "Transport_Port": "Transport Port",
-  "Choose_Transport_Port_from_Map": "Choose Transport Port from Map",
+  "Choose_Transport_Port_from_Map": "Select Transport Port",
   "TaskDispathActionButton": {
     "Destine": "To",
     "dispatch-confirm": "Dispatch",
@@ -147,10 +147,28 @@
       "BackgroundImage": "Background Image",
       "PathVisible": "Path Visible",
       "RegionVisible": "Region Visible"
+    },
+    "Notification": {
+      "SelectSource": "Select [SOURCE] Equipment",
+      "SelectDestine": "Select [DESTINE] Equipment"
     }
   },
   "hidden": "Hidden",
   "Show": "Show",
   "PathNetwork": "Path Network",
-  "select-vehicle": "SELECT AGV"
+  "select-vehicle": "SELECT AGV",
+  "AGVStatus": {
+    "IDLE": "IDLE",
+    "CHARGING": "CHARGING",
+    "RUN": "RUN",
+    "DOWN": "DOWN"
+  },
+  "TaskAction": {
+    "GoToSource": "Move To Source",
+    "GoToDestineUnload": "To Destine Unload",
+    "GoToDestineload": "To Destine Load",
+    "GoToChargeStation": "To Charge Station",
+    "Unloading": "Unloading",
+    "Loading": "Loading"
+  }
 }

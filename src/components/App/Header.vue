@@ -19,29 +19,18 @@
             :before-change="mode.beforeChangeHandler" :loading="mode.loading" size="large" width="75px"></el-switch>
         </div>
         <!-- <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container"> -->
-        <div class="op-mode-switch-container">
+        <div v-if="false" class="op-mode-switch-container">
           <span class="mx-1">{{ $t('App.Header.view_mode') }}</span>
           <el-switch v-model="isEasyMode" @change="HandleViewModeChanged" :before-change="CheckUserLoginState"
             active-color="rgb(95, 171, 80)" inactive-color="red" :active-text="$t('App.Header.Simple mode')"
             :inactive-text="$t('App.Header.ENG mode')" border-color="grey" inline-prompt size="large"
             width="80px"></el-switch>
         </div>
-        <!-- <div>
-          <Switch darkBackground="#fff" lightBackground="#2D2D2D"></Switch>
-        </div> -->
         <div>
           <!-- <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference> -->
           <b-button class="mx-1" style="border: none;background-color: transparent;color:white" @click="LangSwitch($i18n.locale == 'zh-TW' ? 'en-US' : 'zh-TW')">
             <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? 'ENGLISH' : "中文" }} </b-button>
-          <!-- </template>
-<template #default>
-              <div class="d-flex flex-column">
-                <b-button @click="LangSwitch('zh-TW')" :variant="$i18n.locale == 'zh-TW' ? 'primary' : 'light'">{{ $t('App.Header.chinese') }}</b-button>
-                <b-button @click="LangSwitch('en-US')" :variant="$i18n.locale == 'en-US' ? 'primary' : 'light'">{{ $t('App.Header.english') }}</b-button>
-              </div>
-            </template>
-</el-popover> -->
         </div>
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">

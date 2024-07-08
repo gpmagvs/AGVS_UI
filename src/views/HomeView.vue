@@ -49,7 +49,7 @@
     </div>
     <TaskDispatchNewUI class="new-dispatch-pnl" v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'"
       @close="() => { show_new_dispatch_panel = false }" v-show="show_new_dispatch_panel"></TaskDispatchNewUI>
-    <TaskDispathActionButton @onTaskDispatch="() => {
+    <TaskDispathActionButton class="fixed-bottom" @onTaskDispatch="() => {
       right_side_tabSelected = 'map';
     }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
   </div>

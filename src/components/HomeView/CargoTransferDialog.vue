@@ -8,7 +8,7 @@
                 <el-option
                     v-for="agv_name in AgvNameList"
                     :key="agv_name"
-                    :label="agv_name == 'Assigning' ? '自動選車' : agv_name"
+                    :label="agv_name == 'Assigning' ? $t('auto-choise-vehicle') : agv_name"
                     :value="agv_name == 'Assigning' ? '' : agv_name"></el-option>
             </el-select>
             <el-select v-else disabled class="w-100" v-model="autoSelectAGVName">
@@ -64,7 +64,6 @@
         </el-dialog> -->
     </el-dialog>
 </template>
-
 <script>
 import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import { EqStore, agvs_settings_store, agv_states_store } from '@/store'
@@ -206,7 +205,6 @@ export default {
     },
 }
 </script>
-
 <style lang="scss" scoped>
 .cargo-transfer {
     h3 {

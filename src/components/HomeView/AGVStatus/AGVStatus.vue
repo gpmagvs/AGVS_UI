@@ -211,7 +211,8 @@
                   class="h-100 border px-1 py-2 text-center bg-light">{{ $t('HomeView.AGVStatus.AGVStatus.Time') }}</div>
               </el-col>
               <el-col :span="9">
-                <div class="h-100 border px-1 py-2 text-center bg-light"> {{ scope.row.TaskName == '' ? '' : '預計抵達時間:' + Timeformat(scope.row.TaskETA, 'HH:mm:ss') }} </div>
+                <!-- <div class="h-100 border px-1 py-2 text-center bg-light"> {{ scope.row.TaskName == '' ? '' : '預計抵達時間:' + Timeformat(scope.row.TaskETA, 'HH:mm:ss') }} </div> -->
+                <div class="h-100 border px-1 py-2 text-center bg-light"></div>
               </el-col>
             </el-row>
           </div>
@@ -609,13 +610,13 @@ export default {
     },
     GetAGVStatusString(status_code) {
       if (status_code == 1)
-        return "閒置中"
+        return this.$t('AGVStatus.IDLE')
       else if (status_code == 2)
-        return "執行中"
+        return this.$t('AGVStatus.RUN')
       else if (status_code == 3)
-        return "當機"
+        return this.$t('AGVStatus.DOWN')
       else if (status_code == 4)
-        return "充電中"
+        return this.$t('AGVStatus.CHARGING')
       else
         return "Unknown"
     },
@@ -625,20 +626,20 @@ export default {
       else if (status_code == 1)
         return "移動中"
       else if (status_code == 2)
-        return "前往來源設備"
+        return this.$t('TaskAction.GoToSource')
       else if (status_code == 3) {
         if (TaskRunAction == 8)
-          return "前往充電站"
+          return this.$t('TaskAction.GoToChargeStation')
         else if (TaskRunAction == 7 || TaskRunAction == 9)
-          return "前往終點設備放貨"
+          return this.$t('TaskAction.GoToDestineload')
         else if (TaskRunAction == 1)
-          return "前往終點設備取貨"
+          return this.$t('TaskAction.GoToDestineUnload')
       }
       else if (status_code == 4)
-        return "取貨中"
+        return this.$t('TaskAction.Unloading')
       else if (status_code == 5) {
         if (CurrentAction == 7)
-          return "放貨中"
+          return this.$t('TaskAction.Loading')
         else if (CurrentAction == 1)
           return "取貨中"
       }

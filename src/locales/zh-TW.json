@@ -147,10 +147,28 @@
       "BackgroundImage": "地圖背景",
       "PathVisible": "路網顯示",
       "RegionVisible": "顯示區域"
+    },
+    "Notification": {
+      "SelectSource": "選擇[來源]設備",
+      "SelectDestine": "選擇[終點]設備"
     }
   },
   "hidden": "隱藏",
   "Show": "顯示",
   "PathNetwork": "路網",
-  "select-vehicle": "選擇車輛"
+  "select-vehicle": "選擇車輛",
+  "AGVStatus": {
+    "IDLE": "閒置中",
+    "CHARGING": "充電中",
+    "DOWN": "當機",
+    "RUN": "執行中"
+  },
+  "TaskAction": {
+    "GoToSource": "前往來源設備",
+    "GoToDestineUnload": "前往終點設備取貨",
+    "GoToDestineload": "前往終點設備放貨",
+    "GoToChargeStation": "前往充電站",
+    "Unloading": "取貨中",
+    "Loading": "放貨中"
+  }
 }

@@ -49,7 +49,7 @@
                     </div>
                     <div class="order-row">
                         <label class="title">車輛</label>
-                        <label class="value">{{ selected_agv == '' ? '自動選車' : selected_agv }}</label>
+                        <label class="value">{{ selected_agv == '' ? $t('auto-choise-vehicle') : selected_agv }}</label>
                         <b-button @click="() => { current_progress = 'select-agv'; is_reselecting_flag = true }">重新選取</b-button>
                     </div>
                     <div v-if="selected_action == 'carry'" class="order-row">
@@ -71,7 +71,6 @@
         </div>
     </div>
 </template>
-
 <script>
 import bus from '@/event-bus';
 import Notifier from '@/api/NotifyHelper';
@@ -309,7 +308,7 @@ export default {
         AgvNameList() {
             var namelist = [];
             if (this.IsRunMode) {
-                namelist.push({ value: '', label: '自動選車' });
+                namelist.push({ value: '', label: this.$t('auto-choise-vehicle') });
                 if (this.IsDeveloper)
                     createdAgvNameOptions(namelist);
             }
@@ -353,7 +352,6 @@ export default {
     },
 }
 </script>
-
 <style lang="scss" scoped>
 .task-dispatch-new-ui {
     position: fixed;

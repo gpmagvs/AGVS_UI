@@ -8,7 +8,8 @@
         <div
           class="w-100 text-light rounded p-2 select-mode"
           v-if="IsSelectEQStationMode"
-          v-bind:class="TaskDispatchOptions.action_type == 'charge' ? 'bg-warning' : 'bg-primary'">{{ TaskDispatchOptions.action_type == 'charge' ? '選擇[充電站]' : `${TaskDispatchOptions.direction == 'source' ? '選擇[來源]設備' : '選擇[終點]設備'}` }}</div>
+          v-bind:class="TaskDispatchOptions.action_type == 'charge' || TaskDispatchOptions.direction == 'destine' ? 'bg-warning' : 'bg-primary'"> {{ TaskDispatchOptions.action_type == 'charge' ? '選擇[充電站]' : `${TaskDispatchOptions.direction == 'source' ? $t('Map.Notification.SelectSource') :
+            $t('Map.Notification.SelectDestine')}` }}</div>
         <!-- 點位與路徑顯示 -->
         <div class="d-flex h-100" style="overflow-y: hidden;">
           <!-- settings tabcontrol -->
@@ -2708,6 +2709,59 @@ export default {
       }))
       return maintainFeature;
     },
+    ChangeEQIconByStatus(tagNumber, status = 1 | 2, cargoExist = false) {
+
+      var trayIconImage = new Icon({
+        src: '/images/tray.png', // 设置PNG图像的路径
+        scale: 0.15,
+        anchor: [0.5, 0.2],
+        size: [1652, 781],
+        opacity: 0.8,
+      })
+
+      var emptyIconImage = new Icon({
+        src: '/images/eq-icon.png', // 设置PNG图像的路径
+        scale: 1,
+        anchor: [0.5, 0.2],
+        size: [64, 64],
+        opacity: 1,
+      })
+
+      //get feature from stations layer by tagNumber
+      try {
+        var stationFeature = this.StationPointsFeatures.find(ft => ft.get('data').TagNumber == tagNumber);
+        var style = stationFeature.getStyle().clone();
+
+        if (cargoExist) {
+          style.setImage(trayIconImage);
+        } else {
+          style.setImage(emptyIconImage);
+          console.log('empty');
+        }
+
+        //set backgroundFill color by transfer status
+        const unloadableColor = 'rgba(67, 149, 237,0.4)';
+        const loadableColor = 'rgba(255, 234, 18,.5)';
+        const noRequestColor = 'rgba(255,255,255,.1)';
+
+        var textBgFillColor = noRequestColor;
+
+        if (status == 1)
+          textBgFillColor = loadableColor;
+        else if (status == 2)
+          textBgFillColor = unloadableColor;
+
+        var _text = style.getText();
+        _text.setBackgroundFill(new Fill({
+          color: textBgFillColor
+        }))
+        stationFeature.setStyle(style);
+      } catch (error) {
+        console.error(error)
+      }
+
+
+    },
     ChangeLDULDStatus(tagNumber, status, IsMaintaining) {
       try {
 
@@ -2728,7 +2782,10 @@ export default {
         this.EqMaintainIconDisplay(tagNumber, IsMaintaining);
         var status_text = ''
         if (status == 1 || status == 2) {
-          status_text = status == 1 ? ' 入料請求' : '出料請求'
+          let isTw = this.$i18n.locale.toLowerCase() == 'zh-tw'
+          var loadRequestText = isTw ? ' 入料請求' : ' Load Request';
+          var unloadRequestText = isTw ? ' 出料請求' : ' Unload Request';
+          status_text = status == 1 ? loadRequestText : unloadRequestText
         }
         text.setText(status_text);
         text.setBackgroundFill(new Fill({
@@ -2755,7 +2812,8 @@ export default {
         this.eq_data.forEach(eq_states => {
           let _EQStatusDIDto = new EQStatusDIDto();
           Object.assign(_EQStatusDIDto, eq_states)
-          this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
+          this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist)
+          //this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
         });
         this.prviousEQDataJson = currentEqDataJson
       } else {
@@ -2978,32 +3036,31 @@ export default {
       this.IsSelectEQStationMode = true;
       clearInterval(this.featureHighlightTimerID);
 
-      if (!_isMoveOrder) {
+      if (!_isMoveOrder) //TODO highlight animation
         var _index = 0;
-        this.featureHighlightTimerID = setInterval(() => {
-          var SetTextColor = (_feature, textColor, bgColor) => {
-            var newStyle = _feature.getStyle().clone();
-            var text = newStyle.getText();
-            var fillProp = text.getFill().clone();
-            var bgFill = text.getBackgroundFill();
-            if (bgFill) {
-              var backgroundFill = bgFill.clone();
-              backgroundFill.setColor(bgColor);
-              text.setBackgroundFill(backgroundFill);
-            }
-            fillProp.setColor(textColor);
-            text.setFill(fillProp);
-            newStyle.setText(text);
-            _feature.setStyle(newStyle)
-          }
-          this.highlightingFeatures.forEach(_feature => {
-            let _textColor = _index == 0 ? 'white' : 'gold';
-            let _bgColor = _index == 0 ? 'rgb(9, 76, 176)' : 'rgb(2, 20, 48)';
-            SetTextColor(_feature, _textColor, _bgColor);
-          })
-          _index = _index == 0 ? 1 : 0
-        }, 600)
-      }
+      this.featureHighlightTimerID = setInterval(() => {
+        var SetTextColor = (_feature, textColor, bgColor) => {
+          var newStyle = _feature.getStyle().clone();
+          var text = newStyle.getText();
+          var fillProp = text.getFill().clone();
+          // var bgFill = text.getBackgroundFill();
+          // if (bgFill) {
+          //   var backgroundFill = bgFill.clone();
+          //   backgroundFill.setColor(bgColor);
+          //   text.setBackgroundFill(backgroundFill);
+          // }
+          fillProp.setColor(textColor);
+          text.setFill(fillProp);
+          newStyle.setText(text);
+          _feature.setStyle(newStyle)
+        }
+        this.highlightingFeatures.forEach(_feature => {
+          let _textColor = _index == 0 ? 'rgb(68, 223, 113)' : 'gold';
+          let _bgColor = _index == 0 ? 'rgba(9, 76, 176 ,0.1)' : 'rgba(2, 20, 48 ,0.4)';
+          SetTextColor(_feature, _textColor, _bgColor);
+        })
+        _index = _index == 0 ? 1 : 0
+      }, 600)
     },
     ChangeToNormalViewMode() {
 
@@ -3043,7 +3100,7 @@ export default {
             var oriImage = newStyle.getImage();
             if (oriImage) {
               var newImage = oriImage.clone();
-              newImage.setOpacity(.7)
+              //newImage.setOpacity(.7)
               newStyle.setImage(newImage);
             }
             var text = newStyle.getText();
