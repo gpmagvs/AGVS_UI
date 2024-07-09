@@ -120,9 +120,16 @@ export default {
         })
 
       })
+    },
+    changeLangFromLocalStorage(){
+      var _lang = localStorage.getItem('lang');
+      if(_lang){
+        this.$i18n.locale = _lang;
+      }
     }
   },
   mounted() {
+
     this.$store.dispatch('GetDynamicWebsiteData').then(response => {
       var fieldName = response.FieldName;
       document.title = `[${fieldName}]-GPM AGVS`
@@ -180,6 +187,7 @@ export default {
       this.loading = false
     }, 1000)
     this.RegistNotifies();
+    this.changeLangFromLocalStorage();
   },
 };
 

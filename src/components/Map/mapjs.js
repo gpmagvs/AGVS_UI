@@ -154,7 +154,7 @@ const source_station_mark = new Icon({
     src: '/images/location.png', // 设置PNG图像的路径
     offset: [-120, -40],
     scale: 0.6,
-    size: [300, 300]
+    size: [300, 300],
 })
 
 /**一般點位 */
@@ -208,7 +208,7 @@ export function normal_station_image(stationData = new MapPointModel()) {
     })
 }
 
-export function CreateTransTaskMark(coordinate, text = '') {
+export function CreateTransTaskMark(coordinate, text = '', bgFillColor = 'rgb(13, 110, 253)') {
     let iconFeture = new Feature({
         geometry: new Point(coordinate),
     })
@@ -216,9 +216,9 @@ export function CreateTransTaskMark(coordinate, text = '') {
         image: source_station_mark,
         text: new Text({
             text: text,
-            font: 'bold 20px Calibri,sans-serif',
+            font: 'bold 30px Calibri,sans-serif',
             offsetX: -7,
-            offsetY: -82,
+            offsetY: -89,
             fill: new Fill({
                 color: 'white'
             }),
@@ -227,9 +227,9 @@ export function CreateTransTaskMark(coordinate, text = '') {
                 width: 2,
             }),
             backgroundFill: new Fill({
-                color: 'rgb(13, 110, 253)'
+                color: bgFillColor
             }),
-            padding: [5, 5, 5, 5]
+            padding: [5, 9, 5, 9]
         })
     }))
     return iconFeture;
@@ -309,7 +309,7 @@ export function GetStationStyle(text = '', station_type = 0, map_data = new MapP
                 color: 'black',
                 width: 2,
             }),
-            padding: [4, 8, 80, 8]
+            padding: [4, 12, 80, 12]
         }),
     })
     return textStyle

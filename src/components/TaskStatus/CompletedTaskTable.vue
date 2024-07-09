@@ -4,7 +4,6 @@
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="CompletedTaskList"
       row-key="TaskName"
-      size="small"
       border
       :height="height"
       :row-class-name="row_class_name"

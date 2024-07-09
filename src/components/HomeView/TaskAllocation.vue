@@ -290,7 +290,7 @@ export default {
           showCancelButton: true,
           confirmButtonText: '確定',
           cancelButtonText: '取消',
-          customClass: 'my-sweetalert'
+          customClass: 'dispatch-order-sweet-alert'
         }).then(res => {
           if (res.isConfirmed) {
             this.TaskDeliveryHandle()

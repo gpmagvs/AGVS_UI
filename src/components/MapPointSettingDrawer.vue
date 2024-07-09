@@ -249,7 +249,8 @@ export default {
         "/images/qv.png",
         "/images/aoi.png",
         "/images/aos.png",
-        "/images/VRS.png"
+        "/images/VRS.png",
+        "/images/fac-robot2.png"
       ]
     }
   },
@@ -286,7 +287,8 @@ export default {
         "/images/qv.png",
         "/images/aoi.png",
         "/images/aos.png",
-        "/images/VRS.png"
+        "/images/VRS.png",
+        "/images/fac-robot2.png"
       ]
     }
   },

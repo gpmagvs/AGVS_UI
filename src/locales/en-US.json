@@ -109,11 +109,12 @@
   "Choose_Transport_Port_from_Map": "Select Transport Port",
   "TaskDispathActionButton": {
     "Destine": "To",
-    "dispatch-confirm": "Dispatch",
-    "Back To Select Action": "Back"
+    "dispatch-confirm": "DISPATCH",
+    "Back To Select Action": "Back",
+    "clear-selected": "RE-SELECT"
   },
   "Cancel": "Cancel",
-  "auto-choise-vehicle": "Auto Choise",
+  "auto-choise-vehicle": "Auto Assignment",
   "Transfer": "Transfer",
   "Charge": "Charge",
   "Exchange Battery": "Exchange Battery",
@@ -122,7 +123,7 @@
   "Park": "Park",
   "Unload": "Unload",
   "Load": "Load",
-  "Dispatch": "Dispatch",
+  "Dispatch": "DISPATCH",
   "IncompleteTasks": "Incomplete",
   "CompleteTasks": "Completed",
   "Search": {
@@ -196,6 +197,11 @@
     "Notification": {
       "SelectSource": "Select [SOURCE] Equipment",
       "SelectDestine": "Select [DESTINE] Equipment"
+    },
+    "MapLegend": {
+      "Unloadble": "Unloadable",
+      "Loadable": "Loadable",
+      "Maintaining": "Maintaining"
     }
   },
   "hidden": "Hidden",
@@ -215,5 +221,9 @@
     "GoToChargeStation": "To Charge Station",
     "Unloading": "Unloading",
     "Loading": "Loading"
-  }
+  },
+  "TaskDispatchNewUI": {
+    "ConfirmDispatchText": "Are you sure you want to dispatch this task?"
+  },
+  "Confirm": "YES"
 }

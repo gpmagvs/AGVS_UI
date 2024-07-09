@@ -21,8 +21,8 @@ var _previousVMSData;
 function StoreAGVSData(data) {
 
     _previousAGVSData = data;
-    if (!isWindowShowing)
-        return;
+    // if (!isWindowShowing)
+    //     return;
     if (agvsStoreTimout) {
         clearTimeout(agvsStoreTimout);
     }
@@ -38,8 +38,8 @@ function StoreAGVSData(data) {
 function StoreVMSData(data) {
 
     _previousVMSData = data;
-    if (!isWindowShowing)
-        return;
+    // if (!isWindowShowing)
+    //     return;
 
     if (vmsStoreTimout) {
         clearTimeout(agvsStoreTimout);

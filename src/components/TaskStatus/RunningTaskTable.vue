@@ -4,7 +4,7 @@
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="IncompletedTaskList"
       row-key="TaskName"
-      size="small"
+      size="large"
       :row-class-name="row_class_name"
       :empty-text="$t('TaskTable.NoTasks')"
       @header-dragend="HandleHeaderDragEnd"

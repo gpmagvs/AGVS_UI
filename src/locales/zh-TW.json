@@ -101,16 +101,17 @@
   "Vehicle": "車輛",
   "source": "來源",
   "Remove": "重新選取",
-  "Choose_Sourse_from_Map": "從地圖或選單選擇來源",
-  "Choose_Dest_from_Map": "從地圖或選單選擇目的地",
+  "Choose_Sourse_from_Map": "選擇來源",
+  "Choose_Dest_from_Map": "選擇目的地",
   "Choose_Port": "選擇port",
   "Transport": "轉運",
   "Transport_Port": "轉運站",
-  "Choose_Transport_Port_from_Map": "從地圖或選單選擇轉換站",
+  "Choose_Transport_Port_from_Map": "選擇轉換站",
   "TaskDispathActionButton": {
     "Destine": "目的地",
     "dispatch-confirm": "派送",
-    "Back To Select Action": "返回選擇動作"
+    "Back To Select Action": "返回",
+    "clear-selected": "重新選取"
   },
   "Cancel": "取消",
   "auto-choise-vehicle": "自動選車",
@@ -196,6 +197,11 @@
     "Notification": {
       "SelectSource": "選擇[來源]設備",
       "SelectDestine": "選擇[終點]設備"
+    },
+    "MapLegend": {
+      "Unloadble": "貨物可移出",
+      "Loadable": "可放貨",
+      "Maintaining": "維修中"
     }
   },
   "hidden": "隱藏",
@@ -215,5 +221,9 @@
     "GoToChargeStation": "前往充電站",
     "Unloading": "取貨中",
     "Loading": "放貨中"
-  }
+  },
+  "TaskDispatchNewUI": {
+    "ConfirmDispatchText": "確定要派送此任務?"
+  },
+  "Confirm": "確定"
 }

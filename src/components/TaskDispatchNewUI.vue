@@ -163,7 +163,7 @@ export default {
         HandleConfirmBtnClicked() {
             this.$swal.fire(
                 {
-                    title: '確定要派送此任務?',
+                    title: this.$t('TaskDispatchNewUI.ConfirmDispatchText'),
                     text: `${this.selected_agv} 執行 ${this.selected_action_display} 任務,終點:${this.selected_destine.name_display}`,
                     icon: 'question',
                     showCancelButton: true,
