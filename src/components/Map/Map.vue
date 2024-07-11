@@ -398,7 +398,7 @@
 
             <div :id="id" class="agv_map flex-fll" @contextmenu="showContextMenu($event)"></div>
             <!-- 圖例 -->
-            <MapLegend v-if="!editable" class="map-ledgend border rounded"></MapLegend>
+            <MapLegend v-if="!editable&&legendShow" class="map-ledgend border rounded"></MapLegend>
             <!-- 設定 -->
             <div class="options bg-light border-start text-start px-1 py-3">
               <div v-if="station_show" class="rounded d-flex flex-column">
@@ -493,6 +493,20 @@
                   @change="(visible) => {
                   RegionLayer.setVisible(visible && map_display_mode == 'coordination');
                 }"
+                ></el-switch>
+              </div>
+              <div class="rounded">
+                <el-tooltip content="圖例">
+                  <span class="mx-1">圖例顯示</span>
+                </el-tooltip>
+                <el-switch
+                  class="my-2"
+                  inactive-text="OFF"
+                  active-text="ON"
+                  inline-prompt
+                  width="70"
+                  v-model="legendShow"
+                  @change="HandleLedgendShowChanged"
                 ></el-switch>
               </div>
               <div v-if="editable" class="rounded">
@@ -817,6 +831,7 @@ export default {
       agv_upload_coordination_mode: false,
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
+      legendShow: true,
       routePathsVisible: true,
       regionsVisible: false,
       contextMenuTop: 0,
@@ -2000,7 +2015,8 @@ export default {
         center: this.center,
         center_route: this.center_route,
         station_name_display_mode: this.station_name_display_mode,
-        map_image_display: this.map_image_display
+        map_image_display: this.map_image_display,
+        legendShow: this.legendShow
       }))
 
     },
@@ -2012,7 +2028,7 @@ export default {
         this.map_image_display = settings.map_image_display
         this.map_display_mode = this.editable ? 'router' : settings.mode
         this.zoom = settings.zoom;
-
+        this.legendShow = settings.legendShow;
         this.map.getView().setCenter(settings.center);
         this.map.getView().setZoom(settings.zoom);
         this.ImageLayer.setVisible(this.map_image_display == 'visible')
@@ -2943,6 +2959,9 @@ export default {
     HandleAGVUploadCorrdinationChanged(enabled) {
       MapStore.dispatch('UploadCoorFunctionSwitch', enabled)
     },
+    HandleLedgendShowChanged(legendShow) {
+      this.SaveSettingsToLocalStorage();
+    },
     HandleLDULDLabelClick(station_data, action) {
       //alert(JSON.stringify(station_data))
       //this.$emit('onTransferRequst', { station_data: station_data, action: action })
@@ -2977,7 +2996,7 @@ export default {
 
       var trayIconImage = new Icon({
         src: '/images/tray.png', // 设置PNG图像的路径
-        scale: 0.15,
+        scale: 0.10,
         anchor: [0.5, 0.2],
         size: [1652, 781],
         opacity: 0.8,
@@ -2985,7 +3004,7 @@ export default {
 
       var emptyIconImage = new Icon({
         src: '/images/eq-icon.png', // 设置PNG图像的路径
-        scale: 1,
+        scale: 0.6,
         anchor: [0.5, 0.2],
         size: [64, 64],
         opacity: 1,
@@ -3270,7 +3289,7 @@ export default {
 
       this.RestoredFillColorOfChangedFeature();
       //把AGV圖層Feature變為不明顯
-      this.ChangeFeaturesAsIgnoreStyle(this.AGVMapFeatures);
+      //this.ChangeFeaturesAsIgnoreStyle(this.AGVMapFeatures);
 
       if (this.TaskDispatchOptions.action_type == 'charge') {
         //再把非充電站的Feature變為不明顯
@@ -3284,7 +3303,7 @@ export default {
 
         if (this.TaskDispatchOptions.stations_to_show && this.TaskDispatchOptions.stations_to_show.length != 0) {
           var tags_to_show = this.TaskDispatchOptions.stations_to_show.map((st) => st.tag);
-          var _hidden_stations_features = this.StationPointsFeatures.filter(ft => !tags_to_show.includes(ft.get('data').TagNumber));
+          var _hidden_stations_features = this.StationPointsFeatures.filter(ft => ft.get('data').StationType != 0 && !tags_to_show.includes(ft.get('data').TagNumber));
           var _show_stations_features = this.StationPointsFeatures.filter(ft => tags_to_show.includes(ft.get('data').TagNumber));
           this.ChangeFeaturesAsIgnoreStyle(_hidden_stations_features);
           this.ChangeFeaturesAsCandicatingStyle(_show_stations_features);
@@ -3293,17 +3312,17 @@ export default {
         else if (_isChoiseDestine) {
           if (_isMoveOrder) {
             this.ChangeFeaturesAsIgnoreStyle(eq_features);
-            this.ChangeFeaturesAsIgnoreStyle(normal_virtual_pt_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_virtual_pt_features, 'grey');
           } else if (_isOnlyUnloadOrder || _isOnlyLoadOrder) {
             this.ChangeFeaturesAsIgnoreStyle(charge_features);
-            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features, 'grey');
             this.ChangeFeaturesAsCandicatingStyle(eq_features);
           } else if (_isChargeOrder) {
             this.ChangeFeaturesAsIgnoreStyle(eq_features);
-            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features, 'grey');
           } else if (_isParkOrder) {
             this.ChangeFeaturesAsIgnoreStyle(eq_features);
-            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features);
+            this.ChangeFeaturesAsIgnoreStyle(normal_pt_features, 'grey');
             this.ChangeFeaturesAsCandicatingStyle(parkable_features);
 
           } else {
@@ -3369,7 +3388,7 @@ export default {
         }
       })
     },
-    ChangeFeaturesAsIgnoreStyle(features, color = 'rgb(222, 222, 222)') {
+    ChangeFeaturesAsIgnoreStyle(features, color = 'rgb(59, 243, 59)') {//TODO ChangeFeaturesAsIgnoreStyle
       features.forEach(feature => {
         feature.set('isSelectable', false)
         var style = feature.getStyle()
@@ -3797,7 +3816,7 @@ export default {
   }
 
   .map-ledgend {
-    background-color: rgba(241, 241, 241, 0.849);
+    background-color: rgba(241, 241, 241, 0.649);
     width: 200px;
     position: absolute;
     bottom: 12rem;

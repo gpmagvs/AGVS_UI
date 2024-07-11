@@ -307,9 +307,9 @@ export function GetStationStyle(text = '', station_type = 0, map_data = new MapP
             }),
             stroke: new Stroke({
                 color: 'black',
-                width: 2,
+                width: 1.5,
             }),
-            padding: [4, 12, 80, 12]
+            padding: [1, 6, 20, 6]
         }),
     })
     return textStyle

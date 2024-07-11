@@ -617,7 +617,7 @@ export default {
       var isInspectionAGV = agv_status.Model == 2;
       this.$swal.fire(
         {
-          title: `確定要將${agv_status.AGV_Name}${isInspectionAGV ? '派送至交換戰站交換電池?' : '派送至充電站充電?'}`,
+          title: `確定要將${agv_status.AGV_Name}${isInspectionAGV ? '派送至交換站交換電池?' : '派送至充電站充電?'}`,
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: 'OK',

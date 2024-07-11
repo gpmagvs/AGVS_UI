@@ -8,43 +8,84 @@
         </el-icon>
       </i>
       <div class="flex-fill text-start">
-        <div class="field-name"> {{ fieldName }} </div>
+        <div class="field-name">{{ fieldName }}</div>
       </div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
         <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="mode.name">
           <span class="mx-1">{{ $i18n.locale == 'zh-TW' ? mode.name : mode.name_eng }}</span>
-          <el-switch v-model="mode.actived" active-color="rgb(95, 171, 80)" inactive-color="red"
-            :active-text="mode.active_text" :inactive-text="mode.inactive_text" border-color="grey" inline-prompt
-            :before-change="mode.beforeChangeHandler" :loading="mode.loading" size="large" width="75px"></el-switch>
+          <el-switch
+            v-model="mode.actived"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+            :active-text="mode.active_text"
+            :inactive-text="mode.inactive_text"
+            border-color="grey"
+            inline-prompt
+            :before-change="mode.beforeChangeHandler"
+            :loading="mode.loading"
+            size="large"
+            width="75px"
+          ></el-switch>
         </div>
         <!-- <div v-if="modes.system_operation_mode.actived" class="op-mode-switch-container"> -->
         <div v-if="false" class="op-mode-switch-container">
           <span class="mx-1">{{ $t('App.Header.view_mode') }}</span>
-          <el-switch v-model="isEasyMode" @change="HandleViewModeChanged" :before-change="CheckUserLoginState"
-            active-color="rgb(95, 171, 80)" inactive-color="red" :active-text="$t('App.Header.Simple mode')"
-            :inactive-text="$t('App.Header.ENG mode')" border-color="grey" inline-prompt size="large"
-            width="80px"></el-switch>
+          <el-switch
+            v-model="isEasyMode"
+            @change="HandleViewModeChanged"
+            :before-change="CheckUserLoginState"
+            active-color="rgb(95, 171, 80)"
+            inactive-color="red"
+            :active-text="$t('App.Header.Simple mode')"
+            :inactive-text="$t('App.Header.ENG mode')"
+            border-color="grey"
+            inline-prompt
+            size="large"
+            width="80px"
+          ></el-switch>
         </div>
         <div>
           <!-- <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
-            <template #reference> -->
-          <b-button class="mx-1" style="border: none;background-color: transparent;color:white" @click="LangSwitch($i18n.locale == 'zh-TW' ? 'en-US' : 'zh-TW')">
-            <el-icon><i class="bi bi-translate"></i></el-icon> {{ $i18n.locale == 'zh-TW' ? 'ENGLISH' : "中文" }} </b-button>
+          <template #reference>-->
+          <b-button
+            class="mx-1"
+            style="border: none;background-color: transparent;color:white"
+            @click="LangSwitch($i18n.locale == 'zh-TW' ? 'en-US' : 'zh-TW')"
+          >
+            <el-icon>
+              <i class="bi bi-translate"></i>
+            </el-icon>
+            {{ $i18n.locale == 'zh-TW' ? 'ENGLISH' : "中文" }}
+          </b-button>
         </div>
         <div @click="LoginClickHandler">
           <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
               <b-button style="border: none;background-color: transparent;color:white">
-                <el-icon> <i class="bi bi-person-circle"></i>
-                </el-icon> {{ UserName }} <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
+                <el-icon>
+                  <i class="bi bi-person-circle"></i>
+                </el-icon>
+                {{ UserName }}
+                <i v-if="IsLogin" class="bi bi-caret-down-fill"></i>
               </b-button>
             </template>
             <template #default>
               <div class="d-flex flex-column">
-                <b-button v-if="!IsLogin" @click="LoginClickHandler" variant="light">{{ $t('App.Header.LOGIN') }}</b-button>
-                <b-button v-if="IsLogin" @click="LogoutQickly" variant="danger">{{ $t('App.Header.LOGOUT') }}</b-button>
-                <b-button v-if="IsLogin" class="my-1 bg-light text-dark" @click="SwitchUserBtnClick">{{ $t('App.Header.Switch user') }}</b-button>
+                <b-button
+                  v-if="!IsLogin"
+                  @click="LoginClickHandler"
+                  variant="light"
+                >{{ $t('App.Header.LOGIN') }}</b-button>
+                <b-button
+                  v-if="IsLogin"
+                  @click="LogoutQickly"
+                  variant="danger"
+                >{{ $t('App.Header.LOGOUT') }}</b-button>
+                <b-button
+                  v-if="IsLogin"
+                  class="my-1 bg-light text-dark"
+                  @click="SwitchUserBtnClick"
+                >{{ $t('App.Header.Switch user') }}</b-button>
               </div>
             </template>
           </el-popover>
@@ -57,12 +98,19 @@
       <div class="alarm-container" v-bind:class="system_alarms_classes">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> {{ $t('App.Header.systemalarm') }} </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
+            {{ $t('App.Header.systemalarm') }}
+          </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
         <div v-if="IsLogin" class="opt">
           <div>
-            <b-button @click="ResetSysAlarmsHandler" class="mb-0" size="sm" variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
+            <b-button
+              @click="ResetSysAlarmsHandler"
+              class="mb-0"
+              size="sm"
+              variant="danger"
+            >{{ $t('App.Header.alarmreset') }}</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -71,12 +119,20 @@
       <div class="alarm-container" v-bind:class="equipment_alarms_classes">
         <div class="flex-fill">
           <span class="type-text">
-            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> --> {{ $t('App.Header.eqalarm') }} </span>
+            <!-- <i class="bi bi-three-dots-vertical pt-2"></i> -->
+            {{ $t('App.Header.eqalarm') }}
+          </span>
           <span class="alarm-text">{{ eq_alrm_text }}</span>
         </div>
         <div class="opt">
           <div>
-            <b-button v-if="false" @click="ResetEqpAlarmsHandler" class="mb-2" size="sm" variant="danger">{{ $t('App.Header.alarmreset') }}</b-button>
+            <b-button
+              v-if="false"
+              @click="ResetEqpAlarmsHandler"
+              class="mb-2"
+              size="sm"
+              variant="danger"
+            >{{ $t('App.Header.alarmreset') }}</b-button>
           </div>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
@@ -95,7 +151,7 @@ import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { agvs_settings_store, userStore, UIStore, AlarmStore } from '@/store'
 import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@element-plus/icons-vue'
-import { ElNotification } from 'element-plus';
+import { ElMessage, ElNotification } from 'element-plus';
 export default {
   components: {
     MenuExpandIcon, MenuFoldIcon, UserFilled, Switch
@@ -230,6 +286,9 @@ export default {
     });
     bus.on('/show-login-view-invoke', () => {
       this.LoginClickHandler();
+    })
+    bus.on('reload-system-modes-from-server', () => {
+      this.DownloadSystemOperationsSettings(100);
     })
     const route = useRoute()
     watch(
@@ -453,7 +512,7 @@ export default {
     },
     LangSwitch(lang) {
       this.$i18n.locale = lang;
-      localStorage.setItem('lang',lang);
+      localStorage.setItem('lang', lang);
     },
     async ResetSysAlarmsHandler() {
       await ResetSystemAlarm()
@@ -558,7 +617,6 @@ export default {
   }
 
   .alarm {
-
     .alarm-container {
       display: flex;
       flex-direction: row;
@@ -644,7 +702,6 @@ export default {
   }
 
   @keyframes alarm_blink {
-
     0%,
     100% {
       background-color: rgb(255, 0, 51);
@@ -658,7 +715,6 @@ export default {
   }
 
   @keyframes warning_blink {
-
     0%,
     100% {
       background-color: rgb(231, 197, 85);
@@ -684,7 +740,6 @@ export default {
   }
 
   @keyframes blink {
-
     0%,
     100% {
       background-color: red;
@@ -693,7 +748,6 @@ export default {
     50% {
       background-color: grey;
     }
-
   }
 
   .page-name-display {
@@ -701,6 +755,7 @@ export default {
     font-weight: bold;
   }
 
-  .user-account {}
+  .user-account {
+  }
 }
 </style>

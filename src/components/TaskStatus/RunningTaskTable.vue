@@ -10,42 +10,74 @@
       @header-dragend="HandleHeaderDragEnd"
       border
       fit
-      :height="height">
-      <el-table-column :label="$t('TaskTable.TaskName')" width="180" prop="TaskName"></el-table-column>
-      <el-table-column :label="$t('TaskTable.Time')" align="center" prop="RecieveTime_Formated" width="80"></el-table-column>
-      <el-table-column :label="$t('TaskTable.Action')" align="center" prop="ActionName" width="60">
+      :height="height"
+    >
+      <el-table-column :label="$t('TaskTable.TaskName')" width="100" prop="TaskName"></el-table-column>
+      <el-table-column
+        :label="$t('TaskTable.Time')"
+        align="center"
+        prop="RecieveTime_Formated"
+        width="90"
+      ></el-table-column>
+      <el-table-column :label="$t('TaskTable.Action')" align="center" prop="ActionName" width="80">
         <template #default="scope">
-          <el-tag effect="dark" :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : ''"> <b>{{ scope.row.ActionName }}</b></el-tag>
+          <el-tag
+            effect="dark"
+            :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : ''"
+          >
+            <b>{{ scope.row.ActionName }}</b>
+          </el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.TaskStatus')" align="center" prop="StateName" :width="getColumnSize('StateName', 80)">
+      <el-table-column
+        :label="$t('TaskTable.TaskStatus')"
+        align="center"
+        prop="StateName"
+        width="80"
+      >
         <template #default="scope">
           <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.ExcuteAgvName')" align="center" :width="getColumnSize('DesignatedAGVName', 120)" prop="DesignatedAGVName">
+      <el-table-column
+        :label="$t('TaskTable.ExcuteAgvName')"
+        align="center"
+        width="120"
+        prop="DesignatedAGVName"
+      >
         <template #default="scope">
           <div class="agv-name">{{ scope.row.DesignatedAGVName }}</div>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Source')" align="center" prop="From_Station" :width="getColumnSize('From_Station', 110)">
-        <template #default="scope"> {{ GetStationName(scope.row.From_Station) }}</template>
+      <el-table-column
+        :label="$t('TaskTable.Source')"
+        align="center"
+        prop="From_Station"
+        width="110"
+      >
+        <template #default="scope">{{ GetStationName(scope.row.From_Station) }}</template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column> -->
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Destine')" align="center" prop="To_Station" :width="getColumnSize('To_Station', 110)" min-width="100%">
+      <el-table-column
+        :label="$t('TaskTable.Destine')"
+        align="center"
+        prop="To_Station"
+        width="110"
+        min-width="100%"
+      >
         <template #default="scope">{{ GetStationName(scope.row.To_Station) }}</template>
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.CstID')" align="center" :width="getColumnSize('Carrier_ID', 120)" prop="Carrier_ID">
+      <el-table-column :label="$t('TaskTable.CstID')" align="center" width="120" prop="Carrier_ID">
         <template #default="scope">{{ scope.row.Carrier_ID == "-1" ? "" : scope.row.Carrier_ID }}</template>
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Dispatcher')" :width="getColumnSize('DispatcherName')" prop="DispatcherName"></el-table-column>
-      <el-table-column v-show="taskCancelable" fixed="right" width="100">
+      <el-table-column :label="$t('TaskTable.Dispatcher')" width="100" prop="DispatcherName"></el-table-column>
+      <el-table-column v-show="taskCancelable" fixed="right" width="125">
         <template #default="scope">
           <div>
-            <b-button size="sm" variant="danger" @click="CancelTaskHandler(scope.row.TaskName)">取消任務</b-button>
+            <b-button variant="danger" @click="CancelTaskHandler(scope.row.TaskName)">取消任務</b-button>
           </div>
         </template>
       </el-table-column>
@@ -208,7 +240,7 @@ export default {
     }
 
     .task-row {
-      color: rgb(13, 110, 253)
+      color: rgb(13, 110, 253);
     }
   }
 }

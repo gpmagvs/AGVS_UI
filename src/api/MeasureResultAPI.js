@@ -12,6 +12,31 @@ export async function Query(option = clsQueryOptions) {
     return response.data;
 }
 
+
+/**查詢GetBayNames */
+export async function GetBayNames() {
+    var response = await axios_entity.get('/api/InstrumentMeasure/GetBayNamesMeasured');
+    return response.data;
+}
+/**查詢By的Tag */
+export async function GetTagsOfBay(bayname) {
+    var response = await axios_entity.get(`/api/InstrumentMeasure/GetTagsOfBay?bayName=${bayname}`);
+    return response.data;
+}
+
+
+export async function GetMeasureItems() {
+    var response = await axios_entity.get(`/api/InstrumentMeasure/GetMeasureItems`);
+    return response.data;
+}
+
+
+export async function QueryItemTrendData(form) {
+    var response = await axios_entity.post(`/api/InstrumentMeasure/QueryItemTrendData`, form);
+    return response.data;
+}
+
+
 /**取得排程量測資料 */
 export async function GetSchedules() {
     var response = await axios_entity.get('/api/InstrumentMeasure/GetMeasureSchedules');

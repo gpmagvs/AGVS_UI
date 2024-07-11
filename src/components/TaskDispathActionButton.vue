@@ -76,7 +76,11 @@
                   @change="HandleFromSelectChanged"
                   @click="HandleSelectSoureStationFromMapBtnClick"
                   v-model="selected_source.TagNumber"
+                  filterable
                 >
+                  <template #header>
+                    <el-button @click="HandleSelectSoureStationFromMapBtnClick" size="large">Refresh</el-button>
+                  </template>
                   <el-option
                     v-for="tag in FromStationOptions"
                     :key="tag.tag"
@@ -121,6 +125,7 @@
                 <el-select
                   class="w-100 px-1"
                   size="large"
+                  filterable
                   :placeholder="$t('Choose_Dest_from_Map')"
                   @change="HandleDestineSelectChanged"
                   @click="HandleSelectDestineStationFromMapBtnClick"

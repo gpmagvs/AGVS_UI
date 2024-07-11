@@ -45,12 +45,17 @@ function InitWSNotification(agvs = true, vms = true) {
             if (notify.message === 'Map-Point-Enabled-Property-Changed') {
                 bus.emit('Map-Point-Enabled-Property-Changed')
             }
+
+            if (notify.message.includes('system_mode-')) {
+                bus.emit('reload-system-modes-from-server')
+            }
+
             if (notify.show) {
                 ElMessage({
                     title: "AGVSystem " + notify.evt,
                     type: notify.typeStr,
                     message: notify.message,
-                    duration: 1000
+                    duration: 2000
                 })
             }
         }
@@ -91,7 +96,7 @@ function InitWSNotification(agvs = true, vms = true) {
                 ElMessage({
                     type: notify.typeStr,
                     message: notify.message,
-                    duration: 1000
+                    duration: 2000
                 })
             }
         }
