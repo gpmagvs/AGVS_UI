@@ -5,22 +5,30 @@
     v-loading="loading"
     element-loading-text="GPM AGVS"
     element-loading-svg-view-box="-10, -10, 50, 50"
-    element-loading-background="rgba(31, 31, 31, 0.9)">
+    element-loading-background="rgba(31, 31, 31, 0.9)"
+  >
     <el-container>
       <el-aside class="border" style="width:auto">
         <Menu :isCollapse="menu_collapse"></Menu>
       </el-aside>
       <el-container>
-        <el-header style="padding:0;">
-          <Header ref="header" :MenuExpanded="menu_collapse" v-show="!loading"
+        <el-header v-if="!IsOpUsing" style="padding:0;">
+          <Header
+            ref="header"
+            :MenuExpanded="menu_collapse"
+            v-show="!loading"
             @update:HasSystemAlarm="(val) => { HeaderShowSysAlarm = true; }"
             @update:HasEqpAlarm="(val) => { HeaderShowEqpAlarm = true; }"
-            @onMenuToggleClicked="ToggleMenu"></Header>
+            @onMenuToggleClicked="ToggleMenu"
+          ></Header>
         </el-header>
-        <el-main style="padding:0;overflow-y: hidden;" v-bind:style="router_view_style"><router-view v-show="!loading" v-slot="{ Component }"> <keep-alive>
+        <el-main style="padding:0;overflow-y: hidden;" v-bind:style="router_view_style">
+          <router-view v-show="!loading" v-slot="{ Component }">
+            <keep-alive>
               <component :is="Component" />
             </keep-alive>
-          </router-view></el-main>
+          </router-view>
+        </el-main>
       </el-container>
     </el-container>
     <b-modal
@@ -29,13 +37,14 @@
       :centered="true"
       :okOnly="true"
       :headerBgVariant="okOnlyModalProps.title_variant"
-      headerTextVariant="light">
+      headerTextVariant="light"
+    >
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
     <!-- <MoveAGVNotifty></MoveAGVNotifty> -->
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
-    <ConnectionState :IsMenuExpanded="!menu_collapse"></ConnectionState>
+    <ConnectionState v-if="!IsOpUsing" :IsMenuExpanded="!menu_collapse"></ConnectionState>
   </div>
 </template>
 <script>
@@ -83,6 +92,9 @@ export default {
     router_view_style() {
 
       var _paddingTop = '18px';
+      if (this.IsOpUsing) {
+        return '10px';
+      }
       if (this.HeaderShowEqpAlarm && this.HeaderShowSysAlarm)
         _paddingTop = '65px'
       else if (!this.HeaderShowEqpAlarm && !this.HeaderShowSysAlarm)
@@ -94,7 +106,10 @@ export default {
         position: 'relative',
         paddingTop: _paddingTop,
       }
-    }
+    },
+    IsOpUsing() {
+      return userStore.getters.IsOPLogining;
+    },
   },
   methods: {
 
@@ -121,9 +136,9 @@ export default {
 
       })
     },
-    changeLangFromLocalStorage(){
+    changeLangFromLocalStorage() {
       var _lang = localStorage.getItem('lang');
-      if(_lang){
+      if (_lang) {
         this.$i18n.locale = _lang;
       }
     }

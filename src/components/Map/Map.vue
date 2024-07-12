@@ -7,7 +7,7 @@
           v-if="IsSelectAGVMode"
         >選擇 AGV</div>
         <div
-          class="w-100 rounded p-2 select-mode"
+          class="w-100 rounded p-1 select-mode"
           v-if="IsSelectEQStationMode"
           v-bind:class="TaskDispatchOptions.action_type == 'charge' || TaskDispatchOptions.direction == 'destine' ? 'select-destine-notify' : 'select-source-notify'"
         >
@@ -509,6 +509,18 @@
                   @change="HandleLedgendShowChanged"
                 ></el-switch>
               </div>
+              <div class="rounded">
+                <span class="mx-1">Drag Lock</span>
+                <el-switch
+                  class="my-2"
+                  inactive-text="UNLOCK"
+                  active-text="LOCK"
+                  inline-prompt
+                  width="70"
+                  v-model="dragActionLock"
+                  @change="HandleDragLockSwitchChanged"
+                ></el-switch>
+              </div>
               <div v-if="editable" class="rounded">
                 <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
                   <span class="mx-1">AGV上報點位模式</span>
@@ -832,6 +844,7 @@ export default {
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
       legendShow: true,
+      dragActionLock: false,
       routePathsVisible: true,
       regionsVisible: false,
       contextMenuTop: 0,
@@ -2016,7 +2029,8 @@ export default {
         center_route: this.center_route,
         station_name_display_mode: this.station_name_display_mode,
         map_image_display: this.map_image_display,
-        legendShow: this.legendShow
+        legendShow: this.legendShow,
+        dragActionLock: this.dragActionLock
       }))
 
     },
@@ -2029,6 +2043,7 @@ export default {
         this.map_display_mode = this.editable ? 'router' : settings.mode
         this.zoom = settings.zoom;
         this.legendShow = settings.legendShow;
+        this.dragActionLock = settings.dragActionLock;
         this.map.getView().setCenter(settings.center);
         this.map.getView().setZoom(settings.zoom);
         this.ImageLayer.setVisible(this.map_image_display == 'visible')
@@ -2962,6 +2977,10 @@ export default {
     HandleLedgendShowChanged(legendShow) {
       this.SaveSettingsToLocalStorage();
     },
+    HandleDragLockSwitchChanged() {
+
+      this.SaveSettingsToLocalStorage();
+    },
     HandleLDULDLabelClick(station_data, action) {
       //alert(JSON.stringify(station_data))
       //this.$emit('onTransferRequst', { station_data: station_data, action: action })
@@ -3774,7 +3793,7 @@ export default {
   height: 90vh;
 
   .select-mode {
-    font-size: 21px;
+    font-size: 17px;
   }
 
   .select-destine-notify {

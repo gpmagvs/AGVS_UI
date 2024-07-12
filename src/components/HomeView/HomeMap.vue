@@ -1,6 +1,13 @@
 <template>
   <div class="map card-like">
-    <Map canva_height="100%" @onTransferRequst="HandleTransferReq" :id="id" class="w-100" :task_dispatch_menu_show="true" :eq_lduld_status_show="true"></Map>
+    <Map
+      canva_height="100%"
+      @onTransferRequst="HandleTransferReq"
+      :id="id"
+      class="w-100"
+      :task_dispatch_menu_show="true"
+      :eq_lduld_status_show="true"
+    ></Map>
     <CargoTransferDialog ref="transfer_dialog"></CargoTransferDialog>
   </div>
 </template>

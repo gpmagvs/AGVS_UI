@@ -1,13 +1,18 @@
 <template>
-  <div class="connection-state d-flex flex-row justify-content-between fixed-bottom bg-light border-top text-start"
+  <div
+    class="connection-state d-flex flex-row justify-content-between fixed-bottom bg-light border-top text-start"
     v-bind:style="{
       marginLeft: marginLeft
-    }">
+    }"
+  >
     <div class="d-flex flex-row">
       <i class="bi bi-three-dots-vertical"></i>
       <div class="conn-block px-1 border-end">
         <label>VMS</label>
-        <el-tag effect="dark" :type="VMSAlive ? 'success' : 'danger'">{{ VMSAlive ? $t('HomeView.EQStatus.EQStatus.Connected') : $t('HomeView.EQStatus.EQStatus.DisConnect') }}</el-tag>
+        <el-tag
+          effect="dark"
+          :type="VMSAlive ? 'success' : 'danger'"
+        >{{ VMSAlive ? $t('HomeView.EQStatus.EQStatus.Connected') : $t('HomeView.EQStatus.EQStatus.DisConnect') }}</el-tag>
       </div>
     </div>
     <div>V{{ APPVersion }}</div>

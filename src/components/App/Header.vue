@@ -93,7 +93,7 @@
       </div>
     </div>
     <!--Alarm-->
-    <div v-show="showAlarm" class="alarm text-dark">
+    <div v-show="showAlarm&&!IsOpUsing" class="alarm text-dark">
       <!-- <div v-if="system_alrm_text != ''" class="alarm-container" v-bind:class="system_alarms"> -->
       <div class="alarm-container" v-bind:class="system_alarms_classes">
         <div class="flex-fill">
@@ -222,6 +222,9 @@ export default {
 
     IsLogin() {
       return userStore.getters.IsLogin;
+    },
+    IsOpUsing() {
+      return userStore.getters.IsOPLogining;
     },
     current_user_role() {
       return userStore.getters.level;
@@ -420,9 +423,10 @@ export default {
         this.ModeRequestFailHandler("操作模式", msg, (msg == '尚有任務在執行中' && isGodOrDevLogin) ? '強制切換' : '', async () => {
           setTimeout(() => {
             this.SysOptModeChangeRequest(true);
+          }, 200)
+          setTimeout(() => {
             this.DownloadSystemOperationsSettings(100);
-          }, 500)
-
+          }, 500);
         });
       }
       else {

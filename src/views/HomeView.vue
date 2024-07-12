@@ -1,9 +1,13 @@
 <template>
   <div class="home-view h-100 custom-tabs-head" v-loading="loading">
-    <div v-bind:style="{
+    <div
+      v-bind:style="{
       visibility: isEasyMode ? 'hidden' : 'visible'
-    }" class="d-flex flex-row ">
-      <div v-show="MenuExpanded" class="left-col  border-right left-panel">
+    }"
+      class="d-flex flex-row"
+    >
+      <div v-show="MenuExpanded" class="left-col border-right left-panel">
+        <Header v-if="IsOpUsing"></Header>
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="330px"></TaskStatusVue>
       </div>
@@ -13,16 +17,24 @@
             <MenuExpandIcon @click="() => { MenuExpanded = true; RestoreSizeOfRightSide() }" />
           </el-icon>
           <el-icon v-else>
-            <MenuFoldIcon @click="() => { MenuExpanded = false; AdjustSizeOfRightSideFullPage(); }" />
+            <MenuFoldIcon
+              @click="() => { MenuExpanded = false; AdjustSizeOfRightSideFullPage(); }"
+            />
           </el-icon>
         </div>
         <div class="flex-fill d-flex flex-column justify-content-center">
-          <i class=" bi bi-three-dots-vertical"></i>
+          <i class="bi bi-three-dots-vertical"></i>
         </div>
       </div>
       <div class="right-panel flex-fill">
         <!-- <HomeMap style="width:100%"></HomeMap> -->
-        <el-tabs lazy v-model="right_side_tabSelected" tab-position="top" style="height: 100%" type="border-card">
+        <el-tabs
+          lazy
+          v-model="right_side_tabSelected"
+          tab-position="top"
+          style="height: 100%"
+          type="border-card"
+        >
           <el-tab-pane name="map" :label="$t('HomeView.Map')">
             <HomeMap style="width:100%"></HomeMap>
           </el-tab-pane>
@@ -33,13 +45,16 @@
       </div>
       <TaskAllocationVue></TaskAllocationVue>
     </div>
-    <div v-bind:style="{
+    <div
+      v-bind:style="{
       visibility: isEasyMode ? 'visible' : 'hidden',
       position: 'absolute',
       top: '70px',
       width: '100%',
       height: '82vh'
-    }" class="easy_mode d-flex">
+    }"
+      class="easy_mode d-flex"
+    >
       <div>
         <AGVStatusVue :IsEasyMode="true"></AGVStatusVue>
       </div>
@@ -47,11 +62,20 @@
         <HomeMap id="homemap-easymode"></HomeMap>
       </div>
     </div>
-    <TaskDispatchNewUI class="new-dispatch-pnl" v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'"
-      @close="() => { show_new_dispatch_panel = false }" v-show="show_new_dispatch_panel"></TaskDispatchNewUI>
-    <TaskDispathActionButton class="fixed-bottom" @onTaskDispatch="() => {
+    <TaskDispatchNewUI
+      class="new-dispatch-pnl"
+      v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'"
+      @close="() => { show_new_dispatch_panel = false }"
+      v-show="show_new_dispatch_panel"
+    ></TaskDispatchNewUI>
+    <TaskDispathActionButton
+      class="fixed-bottom"
+      @onTaskDispatch="() => {
       right_side_tabSelected = 'map';
-    }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
+    }"
+      v-if="IsLogin"
+      @on-click="() => { show_new_dispatch_panel = true }"
+    ></TaskDispathActionButton>
   </div>
 </template>
 <script>
@@ -66,10 +90,11 @@ import bus from '@/event-bus.js'
 import { userStore, agvs_settings_store } from '@/store';
 import { DArrowRight as MenuExpandIcon, DArrowLeft as MenuFoldIcon } from '@element-plus/icons-vue'
 
+import Header from '@/components/App/Header.vue'
 export default {
   components: {
     AGVStatusVue, TaskStatusVue, HomeMap, TaskAllocationVue, EQStatus, TaskDispathActionButton, TaskDispatchNewUI,
-    MenuExpandIcon, MenuFoldIcon
+    MenuExpandIcon, MenuFoldIcon, Header
   },
   methods: {
     AdjustSizeOfRightSideFullPage() {
@@ -98,6 +123,9 @@ export default {
   computed: {
     IsRunMode() { return agvs_settings_store.getters.IsRunMode; },
     IsLogin() { return userStore.getters.IsLogin; },
+    IsOpUsing() {
+      return userStore.getters.IsOPLogining;
+    },
   },
   data() {
     return {
@@ -181,7 +209,6 @@ export default {
     z-index: 233;
   }
 
-
   @keyframes slideInFromLeft {
     0% {
       transform: translateX(-100%);
@@ -212,6 +239,5 @@ export default {
   .resizer:active {
     background-color: rgb(223, 237, 247);
   }
-
 }
 </style>
