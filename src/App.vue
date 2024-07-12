@@ -145,9 +145,15 @@ export default {
   },
   mounted() {
 
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
+
     this.$store.dispatch('GetDynamicWebsiteData').then(response => {
       var fieldName = response.FieldName;
-      document.title = `[${fieldName}]-GPM AGVS`
+      if (isDevelopment)
+        document.title = `[DEBUG]-[${fieldName}]-GPM AGVS`
+      else
+        document.title = `[${fieldName}]-GPM AGVS`
     });
 
     let login_states = IsLoginLastTime();
