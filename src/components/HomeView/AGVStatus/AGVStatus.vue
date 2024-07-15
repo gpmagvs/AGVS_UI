@@ -187,6 +187,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="!IsOpUsing"
         :label="$t('HomeView.AGVStatus.AGVStatus.task-status')"
         prop="Task_Status"
         align="left"

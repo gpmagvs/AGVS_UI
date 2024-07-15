@@ -11,7 +11,15 @@
         <AGVStatusVue></AGVStatusVue>
         <TaskStatusVue height="330px"></TaskStatusVue>
       </div>
-      <div class="resizer text-primary d-flex flex-column">
+      <div
+        v-bind:style=" IsOpUsing? {
+        width: '0px',
+        visibility: 'hidden'  
+        }: {
+        width: '25px',
+      }"
+        class="resizer text-primary d-flex flex-column"
+      >
         <div class="menu-icon">
           <el-icon v-if="!MenuExpanded">
             <MenuExpandIcon @click="() => { MenuExpanded = true; RestoreSizeOfRightSide() }" />
@@ -157,6 +165,14 @@ export default {
     var _this = this;
 
     setTimeout(() => {
+
+      if (this.IsOpUsing) {
+        //{"right":"854px","left":"842px"}
+        leftPanel.style.width = '842px';
+        rightPanel.style.width = '854px';
+        return;
+      }
+
       var resizer_pnls_width_cache = this.GetPanlWidthFromLocalStorage();
       if (resizer_pnls_width_cache) {
 
