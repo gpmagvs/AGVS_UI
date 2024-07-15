@@ -402,7 +402,7 @@
               v-if="!editable&&legendShow"
               class="map-ledgend border rounded"
               v-bind:style="{
-                bottom: IsOpUsing?'6rem' :'12rem'
+                bottom: IsOpUsing?'6.8rem' :'12rem'
             }"
             ></MapLegend>
             <!-- 設定 -->
