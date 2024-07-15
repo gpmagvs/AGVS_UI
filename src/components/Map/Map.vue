@@ -645,7 +645,7 @@ import Map from 'ol/Map.js'; 2
 import Point from 'ol/geom/Point.js';
 import VectorSource from 'ol/source/Vector.js';
 import LineString from 'ol/geom/LineString';
-import { Pointer, DragPan } from 'ol/interaction'
+import { defaults as defaultInteractions, Pointer, MouseWheelZoom, DragPan } from 'ol/interaction'
 import Draw from 'ol/interaction/Draw.js';
 import Projection from 'ol/proj/Projection.js';
 import Static from 'ol/source/ImageStatic.js';
@@ -1450,6 +1450,9 @@ export default {
         if (interaction instanceof DragPan) {
           interaction.setActive(enabled);
         }
+        if (interaction instanceof MouseWheelZoom) {
+          interaction.setActive(enabled);
+        }
       });
     },
     /**事件處理 */
@@ -2059,6 +2062,8 @@ export default {
         //this.center = settings.center
         //this.zoom_route = settings.zoom_route;
         //this.center_route = settings.center_route
+        this.setDragPanEnabled(this.dragActionLock)
+
       }
     },
 
@@ -2645,6 +2650,9 @@ export default {
       this.AGVLocusLayer = new VectorLayer({
         source: new VectorSource({ features: [] }),
       })
+
+
+
       this.map = new Map({
         layers: [this.ImageLayer, this.RegionLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
         target: this.id,
@@ -2678,6 +2686,7 @@ export default {
       this.InitMapEventHandler();
       this.initGrid(this.map, this.MapGridSize, extent)
       // this.map.addControl(new ZoomSlider());
+
     },
     ResetImageExtend(newExtent) {
 
@@ -2987,7 +2996,7 @@ export default {
       this.SaveSettingsToLocalStorage();
     },
     HandleDragLockSwitchChanged() {
-
+      this.setDragPanEnabled(this.dragActionLock)
       this.SaveSettingsToLocalStorage();
     },
     HandleLDULDLabelClick(station_data, action) {
