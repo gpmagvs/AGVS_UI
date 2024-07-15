@@ -12,7 +12,13 @@
       </div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
-        <div class="op-mode-switch-container" v-for="(mode, key) in modes" :key="mode.name">
+
+        <div
+          class="op-mode-switch-container"
+          v-for="(mode, key) in modes"
+          :key="mode.name"
+          v-show="GetModeVisible(key)"
+        >
           <span class="mx-1">{{ $i18n.locale == 'zh-TW' ? mode.name : mode.name_eng }}</span>
           <el-switch
             v-model="mode.actived"
@@ -172,6 +178,7 @@ export default {
           active_text: '運轉',
           inactive_text: '維護',
           loading: false,
+          visible: true,
           beforeChangeHandler: () => this.SysOptModeChangeRequest()
         },
         transfer_mode: {
@@ -181,6 +188,7 @@ export default {
           active_text: '自動',
           inactive_text: '手動',
           loading: false,
+          visible: true,
           beforeChangeHandler: () => this.TransferModeChangeRequest()
         },
         host_conn_mode: {
@@ -190,6 +198,7 @@ export default {
           active_text: 'Online',
           inactive_text: 'Offline',
           loading: false,
+          visible: true,
           beforeChangeHandler: () => this.HostConnModeChangeRequest()
         },
         host_operation_mode: {
@@ -199,6 +208,7 @@ export default {
           active_text: 'Remote',
           inactive_text: 'Local',
           loading: false,
+          visible: true,
           beforeChangeHandler: () => this.HostOptModeChangeRequest()
         }
 
@@ -319,6 +329,16 @@ export default {
       }
       bus.emit('bus-show-task-allocation', { agv_name: "", agv_type: "", action: '', station_data: undefined });
     },
+    GetModeVisible(modeKey) {
+
+      if (!this.IsLogin)
+        return false;
+      var visibleModesWhenOpLogin = ['system_operation_mode']
+      if (this.IsOpUsing) {
+        return visibleModesWhenOpLogin.includes(modeKey)
+      }
+      return true;
+    },
     async DownloadSystemOperationsSettings(delay_ms = 1000) {
       setTimeout(async () => {
         var settings = await GetOperationStates()
@@ -332,7 +352,6 @@ export default {
 
       }, delay_ms);
     },
-
     ToggleMenu() {
       this.$emit('onMenuToggleClicked', '')
     },

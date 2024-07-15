@@ -813,6 +813,9 @@ export default {
     IsLogin() {
       return userStore.getters.IsLogin;
     },
+    IsOpUsing() {
+      return userStore.getters.IsOPLogining;
+    },
     IsRunMode() {
       return agvs_settings_store.getters.IsRunMode;
     },
