@@ -516,11 +516,11 @@
                 ></el-switch>
               </div>
               <div class="rounded">
-                <span class="mx-1">Drag Lock</span>
+                <span class="mx-1">Pan/Zoom</span>
                 <el-switch
                   class="my-2"
-                  inactive-text="UNLOCK"
-                  active-text="LOCK"
+                  inactive-text="Disable"
+                  active-text="Enable"
                   inline-prompt
                   width="70"
                   v-model="dragActionLock"
@@ -2055,13 +2055,18 @@ export default {
         this.map_display_mode = this.editable ? 'router' : settings.mode
         this.zoom = settings.zoom;
         this.legendShow = settings.legendShow;
-        this.dragActionLock = settings.dragActionLock;
         this.map.getView().setCenter(settings.center);
         this.map.getView().setZoom(settings.zoom);
         this.ImageLayer.setVisible(this.map_image_display == 'visible')
         //this.center = settings.center
         //this.zoom_route = settings.zoom_route;
         //this.center_route = settings.center_route
+
+        if (this.IsOpUsing) {
+          this.dragActionLock = false;
+        } else {
+          this.dragActionLock = settings.dragActionLock;
+        }
         this.setDragPanEnabled(this.dragActionLock)
 
       }
