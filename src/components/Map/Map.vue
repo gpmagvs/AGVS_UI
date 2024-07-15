@@ -398,7 +398,13 @@
 
             <div :id="id" class="agv_map flex-fll" @contextmenu="showContextMenu($event)"></div>
             <!-- 圖例 -->
-            <MapLegend v-if="!editable&&legendShow" class="map-ledgend border rounded"></MapLegend>
+            <MapLegend
+              v-if="!editable&&legendShow"
+              class="map-ledgend border rounded"
+              v-bind:style="{
+                bottom: IsOpUsing?'6rem' :'12rem'
+            }"
+            ></MapLegend>
             <!-- 設定 -->
             <div class="options bg-light border-start text-start px-1 py-3">
               <div v-if="station_show" class="rounded d-flex flex-column">
@@ -655,7 +661,7 @@ import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image } from './mapjs';
 import { MapStore } from './store'
-import { EqStore, agv_states_store } from '@/store'
+import { EqStore, agv_states_store, userStore } from '@/store'
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
@@ -898,6 +904,9 @@ export default {
     }
   },
   computed: {
+    IsOpUsing() {
+      return userStore.getters.IsOPLogining;
+    },
     MapServerUrl() {
       return MapStore.getters.MapServerUrl;
     },
@@ -3838,7 +3847,7 @@ export default {
     background-color: rgba(241, 241, 241, 0.649);
     width: 200px;
     position: absolute;
-    bottom: 12rem;
+
     left: 1.1rem;
     font-size: 20px;
   }
