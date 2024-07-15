@@ -541,14 +541,14 @@
         <!-- <MapSettingsDialog ref="settings"></MapSettingsDialog> -->
       </div>
     </div>
-    <PointContextMenu
+    <!-- <PointContextMenu
       ref="EditModeContextMenu"
       v-show="editModeContextMenuVisible"
       :mouse_click_position="[contextMenuTop, contextMenuLeft]"
       :options="contextMenuOptions"
       @OnTaskBtnClick="HandleMenuTaskBtnClick"
       @OnPtSettingBtnClick="HandlePtSettingBtnClick"
-    ></PointContextMenu>
+    ></PointContextMenu>-->
     <MapPointSettingDrawer
       ref="ptsetting"
       @OnLeve="HandlePtSettingDrawerLeaved"
