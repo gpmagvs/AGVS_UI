@@ -23,9 +23,9 @@ function StoreAGVSData(data) {
     _previousAGVSData = data;
     // if (!isWindowShowing)
     //     return;
-    if (agvsStoreTimout) {
-        clearTimeout(agvsStoreTimout);
-    }
+    // if (agvsStoreTimout) {
+    //     clearTimeout(agvsStoreTimout);
+    // }
     agv_states_store.commit('setHotRunStates', data.HotRun)
     EqStore.commit('setData', data.EQStatus)
     TaskStore.commit('StoreTaskData', data.TaskData);
@@ -41,16 +41,21 @@ function StoreVMSData(data) {
     // if (!isWindowShowing)
     //     return;
 
-    if (vmsStoreTimout) {
-        clearTimeout(agvsStoreTimout);
+    if (data.VMSStatus) {
+        agv_states_store.commit('storeAgvStates', data.VMSStatus)
     }
-    vmsStoreTimout = setTimeout(() => {
-        if (data.VMSStatus) {
-            agv_states_store.commit('storeAgvStates', data.VMSStatus)
-        }
-        MapStore.commit('setAGVDynamicPathInfo', data.AGVNaviPathsInfoVM);
-        MapStore.commit('setOtherAGVLocateInfo', data.OtherAGVLocations);
-    }, 50);
+    MapStore.commit('setAGVDynamicPathInfo', data.AGVNaviPathsInfoVM);
+    MapStore.commit('setOtherAGVLocateInfo', data.OtherAGVLocations);
+    // if (vmsStoreTimout) {
+    //     clearTimeout(agvsStoreTimout);
+    // }
+    // vmsStoreTimout = setTimeout(() => {
+    //     if (data.VMSStatus) {
+    //         agv_states_store.commit('storeAgvStates', data.VMSStatus)
+    //     }
+    //     MapStore.commit('setAGVDynamicPathInfo', data.AGVNaviPathsInfoVM);
+    //     MapStore.commit('setOtherAGVLocateInfo', data.OtherAGVLocations);
+    // }, 50);
 
 }
 

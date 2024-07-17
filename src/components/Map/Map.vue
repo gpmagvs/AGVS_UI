@@ -406,8 +406,8 @@
             }"
             ></MapLegend>
             <!-- 設定 -->
-            <div class="options bg-light border-start text-start px-1 py-3">
-              <div v-if="station_show" class="rounded d-flex flex-column">
+            <div v-if="IsUserLogin" class="options bg-light border-start text-start px-1 py-3">
+              <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column">
                 <span class="border-bottom">{{ $t('Map.Options.DisplayMode') }}</span>
                 <el-radio-group
                   v-model="station_name_display_mode"
@@ -418,7 +418,7 @@
                   <el-radio label="tag" size="large">Tag</el-radio>
                 </el-radio-group>
               </div>
-              <div>
+              <div v-if="!IsOpUsing">
                 <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
                 <el-switch
                   @change="MapDisplayModeOptHandler"
@@ -446,7 +446,7 @@
                   inactive-color="rgb(146, 148, 153)"
                 ></el-switch>
               </div>
-              <div>
+              <div v-if="!IsOpUsing">
                 <span class="mx-1">{{ $t('Map.Options.BackgroundImage') }}</span>
                 <el-switch
                   v-model="map_image_display"
@@ -460,7 +460,7 @@
                   @change="SlamImageDisplayOptHandler"
                 ></el-switch>
               </div>
-              <div>
+              <div v-if="!IsOpUsing">
                 <span class="mx-1">{{ $t('Map.Options.PathVisible') }}</span>
                 <el-switch
                   v-model="routePathsVisible"
@@ -486,7 +486,7 @@
                 }"
                 ></el-switch>
               </div>
-              <div>
+              <div v-if="!IsOpUsing">
                 <span class="mx-1">{{ $t('Map.Options.RegionVisible') }}</span>
                 <el-switch
                   :disabled="map_display_mode != 'coordination'"
@@ -904,6 +904,9 @@ export default {
     }
   },
   computed: {
+    IsUserLogin() {
+      return userStore.getters.IsLogin;
+    },
     IsOpUsing() {
       return userStore.getters.IsOPLogining;
     },
@@ -2744,7 +2747,7 @@ export default {
         name: 'gridLayer',
         style: new Style({
           stroke: new Stroke({
-            color: 'rgb(221, 221, 221)',
+            color: 'white',
             width: 1
           })
         })
@@ -3069,7 +3072,7 @@ export default {
         const loadableColor = 'rgba(255, 234, 18,.5)';
         const eqDownStatusColor = 'rgba(255, 0, 0,.5)';
         const noRequestColor = 'rgba(255,255,255,.1)';
-        var textDisplayColor = 'rgb(103, 254, 2)';
+        var textDisplayColor = MapStore.state.MapData.Options.workStationTextColor;
 
         var _text = style.getText();
         var textBgFillColor = noRequestColor;
@@ -3396,7 +3399,7 @@ export default {
           _feature.setStyle(newStyle)
         }
         this.highlightingFeatures.forEach(_feature => {
-          let _textColor = _index == 0 ? 'rgb(68, 223, 113)' : 'gold';
+          let _textColor = _index == 0 ? MapStore.state.MapData.Options.workStationTextColor : 'green';
           let _bgColor = _index == 0 ? 'rgba(9, 76, 176 ,0.1)' : 'rgba(2, 20, 48 ,0.4)';
           SetTextColor(_feature, _textColor, _bgColor);
         })
@@ -3430,7 +3433,8 @@ export default {
         }
       })
     },
-    ChangeFeaturesAsIgnoreStyle(features, color = 'rgb(59, 243, 59)') {//TODO ChangeFeaturesAsIgnoreStyle
+    ChangeFeaturesAsIgnoreStyle(features) {//TODO ChangeFeaturesAsIgnoreStyle
+      var color = MapStore.state.MapData.Options.workStationTextColor;
       features.forEach(feature => {
         feature.set('isSelectable', false)
         var style = feature.getStyle()
@@ -3461,7 +3465,8 @@ export default {
       });
 
     },
-    ChangeFeaturesAsCandicatingStyle(features, color = 'rgb(222,180,9)') {
+    ChangeFeaturesAsCandicatingStyle(features) {
+      var color = MapStore.state.MapData.Options.workStationTextColor
       features.forEach(feature => {
         var style = feature.getStyle()
         if (style) {

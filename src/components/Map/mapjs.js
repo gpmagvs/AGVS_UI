@@ -305,10 +305,10 @@ export function GetStationStyle(text = '', station_type = 0, map_data = new MapP
             backgroundFill: station_type == 0 ? undefined : new Fill({
                 color: 'rgba(152, 209, 224,.2)'
             }),
-            stroke: new Stroke({
-                color: 'black',
-                width: 1.5,
-            }),
+            // stroke: new Stroke({
+            //     color: 'black',
+            //     width: 1.5,
+            // }),
             padding: [1, 6, 20, 6]
         }),
     })

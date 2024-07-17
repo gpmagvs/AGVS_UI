@@ -694,7 +694,7 @@ export default {
           if (isSelectdNotInOptions)
             return;
 
-          this.selected_source = _station_data;
+          this.selected_source = _station_data;//TODO check bug
           this.HandleFromSelectChanged(this.selected_source.TagNumber);
           setTimeout(() => {
             bus.emit('mark_as_start_station', this.selected_source.TagNumber);
@@ -834,8 +834,8 @@ export default {
 
       var response = { confirm: true, message: '' }
       console.info('Final', this.selected_destine);
-      var _destinTag = this.selected_destine ? this.selected_destine.TagNumber : -1;
       var _sourceTag = this.selected_source ? this.selected_source.TagNumber : -1;
+      var _destinTag = this.selected_destine ? this.selected_destine.TagNumber : -1;
       //   var _selected_agv = this.selected_agv == this.$t('auto-choise-vehicle') || this.selected_agv == '' ? '' : this.selected_agv;
       var _selected_agv = this.selected_agv;
       if (this.selected_action == 'move') {
@@ -950,7 +950,7 @@ export default {
         this.downstream_options = this.GetDownStreamEQOptions(this.selected_source);
 
       } else {
-        this.selected_source = await MapStore.dispatch('GetMapPointByTag', source_tag)
+        this.selected_source = await MapStore.dispatch('GetMapPointByTag', source_tag)//TODO Maybe bugs from there
         this.downstream_options = this.GetDownStreamEQOptions(source_tag);
         console.log('validable downstream of ', source_tag, this.downstream_options)
       }
