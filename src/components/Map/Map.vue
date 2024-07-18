@@ -2693,6 +2693,10 @@ export default {
       this.EQLDULDStatusLayer.setVisible(!this.editable)
       this.InitMapEventHandler();
       this.initGrid(this.map, this.MapGridSize, extent)
+
+      if (this.IsOpUsing) {
+        this.HideGridLayer();
+      }
       // this.map.addControl(new ZoomSlider());
 
     },
@@ -2747,7 +2751,7 @@ export default {
         name: 'gridLayer',
         style: new Style({
           stroke: new Stroke({
-            color: 'white',
+            color: 'rgb(197, 206, 255)',
             width: 1
           })
         })
@@ -3567,6 +3571,9 @@ export default {
       var layerRemove = layers.find(layer => layer.get('name') === 'gridLayer');
       if (layerRemove)
         this.map.removeLayer(layerRemove)
+    },
+    HideGridLayer() {
+      this.gridLayer.setVisible(false);
     },
     ImageEditClick() {
       this.ShowImageEditorDialog = true
