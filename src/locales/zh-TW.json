@@ -225,5 +225,8 @@
   "TaskDispatchNewUI": {
     "ConfirmDispatchText": "確定要派送此任務?"
   },
-  "Confirm": "確定"
+  "Confirm": "確定",
+  "Notifies":{
+    "CanNotDoUnloadWhenAGVHasCargo":" AGV車上有貨物或有帳籍資料時不可執行取貨任務"
+  }
 }

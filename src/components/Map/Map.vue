@@ -401,9 +401,7 @@
             <MapLegend
               v-if="!editable&&legendShow"
               class="map-ledgend border rounded"
-              v-bind:style="{
-                bottom: IsOpUsing?'6.8rem' :'12rem'
-            }"
+              v-bind:style="{bottom: IsOpUsing?'6.8rem' :'12rem'}"
             ></MapLegend>
             <!-- 設定 -->
             <div v-if="IsUserLogin" class="options bg-light border-start text-start px-1 py-3">
@@ -3074,7 +3072,7 @@ export default {
         //set backgroundFill color by transfer status
         const unloadableColor = 'rgba(67, 149, 237,0.4)';
         const loadableColor = 'rgba(255, 234, 18,.5)';
-        const eqDownStatusColor = 'rgba(255, 0, 0,.5)';
+        const eqDownStatusColor = 'rgba(255, 0, 0,.8)';
         const noRequestColor = 'rgba(255,255,255,.1)';
         var textDisplayColor = MapStore.state.MapData.Options.workStationTextColor;
 
@@ -3084,7 +3082,7 @@ export default {
         if (isEqDownOrMaintain) {
           textBgFillColor = eqDownStatusColor;
           nameDisplay += `\n(${this.$t('Map.MapLegend.Maintaining')})`
-          textDisplayColor = 'red'
+          textDisplayColor = 'white'
         } else {
           if (status == 1) {
             textBgFillColor = loadableColor;

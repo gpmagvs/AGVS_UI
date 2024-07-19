@@ -225,5 +225,8 @@
   "TaskDispatchNewUI": {
     "ConfirmDispatchText": "Are you sure you want to dispatch this task?"
   },
-  "Confirm": "YES"
+  "Confirm": "YES",
+  "Notifies":{
+    "CanNotDoUnloadWhenAGVHasCargo":" Can't do Unload action when AGV has cargo"
+  }
 }

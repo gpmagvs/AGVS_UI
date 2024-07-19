@@ -1,6 +1,7 @@
 import param from './gpm_param'
 import { ElMessage } from 'element-plus'
 import bus from './event-bus'
+import { userStore } from './store';
 var isWindowShowing = true;
 class NotifyMessage {
     constructor() {
@@ -42,6 +43,8 @@ function InitWSNotification(agvs = true, vms = true) {
             var data = evt.data;
             let notify = new NotifyMessage()
             Object.assign(notify, JSON.parse(data))
+            console.info(notify.message)
+
             if (notify.message === 'Map-Point-Enabled-Property-Changed') {
                 bus.emit('Map-Point-Enabled-Property-Changed')
             }
@@ -85,6 +88,24 @@ function InitWSNotification(agvs = true, vms = true) {
             var data = evt.data;
             let notify = new NotifyMessage()
             Object.assign(notify, JSON.parse(data))
+
+            const isCarryOrderFailMsg = notify.message.includes('carry-order-failure');
+
+            if (isCarryOrderFailMsg && userStore.getters.IsOPLogining) {
+
+                const msgObj = JSON.parse(notify.message);
+                bus.emit('swal-notify-invoke', {
+                    text: `${msgObj.message_Zh}(${msgObj.message_En})`,
+                    title: '搬運任務失敗',
+                    icon: 'error',
+                    showCancelButton: false,
+                    confirmButtonText: 'OK',
+                    customClass: 'my-sweetalert'
+                });
+                return;
+            }
+
+
             if (notify.message === 'Map-Point-Enabled-Property-Changed') {
                 bus.emit('Map-Point-Enabled-Property-Changed')
             }

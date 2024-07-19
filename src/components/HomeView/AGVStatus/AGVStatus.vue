@@ -23,6 +23,17 @@
       border
       @row-click="HandleRowClick"
     >
+      <el-table-column type="expand" :min-width="AnyAGVIsSimulation?40:1">
+        <template #default="scope">
+          <b-card title="模擬器操作">
+            <div class="d-flex">
+              <b-button variant="primary" @click="EmulatorInitialize(scope.row.AGV_Name)">初始化</b-button>
+              <b-button class="mx-1" @click="EmulatorRemoveCargo(scope.row.AGV_Name)">移除卡匣</b-button>
+              <b-button class="mx-1" variant="danger" @click="EmulatorEMO(scope.row.AGV_Name)">EMO</b-button>
+            </div>
+          </b-card>
+        </template>
+      </el-table-column>
       <el-table-column
         :label="$t('HomeView.AGVStatus.AGVStatus.vehicle-name')"
         prop="AGV_Name"
@@ -134,7 +145,7 @@
                     class
                     v-show="scope.row.Model == 2 || scope.row.Simulation"
                     @click="HandleAGVLocatingClick(scope.row)"
-                  >{{ $t('HomeView.AGVStatus.AGVStatus.Location') }}</el-button>
+                  >定位</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -406,7 +417,7 @@
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import { IsLoginLastTime } from '@/api/AuthHelper';
-import { OnlineRequest, OfflineRequest, AGVLocating } from '@/api/VMSAPI';
+import { OnlineRequest, OfflineRequest, AGVLocating, EmuAPI } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData, clsExangeBatteryTaskData } from '@/api/TaskAllocation.js'
 import { userStore, agvs_settings_store, agv_states_store, UIStore } from '@/store'
 import moment from 'moment'
@@ -442,6 +453,15 @@ export default {
     },
   },
   methods: {
+    async EmulatorInitialize(agv_name) {
+      EmuAPI.Initialize(agv_name)
+    },
+    async EmulatorRemoveCargo(agv_name) {
+      EmuAPI.RemoveCargo(agv_name)
+    },
+    async EmulatorEMO(agv_name) {
+      EmuAPI.EMO(agv_name)
+    },
     StyleOfAGVDisplayColor(agv_name) {
       var color = 'blue'
       if (MapStore.getters.CustomAGVStyles[agv_name])
@@ -692,9 +712,9 @@ export default {
       else if (status_code == 3)
         return "danger"
       else if (status_code == 4)
-        return ""
+        return "success"
       else
-        return ""
+        return "info"
     },
     GetTaskRunStatusString(status_code) {
       if (status_code == 1)
@@ -784,6 +804,10 @@ export default {
   computed: {
     AGVDatas() {
       return agv_states_store.getters.AGVStatesData;
+    },
+    AnyAGVIsSimulation() {
+      var simulations = this.AGVDatas.filter(agv => agv.Simulation)
+      return simulations.length != 0;
     },
     Groups() {
 

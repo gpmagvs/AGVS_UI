@@ -23,7 +23,7 @@
         <template #default="scope">
           <el-tag
             effect="dark"
-            :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : ''"
+            :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : 'primary'"
           >
             <b>{{ scope.row.ActionName }}</b>
           </el-tag>

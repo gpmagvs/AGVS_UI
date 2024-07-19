@@ -94,3 +94,18 @@ export const VehicleBatteryAPI = {
     return response.data;
   }
 }
+
+export const EmuAPI = {
+  Initialize: async (agvName) => {
+    var response = await axios_entity_vms.get(`api/AGVSimulation/Initialize?AGVName=${agvName}`)
+    return response.data;
+  },
+  RemoveCargo: async (agvName) => {
+    var response = await axios_entity_vms.get(`api/AGVSimulation/CargoRemove?AGVName=${agvName}`)
+    return response.data;
+  },
+  EMO: async (agvName) => {
+    var response = await axios_entity_vms.get(`api/AGVSimulation/EMO?AGVName=${agvName}`)
+    return response.data;
+  }
+}

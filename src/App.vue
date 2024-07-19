@@ -162,7 +162,10 @@ export default {
     if (login_states.isLogin) {
       userStore.commit('setUser', login_states.login_info)
     }
-
+    bus.on('swal-notify-invoke', notifyOption => {
+      this.$swal.fire(
+        notifyOption)
+    })
     bus.on('/ShowOKOnlyModal', (props) => {
       this.okOnlyModalProps = props;
       this.ShowOKOnlyModal = true;
