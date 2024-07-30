@@ -50,10 +50,10 @@
                 <!-- Drawer content goes here -->
                 <div class="w-100 bg-light rack-container border rounded px-2 text-start">
                     <el-divider>Input Address and Tags</el-divider>
-                    <span>檢視模式</span> <el-select class="mx-3" placeholder="abc" title="bbbb">
+                    <!-- <span>檢視模式</span> <el-select class="mx-3" placeholder="abc" title="bbbb">
                         <el-option label="圖示"></el-option>
                         <el-option label="表格"></el-option>
-                    </el-select>
+                    </el-select> -->
                     <Rack ref="rack_edit" :rackName="wipName" :showIOLocationEdit="true"></Rack>
                 </div>
             </div>

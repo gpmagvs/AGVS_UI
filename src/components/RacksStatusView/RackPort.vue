@@ -46,6 +46,12 @@
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
     <div class="item">
+      <div class="title">Install Priority</div>
+      <div class="values">
+        <el-input type="text" size="small" v-model="port_info.Properties.StoragePriority"></el-input>
+      </div>
+    </div>
+    <div class="item">
       <div class="title">Install Time</div>
       <div class="values">{{ port_info.InstallTime }}</div>
     </div>
@@ -94,6 +100,7 @@ export default {
             ProductionQualityStore: 0,//0: ok | 1: ng
             CargoTypeStore: 2, // 0:tray | 1:Rack| 2:Mixed
             IOLocation: { Tray_Sensor1: 0, Tray_Sensor2: 1, Box_Sensor1: 2, Box_Sensor2: 3 },
+            StoragePriority:0, //數字愈大優先度愈高
           },
           RackPlacementState: 0,
           TrayPlacementState: 0
@@ -205,7 +212,7 @@ export default {
 <style lang="scss" scoped>
 .rack-port {
   width: 360px;
-  height: 250px;
+  height: 260px;
   //   background-color: rgb(236, 236, 236);
   border: 3px solid rgb(0, 0, 0);
   margin: 2px;
