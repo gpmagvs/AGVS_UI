@@ -643,7 +643,7 @@ import Map from 'ol/Map.js'; 2
 import Point from 'ol/geom/Point.js';
 import VectorSource from 'ol/source/Vector.js';
 import LineString from 'ol/geom/LineString';
-import { defaults as defaultInteractions, Pointer, MouseWheelZoom, DragPan } from 'ol/interaction'
+import { defaults as defaultInteractions, Pointer, MouseWheelZoom, DragPan, DoubleClickZoom } from 'ol/interaction'
 import Draw from 'ol/interaction/Draw.js';
 import Projection from 'ol/proj/Projection.js';
 import Static from 'ol/source/ImageStatic.js';
@@ -1452,6 +1452,9 @@ export default {
           interaction.setActive(enabled);
         }
         if (interaction instanceof MouseWheelZoom) {
+          interaction.setActive(enabled);
+        }
+        if (interaction instanceof DoubleClickZoom) {
           interaction.setActive(enabled);
         }
       });
@@ -4002,7 +4005,9 @@ export default {
       margin-right: 5px;
     }
   }
-
+  .ol-zoom {
+    background-color: red !important;
+  }
   .agv_map {
     width: 100%;
     height: 100%;

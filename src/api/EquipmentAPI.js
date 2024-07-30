@@ -78,7 +78,22 @@ export const EmuAPI = {
     var url = `/api/Equipment/Emu/HsSignal?EqName=${encodeURIComponent(EQName)}&SignalName=${encodeURIComponent(SignalName)}&State=${State}`; //避免帶有特殊符號的時候字串參數會不完整
     var ret = await axios_entity.get(url)
     return ret.data;
-  }
+  },
+  async SetUpPose(EQName) {
+    var url = `/api/Equipment/Emu/SetUpPose?EqName=${encodeURIComponent(EQName)}`; //避免帶有特殊符號的時候字串參數會不完整
+    var ret = await axios_entity.get(url)
+    return ret.data;
+  },
+  async SetDownPose(EQName) {
+    var url = `/api/Equipment/Emu/SetDownPose?EqName=${encodeURIComponent(EQName)}`; //避免帶有特殊符號的時候字串參數會不完整
+    var ret = await axios_entity.get(url)
+    return ret.data;
+  },
+  async SetUnknownPose(EQName) {
+    var url = `/api/Equipment/Emu/SetUnknownPose?EqName=${encodeURIComponent(EQName)}`; //避免帶有特殊符號的時候字串參數會不完整
+    var ret = await axios_entity.get(url)
+    return ret.data;
+  },
 
 }
 
