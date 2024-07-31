@@ -162,7 +162,8 @@
     "Fail_reason": "失敗原因",
     "CstID": "貨物ID",
     "FinishTime": "結束時間",
-    "RecievedTime": "接收時間"
+    "RecievedTime": "接收時間",
+    "FailureReason": "異常描述"
   },
   "AlarmTable": {
     "Time": "時間",
@@ -225,8 +226,5 @@
   "TaskDispatchNewUI": {
     "ConfirmDispatchText": "確定要派送此任務?"
   },
-  "Confirm": "確定",
-  "Notifies":{
-    "CanNotDoUnloadWhenAGVHasCargo":" AGV車上有貨物或有帳籍資料時不可執行取貨任務"
-  }
+  "Confirm": "確定"
 }
