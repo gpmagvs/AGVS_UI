@@ -132,7 +132,7 @@ export default {
       ExecuteResultSelected: 'ALL',
       ActionTypeSelected: 'ALL',
       TaskName: '',
-      FailureReason: '',
+      Fail_reason: '',
       tasks: [],
       per_page_num: 19,
       rows: 1,
@@ -192,7 +192,7 @@ export default {
       Notifier.Primary('檔案儲存成功')
     },
     PageChnageHandle(payload) {
-      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected, this.FailureReason).then(retquery => {
+      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected, this.Fail_reason).then(retquery => {
         this.tasks = retquery.tasks;
       }
       ).catch(er => {
