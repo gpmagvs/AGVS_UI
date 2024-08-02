@@ -59,9 +59,9 @@
                           @change="() => { RemoveAllInteractions(); RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction() }"
                           size="large"
                         >
-                          <el-radio-button size="small" label="add-station">新增點位[1]</el-radio-button>
-                          <el-radio-button size="small" label="edit-station">編輯點位[2]</el-radio-button>
-                          <el-radio-button size="small" label="remove-station">移除點位[3]</el-radio-button>
+                          <el-radio-button size="small" value="add-station">新增點位[1]</el-radio-button>
+                          <el-radio-button size="small" value="edit-station">編輯點位[2]</el-radio-button>
+                          <el-radio-button size="small" value="remove-station">移除點位[3]</el-radio-button>
                         </el-radio-group>
                       </el-form-item>
                       <el-form-item label="路徑">
@@ -81,7 +81,7 @@
                             :visible="EditorOption.EditAction == 'add-path'"
                           >
                             <template #reference>
-                              <el-radio-button size="small" label="add-path">新增路徑[4]</el-radio-button>
+                              <el-radio-button size="small" value="add-path">新增路徑[4]</el-radio-button>
                             </template>
                             <el-radio-group
                               class="mx-1 my-1"
@@ -89,12 +89,12 @@
                               @change="() => { RemoveInteraction(draw_forbid_regions_interaction); }"
                               size="large"
                             >
-                              <el-radio-button label="one-direction">單向</el-radio-button>
-                              <el-radio-button label="bi-direction">雙向</el-radio-button>
+                              <el-radio-button value="one-direction">單向</el-radio-button>
+                              <el-radio-button value="bi-direction">雙向</el-radio-button>
                             </el-radio-group>
                           </el-popover>
-                          <el-radio-button size="small" label="edit-path">編輯路徑[5]</el-radio-button>
-                          <el-radio-button size="small" label="remove-path">移除路徑[6]</el-radio-button>
+                          <el-radio-button size="small" value="edit-path">編輯路徑[5]</el-radio-button>
+                          <el-radio-button size="small" value="remove-path">移除路徑[6]</el-radio-button>
                         </el-radio-group>
                       </el-form-item>
                       <el-form-item label="區域">
@@ -116,7 +116,7 @@
                               <el-radio-button
                                 @click="HandleAddForbidRegionClicked(EditorOption.AddRegionMode.Mode)"
                                 size="small"
-                                label="add-forbid-region"
+                                value="add-forbid-region"
                               >新增管制區[7]</el-radio-button>
                             </template>
                             <el-radio-group
@@ -127,29 +127,29 @@
                               <el-radio-button
                                 @click="HandleAddForbidRegionClicked('forbid')"
                                 size="small"
-                                label="forbid"
+                                value="forbid"
                               >禁制區</el-radio-button>
                               <el-radio-button
                                 @click="HandleAddForbidRegionClicked('passible')"
                                 size="small"
-                                label="passible"
+                                value="passible"
                               >通行區</el-radio-button>
                             </el-radio-group>
                           </el-popover>
                           <el-radio-button
                             @click="HandleEditForbidRegionClicked"
                             size="small"
-                            label="edit-forbid-region"
+                            value="edit-forbid-region"
                           >編輯管制區[8]</el-radio-button>
                           <el-radio-button
                             @click="HandleDeleteForbidRegionClicked"
                             size="small"
-                            label="remove-forbid-region"
+                            value="remove-forbid-region"
                           >移除管制區[9]</el-radio-button>
                           <el-radio-button
                             @click="HandleDrawGlobalPathRegionClicked"
                             size="small"
-                            label="add-global-path-region"
+                            value="add-global-path-region"
                           >繪製道路區域</el-radio-button>
                         </el-radio-group>
                       </el-form-item>
@@ -411,9 +411,9 @@
                   v-model="station_name_display_mode"
                   @change="StationNameDisplayOptHandler"
                 >
-                  <el-radio label="index" size="large">Index</el-radio>
-                  <el-radio label="name" size="large">Name</el-radio>
-                  <el-radio label="tag" size="large">Tag</el-radio>
+                  <el-radio value="index" size="large">Index</el-radio>
+                  <el-radio value="name" size="large">Name</el-radio>
+                  <el-radio value="tag" size="large">Tag</el-radio>
                 </el-radio-group>
               </div>
               <div v-if="!IsOpUsing">
