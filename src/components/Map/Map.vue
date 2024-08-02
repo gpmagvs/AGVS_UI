@@ -3069,7 +3069,6 @@ export default {
           style.setImage(trayIconImage);
         } else {
           style.setImage(emptyIconImage);
-          console.log('empty');
         }
 
         //set backgroundFill color by transfer status

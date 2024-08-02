@@ -127,7 +127,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-drawer z-index="1" v-model="connection_setting_drawer" :title="`${selected_eq.Name}-連線設定`">
+    <el-drawer :z-index="1" v-model="connection_setting_drawer" :title="`${selected_eq.Name}-連線設定`">
       <div class="w-100">
         <el-form label-position="left" label-width="100">
           <el-form-item label="通訊方式">

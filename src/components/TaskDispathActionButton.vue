@@ -425,7 +425,7 @@ export default {
           });
         });
       }
-      return namelist;
+      return namelist.filter(item => item.label != undefined && item.value != undefined);
     },
     IsShowBackTo() {
       return this.current_progress != 'select-action'
