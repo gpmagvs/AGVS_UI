@@ -31,12 +31,7 @@
         <option>{{ $t('Search.Cancel') }}</option>
       </select>
       <label>{{ $t('TaskTable.FailureReason') }}</label>
-      <select prop="EQ Name" v-model="ExecuteResultSelected">
-        <option>ALL</option>
-        <option>{{ $t('Search.Change Task') }}</option>
-        <option>{{ $t('Search.EMO') }}</option>
-      </select>
-
+      <input type="text" v-model="Fail_reason" placeholder="ALL" size="20" />
       <b-button @click="TaskQuery()" :TaskQuery="TaskQuery" class="Select-Query" variant="primary mx-1" size="sm"
         style="float:right">{{ $t('Search.Search') }}</b-button>
       <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm"
@@ -137,6 +132,7 @@ export default {
       ExecuteResultSelected: 'ALL',
       ActionTypeSelected: 'ALL',
       TaskName: '',
+      FailureReason: '',
       tasks: [],
       per_page_num: 19,
       rows: 1,
@@ -155,7 +151,7 @@ export default {
     this.start_time = moment(this.end_time, 'YYYY-MM-DD HH:mm:ss').subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
 
     setTimeout(() => {
-      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
+      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.Fail_reason).then(retquery => {
         this.tasks = retquery.tasks
         this.rows = retquery.count;
         this.currentpage = retquery.currentpage;
@@ -179,7 +175,7 @@ export default {
       this.currentpage = 1;
       this.payload = 2;
       setTimeout(() => {
-        TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected).then(retquery => {
+        TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected, this.Fail_reason).then(retquery => {
           this.tasks = retquery.tasks
           this.rows = retquery.count;
           this.currentpage = retquery.currentpage;
@@ -196,7 +192,7 @@ export default {
       Notifier.Primary('檔案儲存成功')
     },
     PageChnageHandle(payload) {
-      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected).then(retquery => {
+      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected, this.FailureReason).then(retquery => {
         this.tasks = retquery.tasks;
       }
       ).catch(er => {
