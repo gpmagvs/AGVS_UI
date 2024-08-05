@@ -3766,15 +3766,17 @@ export default {
 
 
       bus.on('/tracking_agv', agvName => {
+        clearInterval(this.trackingAGVTimer)
         if (agvName != '') {
           //start tracking
           this.trackingAGVTimer = setInterval(() => {
             this.ResetMapCenterViaAGVLoc(agvName);
           }, 500);
-        } else {
-          //off tracking
-          clearInterval(this.trackingAGVTimer)
         }
+      })
+
+      bus.on('/cancel_tracking_agv', () => {
+        clearInterval(this.trackingAGVTimer)
       })
 
       watch(

@@ -30,9 +30,9 @@
                   size="sm"
                   variant="link"
                   @click="() => {
-                                    HandleCancelBtnClick();
-                                    action_menu_visible = true;
-                                }"
+                    HandleCancelBtnClick();
+                    action_menu_visible = true;
+                    }"
                 >{{ $t('Remove') }}</b-button>
               </el-col>
             </el-row>
@@ -529,6 +529,7 @@ export default {
     },
     SelectActionHandle(action) {
       this.$emit('onTaskDispatch')
+      bus.emit('/cancel_tracking_agv', '');
       this.selected_action = action;
       this.HandleActionSelected(action);
       this.action_menu_visible = this.IsTransferTaskNeedChangeAGV = false;

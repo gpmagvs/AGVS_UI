@@ -143,6 +143,7 @@
                   </div>
                   <el-tooltip content="Tracking AGV" placement="top">
                     <i
+                      v-if="!IsOpUsing"
                       @click="TrackingVehicle(scope.row.AGV_Name)"
                       style="cursor: pointer;height: 22px;position: relative;top: 2px;border-radius: 30px;width: 22px;padding-left: 4px;font-size: 18px;"
                       class="bi bi-eyeglasses"
@@ -435,6 +436,10 @@ import moment from 'moment'
 import { MapStore } from '@/components/Map/store';
 export default {
   mounted() {
+    bus.on('/cancel_tracking_agv', () => {
+      this.TrackingAGV = '';
+      bus.emit('tracking_agv', this.TrackingAGV)
+    })
   },
   data() {
     return {
@@ -591,6 +596,7 @@ export default {
       if (this.TrackingAGV == agvName) {
         this.TrackingAGV = '';
       } else {
+        this.HandleShowAGVInMapCenter(agvName);
         this.TrackingAGV = agvName;
       }
       bus.emit('/tracking_agv', this.TrackingAGV)
