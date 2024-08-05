@@ -6,7 +6,6 @@
       <div v-else class="gpm-text" @click="GoToHomePage">GPM</div>
     </div>
     <el-menu
-      :default-active="ActiveSubItem"
       class="el-menu-vertical-demo"
       style="height: 100vh;"
       active-text-color="rgb(13, 110, 253)"
@@ -175,7 +174,7 @@ export default {
   data() {
     return {
       IconColor: 'rgb(6, 53, 125)',
-      ActiveSubItem: 4
+      ActiveSubItem: "4"
     }
   },
   computed: {

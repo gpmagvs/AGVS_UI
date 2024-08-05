@@ -137,7 +137,7 @@
     "Transfer": "Transfer",
     "Charge": "Charge",
     "Measure": "Measure",
-    "ExchangeBattrey": "Exchange Battrey",
+    "ExchangeBattrey": "Exchange Battery",
     "Completed": "Completed",
     "Fail": "Fail",
     "Cancel": "Cancel",
@@ -162,7 +162,8 @@
     "Fail_reason": "Fail reason",
     "CstID": "Cargo ID",
     "FinishTime": "End Time",
-    "RecievedTime": "Recieve Time"
+    "RecievedTime": "Recieve Time",
+    "FailureReason": "Failure Reason"
   },
   "AlarmTable": {
     "Time": "Time",
@@ -226,7 +227,7 @@
     "ConfirmDispatchText": "Are you sure you want to dispatch this task?"
   },
   "Confirm": "YES",
-  "Notifies":{
-    "CanNotDoUnloadWhenAGVHasCargo":" Can't do Unload action when AGV has cargo"
+  "Notifies": {
+    "CanNotDoUnloadWhenAGVHasCargo": " Can't do Unload action when AGV has cargo"
   }
 }

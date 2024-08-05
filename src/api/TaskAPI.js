@@ -5,8 +5,8 @@ var axios_entity = axios.create({
   baseURL: param.backend_host,
 })
 /*任務歷史查詢*/
-export async function TaskQuery(currentpage, start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL', ExecuteResultSelected = "ALL", ActionTypeSelected = "ALL") {
-  var retquery = await axios_entity.get(`/api/TaskQuery/TaskQuery?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&Result=${ExecuteResultSelected}&ActionType=${ActionTypeSelected}`)
+export async function TaskQuery(currentpage, start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL', ExecuteResultSelected = "ALL", ActionTypeSelected = "ALL", Fail_reason = 'ALL') {
+  var retquery = await axios_entity.get(`/api/TaskQuery/TaskQuery?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&Result=${ExecuteResultSelected}&ActionType=${ActionTypeSelected}&Failurereason=${Fail_reason}`)
 
   console.info(retquery.data)
   return retquery.data;

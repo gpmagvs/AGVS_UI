@@ -30,44 +30,23 @@
         <option>{{ $t('Search.Fail') }}</option>
         <option>{{ $t('Search.Cancel') }}</option>
       </select>
-      <b-button
-        @click="TaskQuery()"
-        :TaskQuery="TaskQuery"
-        class="Select-Query"
-        variant="primary mx-1"
-        size="sm"
-        style="float:right"
-      >{{ $t('Search.Search') }}</b-button>
-      <b-button
-        @click="SaveTocsv()"
-        :SaveTocsv="SaveTocsv"
-        class="SaveTocsv mx-2"
-        variant="primary"
-        size="sm"
-        style="float:right"
-      >{{ $t('Search.Output_csv_file') }}</b-button>
+      <label>{{ $t('TaskTable.FailureReason') }}</label>
+      <input type="text" v-model="Fail_reason" placeholder="ALL" size="20" />
+      <b-button @click="TaskQuery()" :TaskQuery="TaskQuery" class="Select-Query" variant="primary mx-1" size="sm"
+        style="float:right">{{ $t('Search.Search') }}</b-button>
+      <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm"
+        style="float:right">{{ $t('Search.Output_csv_file') }}</b-button>
     </div>
     <div>
-      <el-table
-        v-loading="loading"
-        :data="tasks"
-        empty-text="No Tasks"
-        row-class-name="row_state_class_name"
-        size="small"
-        style="width: 100%; height: 770px ;font-weight: bold;"
-        border
-        aria-current="currentpage"
-        id="Tasktable"
-      >
+      <el-table v-loading="loading" :data="tasks" empty-text="No Tasks" row-class-name="row_state_class_name"
+        size="small" style="width: 100%; height: 770px ;font-weight: bold;" border aria-current="currentpage"
+        id="Tasktable">
         <el-table-column :label="$t('TaskTable.TaskName')" prop="TaskName" width="280">
           <template #default="scope">
             <div>
               {{ scope.row.TaskName }}
               <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-                <i
-                  @click="CopyText(scope.row.TaskName)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i @click="CopyText(scope.row.TaskName)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
@@ -80,53 +59,25 @@
         </el-table-column>
         <el-table-column :label="$t('TaskTable.Final')" prop="StateName" width="100" align="center">
           <template #default="scope">
-            <el-tag
-              effect="dark"
-              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'"
-            >
+            <el-tag effect="dark"
+              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'">
               {{
-              scope.row.StateName }}
+        scope.row.StateName }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.AGV_Name')"
-          prop="DesignatedAGVName"
-          width="100"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Action')"
-          prop="ActionName"
-          min-width="30"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Source')"
-          prop="From_Station_Display"
-          width="120"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Source_Slot')"
-          prop="From_Slot"
-          width="120"
-          align="center"
-        >
+        <el-table-column :label="$t('TaskTable.AGV_Name')" prop="DesignatedAGVName" width="100"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Action')" prop="ActionName" min-width="30"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Source')" prop="From_Station_Display" width="120"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Source_Slot')" prop="From_Slot" width="120" align="center">
           <template #default="scope">{{ scope.row.From_Slot == -1 ? '-' : scope.row.From_Slot }}</template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Destine')"
-          prop="To_Station_Display"
-          width="120"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Destine_Slot')"
-          prop="To_Slot"
-          width="120"
-          align="center"
-        >
+        <el-table-column :label="$t('TaskTable.Destine')" prop="To_Station_Display" width="120"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Destine_Slot')" prop="To_Slot" width="120" align="center">
           <template #default="scope">{{ scope.row.To_Slot == -1 ? '-' : scope.row.To_Slot }}</template>
         </el-table-column>
         <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID" min-width="30">
@@ -134,11 +85,8 @@
             <div>
               {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }}
               <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-                <i
-                  v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
-                  @click="CopyText(scope.row.Carrier_ID)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
+                  @click="CopyText(scope.row.Carrier_ID)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
@@ -153,20 +101,14 @@
         </el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center fixed-bottom py-4">
-        <b-pagination
-          :per-page="per_page_num"
-          :total-rows="rows"
-          aria-controls="Tasktable"
-          class="pagination justify-content-center"
-          v-model="currentpage"
-          @click="PageChnageHandle"
-        ></b-pagination>
+        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="Tasktable"
+          class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
         <div class="mx-3 py-2">
           {{ $t('Search.Total_First') }}
           <span style="font-weight: bold; font-size: large;">
             {{
-            rows
-            }}
+        rows
+      }}
           </span>
           {{ $t('Search.Total_Last') }}
         </div>
@@ -190,6 +132,7 @@ export default {
       ExecuteResultSelected: 'ALL',
       ActionTypeSelected: 'ALL',
       TaskName: '',
+      Fail_reason: '',
       tasks: [],
       per_page_num: 19,
       rows: 1,
@@ -208,7 +151,7 @@ export default {
     this.start_time = moment(this.end_time, 'YYYY-MM-DD HH:mm:ss').subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
 
     setTimeout(() => {
-      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName).then(retquery => {
+      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.Fail_reason).then(retquery => {
         this.tasks = retquery.tasks
         this.rows = retquery.count;
         this.currentpage = retquery.currentpage;
@@ -232,7 +175,7 @@ export default {
       this.currentpage = 1;
       this.payload = 2;
       setTimeout(() => {
-        TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected).then(retquery => {
+        TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected, this.Fail_reason).then(retquery => {
           this.tasks = retquery.tasks
           this.rows = retquery.count;
           this.currentpage = retquery.currentpage;
@@ -249,7 +192,7 @@ export default {
       Notifier.Primary('檔案儲存成功')
     },
     PageChnageHandle(payload) {
-      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected).then(retquery => {
+      TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected, this.Fail_reason).then(retquery => {
         this.tasks = retquery.tasks;
       }
       ).catch(er => {
