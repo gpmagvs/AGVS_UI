@@ -138,44 +138,48 @@ export const MapStore = createStore({
             var agvDataLs = [];
             var index = 0;
             Object.keys(agv_nav_info).forEach(name => {
-                var data = agv_nav_info[name]
-                var vehicleLength = data.vehicleLength
-                var vehicleWidth = data.vehicleWidth
+                console.info(name);
+                if (name.toLocaleLowerCase().includes('agv')) {
 
-                var pathtags = data.nav_path
-                var pathCoordinations = []
+                    var data = agv_nav_info[name]
+                    var vehicleLength = data.vehicleLength
+                    var vehicleWidth = data.vehicleWidth
 
-                var coordination = [0, 0]
-                if (data.currentCoordication) {
-                    coordination = [data.currentCoordication.X, data.currentCoordication.Y]
-                }
-                if (pathtags) {
+                    var pathtags = data.nav_path
+                    var pathCoordinations = []
 
-                    var pathTagsLen = pathtags.length;
-                    pathCoordinations.push(coordination);
-                    for (let index = 1; index < pathTagsLen; index++) {
-                        const tag = pathtags[index];
-                        var pt = getters.MapStations.find(st => st.tag == tag)
-                        if (pt) {
-                            pathCoordinations.push(pt.coordination)
+                    var coordination = [0, 0]
+                    if (data.currentCoordication) {
+                        coordination = [data.currentCoordication.X, data.currentCoordication.Y]
+                    }
+                    if (pathtags) {
+
+                        var pathTagsLen = pathtags.length;
+                        pathCoordinations.push(coordination);
+                        for (let index = 1; index < pathTagsLen; index++) {
+                            const tag = pathtags[index];
+                            var pt = getters.MapStations.find(st => st.tag == tag)
+                            if (pt) {
+                                pathCoordinations.push(pt.coordination)
+                            }
                         }
                     }
+
+
+                    var _agv_style_custom = getters.CustomAGVStyles[name];
+                    var _agv_color = 'black'
+                    var _agv_display_text = name
+                    if (_agv_style_custom) {
+                        _agv_color = _agv_style_custom.DisplayColor;
+                        _agv_display_text = _agv_style_custom.DisplayText;
+
+                    } else {
+                        _agv_color = state.agv_colors[index];
+                    }
+                    var agvDisplayModel = new clsAGVDisplay(name, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text, vehicleLength, vehicleWidth);
+                    agvDataLs.push(agvDisplayModel)
+                    index += 1;
                 }
-
-
-                var _agv_style_custom = getters.CustomAGVStyles[name];
-                var _agv_color = 'black'
-                var _agv_display_text = name
-                if (_agv_style_custom) {
-                    _agv_color = _agv_style_custom.DisplayColor;
-                    _agv_display_text = _agv_style_custom.DisplayText;
-
-                } else {
-                    _agv_color = state.agv_colors[index];
-                }
-                var agvDisplayModel = new clsAGVDisplay(name, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text, vehicleLength, vehicleWidth);
-                agvDataLs.push(agvDisplayModel)
-                index += 1;
             })
             var _AGVOption = new AGVOption(agv_num, agvDataLs)
             return _AGVOption;

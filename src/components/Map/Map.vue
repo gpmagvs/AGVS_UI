@@ -657,7 +657,7 @@ import { noModifierKeys } from 'ol/events/condition';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image, AGVOption } from './mapjs';
 import { MapStore } from './store'
 import { EqStore, agv_states_store, userStore } from '@/store'
 import MapSettingsDialog from './MapSettingsDialog.vue';
@@ -960,7 +960,9 @@ export default {
       return MapStore.getters.BezierCurves
     },
     agvs_info() {
-      return MapStore.getters.AGVNavInfo;
+      var _AGVOption = new AGVOption(0, []);
+      Object.assign(_AGVOption, MapStore.getters.AGVNavInfo)
+      return _AGVOption;
     },
     agvs_info_other_system() {
       return MapStore.getters.OthersAGVLocateInfo;
@@ -1169,29 +1171,33 @@ export default {
       payload.forEach(info => {
 
         var agvName = info.AGVName;
-        var agvLocation = info.Location;
-        var featureKey = `other-agv-${agvName}`;
-        var featureFound = agvFeatures.find(ft => ft.get('agv-addition') == featureKey);
-        var coordination = _GetCoordinationByDisplayName(agvLocation);
-        var isCoordinationNotFound = coordination[0] == 0 && coordination[1] == 0;
-        if (!isCoordinationNotFound) {
+        if (agvName && agvName == '') {
 
-          if (featureFound) {
-            //TODO Update Coordination by location name
-            featureFound.setGeometry(new Point(coordination));
-          } else {
-            var _agvfeature = new Feature({
-              geometry: new Point(coordination)
-            })
+          var agvLocation = info.Location;
+          var featureKey = `other-agv-${agvName}`;
+          var featureFound = agvFeatures.find(ft => ft.get('agv-addition') == featureKey);
+          var coordination = _GetCoordinationByDisplayName(agvLocation);
+          var isCoordinationNotFound = coordination[0] == 0 && coordination[1] == 0;
+          if (!isCoordinationNotFound) {
 
-            var _style = SimpleAGVStyle(agvName, 'blue')
-            _agvfeature.setStyle(_style)
-            _agvfeature.set('agvname', agvName)
-            _agvfeature.set("feature_type", this.FeatureKeys.agv)
-            _agvfeature.set("agv-addition", featureKey)
-            source.addFeature(_agvfeature);
+            if (featureFound) {
+              //TODO Update Coordination by location name
+              featureFound.setGeometry(new Point(coordination));
+            } else {
+              var _agvfeature = new Feature({
+                geometry: new Point(coordination)
+              })
+
+              var _style = SimpleAGVStyle(agvName, 'blue')
+              _agvfeature.setStyle(_style)
+              _agvfeature.set('agvname', agvName)
+              _agvfeature.set("feature_type", this.FeatureKeys.agv)
+              _agvfeature.set("agv-addition", featureKey)
+              source.addFeature(_agvfeature);
+            }
           }
         }
+
 
 
       });
@@ -1214,15 +1220,14 @@ export default {
       }
 
       this.agvs_info.AGVDisplays.forEach(agv_information => {
-
-
         const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
         const vehicleLength = agv_information.vehicleLength / 100.0; //unit:m
         const vehicleWidth = agv_information.vehicleWidth / 100.0;//unit:m
         const vehicleImageName = param.backend_host + '/AGVImages/' + agv_information.AgvName + '-Icon.png';//[length,width]
         const vehicleSaftyRotationRadious = Math.sqrt(Math.pow(vehicleLength / 2, 2) + Math.pow(vehicleWidth / 2, 2));//unit:m
         var _polygon_coordinations = this.CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
-
+        var agvnames = Object.keys(this.AGVFeatures);
+        // console.log(this.id, agvnames);
         var agvfeatures = this.AGVFeatures[agv_information.AgvName]
         if (agvfeatures) {  //以新增
           var currentDataJsonStr = JSON.stringify(agv_information);
@@ -1350,7 +1355,7 @@ export default {
             source.addFeature(_agvSaftyRegionFeature);
             source.addFeature(_agvBodyFeature);
             source.addFeature(nav_path_feature);
-
+            console.log('Create Vehicle Feature:', agv_information.AgvName);
           } catch {
             console.log('errror')
           }
@@ -3738,7 +3743,7 @@ export default {
           return;
         }
         this.UpdateAGVLayer()
-      }, { deep: true, immediate: true })
+      }, { deep: true, immediate: false })
 
 
       watch(() => this.agvs_info_other_system, (newval, oldval) => {
@@ -3812,7 +3817,7 @@ export default {
       this.loading = false;
       this.MapGridSizeStore = this.MapGridSize;
 
-    }, 10);
+    }, 100);
 
     bus.on('Map-Point-Enabled-Property-Changed', async () => {
       //await MapStore.dispatch('DownloadMapData')

@@ -708,7 +708,7 @@ function GetActionName(action, CargoStates = new clsCargoStates()) {
 }
 /**AGV地圖顯示參數 */
 export class AGVOption {
-    constructor(AGVNum = 1, AGVDisplayOptions = [new clsAGVDisplay()]) {
+    constructor(AGVNum = 1, AGVDisplayOptions = []) {
         this.AGVNum = AGVNum
         this.AGVDisplays = AGVDisplayOptions
 
