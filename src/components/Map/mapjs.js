@@ -297,7 +297,8 @@ export function GetStationStyle(text = '', station_type = 0, map_data = new MapP
             text: text + `${map_data.Enable ? '' : '(已禁用)'}`,
 
             font: `bold ${fontSize}px Calibri,sans-serif`,
-            offsetY: -22,
+            offsetX: map_data.Graph.textOffsetX,
+            offsetY: map_data.Graph.textOffsetY,
             fill: new Fill({
                 color: textFillColor,//PointColorSelect(station_type)
 
@@ -832,7 +833,9 @@ export class MapPointModel {
             ImageScale: 0.45,
             ImageSize: [64, 64],
             IsBezierCurvePoint: false,
-            BezierCurveID: ''
+            BezierCurveID: '',
+            textOffsetX: 0,
+            textOffsetY: -22
         }
         this.Target = {
 
