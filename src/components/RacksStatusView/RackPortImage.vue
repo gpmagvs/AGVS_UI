@@ -13,9 +13,9 @@
             <img v-if="hasTray" class="rack-tray-img" src="~@/assets/images/tray.png" width="170" />
         </div>
         <el-tag v-show="CarrierID && CarrierID != ''" effect="dark">{{ CarrierID }}</el-tag>
-        <div v-if="row == 0" class="qr-code d-flex flex-column">
+        <div v-if="row == 0" class="qr-code d-flex flex-column" align="center">
             <i class="bi bi-qr-code"> </i>
-            <label for="">0</label>
+            <label for="" align="center">{{columnTag}}</label>
         </div>
         <PortSensorEditViewVue v-if="showIOLocationEdit" class="sensor-edit" :ioLocations="ioLocations"></PortSensorEditViewVue>
         <div class="selected-border" style="width: 84%;height: 156px;position: absolute;top: 12px;left: 12px;"></div>
@@ -67,6 +67,10 @@ export default {
                     Box_Sensor2: 5,
                 }
             }
+        },
+        columnTag:{
+            type: Number,
+            default: 0
         },
         showIOLocationEdit: {
             type: Boolean,
