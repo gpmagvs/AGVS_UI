@@ -138,9 +138,7 @@ export const MapStore = createStore({
             var agvDataLs = [];
             var index = 0;
             Object.keys(agv_nav_info).forEach(name => {
-                console.info(name);
                 if (name.toLocaleLowerCase().includes('agv')) {
-
                     var data = agv_nav_info[name]
                     var vehicleLength = data.vehicleLength
                     var vehicleWidth = data.vehicleWidth

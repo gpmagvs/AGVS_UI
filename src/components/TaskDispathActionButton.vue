@@ -89,7 +89,7 @@
                   >
                     <div
                       class="custom-options"
-                      v-bind:class="tag.name_display.includes('AGV')?'agv-option':''"
+                      v-bind:class="tag.name_display && tag.name_display.includes('AGV')?'agv-option':''"
                     >{{tag.name_display}}</div>
                   </el-option>
                 </el-select>
