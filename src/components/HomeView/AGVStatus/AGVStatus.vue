@@ -141,6 +141,17 @@
                     ></i>
                     <b>{{ scope.row.StationName }}</b>
                   </div>
+                  <el-tooltip content="Tracking AGV" placement="top">
+                    <i
+                      @click="TrackingVehicle(scope.row.AGV_Name)"
+                      style="cursor: pointer;height: 22px;position: relative;top: 2px;border-radius: 30px;width: 22px;padding-left: 4px;font-size: 18px;"
+                      class="bi bi-eyeglasses"
+                      v-bind:style="TrackingAGV == scope.row.AGV_Name? {
+                      backgroundColor:'rgb(13, 110, 253)',
+                      color:'white'
+                    }:{}"
+                    ></i>
+                  </el-tooltip>
                   <el-button
                     class
                     v-show="scope.row.Model == 2 || scope.row.Simulation"
@@ -431,6 +442,7 @@ export default {
       ShowOnlineStateChange: false,
       ShowChargeConfirmDialog: false,
       ShowAGVLocatingDialog: false,
+      TrackingAGV: "",
       OnlineStatusReq: {
         AGV_Name: '',
         Online_Status: '',
@@ -574,6 +586,14 @@ export default {
           })
       }
 
+    },
+    TrackingVehicle(agvName) {
+      if (this.TrackingAGV == agvName) {
+        this.TrackingAGV = '';
+      } else {
+        this.TrackingAGV = agvName;
+      }
+      bus.emit('/tracking_agv', this.TrackingAGV)
     },
     HandleAGVLocatingClick(agv) {
       console.log(agv)

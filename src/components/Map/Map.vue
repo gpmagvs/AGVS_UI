@@ -898,7 +898,8 @@ export default {
       featureHighlightTimerID: '',
       highlightingFeatures: [],
       renderLDULD_StatusTimerId: '',
-      prviousEQDataJson: ''
+      prviousEQDataJson: '',
+      trackingAGVTimer: ''
     }
   },
   computed: {
@@ -3761,6 +3762,19 @@ export default {
         console.log('rerender_agv_layer');
         this.AGVLocLayer.getSource().clear();
         this.AGVFeatures = {};
+      })
+
+
+      bus.on('/tracking_agv', agvName => {
+        if (agvName != '') {
+          //start tracking
+          this.trackingAGVTimer = setInterval(() => {
+            this.ResetMapCenterViaAGVLoc(agvName);
+          }, 500);
+        } else {
+          //off tracking
+          clearInterval(this.trackingAGVTimer)
+        }
       })
 
       watch(
