@@ -176,7 +176,8 @@
     "Occur_Tag": "Occur Tag",
     "Duration": "Duration",
     "Clear_OP": "Clear OP",
-    "Solution": "Solution"
+    "Solution": "Solution",
+    "FailureReason": "Failure Reason"
   },
   "Rack": {
     "Creat_ID": "Creat ID",
