@@ -4,6 +4,7 @@ var param = {
   get backend_host() {
     if (process.env.NODE_ENV == 'development') {
       return 'http://localhost:5216'
+      return 'http://10.22.132.62:5216'
       return 'http://10.22.132.237:5216'
       return 'http://192.168.0.99:5216'
       return 'http://192.168.0.2:5216'

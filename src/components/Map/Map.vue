@@ -848,7 +848,7 @@ export default {
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
       legendShow: true,
-      dragActionLock: false,
+      dragActionLock: true,
       routePathsVisible: true,
       regionsVisible: false,
       contextMenuTop: 0,

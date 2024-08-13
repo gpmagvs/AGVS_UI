@@ -3,6 +3,7 @@ import { Login, StoreToLocalStorage, UserRouteChange } from '@/api/UserAPI';
 import { clsUserLoginState } from '@/api/AuthHelper'
 import MapAPI from '@/api/MapAPI'
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
+import { DeviceConfig } from '@/ViewModels/EndDeviceOption.js'
 import param from '@/gpm_param.js'
 import axios from 'axios'
 var cachesKeyMap = {
@@ -256,7 +257,7 @@ export const EqStore = createStore({
   state: {
     EQ: [],
     ChargeStation: { 'charge1': {} },
-    EqOptions: [],
+    EqOptions: [DeviceConfig],
     WIPOptions: [],
     WIPsData: []
   },

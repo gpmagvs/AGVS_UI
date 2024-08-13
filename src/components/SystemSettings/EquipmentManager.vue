@@ -12,7 +12,7 @@
       size="small"
       border
       scrollbar-always-on
-      height="80vh"
+      height="77vh"
       table-layout="fixed"
       ref="eqTable"
       style="width:100vw"
@@ -105,6 +105,34 @@
           </el-select>
         </template>
       </el-table-column>
+      <el-table-column label="具貨物升降機構" width="100" align="center">
+        <template #default="scope">
+          <el-checkbox v-model="scope.row.HasCstSteeringMechanism"></el-checkbox>
+        </template>
+      </el-table-column>
+      <el-table-column label="雙Port設備" width="100" align="center">
+        <template #default="scope">
+          <el-checkbox v-model="scope.row.IsOneOfDualPorts"></el-checkbox>
+        </template>
+      </el-table-column>
+      <el-table-column label="AnotherPortTagNumber" width="80" align="center">
+        <template #default="scope">
+          <el-input
+            type="number"
+            v-model="scope.row.AnotherPortTagNumber"
+            :disabled="!scope.row.IsOneOfDualPorts"
+          ></el-input>
+        </template>
+      </el-table-column>
+      <el-table-column label="可取貨狀態識別碼" width="80" align="center">
+        <template #default="scope">
+          <el-input
+            type="number"
+            v-model="scope.row.AllowUnloadPortTypeNumber"
+            :disabled="!scope.row.IsOneOfDualPorts"
+          ></el-input>
+        </template>
+      </el-table-column>
       <el-table-column label="空框/實框 訊號檢查" width="100" align="center">
         <template #default="scope">
           <el-checkbox v-model="scope.row.RackCapcityCheck"></el-checkbox>
@@ -127,11 +155,17 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-drawer :z-index="1" v-model="connection_setting_drawer" :title="`${selected_eq.Name}-連線設定`">
+    <el-drawer
+      size="50%"
+      :z-index="1"
+      v-model="connection_setting_drawer"
+      :title="`${selected_eq_option.Name}-連線設定`"
+    >
       <div class="w-100">
         <el-form label-position="left" label-width="100">
+          <el-divider>通訊 Protocol</el-divider>
           <el-form-item label="通訊方式">
-            <el-select v-model="selected_eq.ConnOptions.ConnMethod">
+            <el-select v-model="selected_eq_option.ConnOptions.ConnMethod">
               <el-option label="Modbus TCP" :value="0"></el-option>
               <el-option label="Modbus RTU" :value="1"></el-option>
               <el-option label="TCP/IP" :value="2"></el-option>
@@ -141,28 +175,104 @@
           </el-form-item>
           <el-form-item label="IP">
             <el-input
-              :disabled="selected_eq.ConnOptions.ConnMethod == 1"
-              v-model="selected_eq.ConnOptions.IP"
+              :disabled="selected_eq_option.ConnOptions.ConnMethod == 1"
+              v-model="selected_eq_option.ConnOptions.IP"
             ></el-input>
           </el-form-item>
           <el-form-item label="PORT">
             <el-input
-              :disabled="selected_eq.ConnOptions.ConnMethod == 1"
-              v-model.number="selected_eq.ConnOptions.Port"
+              :disabled="selected_eq_option.ConnOptions.ConnMethod == 1"
+              v-model.number="selected_eq_option.ConnOptions.Port"
             ></el-input>
           </el-form-item>
           <el-form-item label="COMPORT">
             <el-input
-              :disabled="selected_eq.ConnOptions.ConnMethod == 0"
-              v-model="selected_eq.ConnOptions.ComPort"
+              :disabled="selected_eq_option.ConnOptions.ConnMethod == 0"
+              v-model="selected_eq_option.ConnOptions.ComPort"
             ></el-input>
           </el-form-item>
+          <el-button
+            :loading="connection_testing"
+            type="default"
+            @click="ConnectTestHandle(selected_eq_option)"
+          >通訊測試</el-button>
+          <el-divider>IO位置</el-divider>
+          <el-form-item label="IO數量">
+            <el-input type="number" v-model="selected_eq_option.ConnOptions.Input_RegisterNum"></el-input>
+          </el-form-item>
+
+          <el-form-item label="PLC Base">
+            <el-checkbox v-model="selected_eq_option.ConnOptions.IsPLCAddress_Base_1"></el-checkbox>
+          </el-form-item>
+          <div class="d-flex w-100 mx-1">
+            <div class="w-50 border p-2">
+              <h5 class="w-100 border rounded bg-primary text-light">INPUT</h5>
+              <el-form label-position="left" label-width="120">
+                <el-form-item label="Start Index">
+                  <el-input
+                    type="number"
+                    v-model="selected_eq_option.ConnOptions.Input_StartRegister"
+                  ></el-input>
+                </el-form-item>
+                <el-divider></el-divider>
+                <el-form-item label="Load_Request">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Load_Request"></el-input>
+                </el-form-item>
+                <el-form-item label="Unload_Request">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Unload_Request"></el-input>
+                </el-form-item>
+                <el-form-item label="Port_Exist">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Port_Exist"></el-input>
+                </el-form-item>
+
+                <el-form-item label="Up_Pose">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Up_Pose"></el-input>
+                </el-form-item>
+                <el-form-item label="Down_Pose">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Down_Pose"></el-input>
+                </el-form-item>
+                <el-form-item label="Eqp_Status_Down">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Eqp_Status_Down"></el-input>
+                </el-form-item>
+
+                <el-form-item label="Eqp_Maintaining">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Eqp_Maintaining"></el-input>
+                </el-form-item>
+                <el-form-item label="Eqp_PartsReplacing">
+                  <el-input
+                    type="number"
+                    v-model="selected_eq_option.IOLocation.Eqp_PartsReplacing"
+                  ></el-input>
+                </el-form-item>
+              </el-form>
+            </div>
+            <div class="w-50 border p-2 mx-1">
+              <h5 class="w-100 border rounded bg-info text-light">OUTPUT</h5>
+              <el-form label-position="left" label-width="120">
+                <el-form-item label="Start Index">
+                  <el-input
+                    type="number"
+                    v-model="selected_eq_option.ConnOptions.Output_Start_Address"
+                  ></el-input>
+                </el-form-item>
+                <el-divider></el-divider>
+                <el-form-item label="To_EQ_Up">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.To_EQ_Up"></el-input>
+                </el-form-item>
+                <el-form-item label="To_EQ_Low">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.To_EQ_Low"></el-input>
+                </el-form-item>
+
+                <el-form-item label="CMD_Reserve_Up">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.CMD_Reserve_Up"></el-input>
+                </el-form-item>
+                <el-form-item label="CMD_Reserve_Low">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.CMD_Reserve_Low"></el-input>
+                </el-form-item>
+              </el-form>
+            </div>
+          </div>
         </el-form>
-        <el-button
-          :loading="connection_testing"
-          type="default"
-          @click="ConnectTestHandle(selected_eq)"
-        >通訊測試</el-button>
       </div>
     </el-drawer>
     <el-drawer v-model="io_check_drawer" direction="btt">
@@ -249,6 +359,8 @@ import { MapStore } from '../Map/store';
 import { EqStore } from '@/store'
 import { ElNotification } from 'element-plus';
 import { duration } from 'moment';
+import { DeviceConfig } from '@/ViewModels/EndDeviceOption.js'
+
 export default {
   components: {
     RegionsSelector,
@@ -283,7 +395,7 @@ export default {
         var same_name_row = this.EqDatas.filter(d => d.Name == row_.Name)
         return same_name_row.length == 1 && name != '';
       },
-      selected_eq: {},
+      selected_eq_option: new DeviceConfig(),
       connection_testing: false,
       loading: true,
       rowKey: 'index',
@@ -300,7 +412,7 @@ export default {
       if (ret.confirm) {
         setTimeout(() => {
           this.ReloadSettingsHandler(false);
-        }, 1000);
+        }, 200);
         this.$swal.fire({
           title: '儲存成功',
           icon: 'success',
@@ -318,12 +430,13 @@ export default {
     },
     async DownloadEQOptions() {
       this.EqDatas = [];
-      var datas = EqStore.getters.EqOptions;
+      var datas = EqStore.state.EqOptions
       for (let index = 0; index < datas.length; index++) {
-        var element = datas[index];
+        var element = new DeviceConfig();
+        Object.assign(element, datas[index]);
         element.index = index;
+
         this.EqDatas.push(element)
-        console.info(element)
       }
       this.CloneEQDatas();
     },
@@ -342,20 +455,13 @@ export default {
       }, 300);
     },
     AddNewEqHandler() {
-      this.EqDatas.push(
-        {
-          index: this.EqDatas.length,
-          Name: `New_EQ_${this.EqDatas.length}`,
-          TagID: 1,
-          ConnOptions: {
-            ConnMethod: 0,
-            IP: "127.0.0.1",
-            Port: 502,
-            ComPort: "COM1"
-          }
-        })
+      let newOption = new DeviceConfig();
+      newOption.TagID = 1;
+      newOption.index = this.EqDatas.length;
+      this.EqDatas = [newOption, ...this.EqDatas]
+
       setTimeout(() => {
-        this.$refs.eqTable.setScrollTop(window.innerHeight)
+        this.$refs.eqTable.setScrollTop(0)
       }, 300);
     },
     RemoveHandle(row) {
@@ -363,11 +469,11 @@ export default {
       this.EqDatas = remains;
     },
     async IOCheckBtnHandle(row) {
-      this.selected_eq = row;
+      this.selected_eq_option = row;
       this.io_check_drawer = true;
     },
     async ConnectionSettingBtnHandle(row) {
-      this.selected_eq = row;
+      this.selected_eq_option = row;
       this.connection_setting_drawer = true;
     },
     async ConnectTestHandle(row) {
@@ -451,12 +557,15 @@ export default {
       return EqStore.getters.EQData
     },
     selected_eq_io_data() {
-      return this.eq_data.find(eq => eq.EQName == this.selected_eq.EQName)
+      return this.eq_data.find(eq => eq.EQName == this.selected_eq_option.EQName)
     }
   },
 }
 </script>
 <style lang="scss" scoped>
 .equipment-manager {
+  .el-drawer__header {
+    margin-bottom: 5px !important;
+  }
 }
 </style>
