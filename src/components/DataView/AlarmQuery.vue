@@ -204,14 +204,6 @@ export default {
       .format("YYYY-MM-DD HH:mm:ss");
     setTimeout(() => {
       this.QueryAlarm()
-        .then((retquery) => {
-          this.alarms = retquery.alarms;
-          this.rows = retquery.count;
-          this.currentpage = retquery.currentpage;
-        })
-        .catch((er) => {
-          Notifier.Danger("警報查詢失敗後端服務異常");
-        });
     }, 500);
   },
   methods: {

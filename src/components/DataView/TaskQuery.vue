@@ -209,12 +209,8 @@ export default {
     const EndDate = new Date();
     this.end_time = EndDate.toISOString().substring(0, 10) + ' 23:59:59';
     this.start_time = moment(this.end_time, 'YYYY-MM-DD HH:mm:ss').subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
-
     setTimeout(() => {
       this.TaskQuery()
-        .catch(er => {
-          Notifier.Danger('警報查詢失敗後端服務異常')
-        });
     }, 500);
   },
   methods: {
