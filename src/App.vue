@@ -162,6 +162,9 @@ export default {
     if (login_states.isLogin) {
       userStore.commit('setUser', login_states.login_info)
     }
+    bus.on('menuToggle', () => {
+      this.ToggleMenu();
+    })
     bus.on('swal-notify-invoke', notifyOption => {
       this.$swal.fire(
         notifyOption)

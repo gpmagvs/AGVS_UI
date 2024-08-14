@@ -1,25 +1,54 @@
 <template>
   <div class="login-view">
     <el-form class="login-form border p-5 rounded" label-position="top">
-      <img class="border-bottom py-2" src="/GPM_Logo.png" alt="">
+      <img class="border-bottom py-2" src="/GPM_Logo.png" alt />
       <p class="login-title-text">USER LOGIN</p>
       <el-form-item label="User Name" :required="true">
-        <b-form-input autofocus autocomplete="new-password" :disabled="IsLogin" ref="account" @keyup.enter="FocusPasswordInput" @keyup.down="FocusPasswordInput" @keyup.esc="UserName = ''" v-model="UserName" :state="UserName != ''" placeholder="Please Enter Your User Name" required></b-form-input>
+        <b-form-input
+          autofocus
+          autocomplete="new-password"
+          :disabled="IsLogin"
+          ref="account"
+          @keyup.enter="FocusPasswordInput"
+          @keyup.down="FocusPasswordInput"
+          @keyup.esc="UserName = ''"
+          v-model="UserName"
+          :state="UserName != ''"
+          placeholder="Please Enter Your User Name"
+          required
+        ></b-form-input>
       </el-form-item>
       <el-form-item label="Password" :required="true">
-        <b-form-input autocomplete="new-password" type="password" :disabled="IsLogin" ref="pw_input" @keyup.enter="PasswordEnterClickHandler" @keyup.up="FocusAccountInput" @keyup.esc="Password = ''" v-model="Password" :state="Password != ''" placeholder="Please Enter Your Password"
-          required></b-form-input>
+        <b-form-input
+          autocomplete="new-password"
+          type="password"
+          :disabled="IsLogin"
+          ref="pw_input"
+          @keyup.enter="PasswordEnterClickHandler"
+          @keyup.up="FocusAccountInput"
+          @keyup.esc="Password = ''"
+          v-model="Password"
+          :state="Password != ''"
+          placeholder="Please Enter Your Password"
+          required
+        ></b-form-input>
       </el-form-item>
       <el-form-item v-if="IsLogin">
         <b-button @click="LogoutHandle()" :loading="logouting" class="w-100" variant="danger">Logout</b-button>
       </el-form-item>
       <el-form-item v-if="!IsLogin">
-        <b-button @click="LoginHandle()" :disabled="logining" :loading="logining" class="w-100" variant="primary">Login</b-button>
+        <b-button
+          @click="LoginHandle()"
+          :disabled="logining"
+          :loading="logining"
+          class="w-100"
+          variant="primary"
+        >Login</b-button>
       </el-form-item>
       <div class="login-message">{{ message }}</div>
       <!-- <el-form-item>
         <b-button @click="dialogVisible = false" class="w-100">Cancel</b-button>
-      </el-form-item> -->
+      </el-form-item>-->
     </el-form>
   </div>
   <!-- <KeyBoard @onChange="onChange" :input="keyboard_input"></KeyBoard> -->

@@ -21,25 +21,25 @@
         </el-icon>
         <template #title>{{ $t('Menu.Home') }}</template>
       </el-menu-item>
-      <el-menu-item index="/alarm">
+      <el-menu-item index="/alarm" v-if="UserPermission.menu.SystemAlarm==1">
         <el-icon>
           <Message color="red" />
         </el-icon>
         <template #title>{{ $t('Menu.System Alarm') }}</template>
       </el-menu-item>
-      <el-menu-item index="/racks_status">
+      <el-menu-item index="/racks_status" v-if="UserPermission.menu.WIPInfo==1">
         <el-icon>
           <cargo_icon :color="IconColor" />
         </el-icon>
         <template #title>{{ $t('Menu.wip_manager') }}</template>
       </el-menu-item>
-      <el-menu-item v-if="IsAdmin" index="/vehicle">
+      <el-menu-item index="/vehicle" v-if="UserPermission.menu.VehicleManagnment==1">
         <el-icon>
           <Van :color="IconColor" />
         </el-icon>
         <template #title>{{ $t('Menu.vehicle manager') }}</template>
       </el-menu-item>
-      <el-sub-menu v-if="IsAdmin">
+      <el-sub-menu v-if="UserPermission.menu.Map==1">
         <template #title>
           <el-icon>
             <map_icon :color="IconColor" />
@@ -59,82 +59,112 @@
           <template #title>{{ $t('Menu.agv display') }}</template>
         </el-menu-item>
       </el-sub-menu>
-      <el-sub-menu index="/data">
+      <el-sub-menu index="/data" v-if="UserPermission.menu.DataQuery==1">
         <template #title>
           <el-icon>
             <DataAnalysis :color="IconColor" />
           </el-icon>
           <span>{{ $t('Menu.Querys') }}</span>
         </template>
-        <el-menu-item index="/data/task_history">
+        <el-menu-item
+          index="/data/task_history"
+          v-if="UserPermission.dataQuerySubMenu.TaskHistory==1"
+        >
           <el-icon>
             <DataAnalysis />
           </el-icon>
           <template #title>{{ $t('Menu.Task History') }}</template>
         </el-menu-item>
-        <el-menu-item index="/data/alarm_history">
+        <el-menu-item
+          index="/data/alarm_history"
+          v-if="UserPermission.dataQuerySubMenu.AlarmHistory==1"
+        >
           <el-icon>
             <DataAnalysis />
           </el-icon>
           <template #title>{{ $t('Menu.Alarm History') }}</template>
         </el-menu-item>
-        <el-menu-item index="/data/agv_locus">
+        <el-menu-item
+          index="/data/agv_locus"
+          v-if="UserPermission.dataQuerySubMenu.VehicleTrajectory==1"
+        >
           <el-icon>
             <DataAnalysis />
           </el-icon>
           <template #title>{{ $t('Menu.Trajectory') }}</template>
         </el-menu-item>
-        <el-menu-item index="/data/InstrumentMeasureQuery">
+        <el-menu-item
+          index="/data/InstrumentMeasureQuery"
+          v-if="UserPermission.dataQuerySubMenu.InstrumentsMeasure==1"
+        >
           <el-icon>
             <DataAnalysis />
           </el-icon>
           <template #title>{{ $t('Menu.Instruments Measure Result') }}</template>
         </el-menu-item>
-        <el-menu-item index="/data/Avalibility">
+        <el-menu-item
+          index="/data/Avalibility"
+          v-if="UserPermission.dataQuerySubMenu.Utilization==1"
+        >
           <el-icon>
             <PieChart />
           </el-icon>
           <template #title>{{ $t('Menu.utilization rate') }}</template>
         </el-menu-item>
       </el-sub-menu>
-      <el-menu-item v-if="IsAdmin" index="/hotrun">
+      <el-menu-item index="/hotrun" v-if="UserPermission.menu.HotRun==1">
         <el-icon>
           <Management color="red" />
         </el-icon>
         <template #title>Hot Run</template>
       </el-menu-item>
-      <el-sub-menu v-if="IsAdmin" index="/sys_settings">
+      <el-sub-menu index="/sys_settings" v-if="UserPermission.menu.SystemConfiguration==1">
         <template #title>
           <el-icon>
             <setting :color="IconColor" />
           </el-icon>
           <span>{{ $t('Menu.system settings') }}</span>
         </template>
-        <el-menu-item index="/sys_settings/AGV_Battery_Setting">
+        <el-menu-item
+          index="/sys_settings/AGV_Battery_Setting"
+          v-if="UserPermission.systemConfigurationSubMenu.BatteryLevelManagnment==1"
+        >
           <el-icon>
             <setting />
           </el-icon>
           <template #title>{{ $t('Menu.vehicle battery managnment') }}</template>
         </el-menu-item>
-        <el-menu-item index="/sys_settings/Equipment_Setting">
+        <el-menu-item
+          index="/sys_settings/Equipment_Setting"
+          v-if="UserPermission.systemConfigurationSubMenu.EquipmentlManagnment==1"
+        >
           <el-icon>
             <setting />
           </el-icon>
           <template #title>{{ $t('Menu.equipment management') }}</template>
         </el-menu-item>
-        <el-menu-item index="/sys_settings/RacksManagement">
+        <el-menu-item
+          index="/sys_settings/RacksManagement"
+          v-if="UserPermission.systemConfigurationSubMenu.RackManagnment==1"
+        >
           <el-icon>
             <setting />
           </el-icon>
           <template #title>{{ $t('Menu.racks management') }}</template>
         </el-menu-item>
-        <el-menu-item index="/sys_settings/User_Setting">
+        <el-menu-item
+          index="/sys_settings/User_Setting"
+          v-if="UserPermission.systemConfigurationSubMenu.UserManagnment==1"
+        >
           <el-icon>
             <User />
           </el-icon>
           <template #title>{{ $t('Menu.user management') }}</template>
         </el-menu-item>
-        <el-menu-item index="/sys_settings/Charge_Station_Setting">
+        <el-menu-item
+          index="/sys_settings/Charge_Station_Setting"
+          v-if="UserPermission.systemConfigurationSubMenu.ChargerManagnment==1"
+        >
           <el-icon>
             <setting />
           </el-icon>
@@ -180,6 +210,9 @@ export default {
   computed: {
     IsAdmin() {
       return userStore.getters.IsEngineerLogining || userStore.getters.IsDeveloperLogining
+    },
+    UserPermission() {
+      return userStore.state.user.Permission;
     }
   },
   methods: {

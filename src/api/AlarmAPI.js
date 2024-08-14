@@ -21,6 +21,12 @@ export async function QueryAlarm(currentpage, start_time, end_time, AGV_Name = '
   var retquery = await axios_entity.get(`/api/Alarmquery/QueryAlarm?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&AlarmType=${AlarmType}&Alarm_description=${Alarm_description}`)
   return retquery.data;
 }
+
+export async function DeleteAlarm(Time) {
+  var retquery = await axios_entity.delete(`/api/Alarm/Delete?time=${Time}`)
+  return retquery.data;
+}
+
 /**輸出CSV */
 export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL') {
   const response = await axios_entity.get(`/api/Alarmquery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`, { responseType: 'blob', });

@@ -155,6 +155,9 @@ export const userStore = createStore({
       state.current_route = route;
       console.log(route);
     },
+    updateCurrentUserPermission(state, newPermission) {
+      state.user.Permission = newPermission;
+    }
   },
   actions: {
     async login({ commit }, user) {

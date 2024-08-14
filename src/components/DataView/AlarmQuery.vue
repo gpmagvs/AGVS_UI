@@ -142,6 +142,13 @@
           prop="ResetAalrmMemberName"
           min-width="120"
         ></el-table-column>
+        <el-table-column min-width="120" v-if="isDevLogin" label="Action">
+          <template #default="scope">
+            <div class="w-100">
+              <b-button variant="danger" @click="DeleteAlarmHandle(scope.row)">Delete</b-button>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center fixed-bottom py-4">
         <b-pagination
@@ -167,7 +174,7 @@
 </template>
 <script>
 import { QueryAlarm } from "@/api/AlarmAPI.js";
-import { SaveTocsv } from "@/api/AlarmAPI.js";
+import { SaveTocsv, DeleteAlarm } from "@/api/AlarmAPI.js";
 import moment from "moment";
 import Notifier from "@/api/NotifyHelper";
 import { CopyText } from "@/api/Common/UtilityTools";
@@ -195,6 +202,9 @@ export default {
     AgvNameList() {
       return agv_states_store.getters.AGVNameList;
     },
+    isDevLogin() {
+      return userStore.getters.IsDeveloperLogining;
+    }
   },
   mounted() {
     const EndDate = new Date();
@@ -282,6 +292,10 @@ export default {
     getFullFilePath(filePath) {
       const baseURL = param.backend_host;
       return baseURL + "/TrobleShootingFiles/" + filePath; // 構建完整的 URL
+    },
+    async DeleteAlarmHandle(alarmRow) {
+      await DeleteAlarm(alarmRow.Time);
+      this.QueryAlarm();
     }
   },
 };

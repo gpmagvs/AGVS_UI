@@ -73,6 +73,36 @@ export class clsUserLoginState {
     this.token = '';
     this.Success = false;
     this.Message = '';
-    this.LoginTime = Date.now()
+    this.LoginTime = Date.now();
+    this.Permission = new WebViewPermission();
+  }
+}
+
+export class WebViewPermission {
+  constructor() {
+    this.menu = {
+      SystemAlarm: 1,
+      WIPInfo: 0,
+      VehicleManagnment: 0,
+      Map: 0,
+      DataQuery: 1,
+      HotRun: 0,
+      SystemConfiguration: 0,
+    };
+    this.dataQuerySubMenu = {
+      TaskHistory: 1,
+      AlarmHistory: 1,
+      VehicleTrajectory: 0,
+      InstrumentsMeasure: 0,
+      Utilization: 1,
+    }
+    this.systemConfigurationSubMenu =
+    {
+      BatteryLevelManagnment: 0,
+      EquipmentlManagnment: 0,
+      RackManagnment: 0,
+      UserManagnment: 0,
+      ChargerManagnment: 0
+    }
   }
 }

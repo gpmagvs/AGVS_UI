@@ -1,5 +1,5 @@
 <template>
-  <div class="user-manager">
+  <div class="user-manager p-2">
     <div class="d-flex flex-row">
       <OperatieButtonSet @save="SaveSetting" @restore="HandleRestoreBtnClicked"></OperatieButtonSet>
       <span class="flex-fill"></span>
@@ -12,12 +12,19 @@
           },
             AddNewUserDialogShow = true
         }"
-        style="font-weight: bold;font-size: 20px;"
+        style="font-weight: bold;font-size: 16px;"
         type="primary"
-        size="large">新增使用者</el-button>
+        size="large"
+      >新增使用者</el-button>
     </div>
     <div class="border">
-      <el-table :data="UserData" empty-text="沒有使用者" size="large" :header-cell-style="tableHeaderStyle">
+      <el-table
+        :data="UserData"
+        empty-text="沒有使用者"
+        size="large"
+        :header-cell-style="tableHeaderStyle"
+        border
+      >
         <el-table-column label="使用者名稱" prop="UserName" width="180"></el-table-column>
         <el-table-column label="使用者密碼" prop="Password" width="220">
           <template #default="scope">
@@ -34,8 +41,22 @@
                   v-for="role in RoleOptions"
                   :key="role.value"
                   :value="role.value"
-                  :label="role.label"></el-option>
+                  :label="role.label"
+                ></el-option>
               </el-select>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" min-width="120">
+          <template #default="scope">
+            <div>
+              <el-button
+                @click="()=>{
+                  PermissionSettingSender.userName=scope.row.UserName;
+                  PermissionSettingSender.role=scope.row.Role;
+                showPermissionSettingDrawer=true;
+              }"
+              >權限設定</el-button>
             </div>
           </template>
         </el-table-column>
@@ -48,6 +69,17 @@
         </el-table-column>
       </el-table>
     </div>
+    <el-drawer v-model="showPermissionSettingDrawer" :size="600" custom-class="permission-drawer">
+      <template #header="{ titleId, titleClass }">
+        <div>
+          <h3>使用者權限設定</h3>
+          <h4 class="user-name">[{{ PermissionSettingSender.userName }}]</h4>
+        </div>
+      </template>
+      <div style="position: relative; top:-60px">
+        <PermissionSetting :PermissionSettingSender="PermissionSettingSender"></PermissionSetting>
+      </div>
+    </el-drawer>
     <el-dialog v-model="AddNewUserDialogShow" width="500" title="新增使用者" draggable>
       <div>
         <el-form>
@@ -59,29 +91,41 @@
           </el-form-item>
           <el-form-item label="使用者群組">
             <el-select v-model="NewUser.Role">
-              <el-option v-for="role in RoleOptions" :key="role.value" :value="role.value" :label="role.label"></el-option>
+              <el-option
+                v-for="role in RoleOptions"
+                :key="role.value"
+                :value="role.value"
+                :label="role.label"
+              ></el-option>
             </el-select>
           </el-form-item>
-          <b-button :disabled="NewUser.UserName == '' || NewUser.Password == ''" @click="HandleAddNewUserClick" class="w-100" variant="primary">新增</b-button>
+          <b-button
+            :disabled="NewUser.UserName == '' || NewUser.Password == ''"
+            @click="HandleAddNewUserClick"
+            class="w-100"
+            variant="primary"
+          >新增</b-button>
         </el-form>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import OperatieButtonSet from './OperatieButtonSet.vue'
+import OperatieButtonSet from './OperatieButtonSet.vue';
+import PermissionSetting from './PermissionSetting.vue';
 import { Modify, GetUsers, Delete, Add } from '@/api/UserAPI'
 import Notifier from '@/api/NotifyHelper'
 import { tableHeaderStyle } from '@/ViewModels/GlobalStyles'
 export default {
   components: {
-    OperatieButtonSet,
+    OperatieButtonSet, PermissionSetting
   },
 
   data() {
     return {
       tableHeaderStyle,
       AddNewUserDialogShow: false,
+      showPermissionSettingDrawer: false,
       UserData: [
         {
           UserName: "jinwei",
@@ -118,7 +162,11 @@ export default {
           label: "開發人員",
           value: 2
         }
-      ]
+      ],
+      PermissionSettingSender: {
+        userName: '',
+        role: -1
+      }
     }
   },
   mounted() {
@@ -205,6 +253,32 @@ export default {
   },
 }
 </script>
-<style lang="scss">
-.user-manager {}
+<style lang="scss" scoped>
+.user-manager {
+  .permission-drawer {
+    :deep(.el-drawer__header) {
+      margin-bottom: 0;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e4e7ed;
+    }
+
+    .drawer-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      h4 {
+        font-size: 22px;
+        color: #303133;
+        margin: 0 0 8px 0;
+      }
+
+      .user-name {
+        font-size: 21px;
+        color: #409eff;
+        font-weight: bold;
+      }
+    }
+  }
+}
 </style>

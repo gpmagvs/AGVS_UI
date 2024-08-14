@@ -51,6 +51,15 @@ export function StoreToLocalStorage(user) {
   localStorage.setItem('user', JSON.stringify(user))
 }
 
+export async function GetPermissionSettings(userName) {
+  var ret = await axios_entity.get(`api/Auth/GetPermissionSettings?userName=${userName}`)
+  return ret.data
+}
+
+export async function SavePermissionSettings(userName, permissionSettings) {
+  await axios_entity.post(`api/Auth/SavePermissionSettings?userName=${userName}`, permissionSettings)
+}
+
 /**向後端回報路由跳轉狀態 */
 export async function UserRouteChange(userID, route) {
   var ret = await axios_entity.get(`api/Auth/UserRouteChange?userID=${userID}&current_route=${route}`)

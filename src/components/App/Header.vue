@@ -353,7 +353,8 @@ export default {
       }, delay_ms);
     },
     ToggleMenu() {
-      this.$emit('onMenuToggleClicked', '')
+      //this.$emit('onMenuToggleClicked', '')
+      bus.emit('menuToggle')
     },
     LogoClickHandler() {
       this.$router.push('/');

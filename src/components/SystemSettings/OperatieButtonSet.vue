@@ -1,7 +1,7 @@
 <template>
   <div class="save-default-buttons-group border-bottom bg-default text-start">
-    <el-button @click="HandleSaveBtnClick" type="primary" size="large">儲存</el-button>
-    <el-button @click="HandleRestoreBtnClick" type="danger" size="large">預設值</el-button>
+    <el-button @click="HandleSaveBtnClick" type="primary">儲存</el-button>
+    <el-button @click="HandleRestoreBtnClick" type="danger">預設值</el-button>
   </div>
 </template>
 <script>
