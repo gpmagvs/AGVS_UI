@@ -340,6 +340,62 @@
           <div class="di-status" v-bind:style="signalOn(scope.row.Eqp_Status_Idle)">Idle</div>
         </template>
       </el-table-column>
+
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="空框移出"
+        prop="Empty_CST"
+        :min-width="column_width"
+      >
+        <template #default="scope">
+          <div
+            class="di-status"
+            v-bind:style="signalOn(scope.row.Empty_CST, false, 'rgb(13, 110, 253)')"
+          >空框移出</div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="實框移出"
+        prop="Full_CST"
+        :min-width="column_width"
+      >
+        <template #default="scope">
+          <div
+            class="di-status"
+            v-bind:style="signalOn(scope.row.Full_CST, false, 'rgb(13, 110, 253)')"
+          >實框移出</div>
+        </template>
+      </el-table-column>
+
+      <!---->
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="空框移入"
+        prop="To_Empty_CST"
+        :min-width="column_width"
+      >
+        <template #default="scope">
+          <div
+            class="di-status"
+            v-bind:style="signalOn(scope.row.To_Empty_CST, false, 'rgb(16, 152, 104)')"
+          >空框移入</div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-if="!show_lduld_state"
+        label="實框移入"
+        prop="To_Full_CST"
+        :min-width="column_width"
+      >
+        <template #default="scope">
+          <div
+            class="di-status"
+            v-bind:style="signalOn(scope.row.To_Full_CST, false, 'rgb(16, 152, 104)')"
+          >實框移入</div>
+        </template>
+      </el-table-column>
+      <!---->
       <el-table-column
         v-if="!show_lduld_state"
         :label="$t('HomeView.EQStatus.EQStatus.IsMaintaining')"
