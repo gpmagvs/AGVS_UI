@@ -8,7 +8,7 @@
         <RegionsSelector v-model="selected_region"></RegionsSelector>
       </div>-->
       <div class="d-flex">
-        <div class="p-1">
+        <div class="p-1" style="width:80px">
           <i class="bi bi-three-dots-vertical pt-2"></i>
           {{ $t('HomeView.EQStatus.EQStatus.ViewMode') }}
         </div>
@@ -17,13 +17,15 @@
           <el-option :label="$t('HomeView.EQStatus.EQStatus.IO')" value="io_siganl"></el-option>
         </el-select>
       </div>
-      <div v-if="!show_lduld_state" class="legend d-flex flex-row px-2">
+      <div v-if="!show_lduld_state" class="legend d-flex flex-row px-2 w-100">
         <div class="disconnect"></div>
         <span>{{ $t('HomeView.EQStatus.EQStatus.DisConnect') }}</span>
         <div class="signal-on"></div>
         <span>{{ $t('HomeView.EQStatus.EQStatus.ON') }}</span>
         <div class="signal-off"></div>
         <span>{{ $t('HomeView.EQStatus.EQStatus.OFF') }}</span>
+        <div class="flex-fill"></div>
+        <el-button v-if="ShowIOColumnSettingButton" @click="showColumnSettings">IO欄位顯示設定</el-button>
       </div>
     </div>
     <!-- <div v-if="IsDeveloperLogining" class="dev-debug-global d-flex">
@@ -256,8 +258,11 @@
       ></el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <!-- IO訊號 -->
+      <!-- IO訊號 -->
+      <!-- IO訊號 -->
+      <!-- IO訊號 -->
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.load_request"
         :label="$t('HomeView.EQStatus.EQStatus.Load')"
         prop="Load_Request"
         :min-width="column_width"
@@ -270,7 +275,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.unload_request"
         :label="$t('HomeView.EQStatus.EQStatus.UnLoad')"
         prop="Unload_Request"
         :min-width="column_width"
@@ -283,7 +288,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.cargo_exist"
         :label="$t('HomeView.EQStatus.EQStatus.Exist')"
         prop="Port_Exist"
         :min-width="column_width"
@@ -308,7 +313,7 @@
       </el-table-column>-->
       <!--  -->
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state  && ioColumnDisplaySetting.port_status_down"
         label="Down"
         prop="Eqp_Status_Down"
         :min-width="column_width"
@@ -321,7 +326,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state  && ioColumnDisplaySetting.running"
         label="Run"
         prop="Eqp_Status_Run"
         :min-width="column_width"
@@ -331,7 +336,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state  && ioColumnDisplaySetting.idle"
         label="Idle"
         prop="Eqp_Status_Idle"
         :min-width="column_width"
@@ -342,7 +347,7 @@
       </el-table-column>
 
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.empty_rack_state_input"
         label="空框移出/入"
         prop="Empty_CST"
         :min-width="column_width"
@@ -355,7 +360,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.full_rack_state_input"
         label="實框移出/入"
         prop="Full_CST"
         :min-width="column_width"
@@ -370,7 +375,7 @@
 
       <!---->
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.empty_rack_state_output"
         label="空框移入"
         prop="To_EQ_Empty_CST"
         :min-width="column_width"
@@ -384,7 +389,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.full_rack_state_output"
         label="實框移入"
         prop="To_EQ_Full_CST"
         :min-width="column_width"
@@ -399,7 +404,7 @@
       </el-table-column>
       <!---->
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.maintaining"
         :label="$t('HomeView.EQStatus.EQStatus.IsMaintaining')"
         prop="IsMaintaining"
         :min-width="column_width"
@@ -412,7 +417,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.down_pose"
         label="Down_Pose"
         prop="Down_Pose"
         :min-width="column_width"
@@ -425,7 +430,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="!show_lduld_state"
+        v-if="!show_lduld_state && ioColumnDisplaySetting.up_pose"
         label="Up_Pose"
         prop="Up_Pose"
         :min-width="column_width"
@@ -438,6 +443,15 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <el-drawer title="IO訊號欄位顯示設定" v-model="showIOColumnDisplaySetting" direction="rtl" size="300">
+      <div class="io-column-display-settings-container">
+        <div v-for="(value, key) in ioColumnDisplaySetting" :key="key" class="setting-item">
+          <div class="column-name">{{ formatSettingName(key) }}</div>
+          <el-switch v-model="ioColumnDisplaySetting[key]" />
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 <script>
@@ -452,6 +466,24 @@ import { watch } from 'vue';
 import bus from '@/event-bus.js'
 import { CopyText } from '@/api/Common/UtilityTools'
 
+class IoColumnSetting {
+  constructor() {
+    this.unload_request = true;
+    this.load_request = true;
+    this.cargo_exist = true;
+    this.port_status_down = true;
+    this.running = true;
+    this.idle = true;
+    this.empty_rack_state_input = false;
+    this.full_rack_state_input = false;
+    this.empty_rack_state_output = false;
+    this.full_rack_state_output = false;
+    this.maintaining = true;
+    this.down_pose = true;
+    this.up_pose = true;
+  }
+}
+
 export default {
   components: {
     RegionsSelector,
@@ -459,29 +491,21 @@ export default {
   data() {
     return {
       column_width: 103,
-      // eq_data: [
-      //   {
-      //     IsConnected: true,
-      //     EQName: 'GB123#1',
-      //     Load_Request: false,
-      //     Unload_Request: true,
-      //     Port_Exist: true,
-      //     Up_Pose: false,
-      //     Down_Pose: true,
-      //     Eqp_Status_Down: true,
-      //     Region: '',
-      //    TransferStatus:0,
-      //   }
-      // ],
       selected_region: "all",
-      display_mode: 'lduld_state',
+      //display_mode: 'lduld_state',
+      display_mode: 'io_siganl',
       previous_eq_data: [],
-      zoomRatio: 1
+      zoomRatio: 1,
+      showIOColumnDisplaySetting: false,
+      ioColumnDisplaySetting: new IoColumnSetting()
     }
   },
   computed: {
     IsDeveloperLogining() {
       return userStore.getters.IsDeveloperLogining;
+    },
+    ShowIOColumnSettingButton() {
+      return userStore.state.user.Role > 0;
     },
     display_data() {
       if (this.selected_region == 'all')
@@ -521,12 +545,30 @@ export default {
         this.zoomRatio = window.devicePixelRatio
       }
     }, { passive: false }); // 使用 passive: false 以允許 preventDefault()
+    const savedSettings = localStorage.getItem('ioColumnDisplay');
+    if (savedSettings) {
+      this.ioColumnDisplaySetting = JSON.parse(savedSettings);
+    }
+    // Watch for changes in ioColumnDisplaySetting
+    watch(
+      () => this.ioColumnDisplaySetting,
+      (newValue) => {
+        // Save to localStorage whenever any setting changes
+        localStorage.setItem('ioColumnDisplay', JSON.stringify(newValue));
+      },
+      { deep: true } // This ensures nested properties are also watched
+    );
   },
   methods: {
+    showColumnSettings() {
+      this.showIOColumnDisplaySetting = true;
+    },
     userStoreTest() {
       alert(userStore.getters.IsDeveloperLogining)
     },
-
+    formatSettingName(key) {
+      return key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    },
     eq_connection_status(row, rowIndex) {
       var isConnected = row.row.IsConnected;
       return isConnected ? 'success-row' : 'error-row';
@@ -737,6 +779,23 @@ export default {
   .el-table .error-row {
     --el-table-tr-bg-color: var(--el-color-error);
     color: white;
+  }
+  .io-column-display-settings-container {
+    padding: 20px;
+
+    h3 {
+      margin-bottom: 20px;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      .column-name {
+        width: 170px;
+        text-align: left;
+      }
+    }
   }
 }
 </style>
