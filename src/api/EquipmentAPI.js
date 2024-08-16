@@ -42,6 +42,19 @@ export async function SetAGVHandshakeIO(EQName, SignalName, State) {
   var ret = await axios_entity.post(url)
   return ret.data;
 }
+
+export async function SetToFullRackStatus(eqName, state) {
+  var url = `/api/Equipment/SetToFullRackStatus?EqName=${encodeURIComponent(eqName)}&&State=${state}`; //避免帶有特殊符號的時候字串參數會不完整
+  var ret = await axios_entity.post(url)
+  return ret.data;
+}
+export async function SetToEmptyRackStatus(eqName, state) {
+  var url = `/api/Equipment/SetToEmptyRackStatus?EqName=${encodeURIComponent(eqName)}&&State=${state}`; //避免帶有特殊符號的時候字串參數會不完整
+  var ret = await axios_entity.post(url)
+  return ret.data;
+
+}
+
 /**設備模擬器API */
 export const EmuAPI = {
 

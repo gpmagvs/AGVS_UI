@@ -343,7 +343,7 @@
 
       <el-table-column
         v-if="!show_lduld_state"
-        label="空框移出"
+        label="空框移出/入"
         prop="Empty_CST"
         :min-width="column_width"
       >
@@ -351,12 +351,12 @@
           <div
             class="di-status"
             v-bind:style="signalOn(scope.row.Empty_CST, false, 'rgb(13, 110, 253)')"
-          >空框移出</div>
+          >空框移出/入</div>
         </template>
       </el-table-column>
       <el-table-column
         v-if="!show_lduld_state"
-        label="實框移出"
+        label="實框移出/入"
         prop="Full_CST"
         :min-width="column_width"
       >
@@ -364,7 +364,7 @@
           <div
             class="di-status"
             v-bind:style="signalOn(scope.row.Full_CST, false, 'rgb(13, 110, 253)')"
-          >實框移出</div>
+          >實框移出/入</div>
         </template>
       </el-table-column>
 
@@ -372,26 +372,28 @@
       <el-table-column
         v-if="!show_lduld_state"
         label="空框移入"
-        prop="To_Empty_CST"
+        prop="To_EQ_Empty_CST"
         :min-width="column_width"
       >
         <template #default="scope">
           <div
             class="di-status"
-            v-bind:style="signalOn(scope.row.To_Empty_CST, false, 'rgb(16, 152, 104)')"
+            @click="EmptyRackMoveInControl(scope.row.EQName,!scope.row.To_EQ_Empty_CST)"
+            v-bind:style="signalOn(scope.row.To_EQ_Empty_CST, false, 'rgb(16, 152, 104)')"
           >空框移入</div>
         </template>
       </el-table-column>
       <el-table-column
         v-if="!show_lduld_state"
         label="實框移入"
-        prop="To_Full_CST"
+        prop="To_EQ_Full_CST"
         :min-width="column_width"
       >
         <template #default="scope">
           <div
             class="di-status"
-            v-bind:style="signalOn(scope.row.To_Full_CST, false, 'rgb(16, 152, 104)')"
+            @click="FullRackMoveInControl(scope.row.EQName,!scope.row.To_EQ_Full_CST)"
+            v-bind:style="signalOn(scope.row.To_EQ_Full_CST, false, 'rgb(16, 152, 104)')"
           >實框移入</div>
         </template>
       </el-table-column>
@@ -442,7 +444,7 @@
 import WebSocketHelp from '@/api/WebSocketHepler';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import { ElNotification } from 'element-plus'
-import { EmuAPI, SetAGVHandshakeIO } from '@/api/EquipmentAPI.js'
+import { EmuAPI, SetAGVHandshakeIO, SetToEmptyRackStatus, SetToFullRackStatus } from '@/api/EquipmentAPI.js'
 import { userStore } from '@/store';
 import param from '@/gpm_param.js'
 import { EqStore } from '@/store'
@@ -660,6 +662,13 @@ export default {
         default:
           break;
       }
+    },
+    EmptyRackMoveInControl(eqName, bolState) {
+      SetToEmptyRackStatus(eqName, bolState);
+    },
+
+    FullRackMoveInControl(eqName, bolState) {
+      SetToFullRackStatus(eqName, bolState);
     }
   }
 }
