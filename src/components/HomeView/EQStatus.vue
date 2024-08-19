@@ -147,6 +147,8 @@
             <el-button @click="UpPoseSimulation(scope.row.EQName)">撈爪上點位</el-button>
             <el-button @click="DownPoseSimulation(scope.row.EQName)">撈爪下點位</el-button>
             <el-button @click="UnknownPoseSimulation(scope.row.EQName)">撈爪未知位置</el-button>
+            <el-button @click="UpPoseSimulation(scope.row.EQName)">轉向機構上點位</el-button>
+            <el-button @click="DownPoseSimulation(scope.row.EQName)">轉向機構下點位</el-button>
             <el-button
               :type="scope.row.IsMaintaining ? 'success' : 'danger'"
               @click="MaintainEmulation(scope.row, 'maintain')"
@@ -417,6 +419,19 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="!show_lduld_state && ioColumnDisplaySetting.parts_replacing"
+        :label="$t('HomeView.EQStatus.EQStatus.IsPartsReplacing')"
+        prop="IsPartsReplacing"
+        :min-width="column_width"
+      >
+        <template #default="scope">
+          <div
+            class="di-status"
+            v-bind:style="signalOn(scope.row.IsPartsReplacing, false, 'red')"
+          >{{ $t('HomeView.EQStatus.EQStatus.IsPartsReplacing')}}</div>
+        </template>
+      </el-table-column>
+      <el-table-column
         v-if="!show_lduld_state && ioColumnDisplaySetting.down_pose"
         label="Down_Pose"
         prop="Down_Pose"
@@ -442,6 +457,19 @@
           >Up_Pose</div>
         </template>
       </el-table-column>
+      <el-table-column
+        v-if="!show_lduld_state && ioColumnDisplaySetting.tB_down_pose"
+        label="TB_Down_Pose"
+        prop="TB_Down_Pose"
+        :min-width="column_width"
+      >
+        <template #default="scope">
+          <div
+            class="di-status"
+            v-bind:style="signalOn(scope.row.TB_Down_Pose, false, 'rgb(199, 167, 91)')"
+          >TB_Down</div>
+        </template>
+      </el-table-column>
     </el-table>
 
     <el-drawer title="IO訊號欄位顯示設定" v-model="showIOColumnDisplaySetting" direction="rtl" size="300">
@@ -455,12 +483,9 @@
   </div>
 </template>
 <script>
-import WebSocketHelp from '@/api/WebSocketHepler';
 import RegionsSelector from '@/components/RegionsSelector.vue'
-import { ElNotification } from 'element-plus'
 import { EmuAPI, SetAGVHandshakeIO, SetToEmptyRackStatus, SetToFullRackStatus } from '@/api/EquipmentAPI.js'
 import { userStore } from '@/store';
-import param from '@/gpm_param.js'
 import { EqStore } from '@/store'
 import { watch } from 'vue';
 import bus from '@/event-bus.js'
@@ -479,8 +504,10 @@ class IoColumnSetting {
     this.empty_rack_state_output = false;
     this.full_rack_state_output = false;
     this.maintaining = true;
+    this.parts_replacing = true;
     this.down_pose = true;
     this.up_pose = true;
+    this.tB_down_pose = false;
   }
 }
 
@@ -547,7 +574,8 @@ export default {
     }, { passive: false }); // 使用 passive: false 以允許 preventDefault()
     const savedSettings = localStorage.getItem('ioColumnDisplay');
     if (savedSettings) {
-      this.ioColumnDisplaySetting = JSON.parse(savedSettings);
+      var _ioColumnDisplaySetting = JSON.parse(savedSettings);
+      Object.assign(this.ioColumnDisplaySetting, _ioColumnDisplaySetting)
     }
     // Watch for changes in ioColumnDisplaySetting
     watch(

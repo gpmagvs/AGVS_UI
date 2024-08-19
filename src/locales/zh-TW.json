@@ -93,7 +93,8 @@
         "CarrierID": "貨物ID",
         "Load": "可移入",
         "UnLoad": "可移出",
-        "IsMaintaining": "維修"
+        "IsMaintaining": "維修",
+        "IsPartsReplacing": "換紙捲"
       }
     }
   },
@@ -204,7 +205,8 @@
       "Unloadble": "貨物可移出",
       "Loadable": "可放貨",
       "Maintaining": "維修中"
-    }
+    },
+    "PartsReplacing":"紙捲更換中"
   },
   "hidden": "隱藏",
   "Show": "顯示",

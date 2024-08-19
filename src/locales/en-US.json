@@ -93,7 +93,8 @@
         "CarrierID": "Carrier ID",
         "Load": "Load Request",
         "UnLoad": "UnLoad Request",
-        "IsMaintaining": "IsMaintaining"
+        "IsMaintaining": "Maintaining",
+        "IsPartsReplacing": "Replacing"
       }
     }
   },
@@ -204,7 +205,8 @@
       "Unloadble": "Unloadable",
       "Loadable": "Loadable",
       "Maintaining": "Maintaining"
-    }
+    },
+     "PartsReplacing":"Paper Roller Replacing"
   },
   "hidden": "Hidden",
   "Show": "Show",

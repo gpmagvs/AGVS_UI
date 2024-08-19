@@ -3048,7 +3048,7 @@ export default {
       }))
       return maintainFeature;
     },
-    ChangeEQIconByStatus(tagNumber, status = 1 | 2, cargoExist = false, isEqDownOrMaintain = false) {
+    ChangeEQIconByStatus(tagNumber, status = 1 | 2, cargoExist = false, isEqDownOrMaintain = false, isPartsReplacing = false) {
 
       var trayIconImage = new Icon({
         src: '/images/tray.png', // 设置PNG图像的路径
@@ -3103,6 +3103,11 @@ export default {
         _text.setBackgroundFill(new Fill({
           color: textBgFillColor
         }))
+
+        if (isPartsReplacing) {
+          var paperRollerRptDisplay = this.$t('Map.PartsReplacing');
+          nameDisplay += `\r\n(${paperRollerRptDisplay})`
+        }
 
         _text.setText(nameDisplay);
         _text.setFill(new Fill({
@@ -3166,7 +3171,7 @@ export default {
         this.eq_data.forEach(eq_states => {
           let _EQStatusDIDto = new EQStatusDIDto();
           Object.assign(_EQStatusDIDto, eq_states)
-          this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining)
+          this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing)
           //this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
         });
         this.prviousEQDataJson = currentEqDataJson
