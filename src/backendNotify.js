@@ -95,9 +95,9 @@ function InitWSNotification(agvs = true, vms = true) {
 
                 const msgObj = JSON.parse(notify.message);
                 bus.emit('swal-notify-invoke', {
-                    text: `${msgObj.message_Zh}(${msgObj.message_En})`,
                     title: '搬運任務失敗',
                     icon: 'error',
+                    html: `<div class="text-danger font-weight-bold">${msgObj.message_Zh}<p>${msgObj.message_En}</p></div>`,
                     showCancelButton: false,
                     confirmButtonText: 'OK',
                     customClass: 'my-sweetalert'

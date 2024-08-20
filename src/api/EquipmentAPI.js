@@ -54,6 +54,17 @@ export async function SetToEmptyRackStatus(eqName, state) {
   return ret.data;
 
 }
+export async function SetToFullRackStatusByEqTag(eqTag, state) {
+  var url = `/api/Equipment/SetToFullRackStatusByEqTag?eqTag=${eqTag}&&State=${state}`; //避免帶有特殊符號的時候字串參數會不完整
+  var ret = await axios_entity.post(url)
+  return ret.data;
+}
+export async function SetToEmptyRackStatusByEqTag(eqTag, state) {
+  var url = `/api/Equipment/SetToEmptyRackStatusByEqTag?eqTag=${eqTag}&&State=${state}`; //避免帶有特殊符號的時候字串參數會不完整
+  var ret = await axios_entity.post(url)
+  return ret.data;
+
+}
 
 /**設備模擬器API */
 export const EmuAPI = {

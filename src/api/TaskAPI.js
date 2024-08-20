@@ -33,3 +33,8 @@ export async function GetTrajectory(taskID) {
   var ret = await axios_entity.get(`/api/TaskQuery/GetTrajectory?taskID=${taskID}`)
   return ret.data;
 }
+
+export async function DeleteTask(taskID) {
+  var ret = await axios_entity.get(`/api/TaskQuery/DeleteTask?taskID=${taskID}`)
+  return ret.data;
+}

@@ -333,6 +333,8 @@
         @click="() => { HandleCancelBtnClick(); action_menu_visible = false }"
       >{{ $t('Cancel') }}</b-button>
     </div>
+
+    <el-dialog v-model="showFullEmptyContentSetting"></el-dialog>
   </el-popover>
 </template>
 <script>
@@ -342,6 +344,7 @@ import { ElNotification } from 'element-plus'
 import { StationSelectOptions } from '@/components/Map/mapjs';
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
+import { SetToFullRackStatusByEqTag, SetToEmptyRackStatusByEqTag } from '@/api/EquipmentAPI'
 import { MapStore } from '@/components/Map/store'
 import { watch } from 'vue';
 import { useRoute } from 'vue-router'
@@ -393,7 +396,8 @@ export default {
       downstream_options: [new StationSelectOptions()],
       IsTransferTaskNeedChangeAGV: false,
       tagOfMiddleStationTagOfTransferTask: -1,
-      routePath: ''
+      routePath: '',
+      showFullEmptyContentSetting: false
     }
   },
   computed: {
@@ -899,6 +903,8 @@ export default {
       }
       else {
         //{confirm:true,message:''}
+        const showEmptyOrFullContentCheck = response.data.showEmptyOrFullContentCheck;
+
         if (response.data.confirm) {
           this.HandleCancelBtnClick();
           ElNotification.success({
@@ -907,22 +913,83 @@ export default {
             duration: 3000
           })
         } else {
-          this.HandleCancelBtnClick();
+          if (!showEmptyOrFullContentCheck)
+            this.HandleCancelBtnClick();
+
           setTimeout(() => {
-            this.$swal.fire(
-              {
-                text: response.data.message,
-                title: '任務派送失敗!',
-                icon: 'error',
-                showCancelButton: false,
-                confirmButtonText: 'OK',
-                customClass: 'my-sweetalert'
-              })
+            if (showEmptyOrFullContentCheck) {
+              this.$swal.fire(
+                {
+                  text: response.data.message,
+                  title: '任務派送失敗!',
+                  icon: 'error',
+                  showCancelButton: true,
+                  confirmButtonText: '設定空/實框',
+                  cancelButtonText: 'OK',
+                  customClass: 'my-sweetalert'
+                }).then(async (res) => {
+                  if (res.isConfirmed) {
+                    var eqTag = this.selected_action == 'carry' ? _sourceTag : _destinTag;
+                    var mapPoint = Object.values(MapStore.state.MapData.Points).find(pt => pt.TagNumber == eqTag);
+                    const inputOptions = new Promise((resolve) => {
+                      setTimeout(() => {
+                        resolve({
+                          "empty": "空框",
+                          "full": "實框",
+                        });
+                      }, 100);
+                    });
+
+                    var choised = false;
+                    const { value: contentStatus } = await this.$swal.fire(
+                      {
+                        text: '',
+                        title: `${mapPoint.Graph.Display}(Tag=${eqTag}) - 空框/實框設定`,
+                        icon: 'question',
+                        input: "radio",
+                        inputOptions,
+                        inputValidator: (value) => {
+                          if (!value) {
+                            return "請選擇空框或實框";
+                          }
+                        },
+                        confirmButtonText: '重新派送任務',
+                        customClass: 'my-sweetalert'
+                      })
+                    if (contentStatus) {
+                      if (contentStatus == 'full') {
+                        await SetToFullRackStatusByEqTag(eqTag, true);
+                        await SetToEmptyRackStatusByEqTag(eqTag, false);
+                      }
+                      else {
+                        await SetToFullRackStatusByEqTag(eqTag, false);
+                        await SetToEmptyRackStatusByEqTag(eqTag, true);
+                      }
+                      setTimeout(() => {
+                        this.TaskDeliveryHandle();
+                      }, 500);
+                    }
+
+                  }
+                })
+            } else {
+
+              this.$swal.fire(
+                {
+                  title: '任務派送失敗!',
+                  html: `<div>${response.data.message}</div>`,
+                  icon: 'error',
+                  showCancelButton: false,
+                  focusConfirmButton: false,
+                  confirmButtonText: 'OK',
+                  customClass: 'my-sweetalert'
+                })
+            }
           }, 200);
 
 
         }
-        if (this.IsOpLogining) {
+        if (this.IsOpLogining && !showEmptyOrFullContentCheck) {
 
           this.HandleSelectSoureStationFromMapBtnClick();
         }

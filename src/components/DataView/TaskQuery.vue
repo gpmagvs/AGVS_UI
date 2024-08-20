@@ -6,32 +6,39 @@
       <label>{{ $t('Search.End_Time') }}</label>
       <input type="datetime-local" v-model="end_time" prop="End Time" />
       <label>{{ $t('TaskTable.TaskName') }}</label>
-      <input type="text" v-model="TaskName" placeholder="ALL" size="20" />
+      <el-input v-model="TaskName" placeholder="ALL" style="width:220px" clearable />
       <label>{{ $t('TaskTable.EQ_Name') }}</label>
-      <select prop="EQ Name" v-model="AGVSelected">
-        <option>ALL</option>
-        <option v-for="name in AgvNameList" :key="name">{{ name }}</option>
-      </select>
+      <el-select prop="EQ Name" v-model="AGVSelected" style="width:120px">
+        <el-option label="ALL" value="ALL">ALL</el-option>
+        <el-option v-for="name in AgvNameList" :key="name" :label="name" :value="name"></el-option>
+      </el-select>
       <label>{{ $t('TaskTable.Action') }}</label>
-      <select prop="EQ Name" v-model="ActionTypeSelected">
-        <option>ALL</option>
-        <option>{{ $t('Search.Move') }}</option>
-        <option>{{ $t('Search.Load') }}</option>
-        <option>{{ $t('Search.UnLoad') }}</option>
-        <option>{{ $t('Search.Transfer') }}</option>
-        <option>{{ $t('Search.Charge') }}</option>
-        <option>{{ $t('Search.Measure') }}</option>
-        <option>{{ $t('Search.ExchangeBattrey') }}</option>
-      </select>
+      <el-select prop="EQ Name" v-model="ActionTypeSelected" style="width:120px">
+        <el-option value="ALL" label="ALL"></el-option>
+        <el-option :value="$t('Search.Move')" :label="$t('Search.Move')"></el-option>
+        <el-option :value="$t('Search.Load')" :label="$t('Search.Load')"></el-option>
+        <el-option :value="$t('Search.UnLoad')" :label="$t('Search.UnLoad')"></el-option>
+        <el-option :value="$t('Search.Transfer')" :label="$t('Search.Transfer')"></el-option>
+        <el-option :value="$t('Search.Charge')" :label="$t('Search.Charge')"></el-option>
+        <el-option :value="$t('Search.Measure')" :label="$t('Search.Measure')"></el-option>
+        <el-option :value="$t('Search.ExchangeBattrey')" :label="$t('Search.ExchangeBattrey')"></el-option>
+      </el-select>
       <label>{{ $t('TaskTable.Final') }}</label>
-      <select prop="EQ Name" v-model="ExecuteResultSelected">
+      <el-select v-model="ExecuteResultSelected" style="width:120px">
+        <el-option value="ALL" label="ALL"></el-option>
+        <el-option :value="$t('Search.Completed')" :label="$t('Search.Completed')"></el-option>
+        <el-option :value="$t('Search.Fail')" :label="$t('Search.Fail')"></el-option>
+        <el-option :value="$t('Search.Cancel')" :label="$t('Search.Cancel')"></el-option>
+      </el-select>
+      <!-- <select prop="EQ Name" v-model="ExecuteResultSelected">
         <option>ALL</option>
         <option>{{ $t('Search.Completed') }}</option>
         <option>{{ $t('Search.Fail') }}</option>
         <option>{{ $t('Search.Cancel') }}</option>
-      </select>
+      </select>-->
       <label>{{ $t('TaskTable.FailureReason') }}</label>
-      <input type="text" v-model="Fail_reason" placeholder="ALL" size="20" />
+      <!-- <input type="text" v-model="Fail_reason" placeholder="ALL" size="20" /> -->
+      <el-input v-model="Fail_reason" placeholder="ALL" clearable style="width:120px"></el-input>
       <b-button
         @click="TaskQuery()"
         :TaskQuery="TaskQuery"
@@ -153,6 +160,13 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column min-width="120" v-if="isDevLogin" label="Action">
+          <template #default="scope">
+            <div class="w-100">
+              <b-button variant="danger" @click="DeleteTaskHandle(scope.row)">Delete</b-button>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center fixed-bottom py-4">
         <b-pagination
@@ -178,7 +192,7 @@
 </template>
 <script>
 import { TaskQuery } from '@/api/TaskAPI.js'
-import { SaveTocsv } from '@/api/TaskAPI.js'
+import { SaveTocsv, DeleteTask } from '@/api/TaskAPI.js'
 import { userStore, agv_states_store } from '@/store';
 import { CopyText } from '@/api/Common/UtilityTools'
 import moment from 'moment'
@@ -204,6 +218,9 @@ export default {
     AgvNameList() {
       return agv_states_store.getters.AGVNameList
     },
+    isDevLogin() {
+      return userStore.getters.IsDeveloperLogining;
+    }
   },
   mounted() {
     const EndDate = new Date();
@@ -254,6 +271,10 @@ export default {
     },
     CopyText(text) {
       CopyText(text)
+    },
+    async DeleteTaskHandle(taskRow) {
+      await DeleteTask(taskRow.TaskName);
+      this.TaskQuery();
     }
   },
 }
