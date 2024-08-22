@@ -49,10 +49,12 @@
             ></div>
 
             <div class="d-flex flex-column flex-fill">
-              <div style="font-size: 22px;">
-                <!-- <b>{{ scope.row.AGV_Name.toUpperCase() }}</b> -->
-                <b>{{ GetDisplayName(scope.row.AGV_Name) }}</b>
-              </div>
+              <el-tooltip content="點擊顯示車載頁面" placement="top">
+                <div class="agv-name-container" @click="HandleAGVNameClicked(scope.row)">
+                  <!-- <b>{{ scope.row.AGV_Name.toUpperCase() }}</b> -->
+                  <b>{{ GetDisplayName(scope.row.AGV_Name) }}</b>
+                </div>
+              </el-tooltip>
               <b-button
                 v-if="!IsRunMode"
                 class="w-20 my-1 mx-2"
@@ -470,6 +472,10 @@ export default {
     },
   },
   methods: {
+    HandleAGVNameClicked(agvInfo) {
+      const vcsHost = `http://${agvInfo.IP}:${agvInfo.Port}`;
+      window.open(vcsHost);
+    },
     async EmulatorInitialize(agv_name) {
       EmuAPI.Initialize(agv_name)
     },
@@ -898,6 +904,18 @@ export default {
     }
   }
 
+  .agv-name-container {
+    cursor: pointer;
+    font-size: 22px;
+  }
+  .agv-name-container:hover {
+    background-color: rgb(190, 190, 190);
+    font-size: 25px;
+    padding: 4px;
+  }
+  .agv-name-container:active {
+    padding: 2px;
+  }
   .agv-color-display {
     height: auto;
     width: 12px;
