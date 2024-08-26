@@ -917,8 +917,9 @@ export class BezierCurve {
 }
 
 export class AgvDisplayProps {
-    constructor(color = "pink", text = "RRRR") {
+    constructor(color = "pink", text = "RRRR", index = 0) {
         this.DisplayText = text
         this.DisplayColor = color
+        this.Index = index
     }
 }

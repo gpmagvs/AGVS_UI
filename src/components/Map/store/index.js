@@ -40,18 +40,21 @@ export const MapStore = createStore({
 
         CustomAGVStyles: state => {
             var defaults = {
-                "AGV_001": new AgvDisplayProps('rgb(13, 110, 253)', "AGV_001"),
-                "AGV_002": new AgvDisplayProps('limegreen', "AGV_002"),
-                "AGV_003": new AgvDisplayProps('orange', "AGV_003"),
-                "AGV_004": new AgvDisplayProps('pink', "AGV_004"),
+                "AGV_001": new AgvDisplayProps('rgb(13, 110, 253)', "AGV_001", 0),
+                "AGV_002": new AgvDisplayProps('limegreen', "AGV_002", 1),
+                "AGV_003": new AgvDisplayProps('orange', "AGV_003", 2),
+                "AGV_004": new AgvDisplayProps('pink', "AGV_004", 3),
             }
             const currentAGVNames = agv_states_store.getters.AGVNameList;
 
             var jsonStr = localStorage.getItem('custom-agv-styles');
             if (jsonStr) {
                 var stylesStored = JSON.parse(jsonStr);
+                var index = 0;
                 Object.keys(stylesStored).forEach(agvName => {
                     defaults[agvName] = stylesStored[agvName]
+                    defaults[agvName].Index = index;
+                    index += 1;
                 });
             }
 

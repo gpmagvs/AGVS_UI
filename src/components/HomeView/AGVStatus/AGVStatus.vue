@@ -445,6 +445,10 @@ export default {
       this.TrackingAGV = '';
       bus.emit('tracking_agv', this.TrackingAGV)
     })
+    bus.on('invoke-agv-lock', (agvName) => {
+      this.TrackingVehicle(agvName)
+    })
+
   },
   data() {
     return {
