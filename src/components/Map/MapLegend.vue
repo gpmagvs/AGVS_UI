@@ -8,6 +8,11 @@
       <div class="image-icon loadable"></div>
       <div class="desc">{{ $t('Map.MapLegend.Loadable') }}</div>
     </div>
+
+    <div class="legend-item-container" v-if="IsAnyTowLayerEQExist">
+      <div class="image-icon unload-and-loadable"></div>
+      <div class="desc">{{ $t('Map.MapLegend.UnLoadLoadable') }}</div>
+    </div>
     <div class="legend-item-container">
       <div class="image-icon maintain"></div>
       <div class="desc">{{ $t('Map.MapLegend.Maintaining') }}</div>
@@ -49,6 +54,7 @@
 
 <script>
 import { MapStore } from './store';
+import { EqStore } from '@/store';
 import bus from '@/event-bus';
 export default {
   data() {
@@ -66,6 +72,9 @@ export default {
       // this.DisplayText = text
       //this.DisplayColor = color//
     },
+    IsAnyTowLayerEQExist() {
+      return EqStore.getters.AnyTwoLayerEqExist;
+    }
   },
   methods: {
     HandleAGVLedgendClick(agvName) {
@@ -113,6 +122,9 @@ export default {
     }
     .unloadable {
       background-color: rgb(180, 213, 248);
+    }
+    .unload-and-loadable {
+      background-color: rgba(10, 101, 69, 0.6);
     }
     .maintain {
       background-color: rgb(255, 127, 127);

@@ -55,7 +55,10 @@
         prop="From_Station"
         width="110"
       >
-        <template #default="scope">{{ GetStationName(scope.row.From_Station) }}</template>
+        <template #default="scope">
+          <div>{{ GetStationName(scope.row.From_Station) }}</div>
+          <div v-if="scope.row.From_Slot!='-1'">(Slot:{{ scope.row.From_Slot }})</div>
+        </template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column> -->
       </el-table-column>
@@ -66,7 +69,10 @@
         width="110"
         min-width="100%"
       >
-        <template #default="scope">{{ GetStationName(scope.row.To_Station) }}</template>
+        <template #default="scope">
+          <div>{{ GetStationName(scope.row.To_Station) }}</div>
+          <div v-if="scope.row.To_Slot!='-1'">(Slot:{{ scope.row.To_Slot }})</div>
+        </template>
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
       </el-table-column>

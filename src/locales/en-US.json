@@ -204,9 +204,10 @@
     "MapLegend": {
       "Unloadble": "Unloadable",
       "Loadable": "Loadable",
-      "Maintaining": "Maintaining"
+      "Maintaining": "Maintaining",
+      "UnLoadLoadable": "Unload/Load"
     },
-     "PartsReplacing":"Paper Roller Replacing"
+    "PartsReplacing": "Paper Roller Replacing"
   },
   "hidden": "Hidden",
   "Show": "Show",

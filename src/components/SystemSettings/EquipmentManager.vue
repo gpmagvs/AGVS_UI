@@ -39,6 +39,14 @@
           </div>
         </template>
       </el-table-column>
+      <el-table-column label="層" prop="Height" width="80" align="center" fixed="left">
+        <template #default="scope">
+          <el-select v-model="scope.row.Height">
+            <el-option label="1" :value="0"></el-option>
+            <el-option label="2" :value="1"></el-option>
+          </el-select>
+        </template>
+      </el-table-column>
       <el-table-column label="Tag ID" prop="TagID" width="120" align="center" fixed="left">
         <template #default="scope">
           <b-form-input
@@ -385,6 +393,7 @@ export default {
       ],
       EqDatas_Orignal: [],
       ValidTag: (row_) => {
+        return true;
         var tag = row_.TagID;
         var others_row = this.EqDatas.filter(d => d.Name != row_.Name)
         var same_tag_rows = others_row.filter(row => row.TagID == tag)
@@ -408,6 +417,21 @@ export default {
       return ["ALL", ...othersEqName];
     },
     async SaveSettingHandler() {
+
+      var result = this.ValidateSetting();
+      if (!result.confirm) {
+        this.$swal.fire(
+          {
+            text: '',
+            title: result.message,
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+        return;
+      }
+
       var ret = await SaveEQOptions(this.EqDatas);
       if (ret.confirm) {
         setTimeout(() => {
@@ -427,6 +451,12 @@ export default {
         })
 
       }
+    },
+    ValidateSetting() {
+      const expectNum = this.EqDatas.length;
+      var tagIDHeightCollection = [...new Set(this.EqDatas.map(opt => opt.TagID + '-' + opt.Height))]
+      const confirmed = tagIDHeightCollection.length == expectNum;
+      return { confirm: confirmed, message: "同一個TAG不可有相同的層設置" }
     },
     async DownloadEQOptions() {
       this.EqDatas = [];

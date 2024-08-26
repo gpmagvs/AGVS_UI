@@ -276,6 +276,16 @@ export const EqStore = createStore({
     WIPOptions: state => state.WIPOptions,
     GetRowsByStationTag: state => (tag) => {
       return 3
+    },
+    AnyTwoLayerEqExist: state => {
+      try {
+
+        var tagExist = [...new Set(state.EqOptions.map(eq => eq.TagID))]
+        var tagHeightCombine = [...new Set(state.EqOptions.map(eq => eq.TagID + '-' + eq.Height))]
+        return tagExist.length != tagHeightCombine.length;
+      } catch (error) {
+        return false;
+      }
     }
   },
   mutations: {
@@ -292,6 +302,7 @@ export const EqStore = createStore({
     }
   },
   actions: {
+
   }
 })
 

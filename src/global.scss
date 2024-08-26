@@ -152,3 +152,47 @@
   background-color: rgb(13, 110, 253);
 }
 
+.swal-transfer-info{
+  // color:red;
+  div{
+    margin-top: 5px;
+    display: flex;
+    flex-direction: row;
+    label{
+      margin-left: 17%;
+      font-size: 24px;
+      width: 90px;
+      // background-color: green;
+      text-align: left;
+      padding-top: 6px;
+    }
+    span{
+      font-size: 32px;
+      text-decoration: underline;
+      color:rgb(13, 110, 253);
+      font-weight: bold;
+    }
+    span:hover{
+      cursor: pointer;
+    }
+  }
+}
+.my-actions {
+  button{
+    font-size: 44px;
+  }
+}
+.swal2-title{
+  font-size: 36px !important;
+}
+.swal2-html-container{
+  font-size:26px !important;
+}
+.swal2-actions  {
+  flex-direction: row !important;
+  width: 100% !important;
+  font-size: 32px ;
+  button{
+    width: 40% !important;
+  }
+}

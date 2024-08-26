@@ -2633,8 +2633,7 @@ export default {
       if (confirm) {
         this.$swal.fire(
           {
-            text: '確定要重新載入圖資?',
-            title: '',
+            title: '確定要重新載入圖資?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: '確定',
@@ -3094,6 +3093,7 @@ export default {
         //set backgroundFill color by transfer status
         const unloadableColor = 'rgba(67, 149, 237,0.4)';
         const loadableColor = 'rgba(255, 234, 18,.5)';
+        const unloadAndloadableColor = 'rgba(10, 101, 69,.6)';
         const eqDownStatusColor = 'rgba(255, 0, 0,.8)';
         const noRequestColor = 'rgba(255,255,255,.1)';
         var textDisplayColor = MapStore.state.MapData.Options.workStationTextColor;
@@ -3111,6 +3111,9 @@ export default {
           }
           else if (status == 2) {
             textBgFillColor = unloadableColor;
+          } else if (status == 4) {
+            textBgFillColor = unloadAndloadableColor;
+            textDisplayColor = 'white'
           }
         }
 
@@ -3182,12 +3185,38 @@ export default {
       var currentEqDataJson = JSON.stringify(this.eq_data);
       if (this.prviousEQDataJson != currentEqDataJson) {
 
+        var tags = [...new Set(this.eq_data.map(eq => eq.Tag))]
+
         this.eq_data.forEach(eq_states => {
           let _EQStatusDIDto = new EQStatusDIDto();
           Object.assign(_EQStatusDIDto, eq_states)
-          this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing)
+
+          var eqs = this.eq_data.filter(eq => eq.Tag == eq_states.Tag);
+          var isUniqueTag = eqs.length <= 1;
+          console.log(isUniqueTag)
+          if (isUniqueTag) {
+            this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing)
+          } else {
+            const anyLoadadble = eqs.find(eq => eq.TransferStatus == 1) != undefined;
+            const anyUnLoadadble = eqs.find(eq => eq.TransferStatus == 2) != undefined;
+            const anyPortExist = eqs.find(eq => eq.Port_Exist) != undefined;
+            const anyIsMaintaining = eqs.find(eq => eq.IsMaintaining) != undefined;
+            const anyIsPartsReplacing = eqs.find(eq => eq.IsPartsReplacing) != undefined;
+            if (anyLoadadble && anyUnLoadadble)
+              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 4, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
+            else if (anyLoadadble)
+              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 1, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
+            else if (anyUnLoadadble)
+              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 2, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
+            else
+              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 3, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
+
+          }
           //this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
         });
+
+        //無重複的Tag
+        //有重複的Tag
         this.prviousEQDataJson = currentEqDataJson
       } else {
         // console.log('eq data not changed yet')
@@ -3966,7 +3995,7 @@ export default {
     flex-direction: column;
     margin-top: 105px;
     height: 300px;
-    left: 16px;
+
     width: 35px;
 
     button {
@@ -3975,6 +4004,7 @@ export default {
       width: 35px;
       border-radius: 3px;
       margin: 2px;
+      margin-left: 12px;
       border: 1px solid grey;
       background-color: white;
       font-weight: bolder;

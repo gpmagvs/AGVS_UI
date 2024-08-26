@@ -98,17 +98,27 @@
               <el-col class="item-actions" :span="7">
                 <el-select
                   class="w-100"
-                  v-if="selected_source.Graph && IsSourceStationBuffer"
+                  v-if="selected_source.Graph && (IsSourceStationBuffer||IsSourceStationMultiLayers)"
                   size="large"
                   :placeholder="$t('Choose_Port')"
                   v-model="selected_source_slot"
                 >
-                  <el-option
-                    v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)"
-                    :key="selected_source.Graph.Display + '-' + layer.value"
-                    :label="layer.label"
-                    :value="layer.value"
-                  ></el-option>
+                  <div v-if="IsSourceStationMultiLayers">
+                    <el-option
+                      v-for="layer in GetLayersOfEquipment(selected_source.TagNumber)"
+                      :key="selected_source.Graph.Display + '-' + layer.value"
+                      :label="layer.label"
+                      :value="layer.value"
+                    ></el-option>
+                  </div>
+                  <div v-if="IsSourceStationBuffer">
+                    <el-option
+                      v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)"
+                      :key="selected_source.Graph.Display + '-' + layer.value"
+                      :label="layer.label"
+                      :value="layer.value"
+                    ></el-option>
+                  </div>
                 </el-select>
               </el-col>
             </el-row>
@@ -134,28 +144,36 @@
                   <el-option
                     v-for="tag in downstream_options"
                     :key="tag.tag"
-                    :label="tag.name_display"
+                    :label="GetGrpahDisplayByTag(tag.tag)"
                     :value="tag.tag"
-                  >
-                    <div class="custom-options">{{tag.name_display}}</div>
-                  </el-option>
+                  ></el-option>
                 </el-select>
                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
               </el-col>
               <el-col class="item-actions" :span="7">
                 <el-select
                   class="w-100 px-1"
-                  v-if="selected_destine.Graph && IsDestineStationBuffer"
+                  v-if="selected_destine.Graph && (IsDestineStationBuffer||IsDestineStationMultiLayers)"
                   size="large"
                   :placeholder="$t('Choose_Port')"
                   v-model="selected_destine_slot"
                 >
-                  <el-option
-                    v-for="layer in GetLayersOfBuffer(selected_destine.TagNumber)"
-                    :key="selected_destine.Graph.Display + '-' + layer.value"
-                    :label="layer.label"
-                    :value="layer.value"
-                  ></el-option>
+                  <div v-if="IsDestineStationMultiLayers">
+                    <el-option
+                      v-for="layer in GetLayersOfEquipment(selected_destine.TagNumber)"
+                      :key="layer.label"
+                      :label="layer.label"
+                      :value="layer.value"
+                    ></el-option>
+                  </div>
+                  <div v-if="IsDestineStationBuffer">
+                    <el-option
+                      v-for="layer in GetLayersOfBuffer(selected_destine.TagNumber)"
+                      :key="layer.label"
+                      :label="layer.label"
+                      :value="layer.value"
+                    ></el-option>
+                  </div>
                 </el-select>
               </el-col>
             </el-row>
@@ -515,6 +533,28 @@ export default {
     IsDestineStationBuffer() {
       return this.selected_destine.StationType == 4 || this.selected_destine.StationType == 41 || this.selected_destine.StationType == 5;
     },
+    IsSourceStationMultiLayers() {
+      try {
+
+        if (!this.selected_source.TagNumber)
+          return false;
+        var options = this.TryGetMultiLayersOfEqTag(this.selected_source.TagNumber)
+        return options.length > 1;
+      } catch (error) {
+        return false;
+      }
+    },
+    IsDestineStationMultiLayers() {
+      try {
+
+        if (!this.selected_destine.TagNumber)
+          return false;
+        var options = this.TryGetMultiLayersOfEqTag(this.selected_destine.TagNumber)
+        return options.length > 1;
+      } catch (error) {
+        return false;
+      }
+    }
 
   },
   methods: {
@@ -790,27 +830,33 @@ export default {
       this.order_info_visible = false;
 
       var createOrderDescription = () => {
+        var html = '<div class="swal-transfer-info border-top py-2">';
+        html += `<div> <label>${this.$t('Action')}</label> <span>${this.selected_action_display}</span> </div>`
         if (this.selected_action == 'carry') {
-          console.log(this.selected_source);
-          const isSourceAGV = this.selected_source.isAGV;
-          var sourceText = isSourceAGV ? this.selected_source.agvName : this.selected_source.Graph.Display;
-          return `Transfer From [${sourceText}] To [${this.selected_destine.Graph.Display}]`
+          html += `
+              <div> <label>${this.$t('source')} </label> <span>${this.selected_source.Graph.Display}</span> </div>
+              <div> <label>${this.$t('TaskDispathActionButton.Destine')}</label> <span>${this.selected_destine.Graph.Display}</span></div>`
         } else {
-          return `${this.selected_action_display}- Destine :[${this.selected_destine.Graph.Display}]`
+          html += ` <div> <label>${this.$t('TaskDispathActionButton.Destine')}</label> <span>${this.selected_destine.Graph.Display}</span></div>`;
         }
+        html += `</div>`;
+        return html;
+        return `
+          <div class="swal-transfer-info border-top py-2">
+              <div> <label>${this.$t('source')} </label> <span>【${this.selected_source.Graph.Display}】</span> </div>
+              <div> <label>${this.$t('TaskDispathActionButton.Destine')}</label> <span>【${this.selected_destine.Graph.Display}】</span></div>
+          </div>`
       }
 
       this.$swal.fire(
         {
-          text: this.$t('TaskDispatchNewUI.ConfirmDispatchText'),
-          title: createOrderDescription(),
+          title: this.$t('TaskDispatchNewUI.ConfirmDispatchText'),
           icon: 'question',
+          html: createOrderDescription(),
           showCancelButton: true,
           confirmButtonText: this.$t('Confirm'),
           cancelButtonText: this.$t('Cancel'),
-          customClass: {
-            confirmButton: 'my-actions',
-          },
+
         }).then(res => {
           if (res.isConfirmed) {
             this.TaskDeliveryHandle()
@@ -1080,6 +1126,20 @@ export default {
       return options;
 
     },
+    GetLayersOfEquipment(tag) {
+      var optionsGet = this.TryGetMultiLayersOfEqTag(tag);
+      console.warn(optionsGet)
+      var options = [];
+      optionsGet.forEach(opt => {
+        var heightIndex = opt.Height;
+        options.push({
+          label: `第${heightIndex + 1}層(${opt.Name})`,
+          value: heightIndex
+        })
+      });
+
+      return options;
+    },
     DetermineDestinOptions() {
       if (this.selected_action == 'measure')
         return this.bay_names;
@@ -1115,6 +1175,35 @@ export default {
         return [];
 
     },
+    TryGetMultiLayersOfEqTag(tagNumber) {
+
+      try {
+
+        let eqOptions = EqStore.state.EqOptions;
+        var optionsSelected = eqOptions.filter(opt => opt.TagID == tagNumber);
+        var secondLayerEqOpt = optionsSelected.find(opt => opt.Height == 1);
+        console.log(optionsSelected)
+        if (!secondLayerEqOpt) {
+          return optionsSelected[0]
+        } else {
+          return optionsSelected;
+        }
+      } catch (error) {
+        return [];
+      }
+    },
+    GetGrpahDisplayByTag(tagNumber) {
+      try {
+        var mapPoint = Object.values(MapStore.state.MapData.Points).find(mpt => mpt.TagNumber == tagNumber);
+        if (mapPoint)
+          return mapPoint.Graph.Display;
+        else {
+          return tagNumber + '';
+        }
+      } catch (error) {
+        return '';
+      }
+    }
   },
   mounted() {
     this.routePath = this.$route.path;
@@ -1217,9 +1306,6 @@ export default {
   background-color: "pink";
 }
 
-.my-actions {
-  font-size: 42px;
-}
 .order-info-container {
   .el-row {
     margin-top: 10px;

@@ -204,9 +204,10 @@
     "MapLegend": {
       "Unloadble": "貨物可移出",
       "Loadable": "可放貨",
-      "Maintaining": "維修中"
+      "Maintaining": "維修中",
+      "UnLoadLoadable": "可移出/放貨"
     },
-    "PartsReplacing":"紙捲更換中"
+    "PartsReplacing": "紙捲更換中"
   },
   "hidden": "隱藏",
   "Show": "顯示",
