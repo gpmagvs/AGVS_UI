@@ -4,11 +4,11 @@ var param = {
   get backend_host() {
     if (process.env.NODE_ENV == 'development') {
       return 'http://localhost:5216'//local測試
+      return 'http://192.168.0.3:5216'
       return 'http://192.168.0.1:5216'
       return 'http://10.22.132.237:5216'//UMTC-3F-AOI
       return 'http://10.22.132.62:5216'//UMTC-3F-SE/MEC
       return 'http://192.168.0.99:5216'
-      return 'http://192.168.0.2:5216'
       return 'http://192.168.0.55:5216'
       return 'http://192.168.0.192:5216'
       return 'http://192.168.0.55:5216'

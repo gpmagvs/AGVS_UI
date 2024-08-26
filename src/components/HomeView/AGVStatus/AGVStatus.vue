@@ -136,14 +136,17 @@
               <el-col :span="11" class>
                 <div class="w-100 h-100 border p-1 d-flex flex-row">
                   <div class="flex-fill">
-                    <i
-                      class="bi bi-geo-alt-fill"
-                      style="font-size:20px;cursor:pointer"
-                      @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"
-                    ></i>
+                    <el-tooltip content="點一下跳至AGV當前位置" placement="top">
+                      <i
+                        class="bi bi-geo-alt-fill"
+                        style="font-size:20px;cursor:pointer"
+                        @click="HandleShowAGVInMapCenter(scope.row.AGV_Name)"
+                      ></i>
+                    </el-tooltip>
+
                     <b>{{ scope.row.StationName }}</b>
                   </div>
-                  <el-tooltip content="Tracking AGV" placement="top">
+                  <el-tooltip content="追隨AGV，AGV將保持顯示於地圖中央" placement="top">
                     <i
                       v-if="!IsOpUsing"
                       @click="TrackingVehicle(scope.row.AGV_Name)"

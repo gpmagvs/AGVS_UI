@@ -403,6 +403,14 @@
               class="map-ledgend border rounded"
               v-bind:style="{bottom: IsOpUsing?'6.8rem' :'12rem'}"
             ></MapLegend>
+
+            <div class="custom-buttons">
+              <el-tooltip content="原點" placement="right">
+                <button @click="GoOriginal">
+                  <i class="bi bi-house-door-fill"></i>
+                </button>
+              </el-tooltip>
+            </div>
             <!-- 設定 -->
             <div v-if="IsUserLogin" class="options bg-light border-start text-start px-1 py-3">
               <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column">
@@ -990,6 +998,12 @@ export default {
     }
   },
   methods: {
+    GoOriginal() {
+
+      this.map.getView().setCenter([0, 0]);
+      this.map.getView().setZoom(1);
+
+    },
     GetPointName(index) {
       var pt = GetPointByIndex(index)
       if (pt) {
@@ -3947,18 +3961,23 @@ export default {
 
   .custom-buttons {
     // top: 133px;
-    text-align: right;
+    text-align: center;
     z-index: 1;
     flex-direction: column;
-    margin-top: 55px;
-    padding-left: 7px;
+    margin-top: 105px;
     height: 300px;
+    left: 16px;
+    width: 35px;
 
     button {
-      border: 1px solid #d5d5d5;
+      opacity: 0.6;
+      font-size: 26px;
+      width: 35px;
       border-radius: 3px;
-      height: 22px;
-      width: 24px;
+      margin: 2px;
+      border: 1px solid grey;
+      background-color: white;
+      font-weight: bolder;
     }
 
     button:hover {
