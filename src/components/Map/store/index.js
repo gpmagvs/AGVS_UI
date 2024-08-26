@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import axios from 'axios'
 import { AGVOption, clsMap, clsAGVDisplay, clsMapStation, StationSelectOptions, AgvDisplayProps } from '../mapjs';
+import { agv_states_store } from "@/store";
 import param from "@/gpm_param";
 
 /**圖資狀態儲存 */
@@ -38,16 +39,30 @@ export const MapStore = createStore({
         },
 
         CustomAGVStyles: state => {
-            var jsonStr = localStorage.getItem('custom-agv-styles');
-            if (jsonStr) {
-                return JSON.parse(jsonStr);
-            }
-            return {
+            var defaults = {
                 "AGV_001": new AgvDisplayProps('rgb(13, 110, 253)', "AGV_001"),
                 "AGV_002": new AgvDisplayProps('limegreen', "AGV_002"),
                 "AGV_003": new AgvDisplayProps('orange', "AGV_003"),
                 "AGV_004": new AgvDisplayProps('pink', "AGV_004"),
             }
+            const currentAGVNames = agv_states_store.getters.AGVNameList;
+
+            var jsonStr = localStorage.getItem('custom-agv-styles');
+            if (jsonStr) {
+                var stylesStored = JSON.parse(jsonStr);
+                Object.keys(stylesStored).forEach(agvName => {
+                    defaults[agvName] = stylesStored[agvName]
+                });
+            }
+
+            var toDisplayNames = Object.keys(defaults).filter(name => currentAGVNames.includes(name));
+
+            var styles = {};
+            toDisplayNames.forEach(_name => {
+                styles[_name] = defaults[_name];
+            });
+
+            return styles
         },
         MapData: state => {
             var localStore = localStorage.getItem('mapData')
