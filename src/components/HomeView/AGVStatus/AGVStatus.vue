@@ -916,9 +916,9 @@ export default {
     font-size: 22px;
   }
   .agv-name-container:hover {
-    background-color: rgb(190, 190, 190);
-    font-size: 25px;
-    padding: 4px;
+    background-color: rgb(13, 110, 253);
+    border-radius: 8px;
+    color: white;
   }
   .agv-name-container:active {
     padding: 2px;
