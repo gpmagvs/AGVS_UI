@@ -83,7 +83,7 @@
                   </template>
                   <el-option
                     v-for="tag in FromStationOptions"
-                    :key="tag.tag"
+                    :key="tag.tag+tag.name_display"
                     :label="tag.name_display"
                     :value="tag.tag"
                   >
@@ -143,8 +143,8 @@
                 >
                   <el-option
                     v-for="tag in downstream_options"
-                    :key="tag.tag"
-                    :label="GetGrpahDisplayByTag(tag.tag)"
+                    :key="tag.tag+GetGrpahDisplayByTag(tag.tag)"
+                    :label="tag.name_display"
                     :value="tag.tag"
                   ></el-option>
                 </el-select>

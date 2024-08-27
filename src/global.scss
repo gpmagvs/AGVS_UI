@@ -189,10 +189,11 @@
   font-size:26px !important;
 }
 .swal2-actions  {
+  display: flex;
   flex-direction: row !important;
   width: 100% !important;
   font-size: 32px ;
   button{
-    width: 40% !important;
+    width: 100% !important;
   }
 }
