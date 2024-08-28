@@ -19,6 +19,7 @@
             <span></span>
           </template>
           <div class="w-100 h-100 order-info-container">
+            {{selected_source}}
             <el-row class="order-row">
               <el-col :span="6">
                 <div class="item-name">{{ $t('Action') }}</div>
@@ -833,19 +834,20 @@ export default {
         var html = '<div class="swal-transfer-info border-top py-2">';
         html += `<div> <label>${this.$t('Action')}</label> <span>${this.selected_action_display}</span> </div>`
         if (this.selected_action == 'carry') {
+          var sourceDisplay = ""
+          if (this.selected_source.isAGV) {
+            sourceDisplay = this.selected_source.agvName;
+          } else {
+            sourceDisplay = this.selected_source.Graph.Display;
+          }
           html += `
-              <div> <label>${this.$t('source')} </label> <span>${this.selected_source.Graph.Display}</span> </div>
+              <div> <label>${this.$t('source')} </label> <span>${sourceDisplay}</span> </div>
               <div> <label>${this.$t('TaskDispathActionButton.Destine')}</label> <span>${this.selected_destine.Graph.Display}</span></div>`
         } else {
           html += ` <div> <label>${this.$t('TaskDispathActionButton.Destine')}</label> <span>${this.selected_destine.Graph.Display}</span></div>`;
         }
         html += `</div>`;
         return html;
-        return `
-          <div class="swal-transfer-info border-top py-2">
-              <div> <label>${this.$t('source')} </label> <span>【${this.selected_source.Graph.Display}】</span> </div>
-              <div> <label>${this.$t('TaskDispathActionButton.Destine')}</label> <span>【${this.selected_destine.Graph.Display}】</span></div>
-          </div>`
       }
 
       this.$swal.fire(

@@ -256,8 +256,25 @@
       <el-table-column
         v-if="show_lduld_state"
         align="center"
+        prop="CarrierID"
+        width="200"
         :label="$t('HomeView.EQStatus.EQStatus.CarrierID')"
-      ></el-table-column>
+      >
+        <template #default="scope">
+          <div>
+            {{scope.row.CarrierID}}
+            <i
+              class="bi bi-pencil-square"
+              style="cursor: pointer"
+              @click="()=>{
+              $router.push('/racks_status')
+            }"
+            />
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column v-if="show_lduld_state" align="center"></el-table-column>
       <!-- <el-table-column sortable label="區域" prop="Region" width="110"></el-table-column> -->
       <!-- IO訊號 -->
       <!-- IO訊號 -->
@@ -519,8 +536,8 @@ export default {
     return {
       column_width: 103,
       selected_region: "all",
-      //display_mode: 'lduld_state',
-      display_mode: 'io_siganl',
+      display_mode: 'lduld_state',
+      // display_mode: 'io_siganl',
       previous_eq_data: [],
       zoomRatio: 1,
       showIOColumnDisplaySetting: false,

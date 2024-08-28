@@ -6,14 +6,27 @@
         <b>{{ $t('Rack.Cargo_Spaces') }}</b>
       </div>
       <div class="flex-fill p-2">
-        <el-progress :stroke-width="18" :percentage="Level" text-inside striped striped-flow :duration="40">
+        <el-progress
+          :stroke-width="18"
+          :percentage="Level"
+          text-inside
+          striped
+          striped-flow
+          :duration="40"
+        >
           <span>{{ this.HasCstPortNum }}/{{ this.TotalPorts }}</span>
         </el-progress>
       </div>
     </div>
-    <div class="d-flex flex-row" v-for="row in RowsArray(rack_info.Rows)" :key="'row-' + row">
-      <div class="d-flex flex-column" v-for="col in rack_info.Columns" :key="'col-' + col">
-        <RackPort :rack_name="rack_info.WIPName" :port_info="GetPortByColRow(col - 1, row - 1)"></RackPort>
+    <div class="ports-container">
+      <div class="d-flex flex-row" v-for="row in RowsArray(rack_info.Rows)" :key="'row-' + row">
+        <div class="d-flex flex-column" v-for="col in rack_info.Columns" :key="'col-' + col">
+          <RackPort
+            :rack_name="rack_info.WIPName"
+            :port_info="GetPortByColRow(col - 1, row - 1)"
+            :IsOvenAsRacks="rack_info.IsOvenAsRacks"
+          ></RackPort>
+        </div>
       </div>
     </div>
   </div>
@@ -99,5 +112,11 @@ export default {
 .rack-status {
   border: 2px solid black;
   box-shadow: 4px -1px 12px 1px grey;
+
+  .ports-container {
+    // background-color: black;
+    overflow-x: scroll;
+    width: 95vw;
+  }
 }
 </style>

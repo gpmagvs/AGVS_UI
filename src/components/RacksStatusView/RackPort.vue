@@ -1,51 +1,98 @@
 <template>
   <div class="rack-port" v-bind:class="ProductQualityClassName">
     <div class="bg-light border-bottom d-flex py-1">
-      <div v-show="AnySensorFlash" class="text-danger bg-light w-100 text-start"
-        style=" max-height: 0;  position: relative;left:3px;top:0px;"><i class="bi bi-exclamation "></i>{{
-    $t('Rack.Sensor_Flash') }}
+      <div
+        v-show="AnySensorFlash"
+        class="text-danger bg-light w-100 text-start"
+        style=" max-height: 0;  position: relative;left:3px;top:0px;"
+      >
+        <i class="bi bi-exclamation"></i>
+        {{
+        $t('Rack.Sensor_Flash') }}
       </div>
       <span class="flex-fill text-start px-1">
-        <el-tag effect="dark">{{ PortNameDisplay }}</el-tag> </span>
-      <div class="px-2">
-        <el-tag v-bind:class="ProductQualityClassName + ' text-dark'"
-          v-if="port_info.Properties.ProductionQualityStore == 0" effect="dark">NORMAL PORT</el-tag>
+        <el-tag effect="dark">{{ PortNameDisplay }}</el-tag>
+      </span>
+      <div class="px-2" v-if="!IsOvenAsRacks">
+        <el-tag
+          v-bind:class="ProductQualityClassName + ' text-dark'"
+          v-if=" port_info.Properties.ProductionQualityStore == 0"
+          effect="dark"
+        >NORMAL PORT</el-tag>
         <el-tag v-bind:class="ProductQualityClassName + ' text-dark'" v-else effect="dark">NG PORT</el-tag>
       </div>
     </div>
     <div class="item">
       <div class="title">Carrier ID</div>
       <div class="values d-flex">
-        <el-input type="text" disabled size="small" v-model="port_info.CarrierID"></el-input>
+        <el-tag
+          size="large"
+          effect="dark"
+          :type="port_info.CarrierID==''?'info':'primary'"
+          style="width: 135px;"
+        >{{ port_info.CarrierID }}</el-tag>
         <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-          <i v-if="port_info.CarrierID != ''" @click="CopyText(port_info.CarrierID)"
-            class="copy-button copy-icon bi bi-clipboard"></i>
+          <i
+            v-if="port_info.CarrierID != ''"
+            @click="CopyText(port_info.CarrierID)"
+            class="copy-button copy-icon bi bi-clipboard"
+          ></i>
         </el-tooltip>
       </div>
     </div>
-    <div class="item" v-if="port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0">
+    <div
+      class="item"
+      v-if="!IsOvenAsRacks && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0)"
+    >
       <div class="title">Exist Sensor(Tray)</div>
       <div class="values d-flex">
-        <div class="exist-sensor round my-1" v-bind:style="ExistSensorTray_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
-          @click="HandleExistSensorStateClick('tray', 0)"></div>
-        <div class="exist-sensor round my-1 mx-3"
+        <div
+          class="exist-sensor round my-1"
+          v-bind:style="ExistSensorTray_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
+          @click="HandleExistSensorStateClick('tray', 0)"
+        ></div>
+        <div
+          class="exist-sensor round my-1 mx-3"
           v-bind:style="ExistSensorTray_2 ? ExistSensorOnStyle : ExistSensorOFFStyle"
-          @click="HandleExistSensorStateClick('tray', 1)"></div>
+          @click="HandleExistSensorStateClick('tray', 1)"
+        ></div>
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
-    <div class="item" v-if="port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1">
+    <div
+      class="item"
+      v-if="!IsOvenAsRacks &&( port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)"
+    >
       <div class="title">Exist Sensor(Rack)</div>
       <div class="values d-flex">
-        <div class="exist-sensor round my-1" v-bind:style="ExistSensorRack_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
-          @click="HandleExistSensorStateClick('rack', 0)"></div>
-        <div class="exist-sensor round my-1 mx-3"
+        <div
+          class="exist-sensor round my-1"
+          v-bind:style="ExistSensorRack_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
+          @click="HandleExistSensorStateClick('rack', 0)"
+        ></div>
+        <div
+          class="exist-sensor round my-1 mx-3"
           v-bind:style="ExistSensorRack_2 ? ExistSensorOnStyle : ExistSensorOFFStyle"
-          @click="HandleExistSensorStateClick('rack', 1)"></div>
+          @click="HandleExistSensorStateClick('rack', 1)"
+        ></div>
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
-    <div class="item">
+    <div class="item" v-if="IsOvenAsRacks">
+      <div class="title">空/實框</div>
+      <div class="values">
+        <el-radio-group
+          :disabled="radioGroupDisable"
+          size="large"
+          v-model="port_info.RackContentState"
+          fill="rgb(8, 87, 60)"
+        >
+          <el-radio-button @click="EmptyContentClick" :value="0" label="空框"></el-radio-button>
+          <el-radio-button @click="FullContentClick" :value="1" label="實框"></el-radio-button>
+        </el-radio-group>
+      </div>
+    </div>
+    <div class="item" v-if="!IsOvenAsRacks">
       <div class="title">Install Priority</div>
       <div class="values">
         <el-input type="text" size="small" v-model="port_info.Properties.StoragePriority"></el-input>
@@ -58,8 +105,8 @@
     <!-- <div class="item">
       <div class="title"></div>
       <div class="values">BBB</div>
-    </div> -->
-    <div class="item  justify-content-center">
+    </div>-->
+    <div class="item justify-content-center">
       <div v-if="IsCarrierIDExist" class="w-100 d-flex justify-content-center">
         <el-button ref="modify_btn" @click="CstIDEditHandle" type="success">{{ $t('Rack.Edit_ID') }}</el-button>
         <el-button @click="RemoveCSTID" type="danger">{{ $t('Rack.Remove_ID') }}</el-button>
@@ -73,7 +120,8 @@ import Clipboard from 'clipboard'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
 import { ModifyCargoID, RemoveCargoID } from '@/api/WIPAPI.js'
 import { userStore } from '@/store'
-import { RackEmuAPI } from '@/api/EquipmentAPI'
+import { RackEmuAPI, SetToFullRackStatusByEqTag, SetToEmptyRackStatusByEqTag } from '@/api/EquipmentAPI'
+
 export default {
   props: {
     rack_name: {
@@ -100,12 +148,16 @@ export default {
             ProductionQualityStore: 0,//0: ok | 1: ng
             CargoTypeStore: 2, // 0:tray | 1:Rack| 2:Mixed
             IOLocation: { Tray_Sensor1: 0, Tray_Sensor2: 1, Box_Sensor1: 2, Box_Sensor2: 3 },
-            StoragePriority:0, //數字愈大優先度愈高
+            StoragePriority: 0, //數字愈大優先度愈高
           },
           RackPlacementState: 0,
           TrayPlacementState: 0
         }
       }
+    },
+    IsOvenAsRacks: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -115,15 +167,19 @@ export default {
       },
       ExistSensorOFFStyle: {
         backgroundColor: 'rgb(255, 50, 0)'
-      }
+      },
+      selectedRackContentType: '',
+      radioGroupDisable: false,
     }
   },
   computed: {
     ProductQualityClassName() {
+      if (this.IsOvenAsRacks)
+        return 'oven-port'
       return this.port_info.Properties.ProductionQualityStore == 0 ? 'ok-port' : 'ng-port';
     },
     PortNameDisplay() {
-      return `${this.port_info.Properties.ID}`
+      return `${this.port_info.NickName} | ${this.port_info.Properties.ID}`
     },
     IsCarrierIDExist() {
       return this.port_info.CarrierID && this.port_info.CarrierID != '';
@@ -181,13 +237,27 @@ export default {
         console.info(msg_data)
         var _newid = !msg_data.value ? "" : msg_data.value;
         ModifyCargoID(this.rack_name, this.port_info.Properties.ID, _newid)
+        this.$message({ message: '帳籍已修改。', type: 'success' })
         // this.port_info.CarrierID = msg_data.value
       }).catch(() => {
 
       })
     },
     RemoveCSTID() {
-      RemoveCargoID(this.rack_name, this.port_info.Properties.ID);
+      this.$swal.fire(
+        {
+          text: `確定要移除帳籍-[${this.port_info.CarrierID}] ?`,
+          title: '移除帳籍確認',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        }).then(res => {
+          if (res.isConfirmed) {
+            RemoveCargoID(this.rack_name, this.port_info.Properties.ID);
+            this.$message({ message: '帳籍已移除。' })
+          }
+        })
     },
     CopyText(text) {
       const clipboard = new Clipboard('.copy-button', {
@@ -205,6 +275,18 @@ export default {
       clipboard.on('error', () => {
         clipboard.destroy();
       });
+    },
+    async EmptyContentClick() {
+      this.radioGroupDisable = true;
+      await SetToEmptyRackStatusByEqTag(this.port_info.TagNumbers[0], true)
+      await SetToFullRackStatusByEqTag(this.port_info.TagNumbers[0], false)
+      this.radioGroupDisable = false;
+    },
+    async FullContentClick() {
+      this.radioGroupDisable = true;
+      await SetToFullRackStatusByEqTag(this.port_info.TagNumbers[0], true)
+      await SetToEmptyRackStatusByEqTag(this.port_info.TagNumbers[0], false)
+      this.radioGroupDisable = false;
     }
   },
 }
@@ -245,7 +327,10 @@ export default {
     }
   }
 }
-
+.rack-port:hover {
+  border: 5px solid rgb(0, 149, 255);
+  border-radius: 8px;
+}
 .ok-port {
   font-weight: bold;
   background: rgb(217, 232, 255);
@@ -253,6 +338,9 @@ export default {
 
 .ng-port {
   background: rgb(255, 196, 196);
-
+}
+.oven-port {
+  background-color: rgb(213, 213, 213);
+  color: black;
 }
 </style>
