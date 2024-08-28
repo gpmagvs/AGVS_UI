@@ -19,7 +19,6 @@
             <span></span>
           </template>
           <div class="w-100 h-100 order-info-container">
-            {{selected_source}}
             <el-row class="order-row">
               <el-col :span="6">
                 <div class="item-name">{{ $t('Action') }}</div>
