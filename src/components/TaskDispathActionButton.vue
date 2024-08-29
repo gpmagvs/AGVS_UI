@@ -6,7 +6,11 @@
     content
   >
     <template #reference>
-      <div class="task-dispatch-btn-container">
+      <div
+        :key="grabStates.updateKey"
+        class="task-dispatch-btn-container"
+        v-bind:style="DynamicStyle"
+      >
         <el-popover
           @hide="HandleDispathDialogHidden"
           :show-arrow="false"
@@ -19,6 +23,28 @@
             <span></span>
           </template>
           <div class="w-100 h-100 order-info-container">
+            <div class="grabable-region w-100 text-end border-bottom" style="height:15px;">
+              <el-popover trigger="click" :width="153">
+                <template #reference>
+                  <i class="bi bi-three-dots cursor-pointer"></i>
+                </template>
+                <template #default>
+                  <div class="d-flex">
+                    <div class="mx-1" style="width:80px;">固定位置</div>
+                    <i
+                      class="bi bi-layout-sidebar-inset p-1 cursor-pointer"
+                      v-bind:class="fixLoc=='left'?'bg-primary text-light':''"
+                      @click="()=>{fixLoc='left'}"
+                    ></i>
+                    <i
+                      class="bi bi-layout-sidebar-inset-reverse p-1 mx-2 cursor-pointer"
+                      v-bind:class="fixLoc=='right'?'bg-primary text-light':''"
+                      @click="()=>{fixLoc='right'}"
+                    ></i>
+                  </div>
+                </template>
+              </el-popover>
+            </div>
             <el-row class="order-row">
               <el-col :span="6">
                 <div class="item-name">{{ $t('Action') }}</div>
@@ -415,7 +441,19 @@ export default {
       IsTransferTaskNeedChangeAGV: false,
       tagOfMiddleStationTagOfTransferTask: -1,
       routePath: '',
-      showFullEmptyContentSetting: false
+      showFullEmptyContentSetting: false,
+      DynamicStyle: {
+        right: '28px'
+      },
+      fixLoc: 'right',
+      grabStates: {
+        grabing: false,
+        oriX: 0,
+        oriY: 0,
+        oriRightOffset: 28,
+        newRightOffset: 28,
+        updateKey: 0
+      },
     }
   },
   computed: {
@@ -1204,6 +1242,24 @@ export default {
       } catch (error) {
         return '';
       }
+    },
+    ShowAtRight() {
+      this.fixLoc = 'right'
+    },
+    ShowAtLeft() {
+      this.fixLoc = 'left'
+    },
+    HandleMouseMoveWhenGrabing(event = MouseEvent) {
+      console.log(event)
+      if (this.grabStates.grabing) {
+        var offsetToOriX = event.screenX - this.grabStates.oriX;
+        var offsetToOriY = event.screenY - this.grabStates.oriY;
+        console.log(offsetToOriX)
+        this.grabStates.newRightOffset = this.grabStates.oriRightOffset - offsetToOriX;
+        this.DynamicStyle = {
+          right: this.grabStates.newRightOffset + 'px'
+        }
+      }
     }
   },
   mounted() {
@@ -1228,6 +1284,21 @@ export default {
       }
     }, 3000);
 
+  },
+  watch: {
+    fixLoc(loc) {
+      if (loc == 'left') {
+        this.DynamicStyle = {
+        }
+        this.grabStates.updateKey++;
+      } else if (loc == 'right') {
+        this.DynamicStyle = {
+          right: '28px'
+        }
+        this.grabStates.oriRightOffset = this.grabStates.newRightOffset = 28;
+        this.grabStates.updateKey++;
+      }
+    }
   }
 }
 </script>
@@ -1248,7 +1319,6 @@ export default {
 .task-dispatch-btn-container {
   position: fixed;
   bottom: 40px;
-  right: 28px;
   z-index: 10;
 
   button {
@@ -1256,6 +1326,12 @@ export default {
   }
 
   box-shadow: 4px -1px 14px 1px rgb(61, 61, 61);
+
+  .grabable-region {
+  }
+  .grabable-region:active {
+    cursor: grabbing;
+  }
 }
 .custom-options,
 .agv-option {

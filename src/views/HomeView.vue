@@ -46,7 +46,7 @@
           <el-tab-pane name="map" :label="$t('HomeView.Map')">
             <HomeMap style="width:100%"></HomeMap>
           </el-tab-pane>
-          <el-tab-pane :label="$t('HomeView.EQ_Status')">
+          <el-tab-pane name="eqStatus" :label="$t('HomeView.EQ_Status')">
             <EQStatus></EQStatus>
           </el-tab-pane>
         </el-tabs>
@@ -77,6 +77,7 @@
       v-show="show_new_dispatch_panel"
     ></TaskDispatchNewUI>
     <TaskDispathActionButton
+      ref="task-dispatch-action-btn"
       class="fixed-bottom"
       @onTaskDispatch="() => {
       right_side_tabSelected = 'map';
@@ -143,6 +144,16 @@ export default {
       right_side_tabSelected: 'map',
       MenuExpanded: true,
       previousLeftSideWidthStyle: ''
+    }
+  },
+  watch: {
+    right_side_tabSelected(panlName) {
+      // alert(panlName)
+      if (panlName == 'map')
+        this.$refs['task-dispatch-action-btn'].ShowAtRight();
+      else {
+        this.$refs['task-dispatch-action-btn'].ShowAtLeft();
+      }
     }
   },
   mounted() {

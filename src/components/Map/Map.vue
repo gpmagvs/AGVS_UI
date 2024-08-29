@@ -3193,7 +3193,6 @@ export default {
 
           var eqs = this.eq_data.filter(eq => eq.Tag == eq_states.Tag);
           var isUniqueTag = eqs.length <= 1;
-          console.log(isUniqueTag)
           if (isUniqueTag) {
             this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing)
           } else {
