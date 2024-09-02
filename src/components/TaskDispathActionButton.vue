@@ -94,6 +94,7 @@
               <el-col :span="6">
                 <div class="item-name">{{ $t('source') }}</div>
               </el-col>
+              <!-- 來源設備/RACK -->
               <el-col class="item-value" :span="11">
                 <el-select
                   class="w-100 px-1"
@@ -107,7 +108,7 @@
                   <template #header>
                     <el-button @click="HandleSelectSoureStationFromMapBtnClick" size="large">Refresh</el-button>
                   </template>
-                  <el-option
+                  <!-- <el-option
                     v-for="tag in FromStationOptions"
                     :key="tag.tag+tag.name_display"
                     :label="tag.name_display"
@@ -117,19 +118,33 @@
                       class="custom-options"
                       v-bind:class="tag.name_display && tag.name_display.includes('AGV')?'agv-option':''"
                     >{{tag.name_display}}</div>
-                  </el-option>
+                  </el-option>-->
+                  <el-option
+                    v-for="option in SourceOptionFromStore"
+                    :key="option.Value"
+                    :label="option.Label"
+                    :value="option.Value"
+                  ></el-option>
                 </el-select>
                 <!-- {{ selected_source ? selected_source.Graph.Display : '' }} -->
               </el-col>
+              <!-- 層 -->
               <el-col class="item-actions" :span="7">
                 <el-select
                   class="w-100"
-                  v-if="selected_source.Graph && (IsSourceStationBuffer||IsSourceStationMultiLayers)"
+                  v-if="selected_source.Graph && SlotOptionsOfSource.length>1"
                   size="large"
                   :placeholder="$t('Choose_Port')"
                   v-model="selected_source_slot"
                 >
-                  <div v-if="IsSourceStationMultiLayers">
+                  <el-option
+                    v-for="opt in SlotOptionsOfSource"
+                    :key="'slot-'+opt.Value"
+                    :value="opt.Value"
+                    :label="opt.Label"
+                  ></el-option>
+
+                  <!-- <div v-if="IsSourceStationMultiLayers">
                     <el-option
                       v-for="layer in GetLayersOfEquipment(selected_source.TagNumber)"
                       :key="selected_source.Graph.Display + '-' + layer.value"
@@ -144,7 +159,7 @@
                       :label="layer.label"
                       :value="layer.value"
                     ></el-option>
-                  </div>
+                  </div>-->
                 </el-select>
               </el-col>
             </el-row>
@@ -167,11 +182,18 @@
                   @click="HandleSelectDestineStationFromMapBtnClick"
                   v-model="selected_destine.TagNumber"
                 >
-                  <el-option
+                  <!-- <el-option
                     v-for="tag in downstream_options"
                     :key="tag.tag+GetGrpahDisplayByTag(tag.tag)"
                     :label="tag.name_display"
                     :value="tag.tag"
+                  ></el-option>-->
+
+                  <el-option
+                    v-for="option in DownStreamOptions"
+                    :key="option.Value"
+                    :label="option.Label"
+                    :value="option.Value"
                   ></el-option>
                 </el-select>
                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
@@ -179,12 +201,18 @@
               <el-col class="item-actions" :span="7">
                 <el-select
                   class="w-100 px-1"
-                  v-if="selected_destine.Graph && (IsDestineStationBuffer||IsDestineStationMultiLayers)"
+                  v-if="selected_destine.Graph && SlotOptionsOfDestine.length>1"
                   size="large"
                   :placeholder="$t('Choose_Port')"
                   v-model="selected_destine_slot"
                 >
-                  <div v-if="IsDestineStationMultiLayers">
+                  <el-option
+                    v-for="opt in SlotOptionsOfDestine"
+                    :key="'slot-'+opt.Value"
+                    :value="opt.Value"
+                    :label="opt.Label"
+                  ></el-option>
+                  <!-- <div v-if="IsDestineStationMultiLayers">
                     <el-option
                       v-for="layer in GetLayersOfEquipment(selected_destine.TagNumber)"
                       :key="layer.label"
@@ -199,7 +227,7 @@
                       :label="layer.label"
                       :value="layer.value"
                     ></el-option>
-                  </div>
+                  </div>-->
                 </el-select>
               </el-col>
             </el-row>
@@ -387,7 +415,7 @@ import Notifier from '@/api/NotifyHelper';
 import { ElNotification } from 'element-plus'
 import { StationSelectOptions } from '@/components/Map/mapjs';
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
-import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
+import { userStore, agv_states_store, agvs_settings_store, EqStore, FromToStore } from '@/store';
 import { SetToFullRackStatusByEqTag, SetToEmptyRackStatusByEqTag } from '@/api/EquipmentAPI'
 import { MapStore } from '@/components/Map/store'
 import { watch } from 'vue';
@@ -592,6 +620,32 @@ export default {
       } catch (error) {
         return false;
       }
+    },
+    SourceOptionFromStore() {
+      return FromToStore.state.SourceOptions;
+    },
+    DownStreamOptions() {
+
+      if (this.selected_action == 'carry') {
+        var sourceSelected = this.SourceOptionFromStore.find(opt => opt.Value == this.selected_source.TagNumber);
+        if (!sourceSelected)
+          return [];
+        return sourceSelected.DownStreamStationOptions;
+      } else {
+        return FromToStore.state.SourceOptions;
+      }
+    },
+    SlotOptionsOfSource() {
+      var sourceSelected = this.SourceOptionFromStore.find(opt => opt.Value == this.selected_source.TagNumber);
+      if (!sourceSelected)
+        return [];
+      return sourceSelected.Slots
+    },
+    SlotOptionsOfDestine() {
+      var destineSelected = this.DownStreamOptions.find(opt => opt.Value == this.selected_destine.TagNumber);
+      if (!destineSelected)
+        return [];
+      return destineSelected.Slots
     }
 
   },
@@ -728,6 +782,9 @@ export default {
       })
     },
     HandleSelectSoureStationFromMapBtnClick() {
+
+      FromToStore.dispatch('GetSourceOptions')
+      console.info(FromToStore.state.SourceOptions)
       this.selected_agv = '';
       this.selected_source = {
         Graph: {
@@ -772,8 +829,7 @@ export default {
 
           console.log(_station_data);
 
-          var isSelectdNotInOptions = this.FromStationOptions.findIndex(option => option.tag == _station_data.TagNumber) == -1;
-
+          var isSelectdNotInOptions = !this.SourceOptionFromStore.find(opt => opt.Value == _station_data.TagNumber);
           if (isSelectdNotInOptions)
             return;
 
@@ -825,15 +881,11 @@ export default {
           return;
         if ((this.selected_action == 'load' || this.selected_action == 'unload' || this.selected_action == 'carry') && (!_station_data.IsEquipment && _station_data.StationType != 4))
           return;
-        if (this.selected_action == 'carry') {
-          if (_station_data == this.selected_source)
-            return;
-          if (!this.downstream_options.some(st => st.tag == _station_data.TagNumber))
-            return
+        if (this.selected_action == 'carry' && _station_data == this.selected_source) {
+          return;
         }
 
-
-        var isSelectdNotInOptions = this.downstream_options.findIndex(option => option.tag == _station_data.TagNumber) == -1;
+        var isSelectdNotInOptions = !this.DownStreamOptions.find(opt => opt.Value == _station_data.TagNumber);
         if (isSelectdNotInOptions)
           return;
 

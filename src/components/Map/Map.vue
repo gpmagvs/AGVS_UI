@@ -1555,7 +1555,7 @@ export default {
       }
       //移除事件
       _RemoveInteractions();
-
+      this.regionsVisible = true
       var _displayModeChanged = this.map_display_mode != 'coordination'
       this.map_display_mode = 'coordination'
       this.MapDisplayModeOptHandler(_displayModeChanged);
@@ -1569,7 +1569,7 @@ export default {
         this.RemoveInteraction(this.delete_forbid_regions_interaction);
         this.RemoveInteraction(this.mapEditsInteraction);
       }
-
+      this.regionsVisible = true
       _RemoveInteractions();
       var _displayModeChanged = this.map_display_mode != 'coordination'
       this.map_display_mode = 'coordination'
@@ -2086,10 +2086,14 @@ export default {
         //this.zoom_route = settings.zoom_route;
         //this.center_route = settings.center_route
 
-        if (this.IsOpUsing) {
-          this.dragActionLock = false;
-        } else {
-          this.dragActionLock = settings.dragActionLock;
+        if (this.editable)
+          this.dragActionLock = true;
+        else {
+          if (this.IsOpUsing) {
+            this.dragActionLock = false;
+          } else {
+            this.dragActionLock = settings.dragActionLock;
+          }
         }
         this.setDragPanEnabled(this.dragActionLock)
 
