@@ -4,6 +4,7 @@ import { clsUserLoginState } from '@/api/AuthHelper'
 import MapAPI from '@/api/MapAPI'
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
 import { DeviceConfig } from '@/ViewModels/EndDeviceOption.js'
+import { AGVSSystemConfigs } from '@/ViewModels/SystemConfigs'
 import param from '@/gpm_param.js'
 import axios from 'axios'
 var cachesKeyMap = {
@@ -15,6 +16,10 @@ export default createStore({
   state: {
     websiteSetting: {
       FieldName: 'UMTC'
+    },
+    systemConfigs: new AGVSSystemConfigs(),
+    vmsAppInfo: {
+      AppVersion: "1.0.0"
     }
   },
   getters: {
@@ -25,6 +30,12 @@ export default createStore({
   mutations: {
     setAgvsystemConfigs(state, configs) {
       state.websiteSetting = configs
+    },
+    setSystemConfigs(state, configs) {
+      state.systemConfigs = configs
+    },
+    setVmsAppInfo(state, info) {
+      state.vmsAppInfo = info
     }
   },
   actions: {
@@ -34,6 +45,16 @@ export default createStore({
       commit('setAgvsystemConfigs', response.data)
       return response.data;
     },
+    async DownloadSystemConfigs({ commit }) {
+      var response = await axios.get(`${param.backend_host}/api/system/systemconfigs`)
+      commit('setSystemConfigs', response.data)
+      return response.data;
+    },
+    async DownloadVMSAppInfo({ commit }) {
+      var response = await axios.get(`${param.vms_host}/api/system/GetVMSAppInfo`)
+      commit('setVmsAppInfo', response.data)
+      return response.data;
+    }
   }
 })
 

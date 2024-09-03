@@ -155,7 +155,8 @@ export default {
       else
         document.title = `[${fieldName}]-GPM AGVS`
     });
-
+    this.$store.dispatch('DownloadSystemConfigs');
+    this.$store.dispatch('DownloadVMSAppInfo');
     let login_states = IsLoginLastTime();
 
     //嘗試存取前次的登入狀態，並自動登入
