@@ -207,7 +207,9 @@ export const MapStore = createStore({
         AllNormalStationOptions: state => {
             //[{tag:1,name:'' }]
             var points = Object.values(state.MapData.Points)
-            var points = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 0).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var points = points.filter(pt => !pt.IsVirtualPoint && pt.StationType == 0)
+                .sort((a, b) => a.TagNumber - b.TagNumber)
+                .map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return points;
         },
         AllParkableStationOptions: state => {
