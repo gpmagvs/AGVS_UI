@@ -55,6 +55,16 @@
         size="sm"
         style="float:right"
       >{{ $t('Search.Output_csv_file') }}</b-button>
+
+      <b-button
+        v-show="isDevLogin"
+        @click="HandleExportToAutoRptFolder()"
+        :SaveTocsv="SaveTocsv"
+        class="SaveTocsv mx-2"
+        variant="danger"
+        size="sm"
+        style="float:right"
+      >輸出至自動匯出目錄</b-button>
     </div>
     <div>
       <el-table
@@ -191,7 +201,7 @@
   </div>
 </template>
 <script>
-import { TaskQuery } from '@/api/TaskAPI.js'
+import { TaskQuery, ExportToAutoRptFolder } from '@/api/TaskAPI.js'
 import { SaveTocsv, DeleteTask } from '@/api/TaskAPI.js'
 import { userStore, agv_states_store } from '@/store';
 import { CopyText } from '@/api/Common/UtilityTools'
@@ -260,6 +270,30 @@ export default {
     async SaveTocsv() {
       SaveTocsv(this.start_time, this.end_time, this.AGVSelected, this.TaskName)
       Notifier.Primary('檔案儲存成功')
+    },
+    async HandleExportToAutoRptFolder() {
+      var response = await ExportToAutoRptFolder(this.start_time, this.end_time);
+      if (response.confirm) {
+        this.$swal.fire(
+          {
+            title: '匯出成功',
+            html: response.message,
+            icon: 'success',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+      } else {
+        this.$swal.fire(
+          {
+            text: response.message,
+            title: '匯出失敗',
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+      }
     },
     PageChnageHandle(payload) {
       TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected, this.Fail_reason).then(retquery => {

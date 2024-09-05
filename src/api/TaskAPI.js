@@ -38,3 +38,9 @@ export async function DeleteTask(taskID) {
   var ret = await axios_entity.get(`/api/TaskQuery/DeleteTask?taskID=${taskID}`)
   return ret.data;
 }
+
+/**指定日期區間匯出至系統設定的目錄 */
+export async function ExportToAutoRptFolder(start, end) {
+  var ret = await axios_entity.post(`/api/TaskQuery/ExportTaskHistoryDataOfDays?from_date=${start}&to_date=${end}`)
+  return ret.data;
+}
