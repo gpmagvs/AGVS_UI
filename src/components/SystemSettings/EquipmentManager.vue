@@ -1,11 +1,28 @@
 <template>
   <div class="equipment-manager border-start border-end" v-loading="loading">
-    <p class="text-start px-1">
-      <b-button variant="primary" squared @click="SaveSettingHandler">儲存設定</b-button>
-      <b-button variant="info" squared class="mx-2" @click="AddNewEqHandler">新增設備</b-button>
-      <b-button squared @click="ReloadSettingsHandler">重新載入</b-button>
-    </p>
+    <div class="w-100 d-flex">
+      <p v-if="displayMode=='eq-list'" class="text-start px-1 flex-fill">
+        <b-button variant="primary" squared @click="SaveSettingHandler">儲存設定</b-button>
+        <b-button variant="info" squared class="mx-2" @click="AddNewEqHandler">新增設備</b-button>
+        <b-button squared @click="ReloadSettingsHandler">重新載入</b-button>
+      </p>
+
+      <!-- action buttons for eq-group mode -->
+      <p v-if="displayMode=='eq-group'" class="text-start px-1 flex-fill">
+        <b-button variant="primary" squared @click="SaveSettingHandler">儲存設定</b-button>
+        <b-button variant="info" squared class="mx-2" @click="AddNewEqHandler">新增群組</b-button>
+        <b-button squared @click="ReloadSettingsHandler">重新載入</b-button>
+      </p>
+
+      <!-- 切換設備列表/群組選單 -->
+      <el-radio-group v-model="displayMode">
+        <el-radio-button size="large" label="設備列表" value="eq-list"></el-radio-button>
+        <el-radio-button size="large" label="設備群組" value="eq-group"></el-radio-button>
+      </el-radio-group>
+    </div>
+    <EqGroupEditor v-show="displayMode=='eq-group'"></EqGroupEditor>
     <el-table
+      v-show="displayMode=='eq-list'"
       :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '12px' }"
       :data="EqDatas"
       :row-key="rowKey"
@@ -363,6 +380,7 @@
 <script>
 import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
 import RegionsSelector from '@/components/RegionsSelector.vue'
+import EqGroupEditor from "./EQGroupEditor.vue"
 import { MapStore } from '../Map/store';
 import { EqStore } from '@/store'
 import { ElNotification } from 'element-plus';
@@ -371,10 +389,11 @@ import { DeviceConfig } from '@/ViewModels/EndDeviceOption.js'
 
 export default {
   components: {
-    RegionsSelector,
+    RegionsSelector, EqGroupEditor
   },
   data() {
     return {
+      displayMode: 'eq-group',
       cell_item_size: '',
       io_check_drawer: false,
       connection_setting_drawer: false,
@@ -408,6 +427,11 @@ export default {
       connection_testing: false,
       loading: true,
       rowKey: 'index',
+    }
+  },
+  watch: {
+    displayMode(currentMode) {
+      // alert(currentMode)
     }
   },
   methods: {
