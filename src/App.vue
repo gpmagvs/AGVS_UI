@@ -232,7 +232,10 @@ const debounce = (fn, delay) => {
     let args = arguments;
     clearTimeout(timer)
     timer = setTimeout(function () {
-      fn.apply(context, args)
+      try {
+        fn.apply(context, args)
+      } catch (error) {
+      }
     }, delay);
   }
 }

@@ -1,11 +1,22 @@
 <template>
   <div class="equipment-manager border-start border-end" v-loading="loading">
     <div class="w-100 d-flex">
-      <p v-if="displayMode=='eq-list'" class="text-start px-1 flex-fill">
+      <div v-if="displayMode=='eq-list'" class="text-start d-flex flex-fill">
         <b-button variant="primary" squared @click="SaveSettingHandler">儲存設定</b-button>
-        <b-button variant="info" squared class="mx-2" @click="AddNewEqHandler">新增設備</b-button>
+        <b-button variant="info" squared class="mx-1" @click="AddNewEqHandler">新增設備</b-button>
         <b-button squared @click="ReloadSettingsHandler">重新載入</b-button>
-      </p>
+        <div class="d-flex" style="width:200px">
+          <label style="width: 112px;font-size: 20px;padding: 4px;margin-left: 14px;">
+            <i class="bi bi-three-dots-vertical"></i>排序
+          </label>
+          <el-select v-model="sortBy" size="large">
+            <el-option label="設備名稱" value="eqName"></el-option>
+            <el-option label="Tag ID" value="tag"></el-option>
+            <el-option label="允入車款" value="vehicleType"></el-option>
+            <el-option label="貨物類型" value="cargoType"></el-option>
+          </el-select>
+        </div>
+      </div>
 
       <!-- action buttons for eq-group mode -->
       <p v-if="displayMode=='eq-group'" class="text-start px-1 flex-fill">
@@ -23,7 +34,7 @@
     <el-table
       v-show="displayMode=='eq-list'"
       :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '12px' }"
-      :data="EqDatas"
+      :data=" sortBy=='eqName'? EqDatas:SortedEQDataBySortBy"
       :row-key="rowKey"
       size="small"
       border
@@ -175,6 +186,7 @@
               type="primary"
             @click="IOCheckBtnHandle(scope.row)">IO點檢</el-button>-->
             <el-button size="small" type="danger" @click="RemoveHandle(scope.row)">移除</el-button>
+            <el-button size="small" type="text" @click="CopySettingHandle(scope.row)">複製</el-button>
           </div>
         </template>
       </el-table-column>
@@ -426,6 +438,7 @@ export default {
       connection_testing: false,
       loading: true,
       rowKey: 'index',
+      sortBy: 'eqName'//tag
     }
   },
   watch: {
@@ -491,7 +504,6 @@ export default {
         var element = new DeviceConfig();
         Object.assign(element, datas[index]);
         element.index = index;
-
         this.EqDatas.push(element)
       }
       this.CloneEQDatas();
@@ -513,12 +525,17 @@ export default {
 
       }, 300);
     },
-    AddNewEqHandler() {
-      let newOption = new DeviceConfig();
-      newOption.TagID = 1;
-      newOption.index = this.EqDatas.length;
-      this.EqDatas = [newOption, ...this.EqDatas]
+    AddNewEqHandler(option = undefined) {
 
+      this.sortBy = 'eqName';
+      let newOption = new DeviceConfig();
+      if (option == undefined) {
+        newOption.TagID = 1;
+        newOption.index = this.EqDatas.length;
+      } else {
+        newOption = option;
+      }
+      this.EqDatas = [newOption, ...this.EqDatas]
       setTimeout(() => {
         this.$refs.eqTable.setScrollTop(0)
       }, 300);
@@ -526,6 +543,12 @@ export default {
     RemoveHandle(row) {
       var remains = this.EqDatas.filter(eq => eq.Name != row.Name)
       this.EqDatas = remains;
+    },
+    CopySettingHandle(row) {
+      var _option = new DeviceConfig();
+      Object.assign(_option, row);
+      _option.Name = _option.Name + '_Copy';
+      this.AddNewEqHandler(_option);
     },
     async IOCheckBtnHandle(row) {
       this.selected_eq_option = row;
@@ -617,6 +640,19 @@ export default {
     },
     selected_eq_io_data() {
       return this.eq_data.find(eq => eq.EQName == this.selected_eq_option.EQName)
+    },
+    SortedEQDataBySortBy() {
+      var mirror = []
+      Object.assign(mirror, this.EqDatas);
+      if (this.sortBy == 'tag')
+        return mirror.sort((a, b) => a.TagID - b.TagID);
+      else if (this.sortBy == 'vehicleType')
+        return mirror.sort((a, b) => b.Accept_AGV_Type - a.Accept_AGV_Type);
+      else if (this.sortBy == 'cargoType')
+        return mirror.sort((a, b) => b.EQAcceeptCargoType - a.EQAcceeptCargoType);
+      else {
+        return this.EqDatas;
+      }
     }
   },
 }
