@@ -65,6 +65,19 @@ export async function SetToEmptyRackStatusByEqTag(eqTag, state) {
   return ret.data;
 
 }
+/**從後端下載EQ GROUP 配置JSON */
+export async function DownloadEQGroupConfiguration() {
+  var url = `/api/Equipment/EqGroups`; //避免帶有特殊符號的時候字串參數會不完整
+  var ret = await axios_entity.get(url)
+  return ret.data;
+}
+/**儲存EQ GROUP 配置*/
+export async function SaveEqGroupsConfigs(configs) {
+  var url = `/api/Equipment/SaveEqGroupsConfigs`; //避免帶有特殊符號的時候字串參數會不完整
+  var ret = await axios_entity.post(url, configs)
+  return ret.data;
+}
+
 
 /**設備模擬器API */
 export const EmuAPI = {

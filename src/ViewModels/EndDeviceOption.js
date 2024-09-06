@@ -84,3 +84,12 @@ export class ConnOptions {
         this.IO_Value_Type = 0;
     }
 }
+
+/**EQ Group配置模型 */
+export class EQGroupConfiguration {
+    constructor(groupName, loadPortTags = [], unloadPortTags = []) {
+        this.EqGroupName = groupName;
+        this.LoadPortEqTags = loadPortTags;
+        this.UnloadPortEqTags = unloadPortTags;
+    }
+}

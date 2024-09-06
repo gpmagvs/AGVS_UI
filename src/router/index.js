@@ -109,6 +109,14 @@ const routes = [
           requiresAuth: true
         },
         component: ChargeStationView
+      },
+      {
+        path: 'SystemSettings',
+        name: 'SystemSettings',
+        meta: {
+          requiresAuth: true
+        },
+        component: ChargeStationView
       }
     ],
     meta: {

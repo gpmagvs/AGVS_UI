@@ -9,8 +9,7 @@
 
       <!-- action buttons for eq-group mode -->
       <p v-if="displayMode=='eq-group'" class="text-start px-1 flex-fill">
-        <b-button variant="primary" squared @click="SaveSettingHandler">儲存設定</b-button>
-        <b-button variant="info" squared class="mx-2" @click="AddNewEqHandler">新增群組</b-button>
+        <b-button variant="primary" squared @click="SaveGroupsClicked">儲存設定</b-button>
         <b-button squared @click="ReloadSettingsHandler">重新載入</b-button>
       </p>
 
@@ -20,7 +19,7 @@
         <el-radio-button size="large" label="設備群組" value="eq-group"></el-radio-button>
       </el-radio-group>
     </div>
-    <EqGroupEditor v-show="displayMode=='eq-group'"></EqGroupEditor>
+    <EqGroupEditor ref="group-editor" v-show="displayMode=='eq-group'"></EqGroupEditor>
     <el-table
       v-show="displayMode=='eq-list'"
       :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '12px' }"
@@ -378,7 +377,7 @@
   </div>
 </template>
 <script>
-import { GetEQOptions, SaveEQOptions, ConnectTest } from '@/api/EquipmentAPI.js';
+import { GetEQOptions, SaveEQOptions, ConnectTest, SaveEqGroupsConfigs } from '@/api/EquipmentAPI.js';
 import RegionsSelector from '@/components/RegionsSelector.vue'
 import EqGroupEditor from "./EQGroupEditor.vue"
 import { MapStore } from '../Map/store';
@@ -393,7 +392,7 @@ export default {
   },
   data() {
     return {
-      displayMode: 'eq-group',
+      displayMode: 'eq-list',
       cell_item_size: '',
       io_check_drawer: false,
       connection_setting_drawer: false,
@@ -439,6 +438,11 @@ export default {
       var othersEqName = this.EqNames.filter(name => name != expect_name);
 
       return ["ALL", ...othersEqName];
+    },
+    async SaveGroupsClicked() {
+      var groupConfigs = this.$refs['group-editor'].GroupsConfigures;
+      SaveEqGroupsConfigs(groupConfigs)
+      // alert(JSON.stringify(groupConfigs))
     },
     async SaveSettingHandler() {
 
