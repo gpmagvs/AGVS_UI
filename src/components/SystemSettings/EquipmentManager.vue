@@ -462,9 +462,7 @@ export default {
 
       var ret = await SaveEQOptions(this.EqDatas);
       if (ret.confirm) {
-        setTimeout(() => {
-          this.ReloadSettingsHandler(false);
-        }, 200);
+        this.ReloadSettingsHandler(false);
         this.$swal.fire({
           title: '儲存成功',
           icon: 'success',
@@ -504,12 +502,15 @@ export default {
     ReloadSettingsHandler(showLoading = true) {
       this.loading = showLoading;
       setTimeout(() => {
-        GetEQOptions().then(option => EqStore.commit('EqOptions', option));
+        GetEQOptions().then(option => {
+          EqStore.commit('EqOptions', option);
 
-        this.DownloadEQOptions();
-        this.$refs.eqTable.setScrollTop(0)
+          this.DownloadEQOptions();
+          this.$refs.eqTable.setScrollTop(0)
 
-        this.loading = false;
+          this.loading = false;
+        });
+
       }, 300);
     },
     AddNewEqHandler() {
