@@ -1,4 +1,5 @@
 import { EqStore, agv_states_store, userStore, TaskStore, AlarmStore, UIStore } from "./store";
+import store from "./store";
 import { MapStore } from '@/components/Map/store'
 import param from "./gpm_param";
 import { GetEQOptions, GetWIPOptions } from '@/api/EquipmentAPI.js';
@@ -74,6 +75,10 @@ function StartHubsConnection() {
     agvsHubConnection.on("ReceiveData", (user, data) => {
         StoreAGVSData(data);
     });
+
+    agvsHubConnection.on("RegularHotRunInfo", data => {
+        store.commit('setRegularHotRunState', data)
+    })
 
     agvsHubConnection.on('Notify', message => {
         ElMessage.info({
@@ -197,8 +202,10 @@ document.addEventListener('visibilitychange', function () {
         isWindowShowing = true;
         console.log('Tab is active');
         if (isLeader) {
-            agvsHubConnection.invoke("SendMessage", "test", "fetch-data");
-            vmsHubConnection.invoke("SendMessage", "test", "fetch-data");
+            if (agvsHubConnection.state == 'Connected')
+                agvsHubConnection.invoke("SendMessage", "test", "fetch-data");
+            if (vmsHubConnection.state == 'Connected')
+                vmsHubConnection.invoke("SendMessage", "test", "fetch-data");
         }
 
     } else {

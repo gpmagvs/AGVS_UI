@@ -1,7 +1,6 @@
 <template>
   <div>
     <el-divider content-position="left">腳本</el-divider>
-    {{ selected_regular_unload_settings }}
     <div class="p-2 text-start">
       <div class="w-100 border-bottom my-1">
         <el-button @click="HandleSaveBtnClick" type="primary">儲存腳本設定</el-button>

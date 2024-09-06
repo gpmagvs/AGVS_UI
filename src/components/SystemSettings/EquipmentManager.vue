@@ -55,14 +55,6 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="層" prop="Height" width="80" align="center" fixed="left">
-        <template #default="scope">
-          <el-select v-model="scope.row.Height">
-            <el-option label="1" :value="0"></el-option>
-            <el-option label="2" :value="1"></el-option>
-          </el-select>
-        </template>
-      </el-table-column>
       <el-table-column label="Tag ID" prop="TagID" width="120" align="center" fixed="left">
         <template #default="scope">
           <b-form-input
@@ -73,6 +65,14 @@
             size="sm"
             :min="1"
           ></b-form-input>
+        </template>
+      </el-table-column>
+      <el-table-column label="層" prop="Height" width="80" align="center" fixed="left">
+        <template #default="scope">
+          <el-select v-model="scope.row.Height">
+            <el-option label="1" :value="0"></el-option>
+            <el-option label="2" :value="1"></el-option>
+          </el-select>
         </template>
       </el-table-column>
       <!-- <el-table-column label="區域" prop="Region" width="130">

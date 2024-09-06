@@ -7,6 +7,8 @@
     element-loading-svg-view-box="-10, -10, 50, 50"
     element-loading-background="rgba(31, 31, 31, 0.9)"
   >
+    <RegularULDHotRunStateView></RegularULDHotRunStateView>
+
     <el-container>
       <el-aside class="border" style="width:auto">
         <Menu :isCollapse="menu_collapse"></Menu>
@@ -48,6 +50,7 @@
   </div>
 </template>
 <script>
+import store from '@/store';
 import Menu from '@/components/Menu.vue'
 import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
@@ -62,9 +65,11 @@ import AGVAlarmMessageDisplay from '@/components/App/AGVAlarmUI/AGVAlarmMessageD
 import { tableHeaderStyle } from '@/ViewModels/GlobalStyles'
 import param from './gpm_param'
 import { ElNotification } from 'element-plus'
+import RegularULDHotRunStateView from './components/RegularULDHotRunStateView.vue';
+
 export default {
   components: {
-    Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay,
+    Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay, RegularULDHotRunStateView
 
   },
   provide() {
@@ -109,7 +114,7 @@ export default {
     },
     IsOpUsing() {
       return userStore.getters.IsOPLogining;
-    },
+    }
   },
   methods: {
 

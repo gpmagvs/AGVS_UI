@@ -20,6 +20,11 @@ export default createStore({
     systemConfigs: new AGVSSystemConfigs(),
     vmsAppInfo: {
       AppVersion: "1.0.0"
+    },
+    regularHotRunStates: {
+      state: 'stopped',
+      scriptID: '',
+      unloaderStates: {}
     }
   },
   getters: {
@@ -36,6 +41,10 @@ export default createStore({
     },
     setVmsAppInfo(state, info) {
       state.vmsAppInfo = info
+    },
+    setRegularHotRunState(state, info) {
+      state.regularHotRunStates = info;
+      console.log(state.regularHotRunStates);
     }
   },
   actions: {
