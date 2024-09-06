@@ -303,6 +303,12 @@ export const MapStore = createStore({
             state.MapData.Options.gridSize = grid_size;
             console.log(state.MapData.Options.gridSize);
         },
+        setMapGridOffsetX(state, offset) {
+            state.MapData.Options.gridOffsetX = offset;
+        },
+        setMapGridOffsetY(state, offset) {
+            state.MapData.Options.gridOffsetY = offset;
+        },
         SaveAGVStyle(state, payload) {
             var jsonStr = localStorage.getItem('custom-agv-styles');
             var _savedObject = {}

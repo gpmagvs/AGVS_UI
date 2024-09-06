@@ -994,7 +994,7 @@ export default {
       return {}
     },
     MapGridSize() {
-      return MapStore.getters.GridSize
+      return MapStore.state.MapData.Options.gridSize;
     }
   },
   methods: {
@@ -3227,6 +3227,10 @@ export default {
 
     },
     RefreshMap() {
+      this.MapGridSizeStore = MapStore.state.MapData.Options.gridSize;
+      this.MapGridSizeXOffset = MapStore.state.MapData.Options.gridOffsetX;
+      this.MapGridSizeYOffset = MapStore.state.MapData.Options.gridOffsetY;
+      this.ModifyGridOffset();
       this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
       this.DeepClonePathSegmentData();
       this.UpdateStationPathLayer();
@@ -3613,7 +3617,8 @@ export default {
 
       this.RemoveGridLayer();
       this.initGrid(this.map, this.MapGridSize, this.map_img_extent, this.MapGridSizeXOffset, this.MapGridSizeYOffset);
-
+      MapStore.commit('setMapGridOffsetX',this.MapGridSizeXOffset);
+      MapStore.commit('setMapGridOffsetY',this.MapGridSizeYOffset);
     },
     ModifyMapRotation(rotation = undefined) {
       var _rotation = rotation ? rotation : this.MapRotation
@@ -3883,6 +3888,8 @@ export default {
       this.UpdateAGVLocLocation();
       this.loading = false;
       this.MapGridSizeStore = this.MapGridSize;
+      this.MapGridSizeXOffset = MapStore.state.MapData.Options.gridOffsetX;
+      this.MapGridSizeYOffset = MapStore.state.MapData.Options.gridOffsetY;
 
     }, 100);
 
