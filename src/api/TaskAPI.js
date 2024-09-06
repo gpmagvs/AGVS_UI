@@ -13,8 +13,10 @@ export async function TaskQuery(currentpage, start_time, end_time, AGV_Name = 'A
 }
 /**輸出CSV */
 export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL') {
-  const response = await axios_entity.get(`/api/TaskQuery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`)
-  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const response = await axios_entity.get(`/api/TaskQuery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`, {
+    responseType: 'blob' // Ensure the response is treated as a blob
+  })
+  const url = window.URL.createObjectURL(new Blob([response.data], { type: 'text/csv;charset=utf-8;' }));
   const link = document.createElement('a');
   link.href = url;
   let fileName = `AGVS_Task_From_${start_time}_To_${end_time}.csv`
