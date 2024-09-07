@@ -642,6 +642,7 @@
       </el-table>
     </el-dialog>
     <!-- <el-drawer v-model="AgvOperation.display"></el-drawer> -->
+    <ContextMenuContainer ref="contextMenu2"></ContextMenuContainer>
   </div>
 </template>
 <script>
@@ -660,7 +661,6 @@ import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
 import { Fill, Stroke, Style, Circle as CircleStyle, Text, Icon } from 'ol/style';
 import { Circle, Polygon } from 'ol/geom';
-
 import { noModifierKeys } from 'ol/events/condition';
 import { watch } from 'vue'
 import bus from '@/event-bus.js'
@@ -680,9 +680,10 @@ import ImageEditor from '@/components/General/ImageEditor.vue'
 import EQStatusDIDto from '@/ViewModels/clsEQStates.js'
 import param from '@/gpm_param';
 import MapLegend from './MapLegend.vue'
+import ContextMenuContainer from './MapContextMenu/ContextMenuContainer.vue';
 export default {
   components: {
-    QuicklyAction, MapLegend, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor
+    QuicklyAction, MapLegend, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer
 
   },
   props: {
@@ -907,7 +908,11 @@ export default {
       highlightingFeatures: [],
       renderLDULD_StatusTimerId: '',
       prviousEQDataJson: '',
-      trackingAGVTimer: ''
+      trackingAGVTimer: '',
+      agvSelectedState: {
+        isClicked: false,
+        agvName: undefined
+      }
     }
   },
   computed: {
@@ -1364,13 +1369,11 @@ export default {
             };
 
             var source = this.AGVLocLayer.getSource();
-
             source.addFeature(_cargo_icon_feature);
             source.addFeature(_agvfeature);
             source.addFeature(_agvSaftyRegionFeature);
             source.addFeature(_agvBodyFeature);
             source.addFeature(nav_path_feature);
-            console.log('Create Vehicle Feature:', agv_information.AgvName);
           } catch {
             console.log('errror')
           }
@@ -1481,6 +1484,17 @@ export default {
     },
     /**事件處理 */
     InitMapEventHandler() {
+      let IsVehicleClicked = (pixel) => {
+        var _agvName = this.map.forEachFeatureAtPixel(pixel, (feature) => {
+          if (feature.get('feature_type') === 'agv') {
+            const agvName = feature.get('agvname')
+            return agvName;
+          }
+        });
+        this.agvSelectedState.isClicked = _agvName != undefined;
+        this.agvSelectedState.agvName = _agvName;
+        // this.agvSelectedState.agvName = agvName;
+      }
 
       this.map.on('pointermove', (event) => {
 
@@ -1524,9 +1538,26 @@ export default {
           this.map.getTargetElement().style.cursor = 'crosshair';
         else
           this.map.getTargetElement().style.cursor = 'default';
+
+        if (e.originalEvent.button == 2 && !this.editable) {
+          var menuUseFor = ''
+          var option = {}
+          if (this.agvSelectedState.isClicked) {
+            menuUseFor = 'agv';
+            option.agvName = this.agvSelectedState.agvName;
+          }
+          if (menuUseFor != '')
+            this.$refs['contextMenu2'].showAt([e.originalEvent.x, e.originalEvent.y], menuUseFor, option);
+        }
+
       })
       this.map.on('pointerdown', (evt) => {
-        const isRightClick = evt.originalEvent.button == 2
+
+        IsVehicleClicked(evt.pixel);
+        const isRightClick = evt.originalEvent.button == 2;
+        if (!isRightClick) {
+          this.$refs['contextMenu2'].hide();
+        }
         if (this.DragBackgroundImageMode && isRightClick) {
           this.dragStartPosition = evt.coordinate;
           return;
@@ -2076,7 +2107,7 @@ export default {
         var settings = JSON.parse(settings_json)
         this.station_name_display_mode = settings.station_name_display_mode
         this.map_image_display = settings.map_image_display
-        this.map_display_mode = this.editable ? 'router' : settings.mode
+        this.map_display_mode = this.editable ? 'coordination' : settings.mode
         this.zoom = settings.zoom;
         this.legendShow = settings.legendShow;
         this.map.getView().setCenter(settings.center);
@@ -3617,8 +3648,8 @@ export default {
 
       this.RemoveGridLayer();
       this.initGrid(this.map, this.MapGridSize, this.map_img_extent, this.MapGridSizeXOffset, this.MapGridSizeYOffset);
-      MapStore.commit('setMapGridOffsetX',this.MapGridSizeXOffset);
-      MapStore.commit('setMapGridOffsetY',this.MapGridSizeYOffset);
+      MapStore.commit('setMapGridOffsetX', this.MapGridSizeXOffset);
+      MapStore.commit('setMapGridOffsetY', this.MapGridSizeYOffset);
     },
     ModifyMapRotation(rotation = undefined) {
       var _rotation = rotation ? rotation : this.MapRotation

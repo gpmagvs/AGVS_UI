@@ -750,10 +750,7 @@ export default {
       };
 
       bus.on(this.map_events_bus.station_selected, (_station_data) => {
-        console.info(_station_data);
-
         const isAGVSelected = _station_data.isAGV;
-
         const isBuffer = _station_data.StationType == 4 || _station_data.StationType == 5 || _station_data.StationType == 41
         if (_station_data.IsEquipment || isBuffer || isAGVSelected) {
 
@@ -832,15 +829,12 @@ export default {
             return
         }
 
-
         var isSelectdNotInOptions = this.downstream_options.findIndex(option => option.tag == _station_data.TagNumber) == -1;
         if (isSelectdNotInOptions)
           return;
 
         bus.emit('mark_as_destine_station', _station_data.TagNumber);
         this.selected_destine = _station_data;
-        console.log('123A', _station_data)
-        console.log('123B', this.selected_destine)
       })
     },
     async HandleDestineSelectChanged(tag) {
@@ -855,7 +849,6 @@ export default {
 
       bus.off(this.map_events_bus.agv_selected)
       bus.off(this.map_events_bus.station_selected)
-      console.info('HandleCancelBtnClick-busoff end');
       this.order_info_visible = false;
       this.selected_source = this.selected_destine = { Graph: { Display: '' } };
       this.source_select_row_class = this.destine_select_row_class = this.agv_select_row_class = this.transfer_station_select_row_class = '';

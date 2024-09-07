@@ -197,3 +197,22 @@
     width: 100% !important;
   }
 }
+
+.map-right-click-menu{
+  width: 100%;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+
+  button{
+    color:black;
+    width: 180px;
+    margin-block:1px;
+    border-radius: 4px;
+    border: 1px solid rgb(87, 87, 87);
+  }
+  button:hover{
+    background-color: rgb(13, 110, 253);
+    color:white;
+  }
+}

@@ -1,11 +1,7 @@
 import moment from 'moment'
-
-
-
 // 在每次請求中包含驗證 token
 export const getAuthHeaders = () => {
   var user = localStorage.getItem('user')
-  console.log(user)
   if (user + '' == 'null')
     return {}
   const user_info = JSON.parse(user)
@@ -48,7 +44,6 @@ export function IsLoginLastTime() {
 /**是否過期 */
 export function IsExpires() {
   var user_state = GetUserStateFromLS()
-  console.log('IsExpires', user_state);
   if (user_state) {
     var loginTime = moment(user_state.LoginTime).add(1, 'day')
     var isExpire = Date.now() > loginTime

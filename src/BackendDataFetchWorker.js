@@ -20,7 +20,8 @@ var _previousAGVSData;
 var _previousVMSData;
 
 function StoreAGVSData(data) {
-
+    if (!data)
+        return;
     _previousAGVSData = data;
     // if (!isWindowShowing)
     //     return;
@@ -37,7 +38,8 @@ function StoreAGVSData(data) {
 }
 
 function StoreVMSData(data) {
-
+    if (!data)
+        return;
     _previousVMSData = data;
     // if (!isWindowShowing)
     //     return;
@@ -201,12 +203,12 @@ document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible') {
         isWindowShowing = true;
         console.log('Tab is active');
-        if (isLeader) {
-            if (agvsHubConnection.state == 'Connected')
-                agvsHubConnection.invoke("SendMessage", "test", "fetch-data");
-            if (vmsHubConnection.state == 'Connected')
-                vmsHubConnection.invoke("SendMessage", "test", "fetch-data");
-        }
+        // if (isLeader) {
+        //     if (agvsHubConnection.state == 'Connected')
+        //         agvsHubConnection.invoke("SendMessage", "test", "fetch-data");
+        //     if (vmsHubConnection.state == 'Connected')
+        //         vmsHubConnection.invoke("SendMessage", "test", "fetch-data");
+        // }
 
     } else {
         isWindowShowing = false;
