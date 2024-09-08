@@ -553,14 +553,7 @@
         <!-- <MapSettingsDialog ref="settings"></MapSettingsDialog> -->
       </div>
     </div>
-    <!-- <PointContextMenu
-      ref="EditModeContextMenu"
-      v-show="editModeContextMenuVisible"
-      :mouse_click_position="[contextMenuTop, contextMenuLeft]"
-      :options="contextMenuOptions"
-      @OnTaskBtnClick="HandleMenuTaskBtnClick"
-      @OnPtSettingBtnClick="HandlePtSettingBtnClick"
-    ></PointContextMenu>-->
+
     <MapPointSettingDrawer
       ref="ptsetting"
       @OnLeve="HandlePtSettingDrawerLeaved"
@@ -669,13 +662,11 @@ import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateL
 import { MapStore } from './store'
 import { EqStore, agv_states_store, userStore } from '@/store'
 import MapSettingsDialog from './MapSettingsDialog.vue';
-import PointContextMenu from './MapContextMenu.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import MapPathSettingDrawer from './MapPathSettingDrawer.vue'
 import MapRegionEditDrawer from './MapRegionEditDrawer.vue';
 import QuicklyAction from './QuicklyActionMenu.vue'
 import { ElNotification } from 'element-plus'
-import { Throttle } from '@/api/Common/UtilityTools.js'
 import ImageEditor from '@/components/General/ImageEditor.vue'
 import EQStatusDIDto from '@/ViewModels/clsEQStates.js'
 import param from '@/gpm_param';
@@ -683,7 +674,7 @@ import MapLegend from './MapLegend.vue'
 import ContextMenuContainer from './MapContextMenu/ContextMenuContainer.vue';
 export default {
   components: {
-    QuicklyAction, MapLegend, MapSettingsDialog, PointContextMenu, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer
+    QuicklyAction, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer
 
   },
   props: {
