@@ -133,7 +133,7 @@ export default {
 .addable-layout:hover {
   background-color: rgb(199, 199, 199);
   i {
-    font-size: 100px;
+    font-size: 160px;
     color: white;
   }
 }

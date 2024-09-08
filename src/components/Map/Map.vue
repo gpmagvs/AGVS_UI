@@ -365,7 +365,7 @@
             ></div>
             <!-- 圖例 -->
             <MapLegend
-              v-if="!editable&&legendShow"
+              v-if="!editable&&legendShow&&id!='locus_map'"
               class="map-ledgend border rounded"
               v-bind:style="{bottom: IsOpUsing?'6.8rem' :'12rem'}"
             ></MapLegend>

@@ -1263,8 +1263,14 @@ export default {
       (newValue, oldValue) => {
         if (newValue != this.routePath) {
           this.HandleCancelBtnClick();
-        } else if (this.IsOpLogining) {
-          location.reload();
+          this.order_info_visible = false;
+        } else {
+          //location.reload();
+          //this.order_info_visible = true;
+          this.grabStates.updateKey = Date.now();
+          if (this.IsOpLogining)
+            this.order_info_visible = true;
+          // this.SelectActionHandle('carry');
         }
       }
     )

@@ -150,9 +150,6 @@ export default {
   },
   mounted() {
 
-    if (location.pathname == '/') {
-      this.loading = true;
-    }
     const isDevelopment = process.env.NODE_ENV === 'development';
     this.$store.dispatch('GetDynamicWebsiteData').then(response => {
       var fieldName = response.FieldName;
@@ -217,6 +214,10 @@ export default {
         }
       }
     )
+
+    if (location.pathname == '/' && !this.IsOpUsing) {
+      this.loading = true;
+    }
     setTimeout(() => {
       this.loading = false
     }, 800)

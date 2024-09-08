@@ -14,6 +14,7 @@
       :router="true"
       @open="handleOpen"
       @close="handleClose"
+      @click="handleClicked"
     >
       <el-menu-item index="/">
         <el-icon>
@@ -220,6 +221,9 @@ export default {
 
     },
     handleClose() {
+
+    },
+    handleClicked() {
 
     },
     GoToHomePage() {
