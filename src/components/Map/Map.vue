@@ -42,280 +42,239 @@
                 <b-button size="sm" variant="danger" @click="ReloadMap">重新載入</b-button>
                 <b-button size="sm" variant="danger" @click="ClearMap">重置圖資</b-button>
               </div>
-              <b-tabs
-                style="background-color:white"
-                fill
-                class="p-1"
-                v-model="selectedSettingTabIndex"
-              >
-                <b-tab title="路網編輯" active>
-                  <div class="text-start border p-3">
-                    <el-form size="large">
-                      <el-form-item label="點位">
-                        <el-radio-group
-                          v-bind:style="radio_group_style"
-                          :disabled="EditorOption.EditMode != 'edit'"
-                          v-model="EditorOption.EditAction"
-                          @change="() => { RemoveAllInteractions(); RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction() }"
-                          size="large"
-                        >
-                          <el-radio-button size="small" value="add-station">新增點位[1]</el-radio-button>
-                          <el-radio-button size="small" value="edit-station">編輯點位[2]</el-radio-button>
-                          <el-radio-button size="small" value="remove-station">移除點位[3]</el-radio-button>
-                        </el-radio-group>
-                      </el-form-item>
-                      <el-form-item label="路徑">
-                        <el-radio-group
-                          class="mx-1"
-                          :disabled="EditorOption.EditMode != 'edit'"
-                          v-model="EditorOption.EditAction"
-                          @change="() => { RemoveAllInteractions(); PathEditTempStore = []; RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction(); }"
-                          size="large"
-                        >
-                          <el-popover
-                            placement="bottom-end"
-                            title="路徑方向"
-                            :width="180"
-                            trigger="click"
-                            :teleported="false"
-                            :visible="EditorOption.EditAction == 'add-path'"
+
+              <div class="designer">
+                <el-collapse v-model="designToolCollapseActive">
+                  <el-collapse-item name="1">
+                    <template #title>
+                      <span class="designer-collapse-title">路網編輯</span>
+                    </template>
+                    <div class="text-start border p-3">
+                      <el-form size="large">
+                        <el-form-item label="點位">
+                          <el-radio-group
+                            v-bind:style="radio_group_style"
+                            :disabled="EditorOption.EditMode != 'edit'"
+                            v-model="EditorOption.EditAction"
+                            @change="() => { RemoveAllInteractions(); RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction() }"
+                            size="large"
                           >
-                            <template #reference>
-                              <el-radio-button size="small" value="add-path">新增路徑[4]</el-radio-button>
-                            </template>
-                            <el-radio-group
-                              class="mx-1 my-1"
-                              v-model="EditorOption.AddPathMode.Direction"
-                              @change="() => { RemoveInteraction(draw_forbid_regions_interaction); }"
-                              size="large"
-                            >
-                              <el-radio-button value="one-direction">單向</el-radio-button>
-                              <el-radio-button value="bi-direction">雙向</el-radio-button>
-                            </el-radio-group>
-                          </el-popover>
-                          <el-radio-button size="small" value="edit-path">編輯路徑[5]</el-radio-button>
-                          <el-radio-button size="small" value="remove-path">移除路徑[6]</el-radio-button>
-                        </el-radio-group>
-                      </el-form-item>
-                      <el-form-item label="區域">
-                        <el-radio-group
-                          class="mx-1"
-                          :disabled="EditorOption.EditMode != 'edit'"
-                          v-model="EditorOption.EditAction"
-                          size="large"
-                        >
-                          <el-popover
-                            placement="bottom-end"
-                            title="管制區域類型"
-                            :width="180"
-                            trigger="click"
-                            :teleported="false"
-                            :visible="EditorOption.EditAction == 'add-forbid-region'"
+                            <el-radio-button size="small" value="add-station">新增點位[1]</el-radio-button>
+                            <el-radio-button size="small" value="edit-station">編輯點位[2]</el-radio-button>
+                            <el-radio-button size="small" value="remove-station">移除點位[3]</el-radio-button>
+                          </el-radio-group>
+                        </el-form-item>
+                        <el-form-item label="路徑">
+                          <el-radio-group
+                            class="mx-1"
+                            :disabled="EditorOption.EditMode != 'edit'"
+                            v-model="EditorOption.EditAction"
+                            @change="() => { RemoveAllInteractions(); PathEditTempStore = []; RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction(); }"
+                            size="large"
                           >
-                            <template #reference>
-                              <el-radio-button
-                                @click="HandleAddForbidRegionClicked(EditorOption.AddRegionMode.Mode)"
-                                size="small"
-                                value="add-forbid-region"
-                              >新增管制區[7]</el-radio-button>
-                            </template>
-                            <el-radio-group
-                              class="mx-1 my-1"
-                              v-model="EditorOption.AddRegionMode.Mode"
-                              size="large"
+                            <el-popover
+                              placement="bottom-end"
+                              title="路徑方向"
+                              :width="180"
+                              trigger="click"
+                              :teleported="false"
+                              :visible="EditorOption.EditAction == 'add-path'"
                             >
-                              <el-radio-button
-                                @click="HandleAddForbidRegionClicked('forbid')"
-                                size="small"
-                                value="forbid"
-                              >禁制區</el-radio-button>
-                              <el-radio-button
-                                @click="HandleAddForbidRegionClicked('passible')"
-                                size="small"
-                                value="passible"
-                              >通行區</el-radio-button>
-                            </el-radio-group>
-                          </el-popover>
-                          <el-radio-button
-                            @click="HandleEditForbidRegionClicked"
-                            size="small"
-                            value="edit-forbid-region"
-                          >編輯管制區[8]</el-radio-button>
-                          <el-radio-button
-                            @click="HandleDeleteForbidRegionClicked"
-                            size="small"
-                            value="remove-forbid-region"
-                          >移除管制區[9]</el-radio-button>
-                          <el-radio-button
-                            @click="HandleDrawGlobalPathRegionClicked"
-                            size="small"
-                            value="add-global-path-region"
-                          >繪製道路區域</el-radio-button>
-                        </el-radio-group>
-                      </el-form-item>
-                    </el-form>
-                  </div>
-                </b-tab>
-                <!-- //TODO圖層與網格  -->
-                <b-tab title="地圖與網格">
-                  <div class="border p-3">
-                    <el-form size="large" label-width="120" label-position="left">
-                      <el-form-item label="網格尺寸(公尺)">
-                        <el-input-number
-                          :min="1"
-                          :step="0.1"
-                          @change="ModifyGridSize"
-                          v-model="MapGridSizeStore"
-                        ></el-input-number>
-                      </el-form-item>
-                      <el-form-item label="水平Offset(公尺)">
-                        <el-input-number
-                          :step="0.1"
-                          @change="ModifyGridOffset"
-                          v-model="MapGridSizeXOffset"
-                        ></el-input-number>
-                      </el-form-item>
-                      <el-form-item label="垂直Offset(公尺)">
-                        <el-input-number
-                          :step="0.1"
-                          @change="ModifyGridOffset"
-                          v-model="MapGridSizeYOffset"
-                        ></el-input-number>
-                      </el-form-item>
-                      <el-form-item label="旋轉">
-                        <el-input-number
-                          :step="1"
-                          :min="-180"
-                          :max="180"
-                          @change="ModifyMapRotation"
-                          v-model="MapRotation"
-                        ></el-input-number>
-                      </el-form-item>
-                      <el-divider></el-divider>
-                      <!-- <el-form-item class label="圖片上傳">
-                        <el-button size="large">選擇圖片</el-button>
-                      </el-form-item>-->
-                      <el-form-item class label="地圖背景編輯">
-                        <el-button size="large" @click="ImageEditClick">上傳與修改</el-button>
-                        <el-dialog v-model="ShowImageEditorDialog" class>
-                          <ImageEditor @onCropDone="HandleImageCropedDone" ref="imageEditor"></ImageEditor>
-                        </el-dialog>
-                      </el-form-item>
-                      <el-form-item label="調整圖片位置">
-                        <el-switch
-                          size="large"
-                          active-text="開啟"
-                          inactive-text="關閉"
-                          inline-prompt
-                          v-model="DragBackgroundImageMode"
-                          @change="() => {
+                              <template #reference>
+                                <el-radio-button size="small" value="add-path">新增路徑[4]</el-radio-button>
+                              </template>
+                              <el-radio-group
+                                class="mx-1 my-1"
+                                v-model="EditorOption.AddPathMode.Direction"
+                                @change="() => { RemoveInteraction(draw_forbid_regions_interaction); }"
+                                size="large"
+                              >
+                                <el-radio-button value="one-direction">單向</el-radio-button>
+                                <el-radio-button value="bi-direction">雙向</el-radio-button>
+                              </el-radio-group>
+                            </el-popover>
+                            <el-radio-button size="small" value="edit-path">編輯路徑[5]</el-radio-button>
+                            <el-radio-button size="small" value="remove-path">移除路徑[6]</el-radio-button>
+                          </el-radio-group>
+                        </el-form-item>
+                        <el-form-item label="區域">
+                          <el-radio-group
+                            class="mx-1"
+                            :disabled="EditorOption.EditMode != 'edit'"
+                            v-model="EditorOption.EditAction"
+                            size="large"
+                          >
+                            <el-popover
+                              placement="bottom-end"
+                              title="管制區域類型"
+                              :width="180"
+                              trigger="click"
+                              :teleported="false"
+                              :visible="EditorOption.EditAction == 'add-forbid-region'"
+                            >
+                              <template #reference>
+                                <el-radio-button
+                                  @click="HandleAddForbidRegionClicked(EditorOption.AddRegionMode.Mode)"
+                                  size="small"
+                                  value="add-forbid-region"
+                                >新增管制區[7]</el-radio-button>
+                              </template>
+                              <el-radio-group
+                                class="mx-1 my-1"
+                                v-model="EditorOption.AddRegionMode.Mode"
+                                size="large"
+                              >
+                                <el-radio-button
+                                  @click="HandleAddForbidRegionClicked('forbid')"
+                                  size="small"
+                                  value="forbid"
+                                >禁制區</el-radio-button>
+                                <el-radio-button
+                                  @click="HandleAddForbidRegionClicked('passible')"
+                                  size="small"
+                                  value="passible"
+                                >通行區</el-radio-button>
+                              </el-radio-group>
+                            </el-popover>
+                            <el-radio-button
+                              @click="HandleEditForbidRegionClicked"
+                              size="small"
+                              value="edit-forbid-region"
+                            >編輯管制區[8]</el-radio-button>
+                            <el-radio-button
+                              @click="HandleDeleteForbidRegionClicked"
+                              size="small"
+                              value="remove-forbid-region"
+                            >移除管制區[9]</el-radio-button>
+                            <el-radio-button
+                              @click="HandleDrawGlobalPathRegionClicked"
+                              size="small"
+                              value="add-global-path-region"
+                            >繪製道路區域</el-radio-button>
+                          </el-radio-group>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                  </el-collapse-item>
+                  <el-collapse-item name="2">
+                    <template #title>
+                      <span class="designer-collapse-title">地圖與網格</span>
+                    </template>
+                    <div class="border p-3">
+                      <el-form size="large" label-width="120" label-position="left">
+                        <el-form-item label="網格尺寸(公尺)">
+                          <el-input-number
+                            :min="1"
+                            :step="0.1"
+                            @change="ModifyGridSize"
+                            v-model="MapGridSizeStore"
+                          ></el-input-number>
+                        </el-form-item>
+                        <el-form-item label="水平Offset(公尺)">
+                          <el-input-number
+                            :step="0.1"
+                            @change="ModifyGridOffset"
+                            v-model="MapGridSizeXOffset"
+                          ></el-input-number>
+                        </el-form-item>
+                        <el-form-item label="垂直Offset(公尺)">
+                          <el-input-number
+                            :step="0.1"
+                            @change="ModifyGridOffset"
+                            v-model="MapGridSizeYOffset"
+                          ></el-input-number>
+                        </el-form-item>
+                        <el-form-item label="旋轉">
+                          <el-input-number
+                            :step="1"
+                            :min="-180"
+                            :max="180"
+                            @change="ModifyMapRotation"
+                            v-model="MapRotation"
+                          ></el-input-number>
+                        </el-form-item>
+                        <el-divider></el-divider>
+                        <el-form-item class label="地圖背景編輯">
+                          <el-button size="large" @click="ImageEditClick">上傳與修改</el-button>
+                          <el-dialog v-model="ShowImageEditorDialog" class>
+                            <ImageEditor @onCropDone="HandleImageCropedDone" ref="imageEditor"></ImageEditor>
+                          </el-dialog>
+                        </el-form-item>
+                        <el-form-item label="調整圖片位置">
+                          <el-switch
+                            size="large"
+                            active-text="開啟"
+                            inactive-text="關閉"
+                            inline-prompt
+                            v-model="DragBackgroundImageMode"
+                            @change="() => {
                           new_map_img_extent = map_img_extent;
                           if (map_image_display != 'visible' && DragBackgroundImageMode) {
                             map_image_display = 'visible';
                             SlamImageDisplayOptHandler();
                           }
                         }"
-                        ></el-switch>
-                      </el-form-item>
-                      <el-divider></el-divider>
-                      <el-form-item label="重置路網顯示">
-                        <el-button type="danger" @click="ResetRouteModeDisplay">重置</el-button>
-                      </el-form-item>
-                    </el-form>
-                  </div>
-                </b-tab>
-                <b-tab title="樣式">
-                  <div class="border p-3">
-                    <el-form size="large" label-position="left">
-                      <el-divider content-position="left">路徑</el-divider>
-                      <el-form-item label="顏色">
-                        <el-color-picker
-                          show-alpha
-                          size="large"
-                          v-model="MapStyles.PathColor"
-                          @active-change="HandlePathColorSelected"
-                        ></el-color-picker>
-                      </el-form-item>
-                      <el-divider content-position="left">一般點位</el-divider>
-                      <el-form-item label="顯示顏色">
-                        <el-color-picker
-                          show-alpha
-                          size="large"
-                          v-model="MapStyles.NormalPointNameColor"
-                          @active-change="HandleNormalPointNameColorSelected"
-                        ></el-color-picker>
-                      </el-form-item>
-                      <el-form-item label="字體大小">
-                        <el-slider
-                          @change="HandleNormalStationTextSizeChanged"
-                          size="large"
-                          v-model="MapStyles.NormalPointTextFontSize"
-                        ></el-slider>
-                      </el-form-item>
-                      <el-divider content-position="left">設備點位</el-divider>
-                      <el-form-item label="顯示顏色">
-                        <el-color-picker
-                          show-alpha
-                          size="large"
-                          v-model="MapStyles.WorkStationPointNameColor"
-                          @active-change="HandleWorkStationNameColorSelected"
-                        ></el-color-picker>
-                      </el-form-item>
-                      <el-form-item label="字體大小">
-                        <el-slider
-                          @change="HandleWorkStationTextSizeChanged"
-                          size="large"
-                          v-model="MapStyles.WorkStationPointTextFontSize"
-                        ></el-slider>
-                      </el-form-item>
-                    </el-form>
-                  </div>
-                </b-tab>
-                <b-tab v-if="false" title="點位">
-                  <div class="border">123</div>
-                </b-tab>
-                <b-tab v-if="false" title="路徑">
-                  <div class="border">
-                    <!-- <div class="d-flex">
-                    <div style="width:70px">搜尋</div> <el-input></el-input>
-                    </div>-->
-                    <el-table
-                      :data="PathesSegmentsForEdit"
-                      highlight-current-row
-                      row-key="StartPtIndex"
-                      @row-click="HandlePathTbRowClick"
-                      border
-                      style="height: 650px;"
-                      size="small"
-                    >
-                      <el-table-column label="起點" prop="StartPtIndex" width="120">
-                        <template #default="scope">
-                          <b>{{ GetPointName(scope.row.StartPtIndex) }}</b>
-                        </template>
-                      </el-table-column>
-                      <el-table-column label="終點" prop="EndPtIndex" width="120">
-                        <template #default="scope">
-                          <b>{{ GetPointName(scope.row.EndPtIndex) }}</b>
-                        </template>
-                      </el-table-column>
-                      <el-table-column label="操作">
-                        <template #default="scope">
-                          <div class="d-flex flex-row">
-                            <b-button size="sm" variant="primary">編輯</b-button>
-                            <b-button
-                              class="mx-1"
-                              size="sm"
-                              variant="danger"
-                              @click="HandlePathRemoveBtnClick(scope.row)"
-                            >移除</b-button>
-                          </div>
-                        </template>
-                      </el-table-column>
-                      <!-- <el-table-column label="是否為工位路線" prop="IsEQLink"></el-table-column> -->
-                    </el-table>
-                  </div>
-                </b-tab>
-              </b-tabs>
+                          ></el-switch>
+                        </el-form-item>
+                        <el-divider></el-divider>
+                        <el-form-item label="重置路網顯示">
+                          <el-button type="danger" @click="ResetRouteModeDisplay">重置</el-button>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                  </el-collapse-item>
+                  <el-collapse-item name="3">
+                    <template #title>
+                      <span class="designer-collapse-title">樣式</span>
+                    </template>
+                    <div class="border p-3">
+                      <el-form size="large" label-position="left">
+                        <el-divider content-position="left">路徑</el-divider>
+                        <el-form-item label="顏色">
+                          <el-color-picker
+                            show-alpha
+                            size="large"
+                            v-model="MapStyles.PathColor"
+                            @active-change="HandlePathColorSelected"
+                          ></el-color-picker>
+                        </el-form-item>
+                        <el-divider content-position="left">一般點位</el-divider>
+                        <el-form-item label="顯示顏色">
+                          <el-color-picker
+                            show-alpha
+                            size="large"
+                            v-model="MapStyles.NormalPointNameColor"
+                            @active-change="HandleNormalPointNameColorSelected"
+                          ></el-color-picker>
+                        </el-form-item>
+                        <el-form-item label="字體大小">
+                          <el-slider
+                            @change="HandleNormalStationTextSizeChanged"
+                            size="large"
+                            v-model="MapStyles.NormalPointTextFontSize"
+                          ></el-slider>
+                        </el-form-item>
+                        <el-divider content-position="left">設備點位</el-divider>
+                        <el-form-item label="顯示顏色">
+                          <el-color-picker
+                            show-alpha
+                            size="large"
+                            v-model="MapStyles.WorkStationPointNameColor"
+                            @active-change="HandleWorkStationNameColorSelected"
+                          ></el-color-picker>
+                        </el-form-item>
+                        <el-form-item label="字體大小">
+                          <el-slider
+                            @change="HandleWorkStationTextSizeChanged"
+                            size="large"
+                            v-model="MapStyles.WorkStationPointTextFontSize"
+                          ></el-slider>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                  </el-collapse-item>
+                </el-collapse>
+              </div>
             </div>
           </div>
           <div class="w-100 h-100 d-flex">
@@ -391,12 +350,19 @@
               />
             </div>
             <div v-if="true" class="cursour-coordination-show d-flex flex-column">
-              <span style="color:rgb(24, 24, 24)">{{ MouseCoordinationDisplay }}</span>
+              <span
+                :style="map_theme_select=='dark'?'color:white':'color:rgb(24, 24, 24)'"
+              >{{ MouseCoordinationDisplay }}</span>
               <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
             </div>
             <!-- 地圖DOM渲染 //TODO 地圖DOM渲染-->
 
-            <div :id="id" class="agv_map flex-fll" @contextmenu="showContextMenu($event)"></div>
+            <div
+              :id="id"
+              v-bind:style="map_theme_select=='dark'? map_theme_dark:{}"
+              class="agv_map flex-fll border"
+              @contextmenu="showContextMenu($event)"
+            ></div>
             <!-- 圖例 -->
             <MapLegend
               v-if="!editable&&legendShow"
@@ -413,6 +379,19 @@
             </div>
             <!-- 設定 -->
             <div v-if="IsUserLogin" class="options bg-light border-start text-start px-1 py-3">
+              <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column">
+                <span class="border-bottom">Theme</span>
+                <el-switch
+                  v-model="map_theme_select"
+                  active-value="dark"
+                  active-text="Dark"
+                  inactive-value="custom"
+                  inactive-text="Custom"
+                  inline-prompt
+                  width="70"
+                  @change="HanldeThemeChanged"
+                ></el-switch>
+              </div>
               <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column">
                 <span class="border-bottom">{{ $t('Map.Options.DisplayMode') }}</span>
                 <el-radio-group
@@ -846,6 +825,7 @@ export default {
       },
       /**顯示模式 : coordination 實際座標 ; router 整齊的路網*/
       map_display_mode: 'router',
+      /**name/tag/index */
       station_name_display_mode: 'name',
       agv_display: 'visible',
       /**地圖背景顯示 */
@@ -911,6 +891,15 @@ export default {
       agvSelectedState: {
         isClicked: false,
         agvName: undefined
+      },
+      designToolCollapseActive: ['1'],
+      map_theme_select: 'light',
+      map_theme_dark: {
+        backgroundColor: 'black',
+        color: 'white',
+        normalPtTextColor: 'white',
+        stationPtTextColor: 'gold',
+        pathColor: 'lime'
       }
     }
   },
@@ -2599,20 +2588,20 @@ export default {
       return [mid_x, mid_y]
     },
     StationNameDisplayOptHandler() {
-
-      this.StationPointsFeatures.forEach(ft => {
-        var index = ft.get('index');
-        var mapdata = ft.get('data')
-        var displayName = ''
-        if (this.station_name_display_mode == 'index')
-          displayName = index + '';
-        if (this.station_name_display_mode == 'name')
-          displayName = mapdata.Graph.Display;
-        if (this.station_name_display_mode == 'tag')
-          displayName = mapdata.TagNumber + '';
-        var station_type = mapdata.StationType;
-        ft.setStyle(GetStationStyle(displayName, station_type, mapdata));
-      })
+      this.SetDisplayString(this.station_name_display_mode);
+      // this.StationPointsFeatures.forEach(ft => {
+      //   var index = ft.get('index');
+      //   var mapdata = ft.get('data')
+      //   var displayName = ''
+      //   if (this.station_name_display_mode == 'index')
+      //     displayName = index + '';
+      //   if (this.station_name_display_mode == 'name')
+      //     displayName = mapdata.Graph.Display;
+      //   if (this.station_name_display_mode == 'tag')
+      //     displayName = mapdata.TagNumber + '';
+      //   var station_type = mapdata.StationType;
+      //   ft.setStyle(GetStationStyle(displayName, station_type, mapdata));
+      // })
       this.SaveSettingsToLocalStorage();
     },
     /**顯示軌跡 */
@@ -2684,7 +2673,8 @@ export default {
             customClass: 'my-sweetalert'
           }).then(async (res) => {
             if (res.isConfirmed) {
-              reload()
+              // reload()
+              location.reload();
             }
           })
       }
@@ -2759,6 +2749,10 @@ export default {
 
       if (this.IsOpUsing) {
         this.HideGridLayer();
+      }
+
+      if (this.editable) {
+        this.agv_display = 'hide'
       }
       // this.map.addControl(new ZoomSlider());
 
@@ -3691,18 +3685,20 @@ export default {
       this.ResetImage(this.map_img_url_for_editor)
     },
     HandlePathColorSelected(color) {
-      // alert(color)
+      MapStore.commit("setPathColor", color)
       this.SetPathColor(color);
     },
-    HandleWorkStationNameColorSelected(color) {
-      MapStore.commit("setWorkStationPointTextColor", color)
+    HandleWorkStationNameColorSelected(color, changedByDarkMode = false) {
+      if (!changedByDarkMode)
+        MapStore.commit("setWorkStationPointTextColor", color)
       this.GetAllPointsFeatures().filter(feature => feature.get('station_type') != 0).forEach(feature => {
         this.SetPointTextFillColor(feature, color)
       })
     },
 
-    HandleNormalPointNameColorSelected(color) {
-      MapStore.commit("setNormalPointTextColor", color)
+    HandleNormalPointNameColorSelected(color, changedByDarkMode = false) {
+      if (!changedByDarkMode)
+        MapStore.commit("setNormalPointTextColor", color)
       this.GetAllPointsFeatures().filter(feature => feature.get('station_type') == 0).forEach(feature => {
         this.SetPointTextFillColor(feature, color)
       })
@@ -3740,7 +3736,6 @@ export default {
       feature.setStyle(oriStyle)
     },
     SetPathColor(color) {
-      MapStore.commit("setPathColor", color)
       var features = [...this.PathLayerForRouter.getSource().getFeatures(), ...this.PathLayerForCoordination.getSource().getFeatures()];
       features.forEach(feature => {
         var oriStyles = feature.getStyle();
@@ -3754,6 +3749,30 @@ export default {
           oriStyles[0] = oriStyle
           feature.setStyle(oriStyles);
         }
+      });
+    },
+    SetDisplayString(mode) {
+      let getDisplayOfFeature = (feature = new Feature()) => {
+        let mapPointData = feature.get('data');
+        let tag = mapPointData.TagNumber + '';
+        let display = mapPointData.Graph.Display;
+        let index = feature.get('index') + ''
+        if (mode == 'name')
+          return display;
+        else if (mode == 'tag')
+          return tag;
+        else if (mode == 'index')
+          return index;
+        else
+          return display;
+      }
+      this.StationPointsFeatures.forEach(_feature => {
+        var _textToDisplay = getDisplayOfFeature(_feature)
+        var _style = _feature.getStyle();
+        var _text = _style.getText();
+        _text.setText(_textToDisplay);
+        _style.setText(_text);
+        _feature.setStyle(_style);
       });
     },
     ResetPointEnableStatus(enableMap = { 1: true }) {
@@ -3801,6 +3820,19 @@ export default {
         _settingEnableStyle(features[1], enable)
 
       });
+    },
+    HanldeThemeChanged(val) {
+      if (val == 'dark') {
+        this.HandleNormalPointNameColorSelected(this.map_theme_dark.normalPtTextColor, true);
+        this.HandleWorkStationNameColorSelected(this.map_theme_dark.stationPtTextColor, true);
+        this.SetPathColor(this.map_theme_dark.pathColor)
+
+      } else {
+        const mapOption = MapStore.state.MapData.Options;
+        this.HandleNormalPointNameColorSelected(mapOption.normalStationTextColor, true);
+        this.HandleWorkStationNameColorSelected(mapOption.workStationTextColor, true);
+        this.SetPathColor(mapOption.pathColor);
+      }
     }
   },
 
@@ -3820,6 +3852,18 @@ export default {
 
 
     setTimeout(() => {
+
+      this.MapGridSizeStore = this.MapGridSize;
+      this.MapGridSizeXOffset = MapStore.state.MapData.Options.gridOffsetX;
+      this.MapGridSizeYOffset = MapStore.state.MapData.Options.gridOffsetY;
+
+      this.MapStyles.PathColor = MapStore.state.MapData.Options.pathColor;
+      this.MapStyles.NormalPointNameColor = MapStore.state.MapData.Options.normalStationTextColor;
+      this.MapStyles.WorkStationPointNameColor = MapStore.state.MapData.Options.workStationTextColor;
+      this.MapStyles.NormalPointTextFontSize = MapStore.state.MapData.Options.normalStationTextFontSize;
+      this.MapStyles.WorkStationPointTextFontSize = MapStore.state.MapData.Options.workStationTextFontSize;
+
+
       this.DeepClonePathSegmentData();
       this.InitMap();
       this.RestoreSettingsFromLocalStorage();
@@ -3926,9 +3970,6 @@ export default {
         })
       this.UpdateAGVLocLocation();
       this.loading = false;
-      this.MapGridSizeStore = this.MapGridSize;
-      this.MapGridSizeXOffset = MapStore.state.MapData.Options.gridOffsetX;
-      this.MapGridSizeYOffset = MapStore.state.MapData.Options.gridOffsetY;
 
     }, 100);
 
@@ -4153,6 +4194,17 @@ export default {
   .agv_map {
     width: 100%;
     height: 100%;
+  }
+  .designer {
+    // background-color: rgb(119, 119, 119);
+    height: 85vh;
+    overflow-y: scroll;
+    .designer-collapse-title {
+      color: rgb(13, 110, 253);
+      font-weight: bold;
+      font-size: 20px;
+      padding-left: 8px;
+    }
   }
 }
 </style>

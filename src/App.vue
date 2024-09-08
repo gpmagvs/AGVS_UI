@@ -79,7 +79,7 @@ export default {
   },
   data() {
     return {
-      loading: true,
+      loading: false,
       isNoPermission: false,
       showMenuToggleIcon: true,
       ShowOKOnlyModal: false,
@@ -150,9 +150,10 @@ export default {
   },
   mounted() {
 
+    if (location.pathname == '/') {
+      this.loading = true;
+    }
     const isDevelopment = process.env.NODE_ENV === 'development';
-
-
     this.$store.dispatch('GetDynamicWebsiteData').then(response => {
       var fieldName = response.FieldName;
       if (isDevelopment)
@@ -218,9 +219,13 @@ export default {
     )
     setTimeout(() => {
       this.loading = false
-    }, 1000)
+    }, 800)
     this.RegistNotifies();
     this.changeLangFromLocalStorage();
+  },
+  created() {
+
+    // console.log(this.$router.query.noLoading);
   },
 };
 
