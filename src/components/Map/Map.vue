@@ -424,8 +424,16 @@
                   <el-radio value="tag" size="large">Tag</el-radio>
                 </el-radio-group>
               </div>
-              <div v-if="!IsOpUsing">
-                <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
+              <div v-if="!IsOpUsing" :class="map_display_mode+`_${editable?'editMode':''}`">
+                <el-tooltip placement="top-start">
+                  <template #content>
+                    <div>
+                      ■ Slam:點位位置使用真實座標
+                      <br />■ 路網:點位顯示位置可隨意變更。
+                    </div>
+                  </template>
+                  <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
+                </el-tooltip>
                 <el-switch
                   @change="MapDisplayModeOptHandler"
                   inactive-value="router"
@@ -2546,7 +2554,16 @@ export default {
 
       if (setViewCenter)
         this.map.getView().setCenter(isShowSlamCoordi ? this.GetMidPointOfCoordinationMode() : this.GetMidPointOfRouterMode());
-
+      if (this.map_display_mode == 'coordination' && this.editable) {
+        this.$message({
+          message: '當前地圖模式為[Slam]，使用滑鼠拖曳變更點位位置即會變更座標設定。',
+          type: 'warning',
+          duration: 20000,
+          placement: 'bottom',
+          customClass: 'map-elplus-message-style',
+          showClose: true
+        })
+      }
     },
     UpdateAGVLocLocation() {
 
@@ -4101,6 +4118,25 @@ export default {
     .el-switch {
       position: relative;
       top: 6px;
+    }
+    .router_editMode {
+    }
+    .coordination_editMode {
+      border: 4px dashed red;
+      border-radius: 8px;
+      animation: dash 1s linear infinite; /* 添加動畫 */
+    }
+    @keyframes dash {
+      0% {
+        border-color: red;
+        border-style: dashed;
+      }
+      50% {
+        border-color: rgba(255, 0, 0, 0.2); /* 中間顏色變化 */
+      }
+      100% {
+        border-color: red;
+      }
     }
   }
 
