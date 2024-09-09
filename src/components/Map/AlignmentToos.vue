@@ -13,8 +13,6 @@
     <button @click="alignRight" class="btn align-btn" aria-label="靠右">
       <i class="bi bi-align-end"></i>
     </button>
-    <div>[{{ minX }},{{ maxX }}]</div>
-    <div>[{{ minY }},{{ maxY }}]</div>
   </div>
 </template>
 
