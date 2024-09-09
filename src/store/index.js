@@ -25,7 +25,8 @@ export default createStore({
       state: 'stopped',
       scriptID: '',
       unloaderStates: {}
-    }
+    },
+    isCtrlPressing: false
   },
   getters: {
     GetWebsiteSetting: (state) => { return state.websiteSetting; },
@@ -45,6 +46,9 @@ export default createStore({
     setRegularHotRunState(state, info) {
       state.regularHotRunStates = info;
       console.log(state.regularHotRunStates);
+    },
+    setCtrlKeyPressing(state, isPressed) {
+      state.isCtrlPressing = isPressed;
     }
   },
   actions: {

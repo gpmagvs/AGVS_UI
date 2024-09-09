@@ -356,13 +356,22 @@
               <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
             </div>
             <!-- 地圖DOM渲染 //TODO 地圖DOM渲染-->
-
             <div
               :id="id"
               v-bind:style="map_theme_select=='dark'? map_theme_dark:{}"
               class="agv_map flex-fll border"
-              @contextmenu="showContextMenu($event)"
-            ></div>
+            >
+              <AlignmentToos
+                :map_display_mode="map_display_mode"
+                :selectedFeatures="SelectedFeatures"
+                v-if="SelectedFeatures.length!=0"
+                class="align-tool"
+              ></AlignmentToos>
+              <div
+                class="multi-select-info"
+                v-show="SelectedFeatures.length!=0"
+              >已選擇 [{{ SelectedFeatures.length }}] 個點位</div>
+            </div>
             <!-- 圖例 -->
             <MapLegend
               v-if="!editable&&legendShow&&id!='locus_map'"
@@ -647,7 +656,7 @@ import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image, AGVOption } from './mapjs';
 import { MapStore } from './store'
-import { EqStore, agv_states_store, userStore } from '@/store'
+import store, { EqStore, agv_states_store, userStore } from '@/store'
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import MapPathSettingDrawer from './MapPathSettingDrawer.vue'
@@ -659,9 +668,10 @@ import EQStatusDIDto from '@/ViewModels/clsEQStates.js'
 import param from '@/gpm_param';
 import MapLegend from './MapLegend.vue'
 import ContextMenuContainer from './MapContextMenu/ContextMenuContainer.vue';
+import AlignmentToos from './AlignmentToos.vue';
 export default {
   components: {
-    QuicklyAction, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer
+    QuicklyAction, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos
 
   },
   props: {
@@ -900,10 +910,15 @@ export default {
         normalPtTextColor: 'white',
         stationPtTextColor: 'gold',
         pathColor: 'lime'
-      }
+      },
+      SelectedFeatures: []
+
     }
   },
   computed: {
+    IsCtrlPressing() {
+      return store.state.isCtrlPressing;
+    },
     IsUserLogin() {
       return userStore.getters.IsLogin;
     },
@@ -1483,7 +1498,14 @@ export default {
         this.agvSelectedState.agvName = _agvName;
         // this.agvSelectedState.agvName = agvName;
       }
-
+      let FeatureClicked = (pixel) => {
+        var _featureClicked = this.map.forEachFeatureAtPixel(pixel, (feature) => {
+          if (feature) {
+            return feature;
+          }
+        });
+        return _featureClicked;
+      }
       this.map.on('pointermove', (event) => {
 
         if (this.DragBackgroundImageMode && this.dragStartPosition) {
@@ -1527,13 +1549,19 @@ export default {
         else
           this.map.getTargetElement().style.cursor = 'default';
 
-        if (e.originalEvent.button == 2 && !this.editable) {
-          var menuUseFor = ''
-          var option = {}
-          if (this.agvSelectedState.isClicked) {
+        if (e.originalEvent.button == 2) {
+          var menuUseFor = '';
+          var option = {};
+
+          if (this.agvSelectedState.isClicked && !this.editable) {
             menuUseFor = 'agv';
             option.agvName = this.agvSelectedState.agvName;
           }
+          if (this.editable && this.SelectedFeatures.length > 0) {
+            menuUseFor = 'multi-point';
+            option.selectedFeatures = this.SelectedFeatures;
+          }
+
           if (menuUseFor != '')
             this.$refs['contextMenu2'].showAt([e.originalEvent.x, e.originalEvent.y], menuUseFor, option);
         }
@@ -1542,6 +1570,10 @@ export default {
       this.map.on('pointerdown', (evt) => {
 
         IsVehicleClicked(evt.pixel);
+        var feature = FeatureClicked(evt.pixel);;
+        if (feature && this.editable) {
+          this.previousSelectedFeatures = [feature]
+        }
         const isRightClick = evt.originalEvent.button == 2;
         if (!isRightClick) {
           this.$refs['contextMenu2'].hide();
@@ -1555,14 +1587,23 @@ export default {
       this.map.on('moveend', event => {
         this.SaveSettingsToLocalStorage();
       })
-      this.map.on('click', (evt) => {
-        this.map.forEachFeatureAtPixel(evt.pixel, (feature) => {
-          if (feature.get('feature_type') === 'agv') {
-            const agvName = feature.get('agvname')
-            //alert(agvName)
-            this.AgvOperation.Show(agvName)
+      this.map.on('click', (evt) => {//TODO map click event2
+        var featureClicked = FeatureClicked(evt.pixel);
+
+        if (!this.IsCtrlPressing) {
+          this.RestoreStyleOfSelectedFeatures(this.SelectedFeatures)
+          this.SelectedFeatures = [];
+        }
+        if (this.IsCtrlPressing && featureClicked != undefined) {
+          if (this.SelectedFeatures.includes(featureClicked)) {
+            this.RestoreStyleOfSelectedFeatures([featureClicked]);
+            this.SelectedFeatures.splice(this.SelectedFeatures.indexOf(featureClicked), 1);
+          } else {
+            featureClicked.set('oriStyle', featureClicked.getStyle().clone())
+            this.SelectedFeatures.push(featureClicked);
+            this.HighLightFeatureSelected(this.SelectedFeatures, 'rgb(13, 110, 253)')
           }
-        });
+        }
       });
     },
     /**切換為刪除禁制區模式 */
@@ -1678,9 +1719,6 @@ export default {
             this_vue.HandleLDULDLabelClick(feature.get('data'), action);
             return false;
           }
-
-
-          this_vue.HighLightFeatureSelected([feature])
           if (this_vue.EditorOption.EditMode == 'view') {
             return false;
           }
@@ -1708,7 +1746,7 @@ export default {
           }
           return true;
         },
-        /**滑鼠拖曳事件 */
+        /**滑鼠拖曳事件 */ //TODO滑鼠拖曳事件
         handleDragEvent: function (event) {
           if (!this_vue.IsDragging)
             return;
@@ -1727,27 +1765,36 @@ export default {
 
           var deltaX = event.coordinate[0] - this.coordinate_[0];
           var deltaY = event.coordinate[1] - this.coordinate_[1];
-          var geometry = this.feature_.getGeometry();
-          geometry.translate(deltaX, deltaY);
+
           this_vue.MouseCoordination = this.coordinate_ = event.coordinate;
+          var changeCoordinate = (__feature = new Feature()) => {
+            var geometry = __feature.getGeometry();
+            geometry.translate(deltaX, deltaY);
 
-          geometry = this.feature_.getGeometry();
-          var oriData = this.feature_.get('data')
+            geometry = __feature.getGeometry();
+            var oriData = __feature.get('data')
 
-          if (!oriData)
-            return;
-          var newCoordinates = geometry.getCoordinates();
+            if (!oriData)
+              return;
+            var newCoordinates = geometry.getCoordinates();
 
-          if (this_vue.map_display_mode == "coordination") {
-            oriData.X = newCoordinates[0];
-            oriData.Y = newCoordinates[1];
+            if (this_vue.map_display_mode == "coordination") {
+              oriData.X = newCoordinates[0];
+              oriData.Y = newCoordinates[1];
+            }
+            else {
+              oriData.Graph.X = newCoordinates[0];
+              oriData.Graph.Y = newCoordinates[1];
+            }
+
+            __feature.set('data', oriData)
           }
-          else {
-            oriData.Graph.X = newCoordinates[0];
-            oriData.Graph.Y = newCoordinates[1];
-          }
 
-          this.feature_.set('data', oriData)
+          if (this_vue.SelectedFeatures.length > 0)
+            this_vue.SelectedFeatures.forEach(_ft => changeCoordinate(_ft))
+          else
+            changeCoordinate(this.feature_)
+
         },
 
         /**滑鼠點擊後放開事件 */
@@ -1769,16 +1816,25 @@ export default {
                 }
                 catch (error) {//若該座標已經有新增feature會跳錯=>變成顯示設定面板
                   console.error(error);
-
                   this_vue.HandlePtSettingBtnClick();
                 }
               }
             }
             this_vue.IsDragging = false;
             try {
-              var index = this.feature_.get('index')
-              this_vue.ResetPathLinkOfRouteMode(index);
-              this_vue.ResetPathLinkOfCoordinationMode(index);
+              let _ResetPath = (__feature = new Feature()) => {
+                var index = __feature.get('index')
+                this_vue.ResetPathLinkOfRouteMode(index);
+                this_vue.ResetPathLinkOfCoordinationMode(index);
+              }
+              if (this_vue.SelectedFeatures.length > 0) {
+                this_vue.SelectedFeatures.forEach(_ft => {
+                  _ResetPath(_ft);
+                });
+              } else {
+                _ResetPath(this.feature_);
+              }
+
             } catch (error) {
             }
           }
@@ -2643,9 +2699,12 @@ export default {
         ImageExtent: this.new_map_img_extent
       }
       this.$emit('save', mapDataSave)
+      this.SelectedFeatures = [];
     },
 
     HandlePtSettingBtnClick() {
+      if (this.isCtrlPressing || this.SelectedFeatures.length > 0)
+        return;
       this.RemoveKeyboardPressEventListener();
       this.editModeContextMenuVisible = false;
       this.$refs.ptsetting.Show({
@@ -2711,9 +2770,6 @@ export default {
       this.AGVLocusLayer = new VectorLayer({
         source: new VectorSource({ features: [] }),
       })
-
-
-
       this.map = new Map({
         layers: [this.ImageLayer, this.RegionLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
         target: this.id,
@@ -2888,10 +2944,10 @@ export default {
 
       try {
         this.previousSelectedFeatures.forEach(feature => {
-          var oriStyle = feature.get('oristyle')
+          var oriStyle = feature.get('oriStyle')
           feature.setStyle(oriStyle);
         })
-        var oriStyle = this.previousSelectedFeature.get('oristyle')
+        var oriStyle = this.previousSelectedFeature.get('oriStyle')
         this.previousSelectedFeature.setStyle(oriStyle);
       } catch {
 
@@ -2899,35 +2955,42 @@ export default {
       this.previousSelectedFeatures = []
     },
     HighLightFeatureSelected(features = [new Feature()], color = 'red') {
-      if (this.editable) {
-        this.previousSelectedFeatures = [];
-        this.previousSelectedFeatures.push(features[0])
-
-        return;
-      }
-      try {
-        this.ClearSelectedFeature();
-        features.forEach(feature => {
-          var style = feature.getStyle()
+      features.forEach(_ft => {
+        try {
+          var style = _ft.getStyle().clone();
           if (style) {
-            feature.set("oristyle", style.clone())
-            var newStyle = style.clone()
-            var text = newStyle.getText();
+            var text = style.getText().clone();
             if (text) {
-              var stroke = text.getStroke()
-              if (stroke) {
-                var newStroke = stroke.clone();
-                newStroke.setColor(color)
-                text.setStroke(newStroke)
-                feature.setStyle(newStyle)
-              }
+              text.setBackgroundFill(new Fill({
+                color: color
+              }))
+              text.setFill(new Fill({ color: 'white' }))
+              text.setFont('bold 18px Calibri,sans-serif');
+              text.setOffsetX(0);
+              text.setOffsetY(0);
+              text.setPadding([5, 5, 5, 5]);
+              style.setText(text); // 更新樣式
+              _ft.setStyle(style); // 設定新的樣式
             }
-          }
-          this.previousSelectedFeatures.push(feature)
-        })
-      } catch (error) {
 
-      }
+          }
+        }
+        catch (error) {
+
+        }
+
+      });
+    },
+    RestoreStyleOfSelectedFeatures(features = [new Feature()]) {
+
+      features.forEach(_ft => {
+        try {
+          var oriStyle = _ft.get('oriStyle');
+          _ft.setStyle(oriStyle);
+        } catch (error) {
+
+        }
+      });
     },
     HighLightFeaturesByStationType(station_type = 0, color = 'red') {
       // feature.set('station_type', ptdata.StationType)
@@ -2995,6 +3058,64 @@ export default {
     HandlePtSettingDrawerLeaved() {
       this.RemoveKeyboardPressEventListener();
       document.addEventListener('keydown', this.EditModeKeybordEvents)
+    },
+    EditModeKeybordEvents(event) {
+      var name = event.key.toLowerCase();
+
+      if (this.selectedSettingTabIndex != 0 ||
+        this.IsPathEditing ||
+        this.EditorOption.EditMode != 'edit') {
+        return
+      }
+      if (name == 'e') {
+        this.EditorOption.EditMode = 'edit'
+      } if (name == 'v') {
+        this.EditorOption.EditMode = 'view'
+      }
+
+      if (name == 'escape') {
+
+        if (this.draw_forbid_regions_interaction)
+          this.draw_forbid_regions_interaction.abortDrawing();
+        if (this.draw_global_path_regions_interaction)
+          this.draw_global_path_regions_interaction.abortDrawing();
+
+      }
+      if (name == '1') {
+        this.RemoveForbidRegionOperationInteractions();
+        this.EditorOption.EditAction = 'add-station'
+        this.AddEditMapInteraction();
+      }
+      if (name == '2') {
+        this.RemoveForbidRegionOperationInteractions();
+        this.EditorOption.EditAction = 'edit-station'
+        this.AddEditMapInteraction();
+      }
+      if (name == '3') {
+        this.RemoveForbidRegionOperationInteractions();
+        this.EditorOption.EditAction = 'remove-station'
+        this.AddEditMapInteraction();
+      }
+      if (name == '4') {
+        this.RemoveForbidRegionOperationInteractions();
+        this.EditorOption.EditAction = 'add-path'
+        this.AddEditMapInteraction();
+      }
+      if (name == '5') {
+        this.RemoveForbidRegionOperationInteractions();
+        this.EditorOption.EditAction = 'edit-path'
+        this.AddEditMapInteraction();
+      }
+      if (name == '6') {
+        this.RemoveForbidRegionOperationInteractions();
+        this.EditorOption.EditAction = 'remove-path'
+        this.AddEditMapInteraction();
+      }
+      if (name == '7') {
+        this.EditorOption.EditAction = 'add-forbid-region'
+        this.RemoveInteraction(this.mapEditsInteraction);
+        this.AddDrawForbidActionInteraction(this.EditorOption.AddRegionMode.Mode);
+      }
     },
     PointSettingChangedHandle(data_dto) {
       var index = data_dto.index;
@@ -3279,63 +3400,6 @@ export default {
       this.RemoveInteraction(this.draw_forbid_regions_interaction);
       this.RemoveInteraction(this.edit_forbid_regions_interaction);
       this.RemoveInteraction(this.delete_forbid_regions_interaction);
-    },
-    EditModeKeybordEvents(event) {
-      if (this.selectedSettingTabIndex != 0 ||
-        this.IsPathEditing ||
-        this.EditorOption.EditMode != 'edit') {
-        return
-      }
-      var name = event.key.toLowerCase();
-      if (name == 'e') {
-        this.EditorOption.EditMode = 'edit'
-      } if (name == 'v') {
-        this.EditorOption.EditMode = 'view'
-      }
-
-      if (name == 'escape') {
-
-        if (this.draw_forbid_regions_interaction)
-          this.draw_forbid_regions_interaction.abortDrawing();
-        if (this.draw_global_path_regions_interaction)
-          this.draw_global_path_regions_interaction.abortDrawing();
-
-      }
-      if (name == '1') {
-        this.RemoveForbidRegionOperationInteractions();
-        this.EditorOption.EditAction = 'add-station'
-        this.AddEditMapInteraction();
-      }
-      if (name == '2') {
-        this.RemoveForbidRegionOperationInteractions();
-        this.EditorOption.EditAction = 'edit-station'
-        this.AddEditMapInteraction();
-      }
-      if (name == '3') {
-        this.RemoveForbidRegionOperationInteractions();
-        this.EditorOption.EditAction = 'remove-station'
-        this.AddEditMapInteraction();
-      }
-      if (name == '4') {
-        this.RemoveForbidRegionOperationInteractions();
-        this.EditorOption.EditAction = 'add-path'
-        this.AddEditMapInteraction();
-      }
-      if (name == '5') {
-        this.RemoveForbidRegionOperationInteractions();
-        this.EditorOption.EditAction = 'edit-path'
-        this.AddEditMapInteraction();
-      }
-      if (name == '6') {
-        this.RemoveForbidRegionOperationInteractions();
-        this.EditorOption.EditAction = 'remove-path'
-        this.AddEditMapInteraction();
-      }
-      if (name == '7') {
-        this.EditorOption.EditAction = 'add-forbid-region'
-        this.RemoveInteraction(this.mapEditsInteraction);
-        this.AddDrawForbidActionInteraction(this.EditorOption.AddRegionMode.Mode);
-      }
     },
     OpenPath_editor(feature = new Feature()) {
       var pathid = feature.get('path_id')
@@ -3885,13 +3949,22 @@ export default {
         this.UpdateAGVLayer()
       }, { deep: true, immediate: false })
 
-
       watch(() => this.agvs_info_other_system, (newval, oldval) => {
         if (!newval)
           return
         this.UpdateAGVLocationOfOtherSystem(newval)
       }, { deep: true, immediate: true })
 
+
+
+      watch(
+        () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
+          if (this.agv_upload_coordination_mode) {
+            this.HandleAGVUploadData(newval)
+          }
+        }, { deep: true, immediate: true }
+      )
+      //TODO bus.on 
       bus.on('/show_agv_at_center', agv_name => {
         // alert(agv_name)
         this.ResetMapCenterViaAGVLoc(agv_name)
@@ -3913,18 +3986,9 @@ export default {
           }, 500);
         }
       })
-
       bus.on('/cancel_tracking_agv', () => {
         clearInterval(this.trackingAGVTimer)
       })
-
-      watch(
-        () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
-          if (this.agv_upload_coordination_mode) {
-            this.HandleAGVUploadData(newval)
-          }
-        }, { deep: true, immediate: true }
-      )
       bus.on('change_to_select_agv_mode', () => {
         if (this.editable)
           return;
@@ -3957,6 +4021,20 @@ export default {
       })
       bus.on('mark_as_destine_station', (tagNumber) => {
         this.CreateDestineMarkIcon(tagNumber);
+      })
+      bus.on('delete-multi-points', () => {
+        this.SelectedFeatures.forEach(_feature => {
+          this.RemoveStation(_feature)
+        });
+        this.$notify({ type: 'success', message: `Delete ${this.SelectedFeatures.length} point done` })
+      })
+      bus.on('restore_points_by_multi_point_changed', () => {
+        this.SelectedFeatures.forEach(_feature => {
+          var dto = { index: _feature.get('index'), pointData: _feature.get('data') }
+          this.PointSettingChangedHandle(dto);
+        });
+        this.$notify({ type: 'success', message: `Delete ${this.SelectedFeatures.length} point done` })
+        this.HighLightFeatureSelected(this.SelectedFeatures, 'rgb(230, 162, 60)')
       })
       if (!this.editable) {
         this.renderLDULD_StatusTimerId = setInterval(() => {
@@ -4132,7 +4210,18 @@ export default {
     display: flex;
     z-index: 2;
   }
-
+  .multi-select-info {
+    background-color: rgb(101, 163, 255);
+    color: white;
+    position: absolute;
+    bottom: 157px;
+    width: 150px;
+    text-align: center;
+    /* margin-left: 50px; */
+    /* margin-top: 15px; */
+    padding: 4px;
+    z-index: 999999;
+  }
   .options {
     text-align: left;
     width: 115px;
@@ -4205,6 +4294,12 @@ export default {
       font-size: 20px;
       padding-left: 8px;
     }
+  }
+  .align-tool {
+    position: absolute;
+    margin-left: 3.7rem;
+    margin-top: 1rem;
+    z-index: 29999;
   }
 }
 </style>

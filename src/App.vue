@@ -149,7 +149,13 @@ export default {
     }
   },
   mounted() {
-
+    document.addEventListener('keydown', (evt) => {
+      if (evt.key.toLowerCase() == 'control')
+        store.commit('setCtrlKeyPressing', true)
+    })
+    document.addEventListener('keyup', (evt) => {
+      store.commit('setCtrlKeyPressing', false)
+    })
     const isDevelopment = process.env.NODE_ENV === 'development';
     this.$store.dispatch('GetDynamicWebsiteData').then(response => {
       var fieldName = response.FieldName;

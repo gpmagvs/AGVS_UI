@@ -6,19 +6,29 @@
   >
     <div class="title text-light">{{ getTitle }}</div>
     <MenuForVehicle v-if="useFor=='agv'" :agvName="options.agvName"></MenuForVehicle>
+    <MenuForMultiPointsSelected
+      v-if="useFor=='multi-point'"
+      :selectedFeatures="options.selectedFeatures"
+      @onDelete="()=>{
+        show=false;
+      }"
+    ></MenuForMultiPointsSelected>
   </div>
 </template>
 
 <script>
 import MenuForVehicle from './MenuForVehicle.vue';
+import MenuForMultiPointsSelected from './MenuForMultiPointsSelected.vue';
 export default {
   components: {
-    MenuForVehicle,
+    MenuForVehicle, MenuForMultiPointsSelected
   },
   computed: {
     getTitle() {
       if (this.useFor == 'agv') {
         return this.options.agvName;
+      } else if (this.useFor == 'multi-point') {
+        return `多點編輯 [${this.options.selectedFeatures.length}]`;
       }
       return '';
     }
@@ -33,7 +43,8 @@ export default {
       useFor: '',
       options: {
         agvName: '',
-        stationName: ''
+        stationName: '',
+        selectedFeatures: []
       }
     }
   },
