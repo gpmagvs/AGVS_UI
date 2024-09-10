@@ -2599,16 +2599,6 @@ export default {
 
       if (setViewCenter)
         this.map.getView().setCenter(isShowSlamCoordi ? this.GetMidPointOfCoordinationMode() : this.GetMidPointOfRouterMode());
-      if (this.map_display_mode == 'coordination' && this.editable) {
-        this.$message({
-          message: '當前地圖模式為[Slam]，使用滑鼠拖曳變更點位位置即會變更座標設定。',
-          type: 'warning',
-          duration: 3000,
-          placement: 'bottom',
-          customClass: 'map-elplus-message-style',
-          showClose: true
-        })
-      }
     },
     UpdateAGVLocLocation() {
 
@@ -3932,6 +3922,19 @@ export default {
       this.InitMap();
       this.RestoreSettingsFromLocalStorage();
       this.AddEditMapInteraction();
+      watch(() => this.map_display_mode, (newVal, oldVal) => {
+        if (newVal == 'coordination' && this.editable) {
+          this.$message({
+            message: '當前地圖模式為[Slam]，使用滑鼠拖曳變更點位位置即會變更座標設定。',
+            type: 'warning',
+            duration: 3000,
+            placement: 'bottom',
+            customClass: 'map-elplus-message-style',
+            showClose: true
+          })
+        }
+
+      }, { immediate: true })
       watch(
         () => this.map_station_data, (newval, oldval) => {
           if (!newval)
