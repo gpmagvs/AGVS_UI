@@ -3103,8 +3103,15 @@ export default {
       }
       if (name == '7') {
         this.EditorOption.EditAction = 'add-forbid-region'
-        this.RemoveInteraction(this.mapEditsInteraction);
-        this.AddDrawForbidActionInteraction(this.EditorOption.AddRegionMode.Mode);
+        this.HandleAddForbidRegionClicked(this.EditorOption.AddRegionMode.Mode)
+      }
+      if (name == '8') {
+        this.EditorOption.EditAction = 'edit-forbid-region'
+        this.HandleEditForbidRegionClicked();
+      }
+      if (name == '9') {
+        this.EditorOption.EditAction = 'remove-forbid-region'
+        this.HandleDeleteForbidRegionClicked();
       }
     },
     PointSettingChangedHandle(data_dto) {
