@@ -62,6 +62,10 @@
           <el-form-item label="窄道區域">
             <el-checkbox @change="HandlePropChanged" v-model="RegionData.IsNarrowPath"></el-checkbox>
           </el-form-item>
+
+          <el-form-item label="區域">
+            <el-button @click="HandleReDrawBtnClicked">重繪區域</el-button>
+          </el-form-item>
         </el-form>
       </div>
     </el-drawer>
@@ -108,6 +112,9 @@ export default {
         this.show = true
       }, 10)
     },
+    // Show() {
+    //   this.show = true;
+    // },
     ChangeNameDisplay(newName) {
       var newStyle = this.textFeature.getStyle().clone();
       var textProp = newStyle.getText().clone();;
@@ -128,6 +135,10 @@ export default {
     },
     HandlePropChanged() {
       this.ploygonFeature.set('data', this.RegionData)
+    },
+    HandleReDrawBtnClicked() {
+      this.$emit('onRedraw', this.RegionData);
+      this.show = false;
     }
 
 

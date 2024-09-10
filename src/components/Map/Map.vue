@@ -348,6 +348,27 @@
                 title="使用滑鼠[右鍵]點擊並拖曳背景圖片進行位置調整"
                 type="error"
               />
+              <el-alert
+                v-if="showRedrawControl"
+                style="margin-top: 6px; z-index:99999"
+                title="區域重繪"
+                type="info"
+                :closable="false"
+              >
+                <div style="position:absolute;right:10px;top:6px;" class="d-flex">
+                  <el-button type="danger" @click="HandleCancleRegionRedraw">取消</el-button>
+                  <el-button
+                    :disabled="!isRedrawConfirmable"
+                    type="info"
+                    @click="HandleResetRegionRedraw"
+                  >重置</el-button>
+                  <el-button
+                    :disabled="!isRedrawConfirmable"
+                    type="primary"
+                    @click="HandleCompleteRegionRedraw"
+                  >完成</el-button>
+                </div>
+              </el-alert>
             </div>
             <div v-if="true" class="cursour-coordination-show d-flex flex-column">
               <span
@@ -566,6 +587,7 @@
     ></MapPathSettingDrawer>
     <MapRegionEditDrawer
       @closed="HandleForbidRegionEditDrawerClosed"
+      @onRedraw="HandleRegionRedraw"
       ref="forbid_region_editor"
       :SettingsChangedHandler="() => {
 
@@ -911,7 +933,10 @@ export default {
         stationPtTextColor: 'gold',
         pathColor: 'lime'
       },
-      SelectedFeatures: []
+      SelectedFeatures: [],
+      showRedrawControl: false,
+      tempHiddenFeaturesOfRegion: [],
+      isRedrawConfirmable: false
 
     }
   },
@@ -1003,6 +1028,12 @@ export default {
     },
     MapGridSize() {
       return MapStore.state.MapData.Options.gridSize;
+    },
+    redrawingRegionName() {
+      8
+      if (!this.tempHiddenFeaturesOfRegion)
+        return '';
+      return this.tempHiddenFeaturesOfRegion[0].get('name');
     }
   },
   methods: {
@@ -1383,9 +1414,6 @@ export default {
 
         }
       });
-
-
-
     },
     /**將點的Graph X Y 重新設為實際座標 */
     async ResetRouteModeDisplay() {
@@ -1945,7 +1973,7 @@ export default {
       this.map.addInteraction(this.draw_global_path_regions_interaction);
 
     },
-    AddDrawForbidActionInteraction(region_type = "forbid|passible") {
+    AddDrawForbidActionInteraction(region_type = "forbid|passible", speficName = undefined, drawStartEvent = undefined) {
       this.RemoveInteraction(this.draw_forbid_regions_interaction);
       this.RemoveInteraction(this.draw_global_path_regions_interaction);
       const value = 'Polygon';
@@ -1969,14 +1997,23 @@ export default {
           })
         });
         ///繪製完成後的事件觸發
+        if (drawStartEvent) {
+          this.draw_forbid_regions_interaction.on('drawstart', drawStartEvent)
+        }
         this.draw_forbid_regions_interaction.on('drawend', (event) => {
           var currnetForbidRegionCount = _isForbidRegion ? that.GetForbidRegionCount() : that.GetPassibleRegionCount();
+
           var _textBgColor = _isForbidRegion ? 'orange' : 'rgb(139, 171, 206)';
           var _name = _isForbidRegion ? `禁制區-${currnetForbidRegionCount + 1}` : `通行區-${currnetForbidRegionCount + 1}`;
+          if (speficName)
+            _name = speficName;
+
           const feature = event.feature; // 獲取繪製的多邊形要素
           feature.set('type', 'polygon')
           feature.set('name', _name)
           feature.set('region_type', region_type)
+          if (speficName)
+            feature.set('redraw', true)
           const center = feature.getGeometry().getInteriorPoint().getCoordinates();
           console.info(center)
           feature.setStyle(new Style({
@@ -1996,7 +2033,8 @@ export default {
           textFeature.set('type', 'text')
           textFeature.set('name', _name)
           textFeature.set('region_type', region_type)
-
+          if (speficName)
+            textFeature.set('redraw', true)
           // 定義文字樣式
           textFeature.setStyle(new Style({
             text: new Text({
@@ -2014,7 +2052,7 @@ export default {
             })
           }));
           that.RegionLayer.getSource().addFeature(textFeature);
-
+          that.isRedrawConfirmable = true;
 
         })
         this.map.addInteraction(this.draw_forbid_regions_interaction);
@@ -3451,6 +3489,20 @@ export default {
       document.addEventListener('keydown', this.EditModeKeybordEvents)
 
     },
+    HandleRegionRedraw(data = new MapRegion()) {
+      this.showRedrawControl = true;
+      this.AddDrawForbidActionInteraction('passible', data.Name, (event) => {
+        this.HandleResetRegionRedraw()
+      });
+      var _features = this.RegionLayer.getSource().getFeatures()
+      let previousFeaturesOfRegion = _features.filter(ft => ft.get('name') == data.Name)
+      this.tempHiddenFeaturesOfRegion = previousFeaturesOfRegion;
+      if (previousFeaturesOfRegion) {
+        previousFeaturesOfRegion.forEach(element => {
+          this.RegionLayer.getSource().removeFeature(element)
+        });
+      }
+    },
     SetPathesAsBeControledStyle() {
       var path_ids = Object.keys(this.ControledPathesBySystem)
       if (path_ids.length == 0)
@@ -3910,6 +3962,45 @@ export default {
         this.HandleWorkStationNameColorSelected(mapOption.workStationTextColor, true);
         this.SetPathColor(mapOption.pathColor);
       }
+    },
+    HandleCancleRegionRedraw() {
+      this.showRedrawControl = false;
+      var _forbid_region_editor = this.$refs['forbid_region_editor'];
+      //_forbid_region_editor.Show();
+      if (this.tempHiddenFeaturesOfRegion) {
+        this.RegionLayer.getSource().addFeatures(this.tempHiddenFeaturesOfRegion)
+      }
+      var _features = this.RegionLayer.getSource().getFeatures()
+      _features.filter(ft => ft.get('redraw')).forEach(ft => {
+        this.RegionLayer.getSource().removeFeature(ft);
+      })
+      this.HandleEditForbidRegionClicked();
+      this.ShowEditingRegionSettingDrawer();
+    },
+    HandleResetRegionRedraw() {
+      var _features = this.RegionLayer.getSource().getFeatures()
+      const _name = this.redrawingRegionName;
+      let previousFeaturesOfRegion = _features.filter(ft => ft.get('name') == _name)
+      if (previousFeaturesOfRegion) {
+        previousFeaturesOfRegion.forEach(element => {
+          this.RegionLayer.getSource().removeFeature(element)
+        });
+      }
+      this.isRedrawConfirmable = false;
+    },
+    HandleCompleteRegionRedraw() {
+      this.showRedrawControl = false;
+      this.HandleEditForbidRegionClicked();
+      this.ShowEditingRegionSettingDrawer();
+      this.$notify({ message: `已完成[${this.redrawingRegionName}]區域重繪`, offset: 50 })
+    },
+    ShowEditingRegionSettingDrawer() {
+      var _forbid_region_editor = this.$refs['forbid_region_editor'];
+      var _forbidRegionName = this.redrawingRegionName;
+      let featuresInLayer = this.RegionLayer.getSource().getFeatures();
+      var textFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'text')
+      var ploygonFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'polygon')
+      _forbid_region_editor.Show(_forbidRegionName, textFeature, ploygonFeature);
     }
   },
 
