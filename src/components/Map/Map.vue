@@ -656,7 +656,7 @@ import bus from '@/event-bus.js'
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image, AGVOption } from './mapjs';
 import { MapStore } from './store'
-import store, { EqStore, agv_states_store, userStore } from '@/store'
+import store, { EqStore, TaskStore, agv_states_store, userStore } from '@/store'
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
 import MapPathSettingDrawer from './MapPathSettingDrawer.vue'
@@ -2673,7 +2673,23 @@ export default {
       }
     },
     /**儲存按鈕處理 */
-    HandlerSaveBtnClick() {
+    async HandlerSaveBtnClick() {
+      //如果有任務在運行中須詢問
+      if (TaskStore.state.IncompletedTaskListData.find(task => task.State == 1)) {
+        const result = await this.$swal.fire({
+          title: '圖資修改警告',
+          text: '有任務正在運行中，變更地圖可能會造成不可預期的錯誤，確定要繼續嗎？',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          customClass: 'my-sweetalert'
+        });
+
+        if (!result.isConfirmed) {
+          return; // 如果用戶取消，則中止儲存操作
+        }
+      }
       //把feature中的 'data' 物件資料取出
       var Points = {}
       this.PointLayer.getSource().getFeatures().forEach(ft => {

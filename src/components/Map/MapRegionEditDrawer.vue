@@ -22,7 +22,6 @@
           </el-form-item>
           <el-form-item label="類型">
             <el-select v-model="RegionData.RegionType">
-              2
               <el-option :value="0" label="禁制區"></el-option>
               <el-option :value="1" label="通行區"></el-option>
             </el-select>

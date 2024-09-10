@@ -341,7 +341,7 @@ export const EqStore = createStore({
 })
 
 
-/**車輛狀態管理 */
+/**任務狀態管理 */
 export const TaskStore = createStore({
   state: {
     IncompletedTaskListData: [],
