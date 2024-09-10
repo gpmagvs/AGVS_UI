@@ -1,10 +1,10 @@
 <template>
   <div class="align-tool border">
     <i class="bi bi-three-dots-vertical"></i>
-    <button @click="alignDown" class="btn align-btn" aria-label="向上">
+    <button @click="alignUp" class="btn align-btn" aria-label="向上">
       <i class="bi bi-align-top"></i>
     </button>
-    <button @click="alignUp" class="btn align-btn" aria-label="向下">
+    <button @click="alignDown" class="btn align-btn" aria-label="向下">
       <i class="bi bi-align-bottom"></i>
     </button>
     <button @click="alignLeft" class="btn align-btn" aria-label="靠左">
@@ -13,6 +13,7 @@
     <button @click="alignRight" class="btn align-btn" aria-label="靠右">
       <i class="bi bi-align-end"></i>
     </button>
+    {{ rotation }}
   </div>
 </template>
 
@@ -32,6 +33,10 @@ export default {
     map_display_mode: {
       type: String,
       default: 'coordination'
+    },
+    rotation: {
+      type: Number,
+      default: 0
     }
   },
   computed: {
@@ -40,24 +45,29 @@ export default {
     },
 
     minX() {
+
       return Math.min(...this.selectedFeatures.map(feature => {
         const data = feature.get('data');
         return this.map_display_mode === 'coordination' ? data.X : data.Graph.X; // 根據模式選擇
       })); // 計算所有元素的最小 X
     },
     maxX() {
+
+
       return Math.max(...this.selectedFeatures.map(feature => {
         const data = feature.get('data');
         return this.map_display_mode === 'coordination' ? data.X : data.Graph.X; // 根據模式選擇
       })); // 計算所有元素的最大 X
     },
     minY() {
+
       return Math.min(...this.selectedFeatures.map(feature => {
         const data = feature.get('data');
         return this.map_display_mode === 'coordination' ? data.Y : data.Graph.Y; // 根據模式選擇
       })); // 計算所有元素的最小 Y
     },
     maxY() {
+
       return Math.max(...this.selectedFeatures.map(feature => {
         const data = feature.get('data');
         return this.map_display_mode === 'coordination' ? data.Y : data.Graph.Y; // 根據模式選擇
@@ -65,21 +75,22 @@ export default {
     },
   },
   methods: {
-    alignDown() {
-      const maxY = this.maxY;
-      this.selectedFeatures.forEach(feature => {
-        const data = feature.get('data');
-        if (this.map_display_mode === 'coordination') {
-          data.Y = maxY; // Align to max Y
-        } else {
-          data.Graph.Y = maxY; // 其他模式的對齊邏輯
+    alignDown(triggerByRotated = false) {
+      debugger
+      if (triggerByRotated.button != undefined) {
+        if (this.rotation === 90) {
+          this.alignRight(true);
+          return;
         }
-        feature.set('data', data);
-      });
-      console.log('Aligning Down');
-      this._InvokeRestorePt();
-    },
-    alignUp() {
+        if (this.rotation === -90) {
+          this.alignLeft(true);
+          return;
+        }
+        if (this.rotation === 180 || this.rotation === -180) {
+          this.alignUp(true);
+          return;
+        }
+      }
       const minY = this.minY;
       this.selectedFeatures.forEach(feature => {
         const data = feature.get('data');
@@ -90,10 +101,56 @@ export default {
         }
         feature.set('data', data);
       });
-      console.log('Aligning Up');
+      console.log('Aligning Down');
       this._InvokeRestorePt();
     },
-    alignLeft() {
+    alignUp(triggerByRotated) {
+      console.log(triggerByRotated)
+      if (triggerByRotated.button != undefined) {
+        if (this.rotation === 90) {
+          this.alignLeft(true);
+          return;
+        }
+        if (this.rotation === -90) {
+          this.alignRight(true);
+          return;
+        }
+        if (this.rotation === 180 || this.rotation === -180) {
+          this.alignDown(true);
+          return;
+        }
+      }
+
+      const maxY = this.maxY;
+      this.selectedFeatures.forEach(feature => {
+        const data = feature.get('data');
+        if (this.map_display_mode === 'coordination') {
+          data.Y = maxY; // Align to max Y
+        } else {
+          data.Graph.Y = maxY; // 其他模式的對齊邏輯
+        }
+        feature.set('data', data);
+      });
+      console.log('Aligning Up');
+      this._InvokeRestorePt();
+
+
+    },
+    alignLeft(triggerByRotated = false) {
+      if (triggerByRotated.button != undefined) {
+        if (this.rotation === 90) {
+          this.alignDown(true);
+          return;
+        }
+        if (this.rotation === -90) {
+          this.alignUp(true);
+          return;
+        }
+        if (this.rotation === 180 || this.rotation === -180) {
+          this.alignRight(true);
+          return;
+        }
+      }
       const minX = this.minX;
       this.selectedFeatures.forEach(feature => {
         const data = feature.get('data');
@@ -107,7 +164,21 @@ export default {
       console.log('Aligning Left');
       this._InvokeRestorePt();
     },
-    alignRight() {
+    alignRight(triggerByRotated = false) {
+      if (triggerByRotated.button != undefined) {
+        if (this.rotation === 90) {
+          this.alignUp(true);
+          return;
+        }
+        if (this.rotation === -90) {
+          this.alignDown(true);
+          return;
+        }
+        if (this.rotation === 180 || this.rotation === -180) {
+          this.alignLeft(true);
+          return;
+        }
+      }
       const maxX = this.maxX;
       this.selectedFeatures.forEach(feature => {
         const data = feature.get('data');

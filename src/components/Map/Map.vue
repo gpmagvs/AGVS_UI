@@ -385,6 +385,7 @@
               <AlignmentToos
                 :map_display_mode="map_display_mode"
                 :selectedFeatures="SelectedFeatures"
+                :rotation="MapRotation"
                 v-if="SelectedFeatures.length!=0"
                 class="align-tool"
               ></AlignmentToos>
