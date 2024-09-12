@@ -3,6 +3,7 @@
     <button v-if="agvState.OnlineStatus==1" :disabled="isAGVDown" @click="OfflineRequest">下線</button>
     <button v-else :disabled="isAGVDown" @click="OnlineRequest">上線</button>
     <button @click="InitVehicle">初始化</button>
+    <button @click="AlarmReset">異常復歸</button>
     <button @click="EMO">EMO</button>
     <button @click="RemoveCarrierID">移除卡匣</button>
     <button @click="EMO">定位</button>
@@ -14,7 +15,7 @@
 <script>
 import { agv_states_store } from '@/store';
 import { EmuAPI, OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
-import { EMO, Initialize, RemoveCargoID } from '@/api/VehicleAPI'
+import { EMO, Initialize, RemoveCargoID, AlarmReset } from '@/api/VehicleAPI'
 export default {
   props: {
     agvName: {
@@ -49,6 +50,19 @@ export default {
       } else {
         try {
           await Initialize(this.agvHost)
+        } catch (error) {
+          this.HandleAPIRequstError(error);
+        } finally {
+
+        }
+      }
+    },
+    async AlarmReset() {
+      if (this.isSimulation) {
+        await EmuAPI.Initialize(this.agvName);
+      } else {
+        try {
+          await AlarmReset(this.agvHost)
         } catch (error) {
           this.HandleAPIRequstError(error);
         } finally {

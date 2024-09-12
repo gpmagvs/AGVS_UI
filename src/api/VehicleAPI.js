@@ -2,6 +2,10 @@ import axios from "axios";
 export async function EMO(agvHost) {
     await SendTo(agvHost, '/api/VMS/EMO')
 }
+export async function AlarmReset(agvHost) {
+    await SendTo(agvHost, '/api/VMS/ResetAlarm')
+}
+
 
 export async function Initialize(agvHost) {
     await SendTo(agvHost, '/api/VMS/Initialize')
