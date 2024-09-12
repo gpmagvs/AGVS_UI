@@ -145,9 +145,11 @@ export default {
   },
   computed: {
     NoramlPointsOptions() {
-      var options = [new StationSelectOptions()];
-      Object.assign(options, MapStore.getters.AllNormalStationOptions);
-      return options;
+      var optionsNormalPT = [new StationSelectOptions()];
+      var optionsParkablePT = [new StationSelectOptions()];
+      Object.assign(optionsNormalPT, MapStore.getters.AllNormalStationOptions);
+      Object.assign(optionsParkablePT, MapStore.getters.AllParkableStationOptions);
+      return [...optionsNormalPT, ...optionsParkablePT];
     }
   },
 }
