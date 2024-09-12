@@ -1591,7 +1591,7 @@ export default {
             option.selectedFeatures = this.SelectedFeatures;
           }
 
-          if (menuUseFor != '')
+          if (menuUseFor != '' && !this.IsOpUsing)
             this.$refs['contextMenu2'].showAt([e.originalEvent.x, e.originalEvent.y], menuUseFor, option);
         }
 
