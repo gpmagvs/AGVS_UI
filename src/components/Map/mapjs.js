@@ -200,7 +200,7 @@ export function normal_station_image(stationData = new MapPointModel()) {
 
     }
     return new Circle({
-        radius: 5,
+        radius: 6,
         fill: new Fill({
             color: fillColor,
         }),
