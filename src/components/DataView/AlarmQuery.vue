@@ -124,7 +124,14 @@
               <span
                 v-if="scope.row.TrobleShootingReference == ''"
               >{{ scope.row.TrobleShootingMethod }}</span>
-              <a v-else :href="getFullFilePath(scope.row.TrobleShootingReference)" target="_blank">
+              <a
+                class="cursor-pointer"
+                v-else
+                @click="()=>{
+                selectedTroubleShootingDocument = scope.row.TrobleShootingReference
+                showTroubleShootingDocument=true;
+              }"
+              >
                 📕 {{
                 scope.row.TrobleShootingMethod }}
               </a>
@@ -170,6 +177,24 @@
         </div>
       </div>
     </div>
+
+    <el-dialog
+      fullscreen
+      :overflow="false"
+      v-model="showTroubleShootingDocument"
+      draggable
+      :title="selectedTroubleShootingDocument"
+    >
+      <div style="position: absolute; height: 100vh;width: 100vw;overflow: hidden;">
+        <iframe
+          :src="CurrentSelectedTroubleShootingFileUrl"
+          width="100%"
+          height="100%"
+          style="border: none;"
+          allow="autoplay"
+        ></iframe>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -194,7 +219,9 @@ export default {
       rows: 1,
       currentpage: 1,
       loading: false,
-      Alarm_description: ""
+      Alarm_description: "",
+      showTroubleShootingDocument: false,
+      selectedTroubleShootingDocument: ''
     };
   },
 
@@ -204,6 +231,9 @@ export default {
     },
     isDevLogin() {
       return userStore.getters.IsDeveloperLogining;
+    },
+    CurrentSelectedTroubleShootingFileUrl() {
+      return param.backend_host + '/Resources' + this.selectedTroubleShootingDocument
     }
   },
   mounted() {

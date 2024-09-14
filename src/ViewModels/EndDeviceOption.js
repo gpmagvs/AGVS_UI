@@ -19,6 +19,7 @@ export class DeviceConfig {
         this.Region = "";
         this.ValidDownStreamEndPointNames = [];
         this.IOLocation = {
+            STATUS_IO_SPEC_VERSION: 1,//1:V1, 2:V2
             "Load_Request": 0,
             "Unload_Request": 1,
             "Port_Exist": 2,

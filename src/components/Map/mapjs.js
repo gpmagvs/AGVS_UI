@@ -809,7 +809,9 @@ export class MapPointModel {
         this.Name = ""
         this.TagNumber = 0
         this.Direction = 0
+        this.Direction_Avoid = 0
         this.Direction_Secondary_Point = 0 //二次定位點的停車角度
+        this.UseAvoidThetaWhenStopAtWaitingPointOfEntryRegion = false;
         this.AGV_Alarm = false;
         this.Enable = true;
         this.IsStandbyPoint = false;

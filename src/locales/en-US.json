@@ -164,7 +164,11 @@
     "CstID": "Cargo ID",
     "FinishTime": "End Time",
     "RecievedTime": "Recieve Time",
-    "FailureReason": "Failure Reason"
+    "FailureReason": "Failure Reason",
+    "UnloadTime": "Unload Time",
+    "LoadTime": "Load Time",
+    "StartLocation": "Start Location",
+    "AGVReadID": "AGV Read ID"
   },
   "AlarmTable": {
     "Time": "Time",

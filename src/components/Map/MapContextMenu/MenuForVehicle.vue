@@ -7,6 +7,7 @@
     <button @click="EMO">EMO</button>
     <button @click="RemoveCarrierID">移除卡匣</button>
     <button @click="EMO">定位</button>
+    <button @click="OpenMaintainPage()">車輛保養</button>
     <!-- <span class="text-light">{{ agvState }}</span> -->
   </div>
 </template>
@@ -102,6 +103,9 @@ export default {
     },
     OfflineRequest() {
       OfflineRequest(this.agvName);
+    },
+    OpenMaintainPage() {
+      this.$router.push(`/vehicle?tab=1`)
     },
     HandleAPIRequstError(error) {
       this.$swal.fire(

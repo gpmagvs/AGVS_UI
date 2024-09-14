@@ -78,6 +78,14 @@ export async function SaveEqGroupsConfigs(configs) {
   return ret.data;
 }
 
+/**CheckMapPointsIsEqTypeButNoEqSetup*/
+export async function CheckMapPointsIsEqTypeButNoEqSetup() {
+  var url = `/api/Equipment/CheckMapPointsIsEqTypeButNoEqSetup`; //避免帶有特殊符號的時候字串參數會不完整
+  var ret = await axios_entity.get(url)
+  return ret.data;
+}
+
+
 
 /**設備模擬器API */
 export const EmuAPI = {

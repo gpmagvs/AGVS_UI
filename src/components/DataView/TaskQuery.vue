@@ -117,7 +117,7 @@
         <el-table-column
           :label="$t('TaskTable.Action')"
           prop="ActionName"
-          min-width="30"
+          width="60"
           align="center"
         ></el-table-column>
         <el-table-column
@@ -148,7 +148,7 @@
         >
           <template #default="scope">{{ scope.row.To_Slot == -1 ? '-' : scope.row.To_Slot }}</template>
         </el-table-column>
-        <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID" min-width="30">
+        <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID" width="140">
           <template #default="scope">
             <div>
               {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }}
@@ -162,6 +162,31 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column :label="$t('TaskTable.AGVReadID')" prop="Actual_Carrier_ID" width="140">
+          <template #default="scope">
+            <div>
+              {{ scope.row.Actual_Carrier_ID == '-1' ? '' : scope.row.Actual_Carrier_ID }}
+              <el-tooltip placement="top-start" :content="$t('Rack.copy')">
+                <i
+                  v-if="scope.row.Actual_Carrier_ID != '-1' && scope.row.Actual_Carrier_ID != ''"
+                  @click="CopyText(scope.row.Actual_Carrier_ID)"
+                  class="copy-button copy-icon bi bi-clipboard"
+                ></i>
+              </el-tooltip>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('TaskTable.UnloadTime')" prop="RecieveTime" width="160">
+          <template #default="scope">{{ formatTime(scope.row.UnloadTime) }}</template>
+        </el-table-column>
+        <el-table-column :label="$t('TaskTable.LoadTime')" prop="RecieveTime" width="160">
+          <template #default="scope">{{ formatTime(scope.row.LoadTime) }}</template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('TaskTable.StartLocation')"
+          prop="StartLocationDisplay"
+          width="160"
+        ></el-table-column>
         <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName" width="100"></el-table-column>
         <el-table-column :label="$t('TaskTable.Fail_reason')" prop="FailureReason" min-width="120">
           <template #default="scope">
@@ -242,7 +267,10 @@ export default {
   },
   methods: {
     formatTime(_time) {
-      return moment(_time).format('yyyy-MM-DD HH:mm:ss');
+      const formatedTimStr = moment(_time).format('yyyy-MM-DD HH:mm:ss');
+      if (formatedTimStr == '0001-01-01 00:00:00' || formatedTimStr == '1900-01-01 00:00:00')
+        return '';
+      return formatedTimStr;
     },
     onmessage(ev) {
       this.tasks = JSON.parse(ev.data)
@@ -296,6 +324,8 @@ export default {
       }
     },
     PageChnageHandle(payload) {
+      if (!this.currentpage)
+        return;
       TaskQuery(this.currentpage, this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected, this.ActionTypeSelected, this.Fail_reason).then(retquery => {
         this.tasks = retquery.tasks;
       }

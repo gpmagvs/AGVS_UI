@@ -66,6 +66,7 @@ import { tableHeaderStyle } from '@/ViewModels/GlobalStyles'
 import param from './gpm_param'
 import { ElNotification } from 'element-plus'
 import RegularULDHotRunStateView from './components/RegularULDHotRunStateView.vue';
+import { CheckMapPointsIsEqTypeButNoEqSetup } from './api/EquipmentAPI';
 
 export default {
   components: {
@@ -146,6 +147,53 @@ export default {
       if (_lang) {
         this.$i18n.locale = _lang;
       }
+    },
+    async CheckEqPointsNoSetup() {
+      if (userStore.state.user.Role > 1)
+
+        var notifyStateStr = localStorage.getItem('GPMAGVS-NO-NOTIFY-STATE')
+      if (notifyStateStr) {
+        const notifyState = JSON.parse(notifyStateStr);
+        const isTimePassed = Date.now() > notifyState.nextNofityTime;
+        //alert(isTimePassed)
+        if (!isTimePassed)
+          return;
+      }
+
+      CheckMapPointsIsEqTypeButNoEqSetup().then(result => {
+        //template 
+        //{
+        //   "isNormal": false,
+        //   "noBuildPointInfo":[{tag:44,name:''}]
+        //}
+        if (!result.isNormal) {
+          let _htmlBuild = '<div>'
+          result.noBuildPointInfo.forEach(element => {
+            _htmlBuild += `<div class="text-start" style="padding-left:30px"> <label style="margin-right:30px">Tag ${element.tag} : </label> <b>[${element.name}]</b> </div>`
+          });
+          _htmlBuild += '<div>'
+          var result = this.$swal.fire(
+            {
+              html: _htmlBuild,
+              title: '注意!有站點未設置設備',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'OK',
+              cancelButtonText: '稍後再提醒我',
+              customClass: 'my-sweetalert'
+            }).then(res => {
+              //alert(JSON.stringify(res))
+              if (res.dismiss == 'cancel') {
+                // alert('真叛逆...');
+                const _nextNofityTime = new Date(Date.now() + 1 * 60 * 60 * 1000).getTime();
+                localStorage.setItem('GPMAGVS-NO-NOTIFY-STATE', JSON.stringify({
+                  nextNofityTime: _nextNofityTime
+                }))
+              }
+            })
+        }
+
+      })
     }
   },
   mounted() {
@@ -225,7 +273,8 @@ export default {
       this.loading = true;
     }
     setTimeout(() => {
-      this.loading = false
+      this.loading = false;
+      this.CheckEqPointsNoSetup();
     }, 800)
     this.RegistNotifies();
     this.changeLangFromLocalStorage();

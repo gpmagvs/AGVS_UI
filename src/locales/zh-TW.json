@@ -164,7 +164,11 @@
     "CstID": "貨物ID",
     "FinishTime": "結束時間",
     "RecievedTime": "接收時間",
-    "FailureReason": "異常描述"
+    "FailureReason": "異常描述",
+    "UnloadTime": "取料時間",
+    "LoadTime": "放料時間",
+    "StartLocation": "起始位置",
+    "AGVReadID": "AGV讀取ID"
   },
   "AlarmTable": {
     "Time": "時間",

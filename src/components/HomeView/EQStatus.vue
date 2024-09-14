@@ -200,9 +200,9 @@
         <template #default="scope">
           <el-tag
             style="width:80px"
-            :type="GetMainStatusTagtype(scope.row.MainStatus, scope.row.IsConnected)"
+            :type="GetMainStatusTagtype(scope.row)"
             effect="dark"
-          >{{ GetMainStatusStr(scope.row.MainStatus, scope.row.IsConnected) }}</el-tag>
+          >{{ GetMainStatusStr(scope.row) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -507,6 +507,7 @@ import { EqStore } from '@/store'
 import { watch } from 'vue';
 import bus from '@/event-bus.js'
 import { CopyText } from '@/api/Common/UtilityTools'
+import EQStatusDIDto from '@/ViewModels/clsEQStates';
 
 class IoColumnSetting {
   constructor() {
@@ -682,20 +683,48 @@ export default {
         return;
       SetAGVHandshakeIO(eqname, signal_name, state)
     },
-    GetMainStatusStr(status_int, connected) {
+    GetMainStatusStr(row = new EQStatusDIDto()) {
+      const connected = row.IsConnected;
+      const status_int = row.MainStatus;
+      const optionOfEQ = EqStore.state.EqOptions.find(opt => opt.TagID == row.Tag);
       if (!connected)
         return '斷線';
       switch (status_int) {
         case 0:
-          return '當機'
+          return 'DOWN'
         case 1:
-          return '生產中'
+          return 'RUN'
         case 2:
-          return '閒置'
+          if (optionOfEQ && optionOfEQ.IOLocation.STATUS_IO_SPEC_VERSION == 2)
+            return 'NORMAL'
+          return 'IDLE'
         case 3:
           return '-'
         default:
           return status_int + ''
+      }
+    }, /**'success' | 'info' | 'warning' | 'danger' | '' */
+    GetMainStatusTagtype(row = new EQStatusDIDto()) {
+
+      const connected = row.IsConnected;
+      const status_int = row.MainStatus;
+      const optionOfEQ = EqStore.state.EqOptions.find(opt => opt.TagID == row.Tag);
+      if (!connected)
+        return 'danger';
+
+      switch (status_int) {
+        case 0:
+          return 'danger'
+        case 1:
+          return 'success'
+        case 2:
+          if (optionOfEQ && optionOfEQ.IOLocation.STATUS_IO_SPEC_VERSION == 2)
+            return 'success'
+          return 'warning'
+        case 3:
+          return 'success'
+        default:
+          break;
       }
     },
     GetTransferStatusStr(status_int, connected) {
@@ -733,23 +762,7 @@ export default {
           break;
       }
     },
-    /**'success' | 'info' | 'warning' | 'danger' | '' */
-    GetMainStatusTagtype(status_int, connected) {
-      if (!connected)
-        return 'danger';
-      switch (status_int) {
-        case 0:
-          return 'danger'
-        case 1:
-          return 'success'
-        case 2:
-          return 'warning'
-        case 3:
-          return 'success'
-        default:
-          break;
-      }
-    },
+
     EmptyRackMoveInControl(eqName, bolState) {
       SetToEmptyRackStatus(eqName, bolState);
     },

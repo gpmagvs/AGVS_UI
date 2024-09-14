@@ -65,7 +65,7 @@
           </b-button>
         </div>
         <div @click="LoginClickHandler">
-          <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
+          <el-popover placement="left" title width trigger="hover" content popper-class="bg-light">
             <template #reference>
               <b-button style="border: none;background-color: transparent;color:white">
                 <el-icon>

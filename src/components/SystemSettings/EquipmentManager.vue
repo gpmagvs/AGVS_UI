@@ -36,6 +36,7 @@
       :header-cell-style="{ color: 'white', backgroundColor: 'rgb(13, 110, 253)', fontSize: '12px' }"
       :data=" sortBy=='eqName'? EqDatas:SortedEQDataBySortBy"
       :row-key="rowKey"
+      :row-class-name="GetRowClassName"
       size="small"
       border
       scrollbar-always-on
@@ -198,7 +199,7 @@
       :title="`${selected_eq_option.Name}-連線設定`"
     >
       <div class="w-100">
-        <el-form label-position="left" label-width="100">
+        <el-form label-position="left" label-width="120">
           <el-divider>通訊 Protocol</el-divider>
           <el-form-item label="通訊方式">
             <el-select v-model="selected_eq_option.ConnOptions.ConnMethod">
@@ -227,12 +228,27 @@
               v-model="selected_eq_option.ConnOptions.ComPort"
             ></el-input>
           </el-form-item>
-          <el-button
+          <!-- <el-button
             :loading="connection_testing"
             type="default"
             @click="ConnectTestHandle(selected_eq_option)"
-          >通訊測試</el-button>
+          >通訊測試</el-button>-->
           <el-divider>IO位置</el-divider>
+          <el-form-item label="STATUS_IO_SPEC">
+            <div class="d-flex w-100">
+              <i
+                class="bi bi-question-circle cursor-pointer"
+                @click="HandleInfoIconOfStatusSpecClecked"
+              ></i>
+              <el-select
+                class="mx-2"
+                v-model="selected_eq_option.IOLocation.STATUS_IO_SPEC_VERSION"
+              >
+                <el-option :value="1" label="V1"></el-option>
+                <el-option :value="2" label="V2"></el-option>
+              </el-select>
+            </div>
+          </el-form-item>
           <el-form-item label="IO數量">
             <el-input type="number" v-model="selected_eq_option.ConnOptions.Input_RegisterNum"></el-input>
           </el-form-item>
@@ -243,7 +259,66 @@
           <div class="d-flex w-100 mx-1">
             <div class="w-50 border p-2">
               <h5 class="w-100 border rounded bg-primary text-light">INPUT</h5>
-              <el-form label-position="left" label-width="120">
+              <el-form
+                v-if="selected_eq_option.IOLocation.STATUS_IO_SPEC_VERSION==1"
+                label-position="left"
+                label-width="120"
+              >
+                <el-form-item label="Start Index">
+                  <el-input
+                    type="number"
+                    v-model="selected_eq_option.ConnOptions.Input_StartRegister"
+                  ></el-input>
+                </el-form-item>
+                <el-divider></el-divider>
+                <el-form-item label="Load_Request">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Load_Request"></el-input>
+                </el-form-item>
+                <el-form-item label="Unload_Request">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Unload_Request"></el-input>
+                </el-form-item>
+                <el-form-item label="Port_Exist">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Port_Exist"></el-input>
+                </el-form-item>
+
+                <el-form-item label="Eqp_Status_Down">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Eqp_Status_Down"></el-input>
+                </el-form-item>
+
+                <el-form-item label="Eqp_Status_Run">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Eqp_Status_Run"></el-input>
+                </el-form-item>
+
+                <el-form-item label="Eqp_Status_Idle">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Eqp_Status_Idle"></el-input>
+                </el-form-item>
+
+                <el-form-item label="L_REQ">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.HS_EQ_L_REQ"></el-input>
+                </el-form-item>
+
+                <el-form-item label="U_REQ">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.HS_EQ_U_REQ"></el-input>
+                </el-form-item>
+                <el-form-item label="READY">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.HS_EQ_READY"></el-input>
+                </el-form-item>
+                <el-form-item label="LOW_READY">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.HS_EQ_LOW_READY"></el-input>
+                </el-form-item>
+
+                <el-form-item label="Empty CST OUT">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Empty_CST"></el-input>
+                </el-form-item>
+                <el-form-item label="Full CST OUT">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.Full_CST"></el-input>
+                </el-form-item>
+              </el-form>
+              <el-form
+                v-if="selected_eq_option.IOLocation.STATUS_IO_SPEC_VERSION==2"
+                label-position="left"
+                label-width="120"
+              >
                 <el-form-item label="Start Index">
                   <el-input
                     type="number"
@@ -282,9 +357,53 @@
                 </el-form-item>
               </el-form>
             </div>
+            <!-- AGV->EQ -->
             <div class="w-50 border p-2 mx-1">
               <h5 class="w-100 border rounded bg-info text-light">OUTPUT</h5>
-              <el-form label-position="left" label-width="120">
+              <!-- Version old-->
+              <el-form
+                v-if="selected_eq_option.IOLocation.STATUS_IO_SPEC_VERSION==1"
+                label-position="left"
+                label-width="120"
+              >
+                <el-form-item label="Start Index">
+                  <el-input
+                    type="number"
+                    v-model="selected_eq_option.ConnOptions.Output_Start_Address"
+                  ></el-input>
+                </el-form-item>
+                <el-divider></el-divider>
+                <el-form-item label="To_EQ_Up">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.To_EQ_Up"></el-input>
+                </el-form-item>
+                <el-form-item label="To_EQ_Low">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.To_EQ_Low"></el-input>
+                </el-form-item>
+
+                <el-form-item label="VALID">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.HS_AGV_VALID"></el-input>
+                </el-form-item>
+                <el-form-item label="TR-REQ">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.HS_AGV_TR_REQ"></el-input>
+                </el-form-item>
+                <el-form-item label="BUSY">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.HS_AGV_BUSY"></el-input>
+                </el-form-item>
+                <el-form-item label="COMPT">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.HS_AGV_COMPT"></el-input>
+                </el-form-item>
+                <el-form-item label="To EQ Empty CST">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.To_EQ_Empty_CST"></el-input>
+                </el-form-item>
+                <el-form-item label="To EQ Full CST">
+                  <el-input type="number" v-model="selected_eq_option.IOLocation.To_EQ_Full_CST"></el-input>
+                </el-form-item>
+              </el-form>
+              <el-form
+                v-if="selected_eq_option.IOLocation.STATUS_IO_SPEC_VERSION==2"
+                label-position="left"
+                label-width="120"
+              >
                 <el-form-item label="Start Index">
                   <el-input
                     type="number"
@@ -386,6 +505,37 @@
         >COMPT</div>
       </div>
     </el-drawer>
+
+    <el-dialog
+      fullscreen
+      :overflow="false"
+      v-model="showStatusIOSpec"
+      draggable
+      title="狀態IO SPEC說明"
+    >
+      <div style="position: absolute; height: 100vh;width: 100vw;overflow: hidden;">
+        <b-tabs style="height: 100vh;width: 100vw">
+          <b-tab title="舊版" style="height: 100vh;width: 100vw">
+            <iframe
+              :src="ioSpecUrl_OldVersion"
+              width="100%"
+              height="100%"
+              style="border: none;"
+              allow="autoplay"
+            ></iframe>
+          </b-tab>
+          <b-tab title="新版" style="height: 100vh;width: 100vw">
+            <iframe
+              :src="ioSpecUrl_NewVersion"
+              width="100%"
+              height="100%"
+              style="border: none;"
+              allow="autoplay"
+            ></iframe>
+          </b-tab>
+        </b-tabs>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -397,7 +547,9 @@ import { EqStore } from '@/store'
 import { ElNotification } from 'element-plus';
 import { duration } from 'moment';
 import { DeviceConfig } from '@/ViewModels/EndDeviceOption.js'
-
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
+import param from '@/gpm_param';
 export default {
   components: {
     RegionsSelector, EqGroupEditor
@@ -438,7 +590,8 @@ export default {
       connection_testing: false,
       loading: true,
       rowKey: 'index',
-      sortBy: 'eqName'//tag
+      sortBy: 'eqName',//tag
+      showStatusIOSpec: false,
     }
   },
   watch: {
@@ -455,6 +608,7 @@ export default {
     async SaveGroupsClicked() {
       var groupConfigs = this.$refs['group-editor'].GroupsConfigures;
       SaveEqGroupsConfigs(groupConfigs)
+      this.ClearAllHighlightByDuplicate();
       // alert(JSON.stringify(groupConfigs))
     },
     async SaveSettingHandler() {
@@ -513,6 +667,7 @@ export default {
     },
     ReloadSettingsHandler(showLoading = true) {
       this.loading = showLoading;
+      this.ClearAllHighlightByDuplicate();
       setTimeout(() => {
         GetEQOptions().then(option => {
           EqStore.commit('EqOptions', option);
@@ -535,6 +690,8 @@ export default {
       } else {
         newOption = option;
       }
+
+      option.highlight_duplicate = true;
       this.EqDatas = [newOption, ...this.EqDatas]
       setTimeout(() => {
         this.$refs.eqTable.setScrollTop(0)
@@ -543,6 +700,12 @@ export default {
     RemoveHandle(row) {
       var remains = this.EqDatas.filter(eq => eq.Name != row.Name)
       this.EqDatas = remains;
+    },
+    ClearAllHighlightByDuplicate() {
+      this.EqDatas.forEach(opt => {
+        opt.highlight_duplicate = undefined;
+        opt.highlight = undefined;
+      });
     },
     CopySettingHandle(row) {
       var _option = new DeviceConfig();
@@ -623,6 +786,37 @@ export default {
         option.ValidDownStreamEndPointNames[_index] = newName;
       });
       this.CloneEQDatas();
+    },
+    DetermineHighligtRowWithCurrentRouteQueryItem() {
+      var eqTag = this.$route.query['eqTag']
+      if (eqTag) {
+        let opts = this.EqDatas.find(opt => opt.TagID == eqTag);
+        if (opts) {
+          opts.highlight = true;
+          this.ScrollToRowWithSpficTagAssigned(eqTag);
+        }
+      } else {
+        this.EqDatas.forEach(opt => opt.highlight = undefined)
+      }
+    },
+    ScrollToRowWithSpficTagAssigned(eqTag) {
+      setTimeout(() => {
+        const index = this.EqDatas.findIndex(opt => opt.TagID == eqTag)
+        this.$refs.eqTable.setScrollTop(index * 70)
+      }, 200);
+    },
+    GetRowClassName({ row, rowIndex }) {
+      if (row.highlight != undefined) {
+        return 'row-highlight';
+      } else if (row.highlight_duplicate != undefined) {
+        return 'row-highlight-duplicate';
+      }
+      else {
+        return '';
+      }
+    },
+    HandleInfoIconOfStatusSpecClecked() {
+      this.showStatusIOSpec = true;
     }
   },
   mounted() {
@@ -630,6 +824,14 @@ export default {
       this.DownloadEQOptions();
       this.loading = false;
     }, 400);
+
+    const route = useRoute()
+    watch(
+      () => route.path,
+      (newValue, oldValue) => {
+        this.DetermineHighligtRowWithCurrentRouteQueryItem();
+      }
+    )
   },
   computed: {
     EqNames() {
@@ -653,14 +855,28 @@ export default {
       else {
         return this.EqDatas;
       }
+    },
+    ioSpecUrl_NewVersion() {
+      return param.backend_host + '/Resources/Reference Documents/[GPM SPEC] [新版] IO交握流程規範_V1.2.pdf'
+    },
+    ioSpecUrl_OldVersion() {
+      return param.backend_host + '/Resources/Reference Documents/[GPM SPEC] [舊版] IO交握流程規範_V1.06.pdf'
     }
   },
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss" >
 .equipment-manager {
   .el-drawer__header {
     margin-bottom: 5px !important;
+  }
+  .el-table {
+    .row-highlight {
+      background-color: pink;
+    }
+    .row-highlight-duplicate {
+      background-color: orange;
+    }
   }
 }
 </style>

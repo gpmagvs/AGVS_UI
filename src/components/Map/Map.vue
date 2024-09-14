@@ -435,26 +435,26 @@
                 </el-radio-group>
               </div>
               <div v-if="!IsOpUsing" :class="map_display_mode+`_${editable?'editMode':''}`">
-                <el-tooltip placement="top-start">
+                <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
+                <el-tooltip placement="left">
                   <template #content>
                     <div>
                       ■ Slam:點位位置使用真實座標
                       <br />■ 路網:點位顯示位置可隨意變更。
                     </div>
                   </template>
-                  <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
+                  <el-switch
+                    @change="MapDisplayModeOptHandler"
+                    inactive-value="router"
+                    active-value="coordination"
+                    width="70"
+                    v-model="map_display_mode"
+                    inline-prompt
+                    :inactive-text="$t('PathNetwork')"
+                    active-text="Slam"
+                    inactive-color="seagreen"
+                  ></el-switch>
                 </el-tooltip>
-                <el-switch
-                  @change="MapDisplayModeOptHandler"
-                  inactive-value="router"
-                  active-value="coordination"
-                  width="70"
-                  v-model="map_display_mode"
-                  inline-prompt
-                  :inactive-text="$t('PathNetwork')"
-                  active-text="Slam"
-                  inactive-color="seagreen"
-                ></el-switch>
               </div>
               <div v-if="agv_show">
                 <span class="mx-1">{{ $t('Map.Options.AgvVisible') }}</span>
@@ -526,9 +526,7 @@
                 ></el-switch>
               </div>
               <div class="rounded">
-                <el-tooltip content="圖例">
-                  <span class="mx-1">圖例顯示</span>
-                </el-tooltip>
+                <span class="mx-1">圖例顯示</span>
                 <el-switch
                   class="my-2"
                   inactive-text="OFF"
@@ -550,6 +548,23 @@
                   v-model="dragActionLock"
                   @change="HandleDragLockSwitchChanged"
                 ></el-switch>
+              </div>
+              <!-- 點位搜尋 -->
+              <div class="rounded">
+                <span class="mx-1">Search</span>
+                <el-select
+                  filterable
+                  clearable
+                  v-model="searchTag"
+                  @change="HandleSearchTagSelected"
+                >
+                  <el-option
+                    v-for="opt in allPointsSimpleOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                    :label="opt.label"
+                  ></el-option>
+                </el-select>
               </div>
               <div v-if="editable" class="rounded">
                 <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
@@ -690,7 +705,7 @@ import ImageEditor from '@/components/General/ImageEditor.vue'
 import EQStatusDIDto from '@/ViewModels/clsEQStates.js'
 import param from '@/gpm_param';
 import MapLegend from './MapLegend.vue'
-import ContextMenuContainer from './MapContextMenu/ContextMenuContainer.vue';
+import ContextMenuContainer, { ContextMenuOptions } from './MapContextMenu/ContextMenuContainer.vue';
 import AlignmentToos from './AlignmentToos.vue';
 export default {
   components: {
@@ -865,6 +880,7 @@ export default {
       map_image_display: 'visible',
       left_tab_class_name: 'tab-open',
       previousSelectedFeatures: [],
+      clickedFeature: new Feature(),
       agv_upload_coordination_mode: false,
       editModeContextMenuVisible: false,
       taskDispatchContextMenuVisible: false,
@@ -937,7 +953,8 @@ export default {
       SelectedFeatures: [],
       showRedrawControl: false,
       tempHiddenFeaturesOfRegion: [],
-      isRedrawConfirmable: false
+      isRedrawConfirmable: false,
+      searchTag: undefined
 
     }
   },
@@ -950,6 +967,9 @@ export default {
     },
     IsOpUsing() {
       return userStore.getters.IsOPLogining;
+    },
+    userLevel() {
+      return userStore.state.user.Role;
     },
     MapServerUrl() {
       return MapStore.getters.MapServerUrl;
@@ -1035,6 +1055,14 @@ export default {
       if (!this.tempHiddenFeaturesOfRegion)
         return '';
       return this.tempHiddenFeaturesOfRegion[0].get('name');
+    },
+    allPointsSimpleOptions() {
+      return Object.values(MapStore.state.MapData.Points).sort((a, b) => a.TagNumber - b.TagNumber).map(pt => {
+        return {
+          value: pt.TagNumber,
+          label: pt.TagNumber + `(${pt.Graph.Display})`
+        }
+      })
     }
   },
   methods: {
@@ -1580,7 +1608,8 @@ export default {
 
         if (e.originalEvent.button == 2) {
           var menuUseFor = '';
-          var option = {};
+          var option = new ContextMenuOptions();
+
 
           if (this.agvSelectedState.isClicked && !this.editable) {
             menuUseFor = 'agv';
@@ -1591,7 +1620,12 @@ export default {
             option.selectedFeatures = this.SelectedFeatures;
           }
 
-          if (menuUseFor != '' && !this.IsOpUsing)
+          if (this.clickedFeature && !this.agvSelectedState.isClicked && this.clickedFeature.get('data') && this.clickedFeature.get('data').IsEquipment) {
+            menuUseFor = 'eq'
+            option.selectedFeature = this.clickedFeature;
+          }
+
+          if (menuUseFor != '' && this.userLevel > 0)
             this.$refs['contextMenu2'].showAt([e.originalEvent.x, e.originalEvent.y], menuUseFor, option);
         }
 
@@ -1599,14 +1633,18 @@ export default {
       this.map.on('pointerdown', (evt) => {
 
         IsVehicleClicked(evt.pixel);
-        var feature = FeatureClicked(evt.pixel);;
-        if (feature && this.editable) {
-          this.previousSelectedFeatures = [feature]
+        var feature = FeatureClicked(evt.pixel);
+
+        if (feature) {
+          this.clickedFeature = feature;
+          if (this.editable)
+            this.previousSelectedFeatures = [feature]
         }
         const isRightClick = evt.originalEvent.button == 2;
         if (!isRightClick) {
           this.$refs['contextMenu2'].hide();
         }
+
         if (this.DragBackgroundImageMode && isRightClick) {
           this.dragStartPosition = evt.coordinate;
           return;
@@ -2983,8 +3021,8 @@ export default {
     HandleSettingBtnClick() {
       this.$refs.settings.show = true;
     },
-    ClearSelectedFeature() {
-      if (this.editable)
+    ClearSelectedFeature(useForSearchResult = false) {
+      if (this.editable && !useForSearchResult)
         return;
 
       try {
@@ -2999,7 +3037,7 @@ export default {
       }
       this.previousSelectedFeatures = []
     },
-    HighLightFeatureSelected(features = [new Feature()], color = 'red') {
+    HighLightFeatureSelected(features = [new Feature()], color = 'red', useForSearchResult = false) {
       features.forEach(_ft => {
         try {
           var style = _ft.getStyle().clone();
@@ -3010,10 +3048,16 @@ export default {
                 color: color
               }))
               text.setFill(new Fill({ color: 'white' }))
-              text.setFont('bold 18px Calibri,sans-serif');
-              text.setOffsetX(0);
-              text.setOffsetY(0);
               text.setPadding([5, 5, 5, 5]);
+
+              if (useForSearchResult) {
+                text.setOffsetY(-20);
+                text.setFont('bold 40px Calibri,sans-serif');
+              } else {
+                text.setOffsetX(0);
+                text.setOffsetY(0);
+                text.setFont('bold 18px Calibri,sans-serif');
+              }
               style.setText(text); // 更新樣式
               _ft.setStyle(style); // 設定新的樣式
             }
@@ -4002,6 +4046,27 @@ export default {
       var textFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'text')
       var ploygonFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'polygon')
       _forbid_region_editor.Show(_forbidRegionName, textFeature, ploygonFeature);
+    },
+    HandleSearchTagSelected(tag) {
+
+      if (this.clickedFeature) {
+        this.clickedFeature.setStyle(this.clickedFeature.get('oriStyle'))
+      }
+      if (!tag)
+        return;
+      const layer = this.map_display_mode == 'coordination' ? this.PointLayer : this.PointRouteLayer;
+      const features = layer.getSource().getFeatures();
+      const featureFound = features.find(_feature => _feature.get('data').TagNumber == tag);
+      if (!featureFound)
+        return;
+      const coordination = featureFound.getGeometry().getCoordinates()
+      // alert(JSON.stringify(coordination))
+      this.map.getView().setCenter(coordination);
+      this.map.getView().setZoom(3);
+      featureFound.set('oriStyle', featureFound.getStyle().clone());
+      // let _style = featureFound.getStyle().clone();
+      this.HighLightFeatureSelected([featureFound], 'rgb(13, 110, 253)', true)
+      this.clickedFeature = featureFound;
     }
   },
 

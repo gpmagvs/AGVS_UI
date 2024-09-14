@@ -6,6 +6,7 @@
   >
     <div class="title text-light">{{ getTitle }}</div>
     <MenuForVehicle v-if="useFor=='agv'" :agvName="options.agvName"></MenuForVehicle>
+    <MenuForEQStationSelected v-if="useFor=='eq'" :eqTag="stationTag"></MenuForEQStationSelected>
     <MenuForMultiPointsSelected
       v-if="useFor=='multi-point'"
       :selectedFeatures="options.selectedFeatures"
@@ -17,20 +18,43 @@
 </template>
 
 <script>
+
+/**地圖右鍵選單參數模型 */
+export class ContextMenuOptions {
+  constructor() {
+    this.agvName = '';
+    this.stationName = '';
+    this.selectedFeatures = [];
+    this.selectedFeature = new Feature();
+  }
+}
+
 import MenuForVehicle from './MenuForVehicle.vue';
 import MenuForMultiPointsSelected from './MenuForMultiPointsSelected.vue';
+import MenuForEQStationSelected from './MenuForEQStationSelected.vue';
+import { Feature } from 'ol';
+
+/**地圖右鍵選單容器 */
 export default {
   components: {
-    MenuForVehicle, MenuForMultiPointsSelected
+    MenuForVehicle, MenuForMultiPointsSelected, MenuForEQStationSelected
   },
   computed: {
     getTitle() {
-      if (this.useFor == 'agv') {
+      if (this.useFor == 'agv')
         return this.options.agvName;
+      else if (this.useFor == 'eq') {
+        return this.options.selectedFeature.get('data').Graph.Display;
+
       } else if (this.useFor == 'multi-point') {
         return `多點編輯 [${this.options.selectedFeatures.length}]`;
       }
       return '';
+    },
+    stationTag() {
+      if (!this.options.selectedFeature)
+        return -1;
+      return this.options.selectedFeature.get('data').TagNumber;
     }
   },
   data() {
@@ -41,15 +65,11 @@ export default {
         left: '0px'
       },
       useFor: '',
-      options: {
-        agvName: '',
-        stationName: '',
-        selectedFeatures: []
-      }
+      options: new ContextMenuOptions()
     }
   },
   methods: {
-    showAt(mouseLocation = [0, 0], useFor = 'agv', option = { agvName: '', stationName: '' }) {
+    showAt(mouseLocation = [0, 0], useFor = 'agv', option = new ContextMenuOptions()) {
       //   alert(mouseLocation)
       this.useFor = useFor;
       this.options = option;
