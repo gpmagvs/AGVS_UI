@@ -1,5 +1,5 @@
 <template>
-  <div id="map" class="map-component" v-loading="loading">
+  <div id="map" class="map-component" v-loading="loading" :key="renderKey">
     <div class="d-flex flex-row h-100">
       <div class="flex-fill d-flex flex-column">
         <div
@@ -281,73 +281,6 @@
             <!-- Map Render -->
             <!--提示-->
             <div class="notifiers" style="position:absolute;width: 622px;margin: 12px 60px;">
-              <!-- <el-alert v-if="map_name == 'Unkown'" title="載入中" type="warning" effect="dark" /> -->
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'add-station'"
-                title="使用滑鼠[右鍵]點擊地圖新增點位"
-                type="success"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'edit-station'"
-                title="使用滑鼠[右鍵]選擇欲編輯之點位"
-                type="success"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'remove-station'"
-                title="使用滑鼠[左鍵]選擇欲刪除之點位"
-                type="error"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'add-path' && EditorOption.AddPathMode.Direction == 'one-direction'"
-                title="使用滑鼠[左鍵]點擊地圖上任意兩個點位以新增一條單行道"
-                type="success"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'add-path' && EditorOption.AddPathMode.Direction == 'bi-direction'"
-                title="使用滑鼠[左鍵]點擊地圖上任意兩個點位以新增一條雙向道"
-                type="success"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'edit-path'"
-                title="使用滑鼠[右鍵]選擇欲編輯之路徑"
-                type="success"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'remove-path'"
-                title="使用滑鼠[左鍵]選擇欲刪除之路徑"
-                type="error"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'add-forbid-region'"
-                :title="`使用滑鼠[左鍵/右鍵]在地圖上繪製[${EditorOption.AddRegionMode.Mode == 'forbid' ? '禁制' : '通行'}]區(按下[ESC]可取消繪製)`"
-                type="success"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'edit-forbid-region'"
-                title="使用滑鼠[左鍵]在地圖上選取欲編輯之管制區)"
-                type="success"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && EditorOption.EditAction == 'remove-forbid-region'"
-                title="使用滑鼠[左鍵]在地圖上點擊欲刪除之管制區"
-                type="error"
-              />
-              <el-alert
-                class="notify-text"
-                v-if="editable && DragBackgroundImageMode"
-                title="使用滑鼠[右鍵]點擊並拖曳背景圖片進行位置調整"
-                type="error"
-              />
               <el-alert
                 v-if="showRedrawControl"
                 style="margin-top: 6px; z-index:99999"
@@ -370,11 +303,18 @@
                 </div>
               </el-alert>
             </div>
-            <div v-if="true" class="cursour-coordination-show d-flex flex-column">
-              <span
-                :style="map_theme_select=='dark'?'color:white':'color:rgb(24, 24, 24)'"
-              >{{ MouseCoordinationDisplay }}</span>
-              <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
+            <div class="notify-and-coor-container d-flex">
+              <NotifyDisplay
+                v-if="editable"
+                :EditorOption="EditorOption"
+                :DragBackgroundImageMode="DragBackgroundImageMode"
+              ></NotifyDisplay>
+              <div v-if="true" class="cursour-coordination-show d-flex flex-column">
+                <span
+                  :style="map_theme_select=='dark'?'color:white':'color:rgb(24, 24, 24)'"
+                >{{ MouseCoordinationDisplay }}</span>
+                <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
+              </div>
             </div>
             <BuildToolContainer
               class="build-tool"
@@ -386,6 +326,12 @@
               v-bind:style="map_theme_select=='dark'? map_theme_dark:{}"
               class="agv_map flex-fll border"
             >
+              <ActionUndoTool
+                v-if="editable"
+                class="action-undo-tool"
+                ref="undoTool"
+                @onUnDo="HandleUnDoBtnClicked"
+              ></ActionUndoTool>
               <AlignmentToos
                 :map_display_mode="map_display_mode"
                 :selectedFeatures="SelectedFeatures"
@@ -673,7 +619,7 @@
       </el-table>
     </el-dialog>
     <!-- <el-drawer v-model="AgvOperation.display"></el-drawer> -->
-    <ContextMenuContainer v-if="!editable" ref="contextMenu2"></ContextMenuContainer>
+    <ContextMenuContainer v-show="!editable" ref="contextMenu2"></ContextMenuContainer>
   </div>
 </template>
 <script>
@@ -708,13 +654,15 @@ import { ElNotification } from 'element-plus'
 import ImageEditor from '@/components/General/ImageEditor.vue'
 import EQStatusDIDto from '@/ViewModels/clsEQStates.js'
 import param from '@/gpm_param';
+import NotifyDisplay from './EditTool/NotifyDisplay.vue';
 import MapLegend from './MapLegend.vue'
 import ContextMenuContainer, { ContextMenuOptions } from './MapContextMenu/ContextMenuContainer.vue';
-import AlignmentToos from './AlignmentToos.vue';
+import AlignmentToos from './EditTool/AlignmentToos.vue';
+import ActionUndoTool from './EditTool/ActionUndoTool.vue';
 import BuildToolContainer from './MapPointBuilder/BuildToolContainer.vue';
 export default {
   components: {
-    QuicklyAction, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, BuildToolContainer
+    QuicklyAction, NotifyDisplay, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, ActionUndoTool, BuildToolContainer
 
   },
   props: {
@@ -759,6 +707,7 @@ export default {
     return {
       map: new Map(),
       map_name: 'Unkown',
+      renderKey: 1,
       zoom: 2,
       zoom_route: 2,
       center: [0, 0],
@@ -1074,6 +1023,11 @@ export default {
     }
   },
   methods: {
+    async HandleUnDoBtnClicked() {
+      //this.renderKey += 1;
+      const lastMapStates = await MapStore.dispatch('GetLastMapData')
+      this.RefreshMap(lastMapStates);
+    },
     GoOriginal() {
 
       this.map.getView().setCenter([0, 0]);
@@ -1171,6 +1125,7 @@ export default {
       this.UpdateEQLDULDFeature();
     },
     UpdateStationPathLayer() {
+
       var source_coordination_mode = this.PathLayerForCoordination.getSource();
       var source_router_mode = this.PathLayerForRouter.getSource();
 
@@ -1215,7 +1170,7 @@ export default {
 
       source_coordination_mode.addFeatures(path_feature_collection_coordinatino_mode);
       source_router_mode.addFeatures(path_feature_collection_router_mode);
-      return;
+      return [...path_feature_collection_router_mode, ...path_feature_collection_coordinatino_mode];
 
     },
     UpdateEQLDULDFeature() {
@@ -2262,6 +2217,9 @@ export default {
 
     /**移除一個站點，並會把相關的路徑移除 */
     RemoveStation(feature = new Feature()) {
+
+      this.saveTempMapData();
+
       var RemoveFeatureFromSource = function (source, _ptIndex) {
         var _feature = source.getFeatures().find(f => f.get('index') == _ptIndex)
         source.removeFeature(_feature)
@@ -2285,24 +2243,30 @@ export default {
       RemoveFeatureFromSource(this.PointRouteLayer.getSource(), ptIndex);
 
       RemovePath(this.PointLayer.getSource(), this.PathesSegmentsForEdit, feature);
-      this.UpdateStationPathLayer();
+      let pathesFeatures = this.UpdateStationPathLayer();
     },
+    /**新增一個feature至點位圖層 */
     AddFeatureToMapLayers(feature) {
-      this.PointLayer.getSource().addFeature(feature)
-      this.PointRouteLayer.getSource().addFeature(feature)
-      var ptStation = new clsMapStation()
-      ptStation.index = ptStation.name = feature.get('index')
-      ptStation.tag = feature.get('tag')
-      ptStation.station_type = feature.get('station_type')
-      ptStation.targets = feature.get('targets')
-      ptStation.coordination = feature.get('coordination')
-      ptStation.graph = feature.get('graph')
-      ptStation.data = feature.get('data')
-      this._map_stations.push(ptStation);
 
+      this.saveTempMapData();
+      setTimeout(() => {
+
+        this.PointLayer.getSource().addFeature(feature)
+        this.PointRouteLayer.getSource().addFeature(feature)
+        var ptStation = new clsMapStation()
+        ptStation.index = ptStation.name = feature.get('index')
+        ptStation.tag = feature.get('tag')
+        ptStation.station_type = feature.get('station_type')
+        ptStation.targets = feature.get('targets')
+        ptStation.coordination = feature.get('coordination')
+        ptStation.graph = feature.get('graph')
+        ptStation.data = feature.get('data')
+        this._map_stations.push(ptStation);
+      }, 100);
     },
     /** bi_direction_remove => 自動將雙向路徑移除 */
     RemovePath(path_feature, bi_direction_remove = false) {
+
       var removed_path = []
       var pathID = path_feature.get('path_id')
       var pathIDSplited = pathID.split('_')
@@ -2317,6 +2281,7 @@ export default {
       if (path) {
         var index = this.PathesSegmentsForEdit.indexOf(path);
         if (index != -1) {
+          this.saveTempMapData();
           this.PathesSegmentsForEdit.splice(index, 1);
           this.UpdateStationPathLayer();
 
@@ -2329,6 +2294,7 @@ export default {
           if (_reverd_path_feature) {
             var _removed_pathes = this.RemovePath(_reverd_path_feature, false);
 
+
             _removed_pathes.forEach(p => {
               removed_path.push(p);
             })
@@ -2340,6 +2306,7 @@ export default {
       //this.PointLinksLayer.getSource().removeFeature(path_feature)
     },
     InsertPointAtPathes(removePathFeature, new_pt_coordinate) {
+
       var new_pt_feature = CreateNewStationPointFeature(new_pt_coordinate, this.GenNewIndexOfStation());
       //新增點位而且新增的位置是在既有的路徑線段上
       var _removedPathes = this.RemovePath(removePathFeature, true); //移除現有路徑
@@ -2591,6 +2558,9 @@ export default {
       }
       this.PathEditTempStore.push(feature)
       if (this.PathEditTempStore.length == 2) {
+
+
+        this.saveTempMapData();
         this.GenPath(this.PathEditTempStore);
 
         if (this.EditorOption.AddPathMode.Direction == 'bi-direction') {
@@ -2775,7 +2745,14 @@ export default {
           return; // 如果用戶取消，則中止儲存操作
         }
       }
-      //把feature中的 'data' 物件資料取出
+      this.$emit('save', this._GetMapDataCurrent())
+      this.SelectedFeatures = [];
+    },
+    saveTempMapData() {
+      var _data = JSON.parse(JSON.stringify(this._GetMapDataCurrent()));
+      this.$emit('tempSave', _data)
+    },
+    _GetMapDataCurrent() {
       var Points = {}
       this.PointLayer.getSource().getFeatures().forEach(ft => {
         var index = ft.get('index')
@@ -2789,10 +2766,8 @@ export default {
         ImageFile: this.to_upload_image_file,
         ImageExtent: this.new_map_img_extent
       }
-      this.$emit('save', mapDataSave)
-      this.SelectedFeatures = [];
+      return mapDataSave;
     },
-
     HandlePtSettingBtnClick() {
       if (this.isCtrlPressing || this.SelectedFeatures.length > 0)
         return;
@@ -2832,8 +2807,12 @@ export default {
         reload();
       }
     },
-    DeepClonePathSegmentData() {
-      this.PathesSegmentsForEdit = JSON.parse(JSON.stringify(this.PathesSegments))
+    DeepClonePathSegmentData(source = undefined) {
+      if (source) {
+        this.PathesSegmentsForEdit = source
+      } else {
+        this.PathesSegmentsForEdit = JSON.parse(JSON.stringify(this.PathesSegments))
+      }
     },
     //TODO 地圖初始化
     InitMap() {
@@ -3484,13 +3463,17 @@ export default {
       }
 
     },
-    RefreshMap() {
+    RefreshMap(source = undefined) {
+      // source:{
+      //    stations:CreateMapStations(lastMapData),
+      //    pathes:lastMapData.Segments
+      //       } 
       this.MapGridSizeStore = MapStore.state.MapData.Options.gridSize;
       this.MapGridSizeXOffset = MapStore.state.MapData.Options.gridOffsetX;
       this.MapGridSizeYOffset = MapStore.state.MapData.Options.gridOffsetY;
       this.ModifyGridOffset();
-      this._map_stations = JSON.parse(JSON.stringify(this.map_station_data));
-      this.DeepClonePathSegmentData();
+      this._map_stations = JSON.parse(JSON.stringify(source ? source.stations : this.map_station_data));
+      this.DeepClonePathSegmentData(source ? source.pathes : undefined);
       this.UpdateStationPathLayer();
       this.UpdateStationPointLayer();
       this.MapDisplayModeOptHandler(false);
@@ -4374,27 +4357,28 @@ export default {
       border: 0.01rem solid black;
     }
   }
-
-  .cursour-coordination-show {
+  .notify-and-coor-container {
     z-index: 1;
     margin-top: 10px;
-    width: 140px;
-    text-align: right;
-    font-weight: bold;
-    font-size: 12px;
     position: absolute;
     right: 112px;
-    letter-spacing: 2px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-      Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-      sans-serif;
 
-    .grid-size-text {
-      font-size: small;
+    .cursour-coordination-show {
+      width: 140px;
+      text-align: right;
+      font-weight: bold;
+      font-size: 12px;
+      letter-spacing: 2px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        sans-serif;
+
+      .grid-size-text {
+        font-size: small;
+      }
     }
   }
 
-  .cursour-coordination-show,
   .custom-buttons {
     position: absolute;
     background-color: transparent;
@@ -4405,7 +4389,7 @@ export default {
     background-color: rgb(101, 163, 255);
     color: white;
     position: absolute;
-    bottom: 157px;
+    bottom: 50px;
     width: 150px;
     text-align: center;
     /* margin-left: 50px; */
@@ -4486,11 +4470,12 @@ export default {
       padding-left: 8px;
     }
   }
-  .align-tool {
+  .align-tool,
+  .action-undo-tool {
     position: absolute;
     margin-left: 3.7rem;
     margin-top: 1rem;
-    z-index: 29999;
+    z-index: 3;
   }
   .build-tool {
     // background-color: orange;
@@ -4498,7 +4483,7 @@ export default {
     position: absolute;
     top: 160px;
     left: 13px;
-    z-index: 99999;
+    z-index: 3;
   }
 }
 </style>

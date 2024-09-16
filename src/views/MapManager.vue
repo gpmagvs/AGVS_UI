@@ -5,6 +5,7 @@
       id="editable_map"
       :agv_upload_coordi_data="agv_upload_data"
       @save="SaveMapClickHandle"
+      @tempSave="TempSaveHandler"
       :editable="true"
       :agv_show="true"
       canva_height="750px"
@@ -70,14 +71,15 @@ export default {
     }
   },
   methods: {
-
+    async TempSaveHandler(mapDataSave) {
+      var tempMapData = JSON.parse(JSON.stringify(MapStore.getters.MapData))
+      this.UpdateMapData(tempMapData, mapDataSave);
+      await MapStore.dispatch('AddMapDataCache', tempMapData)
+    },
     async SaveMapClickHandle(mapDataSave) {
-      console.log(mapDataSave);
       var mapData = JSON.parse(JSON.stringify(MapStore.getters.MapData))
-      mapData.Points = mapDataSave.Points;
-      mapData.Segments = mapDataSave.Pathes;
-      mapData.Regions = mapDataSave.Regions;
-      mapData.Map_Image_Boundary = mapDataSave.ImageExtent;
+      this.UpdateMapData(mapData, mapDataSave);
+
       var _check_result = this.CheckMapContentHasAnyError(mapData);
       if (!_check_result.correct) {
         this.$swal.fire(
@@ -128,6 +130,12 @@ export default {
           customClass: 'my-sweetalert',
         })
       }
+    },
+    UpdateMapData(mapDataExist, newData) {
+      mapDataExist.Points = newData.Points;
+      mapDataExist.Segments = newData.Pathes;
+      mapDataExist.Regions = newData.Regions;
+      mapDataExist.Map_Image_Boundary = newData.ImageExtent;
     },
     CheckMapContentHasAnyError(mapData) {
       var _tags_settings = Object.values(mapData.Points).map(pt => { return pt.TagNumber })

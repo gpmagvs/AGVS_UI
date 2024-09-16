@@ -61,8 +61,8 @@ export default {
     return {
       show: false,
       locationStyle: {
-        top: '0px',
-        left: '0px'
+        top: '-100px',
+        left: '-100px'
       },
       useFor: '',
       options: new ContextMenuOptions()

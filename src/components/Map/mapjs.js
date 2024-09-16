@@ -404,7 +404,7 @@ export function CreateNewStationPointFeature(coordinate, point_index, featureSta
     if (_toolState.isAddPoint()) {
         stationType = _toolState.getStationTypeWithComponentSelected();
     }
-
+    mapPtModel.Enable = true;
     mapPtModel.StationType = stationType;
     mapPtModel.X = coordinate[0];
     mapPtModel.Y = coordinate[1];

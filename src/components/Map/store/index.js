@@ -5,10 +5,41 @@ import { agv_states_store } from "@/store";
 import param from "@/gpm_param";
 import { ToolSelect } from "../MapPointBuilder/ToolModels";
 
+
+
+function CreateMapStations(mapDataSource = new clsMap()) {
+    if (!mapDataSource)
+        return []
+    var points = mapDataSource.Points
+    if (!points)
+        return [];
+    var indexes = Object.keys(points)
+    var map_stations = []
+    indexes.forEach(index => {
+
+        var pt = points[index]
+        var mapStationData = new clsMapStation()
+        mapStationData.index = parseInt(index);
+        mapStationData.name = pt.Name;
+        mapStationData.station_type = pt.StationType;
+        mapStationData.tag = pt.TagNumber;
+        mapStationData.coordination = [pt.X, pt.Y];
+        mapStationData.targets = [];
+        mapStationData.graph = [pt.Graph.X, pt.Graph.Y];
+        mapStationData.data = pt;
+        Object.keys(pt.Target).forEach(targetIndex => {
+            mapStationData.targets.push(parseInt(targetIndex))
+        })
+        map_stations.push(mapStationData)
+    })
+    return map_stations
+}
+
 /**圖資狀態儲存 */
 export const MapStore = createStore({
     state: {
         MapData: new clsMap(),
+        TempMapDataStack: [],
         MapGeoJson: null,
         AGVDynamicPathInfo: undefined,
         OthersAGVLocateInfo: [],
@@ -104,32 +135,9 @@ export const MapStore = createStore({
         },
         MapStations: (state, actions) => {
             var mapDataSource = state.MapData
-            if (!mapDataSource)
-                return []
-            var points = mapDataSource.Points
-            if (!points)
-                return [];
-            var indexes = Object.keys(points)
-            var map_stations = []
-            indexes.forEach(index => {
-
-                var pt = points[index]
-                var mapStationData = new clsMapStation()
-                mapStationData.index = parseInt(index);
-                mapStationData.name = pt.Name;
-                mapStationData.station_type = pt.StationType;
-                mapStationData.tag = pt.TagNumber;
-                mapStationData.coordination = [pt.X, pt.Y];
-                mapStationData.targets = [];
-                mapStationData.graph = [pt.Graph.X, pt.Graph.Y];
-                mapStationData.data = pt;
-                Object.keys(pt.Target).forEach(targetIndex => {
-                    mapStationData.targets.push(parseInt(targetIndex))
-                })
-                map_stations.push(mapStationData)
-            })
-            return map_stations
+            return CreateMapStations(mapDataSource)
         },
+
         BaysData: state => {
             if (state.MapData)
                 return state.MapData.Bays
@@ -422,7 +430,18 @@ export const MapStore = createStore({
             return getters.MapBackednAxios.post(`api/Map/ResetGraphXYAsCoordinations`).then(response => {
                 return response.data
             })
-        }
+        },
+        AddMapDataCache({ commit, state, }, data) {
+            state.TempMapDataStack.push(data);
+        },
+        GetLastMapData({ commit, state, getters, actions }) {
+            let lastMapData = state.TempMapDataStack.pop();
+            console.info(lastMapData.Segments.length)
+            return {
+                stations: CreateMapStations(lastMapData),
+                pathes: lastMapData.Segments
+            };
+        },
     }
 }
 )
