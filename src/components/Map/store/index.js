@@ -3,6 +3,7 @@ import axios from 'axios'
 import { AGVOption, clsMap, clsAGVDisplay, clsMapStation, StationSelectOptions, AgvDisplayProps } from '../mapjs';
 import { agv_states_store } from "@/store";
 import param from "@/gpm_param";
+import { ToolSelect } from "../MapPointBuilder/ToolModels";
 
 /**圖資狀態儲存 */
 export const MapStore = createStore({
@@ -27,7 +28,8 @@ export const MapStore = createStore({
             path_color: 'red'
         },
         worker: new Worker(''),
-        mapBackendServer: process.env.NODE_ENV == 'development' ? param.backend_host : `${window.location.protocol}//${window.location.host}`
+        mapBackendServer: process.env.NODE_ENV == 'development' ? param.backend_host : `${window.location.protocol}//${window.location.host}`,
+        toolState: new ToolSelect('add-point', '')
     },
     getters: {
         MapBackednAxios: state => {
@@ -274,6 +276,10 @@ export const MapStore = createStore({
 
     },
     mutations: {
+        setToolState(state, _state) {
+            state.toolState = _state;
+            console.info(state.toolState)
+        },
         setMapData(state, mapdata) {
             state.MapData = mapdata;
             localStorage.setItem('mapData', JSON.stringify(mapdata))

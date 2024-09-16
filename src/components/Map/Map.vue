@@ -277,7 +277,7 @@
               </div>
             </div>
           </div>
-          <div class="w-100 h-100 d-flex">
+          <div class="w-100 h-100 d-flex" style="position: relative">
             <!-- Map Render -->
             <!--提示-->
             <div class="notifiers" style="position:absolute;width: 622px;margin: 12px 60px;">
@@ -376,7 +376,11 @@
               >{{ MouseCoordinationDisplay }}</span>
               <div class="grid-size-text">Grid Size:{{ MapGridSize }}m</div>
             </div>
-            <!-- 地圖DOM渲染 //TODO 地圖DOM渲染-->
+            <BuildToolContainer
+              class="build-tool"
+              v-if="editable&& EditorOption.EditAction=='add-station'"
+            ></BuildToolContainer>
+
             <div
               :id="id"
               v-bind:style="map_theme_select=='dark'? map_theme_dark:{}"
@@ -669,7 +673,7 @@
       </el-table>
     </el-dialog>
     <!-- <el-drawer v-model="AgvOperation.display"></el-drawer> -->
-    <ContextMenuContainer ref="contextMenu2"></ContextMenuContainer>
+    <ContextMenuContainer v-if="!editable" ref="contextMenu2"></ContextMenuContainer>
   </div>
 </template>
 <script>
@@ -707,9 +711,10 @@ import param from '@/gpm_param';
 import MapLegend from './MapLegend.vue'
 import ContextMenuContainer, { ContextMenuOptions } from './MapContextMenu/ContextMenuContainer.vue';
 import AlignmentToos from './AlignmentToos.vue';
+import BuildToolContainer from './MapPointBuilder/BuildToolContainer.vue';
 export default {
   components: {
-    QuicklyAction, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos
+    QuicklyAction, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, BuildToolContainer
 
   },
   props: {
@@ -1063,6 +1068,9 @@ export default {
           label: pt.TagNumber + `(${pt.Graph.Display})`
         }
       })
+    },
+    toolState() {
+      return MapStore.state.toolState;
     }
   },
   methods: {
@@ -1641,7 +1649,7 @@ export default {
             this.previousSelectedFeatures = [feature]
         }
         const isRightClick = evt.originalEvent.button == 2;
-        if (!isRightClick) {
+        if (!isRightClick && this.$refs['contextMenu2']) {
           this.$refs['contextMenu2'].hide();
         }
 
@@ -4483,6 +4491,14 @@ export default {
     margin-left: 3.7rem;
     margin-top: 1rem;
     z-index: 29999;
+  }
+  .build-tool {
+    // background-color: orange;
+    // font-size: 30px;
+    position: absolute;
+    top: 160px;
+    left: 13px;
+    z-index: 99999;
   }
 }
 </style>

@@ -274,8 +274,10 @@ export default {
     }
     setTimeout(() => {
       this.loading = false;
-      this.CheckEqPointsNoSetup();
     }, 800)
+    setTimeout(() => {
+      this.CheckEqPointsNoSetup();
+    }, 3000);
     this.RegistNotifies();
     this.changeLangFromLocalStorage();
   },

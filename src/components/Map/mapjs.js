@@ -388,18 +388,24 @@ export function CreateStationPathStyles(feature, color = undefined) {
     });
     return styles;
 }
-
+/**新增一個新的站點Feature */
 export function CreateNewStationPointFeature(coordinate, point_index, featureStatonType) {
     var station = new clsMapStation();
     station.coordination = coordinate;
     station.index = point_index;
     station.station_type = 0;
-    station.name = station.index + '';
+    station.name = `新站點(Index-${station.index})`;
     station.tag = station.index;
     station.graph = coordinate;
 
     var mapPtModel = new MapPointModel();
-    mapPtModel.StationType = 0;
+    let stationType = 0;
+    const _toolState = MapStore.state.toolState;
+    if (_toolState.isAddPoint()) {
+        stationType = _toolState.getStationTypeWithComponentSelected();
+    }
+
+    mapPtModel.StationType = stationType;
     mapPtModel.X = coordinate[0];
     mapPtModel.Y = coordinate[1];
     mapPtModel.Graph.X = coordinate[0];
@@ -407,6 +413,7 @@ export function CreateNewStationPointFeature(coordinate, point_index, featureSta
     mapPtModel.Name = mapPtModel.Graph.Display = station.name;
     mapPtModel.TagNumber = station.index;
     station.data = mapPtModel;
+    station.station_type = stationType;
     var feature = CreateStationFeature(station);
     return feature;
 }
