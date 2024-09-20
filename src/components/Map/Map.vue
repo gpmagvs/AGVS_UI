@@ -623,42 +623,49 @@
   </div>
 </template>
 <script>
-import Feature from 'ol/Feature.js';
-import Map from 'ol/Map.js';
-import Point from 'ol/geom/Point.js';
-import VectorSource from 'ol/source/Vector.js';
-import LineString from 'ol/geom/LineString';
-import { defaults as defaultInteractions, Pointer, MouseWheelZoom, DragPan, DoubleClickZoom } from 'ol/interaction'
+
+import { watch } from 'vue'; // Vue 內建模組
+
+// OpenLayers 相關模組
 import Draw from 'ol/interaction/Draw.js';
-import Projection from 'ol/proj/Projection.js';
-import Static from 'ol/source/ImageStatic.js';
-import View from 'ol/View.js';
+import Feature from 'ol/Feature.js';
 import ImageLayer from 'ol/layer/Image.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
-import { Fill, Stroke, Style, Circle as CircleStyle, Text, Icon } from 'ol/style';
+import LineString from 'ol/geom/LineString';
+import Point from 'ol/geom/Point.js';
 import { Circle, Polygon } from 'ol/geom';
-import { noModifierKeys } from 'ol/events/condition';
-import { watch } from 'vue'
-import bus from '@/event-bus.js'
+import { Fill, Stroke, Style, Text, Icon } from 'ol/style';
+import Map from 'ol/Map.js';
+import View from 'ol/View.js';
+import VectorSource from 'ol/source/Vector.js';
+import Static from 'ol/source/ImageStatic.js';
+import { defaults as defaultInteractions, Pointer, MouseWheelZoom, DragPan, DoubleClickZoom, DragBox, Select } from 'ol/interaction';
+import Projection from 'ol/proj/Projection.js';
+import { noModifierKeys, platformModifierKeyOnly } from 'ol/events/condition';
+import { getWidth } from 'ol/extent.js';
+
+// 本地模組
+import bus from '@/event-bus.js';
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
 import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image, AGVOption } from './mapjs';
-import { MapStore } from './store'
-import store, { EqStore, TaskStore, agv_states_store, userStore } from '@/store'
+import { MapStore } from './store';
+import store, { EqStore, TaskStore, agv_states_store, userStore } from '@/store';
 import MapSettingsDialog from './MapSettingsDialog.vue';
 import MapPointSettingDrawer from '../MapPointSettingDrawer.vue';
-import MapPathSettingDrawer from './MapPathSettingDrawer.vue'
+import MapPathSettingDrawer from './MapPathSettingDrawer.vue';
 import MapRegionEditDrawer from './MapRegionEditDrawer.vue';
-import QuicklyAction from './QuicklyActionMenu.vue'
-import { ElNotification } from 'element-plus'
-import ImageEditor from '@/components/General/ImageEditor.vue'
-import EQStatusDIDto from '@/ViewModels/clsEQStates.js'
+import QuicklyAction from './QuicklyActionMenu.vue';
+import { ElNotification } from 'element-plus';
+import ImageEditor from '@/components/General/ImageEditor.vue';
+import EQStatusDIDto from '@/ViewModels/clsEQStates.js';
 import param from '@/gpm_param';
 import NotifyDisplay from './EditTool/NotifyDisplay.vue';
-import MapLegend from './MapLegend.vue'
+import MapLegend from './MapLegend.vue';
 import ContextMenuContainer, { ContextMenuOptions } from './MapContextMenu/ContextMenuContainer.vue';
 import AlignmentToos from './EditTool/AlignmentToos.vue';
 import ActionUndoTool from './EditTool/ActionUndoTool.vue';
 import BuildToolContainer from './MapPointBuilder/BuildToolContainer.vue';
+
 export default {
   components: {
     QuicklyAction, NotifyDisplay, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, ActionUndoTool, BuildToolContainer
@@ -1599,7 +1606,6 @@ export default {
           if (menuUseFor != '' && this.userLevel > 0)
             this.$refs['contextMenu2'].showAt([e.originalEvent.x, e.originalEvent.y], menuUseFor, option);
         }
-
       })
       this.map.on('pointerdown', (evt) => {
 
@@ -2895,7 +2901,7 @@ export default {
         this.agv_display = 'hide'
       }
       // this.map.addControl(new ZoomSlider());
-
+      //this.AddDrawBoxInteraction();
     },
     ResetImageExtend(newExtent) {
 
@@ -4072,7 +4078,86 @@ export default {
       // let _style = featureFound.getStyle().clone();
       this.HighLightFeatureSelected([featureFound], 'rgb(13, 110, 253)', true)
       this.clickedFeature = featureFound;
-    }
+    },
+    AddDrawBoxInteraction() {
+      const selectedStyle = new Style({
+        backgroundFill: new Fill({
+          color: 'rgba(255, 165, 0, 1)',
+        })
+      })
+      // a normal select interaction to handle click
+      const select = new Select({
+        style: selectedStyle
+      });
+      this.map.addInteraction(select)
+      const selectedFeatures = select.getFeatures();
+      // a DragBox interaction used to select features by drawing boxes
+      const dragBox = new DragBox({
+        condition: platformModifierKeyOnly,
+
+      });
+      let boxendEventHandler = () => {
+        let vectorSource = this.PointLayer.getSource();
+        const boxExtent = dragBox.getGeometry().getExtent();
+        // if the extent crosses the antimeridian process each world separately
+        const worldExtent = this.map.getView().getProjection().getExtent();
+        const worldWidth = getWidth(worldExtent);
+        const startWorld = Math.floor((boxExtent[0] - worldExtent[0]) / worldWidth);
+        const endWorld = Math.floor((boxExtent[2] - worldExtent[0]) / worldWidth);
+
+        for (let world = startWorld; world <= endWorld; ++world) {
+          const left = Math.max(boxExtent[0] - world * worldWidth, worldExtent[0]);
+          const right = Math.min(boxExtent[2] - world * worldWidth, worldExtent[2]);
+          const extent = [left, boxExtent[1], right, boxExtent[3]];
+
+          const boxFeatures = vectorSource
+            .getFeaturesInExtent(extent)
+            .filter(
+              (feature) =>
+                !selectedFeatures.getArray().includes(feature) &&
+                feature.getGeometry().intersectsExtent(extent),
+            );
+
+          // features that intersect the box geometry are added to the
+          // collection of selected features
+
+          // if the view is not obliquely rotated the box geometry and
+          // its extent are equalivalent so intersecting features can
+          // be added directly to the collection
+          const rotation = this.map.getView().getRotation();
+          const oblique = rotation % (Math.PI / 2) !== 0;
+
+          // when the view is obliquely rotated the box extent will
+          // exceed its geometry so both the box and the candidate
+          // feature geometries are rotated around a common anchor
+          // to confirm that, with the box geometry aligned with its
+          // extent, the geometries intersect
+          if (oblique) {
+            const anchor = [0, 0];
+            const geometry = dragBox.getGeometry().clone();
+            geometry.translate(-world * worldWidth, 0);
+            geometry.rotate(-rotation, anchor);
+            const extent = geometry.getExtent();
+            boxFeatures.forEach(function (feature) {
+              const geometry = feature.getGeometry().clone();
+              geometry.rotate(-rotation, anchor);
+              if (geometry.intersectsExtent(extent)) {
+                selectedFeatures.push(feature);
+                feature.setStyle(feature.get('oriStyle'))
+              }
+            });
+          } else {
+            selectedFeatures.extend(boxFeatures);
+          }
+        }
+      };
+      this.map.addInteraction(dragBox);
+      dragBox.on('boxend', boxendEventHandler);
+      // clear selection when drawing a new box and when clicking on the map
+      dragBox.on('boxstart', function () {
+        selectedFeatures.clear();
+      });
+    },
   },
   mounted() {
     this.loading = true;
