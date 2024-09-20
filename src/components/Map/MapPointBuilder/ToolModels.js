@@ -24,4 +24,21 @@ export class ToolSelect {
         else
             return 0;
     }
+
+    getGeneralNameByStationType() {
+        if (this.selectedComponentName == 'normal-point')
+            return '一般點位';
+        else if (this.selectedComponentName == 'eq-point')
+            return '設備';
+        else if (this.selectedComponentName == 'stocker-point')
+            return 'Stocker';
+        else if (this.selectedComponentName == 'charge-station-point')
+            return '充電站';
+        else if (this.selectedComponentName == 'rack-point')
+            return 'Rack';
+        else if (this.selectedComponentName == 'auto-door-point')
+            return '自動門';
+        else
+            return '一般點位';
+    }
 }

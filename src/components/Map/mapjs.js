@@ -394,26 +394,31 @@ export function CreateNewStationPointFeature(coordinate, point_index, featureSta
     station.coordination = coordinate;
     station.index = point_index;
     station.station_type = 0;
-    station.name = `新站點(Index-${station.index})`;
     station.tag = station.index;
     station.graph = coordinate;
 
     var mapPtModel = new MapPointModel();
     let stationType = 0;
     const _toolState = MapStore.state.toolState;
+    var name = '新站點'
     if (_toolState.isAddPoint()) {
         stationType = _toolState.getStationTypeWithComponentSelected();
+        name = _toolState.getGeneralNameByStationType();
     }
+
+    station.name = `${name}`;
+    station.data = mapPtModel;
+    station.station_type = stationType;
+
     mapPtModel.Enable = true;
     mapPtModel.StationType = stationType;
     mapPtModel.X = coordinate[0];
     mapPtModel.Y = coordinate[1];
     mapPtModel.Graph.X = coordinate[0];
     mapPtModel.Graph.Y = coordinate[1];
-    mapPtModel.Name = mapPtModel.Graph.Display = station.name;
     mapPtModel.TagNumber = station.index;
-    station.data = mapPtModel;
-    station.station_type = stationType;
+    mapPtModel.Name = mapPtModel.Graph.Display = station.name;
+
     var feature = CreateStationFeature(station);
     return feature;
 }

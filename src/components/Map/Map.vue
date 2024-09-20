@@ -348,7 +348,7 @@
             <MapLegend
               v-if="!editable&&legendShow&&id!='locus_map'"
               class="map-ledgend border rounded"
-              v-bind:style="{bottom: IsOpUsing?'6.8rem' :'12rem'}"
+              v-bind:style="{bottom: (IsOpUsing?'0.6rem' :'5rem')}"
             ></MapLegend>
 
             <div class="custom-buttons">
@@ -2003,59 +2003,64 @@ export default {
           this.draw_forbid_regions_interaction.on('drawstart', drawStartEvent)
         }
         this.draw_forbid_regions_interaction.on('drawend', (event) => {
-          var currnetForbidRegionCount = _isForbidRegion ? that.GetForbidRegionCount() : that.GetPassibleRegionCount();
 
-          var _textBgColor = _isForbidRegion ? 'orange' : 'rgb(139, 171, 206)';
-          var _name = _isForbidRegion ? `禁制區-${currnetForbidRegionCount + 1}` : `通行區-${currnetForbidRegionCount + 1}`;
-          if (speficName)
-            _name = speficName;
+          this.saveTempMapData();
+          setTimeout(() => {
 
-          const feature = event.feature; // 獲取繪製的多邊形要素
-          feature.set('type', 'polygon')
-          feature.set('name', _name)
-          feature.set('region_type', region_type)
-          if (speficName)
-            feature.set('redraw', true)
-          const center = feature.getGeometry().getInteriorPoint().getCoordinates();
-          console.info(center)
-          feature.setStyle(new Style({
-            fill: new Fill({
-              color: _fillColor
-            }),
-            stroke: new Stroke({
-              color: _strokeColor,
-              width: 1 // 邊框寬度,
-            })
-          }));
+            var currnetForbidRegionCount = _isForbidRegion ? that.GetForbidRegionCount() : that.GetPassibleRegionCount();
 
-          // 新增文字要素
-          const textFeature = new Feature({
-            geometry: new Point(center), // 文字的位置為多邊形中心點
-          });
-          textFeature.set('type', 'text')
-          textFeature.set('name', _name)
-          textFeature.set('region_type', region_type)
-          if (speficName)
-            textFeature.set('redraw', true)
-          // 定義文字樣式
-          textFeature.setStyle(new Style({
-            text: new Text({
-              text: _name,
-              scale: 1.1,
-              font: 'bold 22px Arial',
+            var _textBgColor = _isForbidRegion ? 'orange' : 'rgb(139, 171, 206)';
+            var _name = _isForbidRegion ? `禁制區-${currnetForbidRegionCount + 1}` : `通行區-${currnetForbidRegionCount + 1}`;
+            if (speficName)
+              _name = speficName;
+
+            const feature = event.feature; // 獲取繪製的多邊形要素
+            feature.set('type', 'polygon')
+            feature.set('name', _name)
+            feature.set('region_type', region_type)
+            if (speficName)
+              feature.set('redraw', true)
+            const center = feature.getGeometry().getInteriorPoint().getCoordinates();
+            console.info(center)
+            feature.setStyle(new Style({
               fill: new Fill({
-                color: 'white'
+                color: _fillColor
               }),
-              backgroundFill: new Fill({
-                color: _textBgColor
-              }),
-              padding: [5, 5, 5, 5]
+              stroke: new Stroke({
+                color: _strokeColor,
+                width: 1 // 邊框寬度,
+              })
+            }));
 
-            })
-          }));
-          that.RegionLayer.getSource().addFeature(textFeature);
-          that.isRedrawConfirmable = true;
+            // 新增文字要素
+            const textFeature = new Feature({
+              geometry: new Point(center), // 文字的位置為多邊形中心點
+            });
+            textFeature.set('type', 'text')
+            textFeature.set('name', _name)
+            textFeature.set('region_type', region_type)
+            if (speficName)
+              textFeature.set('redraw', true)
+            // 定義文字樣式
+            textFeature.setStyle(new Style({
+              text: new Text({
+                text: _name,
+                scale: 1.1,
+                font: 'bold 22px Arial',
+                fill: new Fill({
+                  color: 'white'
+                }),
+                backgroundFill: new Fill({
+                  color: _textBgColor
+                }),
+                padding: [5, 5, 5, 5]
 
+              })
+            }));
+            that.RegionLayer.getSource().addFeature(textFeature);
+            that.isRedrawConfirmable = true;
+
+          }, 100);
         })
         this.map.addInteraction(this.draw_forbid_regions_interaction);
       }
@@ -2073,6 +2078,9 @@ export default {
 
           if (!feature || feature.get('type') != 'polygon')
             return;
+
+          // this.saveTempMapData();
+
           var _forbidRegionName = feature.get('name');
           _forbidRegion_source.removeFeature(feature);
           var _textFeature = _forbidRegion_source.getFeatures().find(f => f.get('name') == _forbidRegionName);
