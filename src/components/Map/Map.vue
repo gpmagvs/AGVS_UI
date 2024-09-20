@@ -384,7 +384,7 @@
                   <el-radio value="tag" size="large">Tag</el-radio>
                 </el-radio-group>
               </div>
-              <div v-if="!IsOpUsing">
+              <div v-if="!IsOpUsing" v-bind:class="mapModeCLass">
                 <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
                 <el-tooltip placement="left">
                   <template #content>
