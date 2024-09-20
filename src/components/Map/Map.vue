@@ -1023,8 +1023,8 @@ export default {
     toolState() {
       return MapStore.state.toolState;
     },
-    LegendStyle(){
-      return {bottom: (this.IsOpUsing?'0.6rem' :'5rem')}
+    LegendStyle() {
+      return { bottom: (this.IsOpUsing ? '0.6rem' : '5rem') }
     }
   },
   methods: {
@@ -1163,14 +1163,17 @@ export default {
 
         var startPt = this._map_stations.find(pt => pt.index == path.StartPtIndex);
         var endPt = this._map_stations.find(pt => pt.index == path.EndPtIndex);
-        let path_feature_route_mode = new Feature({
-          geometry: new LineString([[startPt.data.Graph.X, startPt.data.Graph.Y], [endPt.data.Graph.X, endPt.data.Graph.Y]]),
 
-        })
-        setPathFeatureProperties(path_Feature_coordination_mode, path);
-        setPathFeatureProperties(path_feature_route_mode, path);
-        path_feature_collection_coordinatino_mode.push(path_Feature_coordination_mode)
-        path_feature_collection_router_mode.push(path_feature_route_mode)
+        if (startPt && endPt) {
+          let path_feature_route_mode = new Feature({
+            geometry: new LineString([[startPt.data.Graph.X, startPt.data.Graph.Y], [endPt.data.Graph.X, endPt.data.Graph.Y]]),
+
+          })
+          setPathFeatureProperties(path_Feature_coordination_mode, path);
+          setPathFeatureProperties(path_feature_route_mode, path);
+          path_feature_collection_coordinatino_mode.push(path_Feature_coordination_mode)
+          path_feature_collection_router_mode.push(path_feature_route_mode)
+        }
       })
 
       source_coordination_mode.addFeatures(path_feature_collection_coordinatino_mode);
@@ -2260,22 +2263,18 @@ export default {
     },
     /**新增一個feature至點位圖層 */
     AddFeatureToMapLayers(feature) {
-
       this.saveTempMapData();
-      setTimeout(() => {
-
-        this.PointLayer.getSource().addFeature(feature)
-        this.PointRouteLayer.getSource().addFeature(feature)
-        var ptStation = new clsMapStation()
-        ptStation.index = ptStation.name = feature.get('index')
-        ptStation.tag = feature.get('tag')
-        ptStation.station_type = feature.get('station_type')
-        ptStation.targets = feature.get('targets')
-        ptStation.coordination = feature.get('coordination')
-        ptStation.graph = feature.get('graph')
-        ptStation.data = feature.get('data')
-        this._map_stations.push(ptStation);
-      }, 100);
+      this.PointLayer.getSource().addFeature(feature)
+      this.PointRouteLayer.getSource().addFeature(feature)
+      var ptStation = new clsMapStation()
+      ptStation.index = ptStation.name = feature.get('index')
+      ptStation.tag = feature.get('tag')
+      ptStation.station_type = feature.get('station_type')
+      ptStation.targets = feature.get('targets')
+      ptStation.coordination = feature.get('coordination')
+      ptStation.graph = feature.get('graph')
+      ptStation.data = feature.get('data')
+      this._map_stations.push(ptStation);
     },
     /** bi_direction_remove => 自動將雙向路徑移除 */
     RemovePath(path_feature, bi_direction_remove = false) {
@@ -2326,20 +2325,23 @@ export default {
       this.AddFeatureToMapLayers(new_pt_feature)
       //產生多組路徑
       var stationFeatures = this.map_display_mode == 'router' ? this.PointRouteLayer.getSource().getFeatures() : this.PointLayer.getSource().getFeatures();
-
       _removedPathes.forEach(path => {
-        var _startPtFeature1 = stationFeatures.find(ft => ft.get('index') == path.StartPtIndex);
-        var _endPtFeature1 = new_pt_feature
-        var _startPtFeature2 = new_pt_feature;
-        var _endPtFeature2 = stationFeatures.find(ft => ft.get('index') == path.EndPtIndex);
-        this.GenPath([_startPtFeature1, _endPtFeature1])
-        this.GenPath([_startPtFeature2, _endPtFeature2])
+        if (path && path.StartPtIndex && path.EndPtIndex) {
+          var _startPtFeature1 = stationFeatures.find(ft => ft.get('index') == path.StartPtIndex);
+          var _endPtFeature1 = new_pt_feature
+          var _startPtFeature2 = new_pt_feature;
+          var _endPtFeature2 = stationFeatures.find(ft => ft.get('index') == path.EndPtIndex);
+          this.GenPath([_startPtFeature1, _endPtFeature1])
+          this.GenPath([_startPtFeature2, _endPtFeature2])
+        }
       })
       var ratio_from_start = this.CalculateNewPointRatioOfPathStart(_removedPathes[0], new_pt_feature);
       //alert(ratio_from_start)
       //this.ResetNewPointCoordination(ratio_from_start, new_pt_feature);
     },
     CalculateNewPointRatioOfPathStart(_path, new_pt_feature) {
+      if (!_path)
+        return;
       var stationFeatures = this.map_display_mode == 'router' ? this.PointRouteLayer.getSource().getFeatures() : this.PointLayer.getSource().getFeatures();
       //計算新增的點其位置在路徑上的比例
       var _startPt = stationFeatures.find(ft => ft.get('index') == _path.StartPtIndex)
@@ -2587,7 +2589,6 @@ export default {
       var endPointFeature = start_end_features[1];
       var startPtIndex = startPointFeature.get('index');
       var endPtIndex = endPointFeature.get('index');
-
       var startPtTagX = startPointFeature.get('data').X;
       var startPtTagY = startPointFeature.get('data').Y;
 
