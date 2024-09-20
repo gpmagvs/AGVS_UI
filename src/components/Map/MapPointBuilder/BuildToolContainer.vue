@@ -5,16 +5,31 @@
       <span>元件</span>
       <!-- {{ toolState }} -->
     </h5>
-    <AddPointTool></AddPointTool>
+    <AddPointTool v-if="operation == 'add-station'"></AddPointTool>
+    <AddPathTool v-if="operation == 'add-path'"></AddPathTool>
+    <AddForbidRegionTool
+      v-if="operation == 'add-forbid-region'"
+      @onChanged="HandleRegionToolComponentChange"
+    ></AddForbidRegionTool>
   </div>
 </template>
 
 <script>
 import AddPointTool from './AddPointTool.vue';
+import AddPathTool from './AddPathTool.vue';
+import AddForbidRegionTool from './AddForbidRegionTool.vue';
 import { MapStore } from '../store';
 export default {
   components: {
     AddPointTool,
+    AddPathTool,
+    AddForbidRegionTool
+  },
+  props: {
+    operation: {
+      type: String,
+      default: 'add-station'
+    },
   },
   data() {
     return {
@@ -26,6 +41,12 @@ export default {
       return MapStore.state.toolState;
     }
   },
+  methods: {
+    HandleRegionToolComponentChange(val) {
+      console.info(val)
+      this.$emit('onRegionToolComponentChange', val)
+    }
+  }
 }
 </script>
 

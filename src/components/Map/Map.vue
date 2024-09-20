@@ -53,7 +53,6 @@
                       <el-form size="large">
                         <el-form-item label="點位">
                           <el-radio-group
-                            v-bind:style="radio_group_style"
                             :disabled="EditorOption.EditMode != 'edit'"
                             v-model="EditorOption.EditAction"
                             @change="() => { RemoveAllInteractions(); RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction() }"
@@ -72,27 +71,7 @@
                             @change="() => { RemoveAllInteractions(); PathEditTempStore = []; RemoveInteraction(draw_forbid_regions_interaction); AddEditMapInteraction(); }"
                             size="large"
                           >
-                            <el-popover
-                              placement="bottom-end"
-                              title="路徑方向"
-                              :width="180"
-                              trigger="click"
-                              :teleported="false"
-                              :visible="EditorOption.EditAction == 'add-path'"
-                            >
-                              <template #reference>
-                                <el-radio-button size="small" value="add-path">新增路徑[4]</el-radio-button>
-                              </template>
-                              <el-radio-group
-                                class="mx-1 my-1"
-                                v-model="EditorOption.AddPathMode.Direction"
-                                @change="() => { RemoveInteraction(draw_forbid_regions_interaction); }"
-                                size="large"
-                              >
-                                <el-radio-button value="one-direction">單向</el-radio-button>
-                                <el-radio-button value="bi-direction">雙向</el-radio-button>
-                              </el-radio-group>
-                            </el-popover>
+                            <el-radio-button size="small" value="add-path">新增路徑[4]</el-radio-button>
                             <el-radio-button size="small" value="edit-path">編輯路徑[5]</el-radio-button>
                             <el-radio-button size="small" value="remove-path">移除路徑[6]</el-radio-button>
                           </el-radio-group>
@@ -104,38 +83,11 @@
                             v-model="EditorOption.EditAction"
                             size="large"
                           >
-                            <el-popover
-                              placement="bottom-end"
-                              title="管制區域類型"
-                              :width="180"
-                              trigger="click"
-                              :teleported="false"
-                              :visible="EditorOption.EditAction == 'add-forbid-region'"
-                            >
-                              <template #reference>
-                                <el-radio-button
-                                  @click="HandleAddForbidRegionClicked(EditorOption.AddRegionMode.Mode)"
-                                  size="small"
-                                  value="add-forbid-region"
-                                >新增管制區[7]</el-radio-button>
-                              </template>
-                              <el-radio-group
-                                class="mx-1 my-1"
-                                v-model="EditorOption.AddRegionMode.Mode"
-                                size="large"
-                              >
-                                <el-radio-button
-                                  @click="HandleAddForbidRegionClicked('forbid')"
-                                  size="small"
-                                  value="forbid"
-                                >禁制區</el-radio-button>
-                                <el-radio-button
-                                  @click="HandleAddForbidRegionClicked('passible')"
-                                  size="small"
-                                  value="passible"
-                                >通行區</el-radio-button>
-                              </el-radio-group>
-                            </el-popover>
+                            <el-radio-button
+                              @click="HandleAddForbidRegionClicked(EditorOption.AddRegionMode.Mode)"
+                              size="small"
+                              value="add-forbid-region"
+                            >新增管制區[7]</el-radio-button>
                             <el-radio-button
                               @click="HandleEditForbidRegionClicked"
                               size="small"
@@ -318,7 +270,9 @@
             </div>
             <BuildToolContainer
               class="build-tool"
-              v-if="editable&& EditorOption.EditAction=='add-station'"
+              :operation="EditorOption.EditAction"
+              @onRegionToolComponentChange="HandleRegionToolComponentChange"
+              v-if="mapToolShow"
             ></BuildToolContainer>
 
             <div
@@ -825,10 +779,14 @@ export default {
         EditMode: 'edit',
         EditAction: 'none',
         AddPathMode: {
-          Direction: 'bi-direction'
+          Direction: () => {
+            return MapStore.state.toolState.selectedComponentName;
+          }
         },
         AddRegionMode: {
-          Mode: 'forbid' //forbid;passible
+          Mode: () => {
+            return MapStore.state.toolState.selectedComponentName;
+          }
         }
       },
       /**顯示模式 : coordination 實際座標 ; router 整齊的路網*/
@@ -919,6 +877,10 @@ export default {
     }
   },
   computed: {
+    mapToolShow() {
+      const currentAction = this.EditorOption.EditAction;
+      return this.editable && (currentAction == 'add-station' || currentAction == 'add-path' || currentAction == 'add-path' || currentAction == 'add-forbid-region');
+    },
     mapModeCLass() {
       return this.map_display_mode + `_${this.editable ? 'editMode' : ''}`
     },
@@ -1001,15 +963,6 @@ export default {
     ControledPathesBySystem() {
       return MapStore.getters.ControledPathesBySystem;
     },
-    radio_group_style() {
-      //position: relative;top: -11px;
-      if (this.EditorOption.EditAction == 'add-path' || this.EditorOption.EditAction == 'add-forbid-region')
-        return {
-          position: 'relative',
-          top: '-15px'
-        }
-      return {}
-    },
     MapGridSize() {
       return MapStore.state.MapData.Options.gridSize;
     },
@@ -1035,6 +988,9 @@ export default {
     }
   },
   methods: {
+    HandleRegionToolComponentChange(val) {
+      this.HandleAddForbidRegionClicked(val)
+    },
     async HandleUnDoBtnClicked() {
       //this.renderKey += 1;
       const lastMapStates = await MapStore.dispatch('GetLastMapData')
