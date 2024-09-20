@@ -348,7 +348,7 @@
             <MapLegend
               v-if="!editable&&legendShow&&id!='locus_map'"
               class="map-ledgend border rounded"
-              v-bind:style="{bottom: (IsOpUsing?'0.6rem' :'5rem')}"
+              v-bind:style="LegendStyle"
             ></MapLegend>
 
             <div class="custom-buttons">
@@ -384,7 +384,7 @@
                   <el-radio value="tag" size="large">Tag</el-radio>
                 </el-radio-group>
               </div>
-              <div v-if="!IsOpUsing" :class="map_display_mode+`_${editable?'editMode':''}`">
+              <div v-if="!IsOpUsing">
                 <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
                 <el-tooltip placement="left">
                   <template #content>
@@ -623,9 +623,8 @@
   </div>
 </template>
 <script>
-
 import Feature from 'ol/Feature.js';
-import Map from 'ol/Map.js'; 2
+import Map from 'ol/Map.js';
 import Point from 'ol/geom/Point.js';
 import VectorSource from 'ol/source/Vector.js';
 import LineString from 'ol/geom/LineString';
@@ -819,7 +818,7 @@ export default {
         EditMode: 'edit',
         EditAction: 'none',
         AddPathMode: {
-          Direction: 'one-direction'
+          Direction: 'bi-direction'
         },
         AddRegionMode: {
           Mode: 'forbid' //forbid;passible
@@ -913,6 +912,9 @@ export default {
     }
   },
   computed: {
+    mapModeCLass() {
+      return this.map_display_mode + `_${this.editable ? 'editMode' : ''}`
+    },
     IsCtrlPressing() {
       return store.state.isCtrlPressing;
     },
@@ -1020,6 +1022,9 @@ export default {
     },
     toolState() {
       return MapStore.state.toolState;
+    },
+    LegendStyle(){
+      return {bottom: (this.IsOpUsing?'0.6rem' :'5rem')}
     }
   },
   methods: {
@@ -4068,7 +4073,6 @@ export default {
       this.clickedFeature = featureFound;
     }
   },
-
   mounted() {
     this.loading = true;
     if (this.editable) {
@@ -4238,7 +4242,7 @@ export default {
       var enableStateOfPointTags = await MapStore.dispatch('GetPointEnableMap')
       this.ResetPointEnableStatus(enableStateOfPointTags);
     })
-  },
+  }
 }
 </script>
 <style lang="scss" scoped>
