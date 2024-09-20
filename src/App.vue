@@ -149,9 +149,10 @@ export default {
       }
     },
     async CheckEqPointsNoSetup() {
-      if (userStore.state.user.Role > 1)
+      if (userStore.state.user.Role < 1)
+        return;
 
-        var notifyStateStr = localStorage.getItem('GPMAGVS-NO-NOTIFY-STATE')
+      var notifyStateStr = localStorage.getItem('GPMAGVS-NO-NOTIFY-STATE')
       if (notifyStateStr) {
         const notifyState = JSON.parse(notifyStateStr);
         const isTimePassed = Date.now() > notifyState.nextNofityTime;
