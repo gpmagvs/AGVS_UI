@@ -39,54 +39,24 @@
       <label>{{ $t('TaskTable.FailureReason') }}</label>
       <!-- <input type="text" v-model="Fail_reason" placeholder="ALL" size="20" /> -->
       <el-input v-model="Fail_reason" placeholder="ALL" clearable style="width:120px"></el-input>
-      <b-button
-        @click="TaskQuery()"
-        :TaskQuery="TaskQuery"
-        class="Select-Query"
-        variant="primary mx-1"
-        size="sm"
-        style="float:right"
-      >{{ $t('Search.Search') }}</b-button>
-      <b-button
-        @click="SaveTocsv()"
-        :SaveTocsv="SaveTocsv"
-        class="SaveTocsv mx-2"
-        variant="primary"
-        size="sm"
-        style="float:right"
-      >{{ $t('Search.Output_csv_file') }}</b-button>
+      <b-button @click="TaskQuery()" :TaskQuery="TaskQuery" class="Select-Query" variant="primary mx-1" size="sm"
+        style="float:right">{{ $t('Search.Search') }}</b-button>
+      <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm"
+        style="float:right">{{ $t('Search.Output_csv_file') }}</b-button>
 
-      <b-button
-        v-show="isDevLogin"
-        @click="HandleExportToAutoRptFolder()"
-        :SaveTocsv="SaveTocsv"
-        class="SaveTocsv mx-2"
-        variant="danger"
-        size="sm"
-        style="float:right"
-      >輸出至自動匯出目錄</b-button>
+      <b-button v-show="isDevLogin" @click="HandleExportToAutoRptFolder()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2"
+        variant="danger" size="sm" style="float:right">輸出至自動匯出目錄</b-button>
     </div>
     <div>
-      <el-table
-        v-loading="loading"
-        :data="tasks"
-        empty-text="No Tasks"
-        row-class-name="row_state_class_name"
-        size="small"
-        style="width: 100%; height: 770px ;font-weight: bold;"
-        border
-        aria-current="currentpage"
-        id="Tasktable"
-      >
+      <el-table v-loading="loading" :data="tasks" empty-text="No Tasks" row-class-name="row_state_class_name"
+        size="small" style="width: 100%; height: 770px ;font-weight: bold;" border aria-current="currentpage"
+        id="Tasktable">
         <el-table-column :label="$t('TaskTable.TaskName')" prop="TaskName" width="280">
           <template #default="scope">
             <div>
               {{ scope.row.TaskName }}
               <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-                <i
-                  @click="CopyText(scope.row.TaskName)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i @click="CopyText(scope.row.TaskName)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
@@ -99,53 +69,24 @@
         </el-table-column>
         <el-table-column :label="$t('TaskTable.Final')" prop="StateName" width="100" align="center">
           <template #default="scope">
-            <el-tag
-              effect="dark"
-              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'"
-            >
+            <el-tag effect="dark"
+              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'">
               {{
-              scope.row.StateName }}
+        scope.row.StateName }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.AGV_Name')"
-          prop="DesignatedAGVName"
-          width="100"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Action')"
-          prop="ActionName"
-          width="60"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Source')"
-          prop="From_Station_Display"
-          width="120"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Source_Slot')"
-          prop="From_Slot"
-          width="120"
-          align="center"
-        >
+        <el-table-column :label="$t('TaskTable.AGV_Name')" prop="DesignatedAGVName" width="100"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Action')" prop="ActionName" width="60" align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Source')" prop="From_Station_Display" width="120"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Source_Slot')" prop="From_Slot" width="120" align="center">
           <template #default="scope">{{ scope.row.From_Slot == -1 ? '-' : scope.row.From_Slot }}</template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Destine')"
-          prop="To_Station_Display"
-          width="120"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Destine_Slot')"
-          prop="To_Slot"
-          width="120"
-          align="center"
-        >
+        <el-table-column :label="$t('TaskTable.Destine')" prop="To_Station_Display" width="120"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Destine_Slot')" prop="To_Slot" width="120" align="center">
           <template #default="scope">{{ scope.row.To_Slot == -1 ? '-' : scope.row.To_Slot }}</template>
         </el-table-column>
         <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID" width="140">
@@ -153,11 +94,8 @@
             <div>
               {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }}
               <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-                <i
-                  v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
-                  @click="CopyText(scope.row.Carrier_ID)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
+                  @click="CopyText(scope.row.Carrier_ID)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
@@ -167,11 +105,8 @@
             <div>
               {{ scope.row.Actual_Carrier_ID == '-1' ? '' : scope.row.Actual_Carrier_ID }}
               <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-                <i
-                  v-if="scope.row.Actual_Carrier_ID != '-1' && scope.row.Actual_Carrier_ID != ''"
-                  @click="CopyText(scope.row.Actual_Carrier_ID)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i v-if="scope.row.Actual_Carrier_ID != '-1' && scope.row.Actual_Carrier_ID != ''"
+                  @click="CopyText(scope.row.Actual_Carrier_ID)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
@@ -182,11 +117,8 @@
         <el-table-column :label="$t('TaskTable.LoadTime')" prop="RecieveTime" width="160">
           <template #default="scope">{{ formatTime(scope.row.LoadTime) }}</template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.StartLocation')"
-          prop="StartLocationDisplay"
-          width="160"
-        ></el-table-column>
+        <el-table-column :label="$t('TaskTable.StartLocation')" prop="StartLocationDisplay"
+          width="160"></el-table-column>
         <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName" width="100"></el-table-column>
         <el-table-column :label="$t('TaskTable.Fail_reason')" prop="FailureReason" min-width="120">
           <template #default="scope">
@@ -204,20 +136,14 @@
         </el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center fixed-bottom py-4">
-        <b-pagination
-          :per-page="per_page_num"
-          :total-rows="rows"
-          aria-controls="Tasktable"
-          class="pagination justify-content-center"
-          v-model="currentpage"
-          @click="PageChnageHandle"
-        ></b-pagination>
+        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="Tasktable"
+          class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
         <div class="mx-3 py-2">
           {{ $t('Search.Total_First') }}
           <span style="font-weight: bold; font-size: large;">
             {{
-            rows
-            }}
+        rows
+      }}
           </span>
           {{ $t('Search.Total_Last') }}
         </div>
@@ -296,7 +222,7 @@ export default {
 
     },
     async SaveTocsv() {
-      SaveTocsv(this.start_time, this.end_time, this.AGVSelected, this.TaskName)
+      SaveTocsv(this.start_time, this.end_time, this.AGVSelected, this.TaskName, this.ExecuteResultSelected)
       Notifier.Primary('檔案儲存成功')
     },
     async HandleExportToAutoRptFolder() {

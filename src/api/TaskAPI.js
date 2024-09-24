@@ -12,8 +12,8 @@ export async function TaskQuery(currentpage, start_time, end_time, AGV_Name = 'A
   return retquery.data;
 }
 /**輸出CSV */
-export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL') {
-  const response = await axios_entity.get(`/api/TaskQuery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}`, {
+export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL', ExecuteResultSelected = "ALL") {
+  const response = await axios_entity.get(`/api/TaskQuery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&Result=${ExecuteResultSelected}`, {
     responseType: 'blob' // Ensure the response is treated as a blob
   })
   const url = window.URL.createObjectURL(new Blob([response.data], { type: 'text/csv;charset=utf-8;' }));
