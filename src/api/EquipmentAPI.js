@@ -96,6 +96,11 @@ export const EmuAPI = {
     var ret = await axios_entity.get(url)
     return ret.data;
   },
+  async EQDownStatusSimulation(tag, state) {
+    var url = `/api/Equipment/Emu/EQDownStatusSimulation?TagNumber=${tag}&isDown=${state}`;
+    var ret = await axios_entity.get(url)
+    return ret.data;
+  },
   async SwitchMaintainstate(tag, state) {
     var url = `/api/Equipment/Emu/MaintainStatusSimulation?TagNumber=${tag}&isMaintain=${state}`;
     var ret = await axios_entity.get(url)

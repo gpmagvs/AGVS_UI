@@ -1,6 +1,7 @@
 <template>
   <div class="map-right-click-menu">
     <button @click="GoToSettingPage()">設定</button>
+    <button @click="GoToEqStatusTable()">IO/狀態檢視</button>
     <button @click="GoToSettingPage()">將AGV定位在此點</button>
 
     <div class="w-100 d-flex flex-column border-top py-1" v-if="isEmulationEq">
@@ -54,6 +55,9 @@ export default {
     },
     GoToSettingPage() {
       this.$router.push(`/sys_settings/Equipment_Setting?eqTag=${this.eqTag}`)
+    },
+    GoToEqStatusTable() {
+      bus.emit('viewEqStatus')
     }
   },
 }

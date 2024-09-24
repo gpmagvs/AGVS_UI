@@ -247,6 +247,7 @@
                 <el-option :value="1" label="V1"></el-option>
                 <el-option :value="2" label="V2"></el-option>
               </el-select>
+              <el-button @click="()=>{applyTo = 'status_io_spec';showEqSelectForm=true}">套用至..</el-button>
             </div>
           </el-form-item>
           <el-form-item label="IO數量">
@@ -536,6 +537,7 @@
         </b-tabs>
       </div>
     </el-dialog>
+    <EqSelectForm v-model="showEqSelectForm" @confirm="HandleEqSelectFormConfirm"></EqSelectForm>
   </div>
 </template>
 <script>
@@ -550,9 +552,10 @@ import { DeviceConfig } from '@/ViewModels/EndDeviceOption.js'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import param from '@/gpm_param';
+import EqSelectForm from '@/components/Equipments/EqSelectForm.vue'
 export default {
   components: {
-    RegionsSelector, EqGroupEditor
+    RegionsSelector, EqGroupEditor, EqSelectForm
   },
   data() {
     return {
@@ -592,6 +595,12 @@ export default {
       rowKey: 'index',
       sortBy: 'eqName',//tag
       showStatusIOSpec: false,
+      showEqSelectForm: false,
+      applyTo: undefined,
+      applyToSuccessMsg: {
+        status_io_spec: 'IO SPEC 版本',
+        conn_setting: '成功修改'
+      }
     }
   },
   watch: {
@@ -817,6 +826,26 @@ export default {
     },
     HandleInfoIconOfStatusSpecClecked() {
       this.showStatusIOSpec = true;
+    },
+    HandleEqSelectFormConfirm(selected_eqs) {
+      this.showEqSelectForm = false;
+      let options = [new DeviceConfig()];
+      Object.assign(options, selected_eqs);
+      const selectedNames = options.map(opt => opt.Name);
+      let eqs = this.EqDatas.filter(opt => selectedNames.includes(opt.Name));
+      eqs.forEach(opt => {
+        if (this.applyTo == 'status_io_spec') {
+          opt.IOLocation.STATUS_IO_SPEC_VERSION = this.selected_eq_option.IOLocation.STATUS_IO_SPEC_VERSION;
+        }
+      });
+      const modifiedCount = eqs.length - 1;
+      if (modifiedCount > 0) {
+        this.$notify({
+          title: '成功',
+          message: `暫存修改了[${modifiedCount}]個設備的${this.applyToSuccessMsg[this.applyTo]}`,
+          type: 'success'
+        });
+      }
     }
   },
   mounted() {

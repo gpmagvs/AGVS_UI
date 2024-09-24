@@ -921,6 +921,10 @@ export default {
       var _destinTag = this.selected_destine ? this.selected_destine.TagNumber : -1;
       //   var _selected_agv = this.selected_agv == this.$t('auto-choise-vehicle') || this.selected_agv == '' ? '' : this.selected_agv;
       var _selected_agv = this.selected_agv;
+
+      this.selected_source_slot = !this.IsSourceStationBuffer && !this.IsSourceStationMultiLayers ? 0 : this.selected_source_slot;
+      this.selected_destine_slot = !this.IsDestineStationBuffer && !this.IsDestineStationMultiLayers ? 0 : this.selected_destine_slot;
+
       if (this.selected_action == 'move') {
         response = await TaskAllocation.MoveTask(new clsMoveTaskData(_selected_agv, _destinTag, 50));
       }

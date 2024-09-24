@@ -131,6 +131,8 @@
           </div>
           <div v-if="IsDeveloperLogining" class="d-flex">
             <div class="mx-3">{{ $t('HomeView.EQStatus.EQStatus.emulator') }}</div>
+
+            <el-button type="danger" @click="EQPDownSimulation(scope.row)">當機</el-button>
             <el-button @click="LDULD_Emu_State_Switch(scope.row.EQName, 'busy')">
               {{
               $t('HomeView.EQStatus.EQStatus.changetoBusy') }}
@@ -654,6 +656,9 @@ export default {
     },
     UnknownPoseSimulation(EQName) {
       EmuAPI.SetUnknownPose(EQName)
+    },
+    async EQPDownSimulation(row) {
+      await EmuAPI.EQDownStatusSimulation(row.Tag, true)
     },
     async MaintainEmulation(row) {
       var isMaintaining = row.IsMaintaining;

@@ -165,7 +165,9 @@ export default {
       }, 300)
 
     });
-
+    bus.on('viewEqStatus', () => {
+      this.right_side_tabSelected = 'eqStatus'
+    })
     const resizer = this.$el.querySelector('.resizer');
     const leftPanel = this.$el.querySelector('.left-panel');
     const rightPanel = this.$el.querySelector('.right-panel');
