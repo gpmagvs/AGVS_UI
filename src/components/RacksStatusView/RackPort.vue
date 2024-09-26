@@ -79,6 +79,16 @@
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
     <div class="item" v-if="IsOvenAsRacks">
+      <div class="title">貨物在席</div>
+      <div class="values">
+        <el-tag
+          size="large"
+          effect="dark"
+          :type="port_info.CarrierExist?'success':'danger'"
+        >{{port_info.CarrierExist?'有貨':'無貨'}}</el-tag>
+      </div>
+    </div>
+    <div class="item" v-if="IsOvenAsRacks">
       <div class="title">空/實框</div>
       <div class="values">
         <el-radio-group

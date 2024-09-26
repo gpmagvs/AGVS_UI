@@ -1554,7 +1554,7 @@ export default {
             option.selectedFeatures = this.SelectedFeatures;
           }
 
-          if (this.clickedFeature && !this.agvSelectedState.isClicked && this.clickedFeature.get('data') && this.clickedFeature.get('data').IsEquipment) {
+          if (!this.editable && this.clickedFeature && !this.agvSelectedState.isClicked && this.clickedFeature.get('data') && this.clickedFeature.get('data').IsEquipment) {
             menuUseFor = 'eq'
             option.selectedFeature = this.clickedFeature;
           }
