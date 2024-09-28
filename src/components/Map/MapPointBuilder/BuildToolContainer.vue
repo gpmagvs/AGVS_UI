@@ -6,7 +6,7 @@
       <!-- {{ toolState }} -->
     </h5>
     <AddPointTool v-if="operation == 'add-station'"></AddPointTool>
-    <AddPathTool v-if="operation == 'add-path'"></AddPathTool>
+    <AddPathTool v-if="operation == 'add-path'" @onDirectionChanged="HandlePathToolComponentChange"></AddPathTool>
     <AddForbidRegionTool
       v-if="operation == 'add-forbid-region'"
       @onChanged="HandleRegionToolComponentChange"
@@ -45,6 +45,10 @@ export default {
     HandleRegionToolComponentChange(val) {
       console.info(val)
       this.$emit('onRegionToolComponentChange', val)
+    },
+    HandlePathToolComponentChange(val) {
+      console.info(val)
+      this.$emit('onPathToolComponentChange', val)
     }
   }
 }

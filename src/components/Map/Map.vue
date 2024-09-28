@@ -272,6 +272,7 @@
               class="build-tool"
               :operation="EditorOption.EditAction"
               @onRegionToolComponentChange="HandleRegionToolComponentChange"
+              @onPathToolComponentChange="HandlePathToolComponentChange"
               v-if="mapToolShow"
             ></BuildToolContainer>
 
@@ -779,9 +780,7 @@ export default {
         EditMode: 'edit',
         EditAction: 'none',
         AddPathMode: {
-          Direction: () => {
-            return MapStore.state.toolState.selectedComponentName;
-          }
+          Direction: 'bi-direction'
         },
         AddRegionMode: {
           Mode: () => {
@@ -990,6 +989,9 @@ export default {
   methods: {
     HandleRegionToolComponentChange(val) {
       this.HandleAddForbidRegionClicked(val)
+    },
+    HandlePathToolComponentChange(val) {
+      this.EditorOption.AddPathMode.Direction = val;
     },
     async HandleUnDoBtnClicked() {
       //this.renderKey += 1;
