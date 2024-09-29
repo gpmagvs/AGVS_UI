@@ -97,6 +97,7 @@ export default {
   },
   methods: {
     Show(regionData = new MapRegion('', []), textFeature = new Feature(), ploygonFeature = new Feature()) {
+      console.log(regionData);
       this.RegionData = regionData;
       this.textFeature = textFeature;
       this.ploygonFeature = ploygonFeature;
@@ -125,6 +126,9 @@ export default {
     },
     HandleReDrawBtnClicked() {
       this.$emit('onRedraw', this.RegionData);
+      this.show = false;
+    },
+    Hide() {
       this.show = false;
     }
 

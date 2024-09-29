@@ -966,7 +966,6 @@ export default {
       return MapStore.state.MapData.Options.gridSize;
     },
     redrawingRegionName() {
-      8
       if (!this.tempHiddenFeaturesOfRegion)
         return '';
       return this.tempHiddenFeaturesOfRegion[0].get('name');
@@ -1990,8 +1989,14 @@ export default {
             feature.set('type', 'polygon')
             feature.set('name', _name)
             feature.set('region_type', region_type)
-            if (speficName)
+            if (speficName) {
               feature.set('redraw', true)
+              //從舊數據拷貝數據
+              var regionData = new MapRegion(_name, [])
+              _.merge(regionData, this.tempHiddenFeaturesOfRegion.find(ft => ft.get('name') == _name && ft.get('type') == 'polygon').get('data'));
+              regionData.PolygonCoordinations = feature.getGeometry().getCoordinates();
+              feature.set('data', regionData);
+            }
             const center = feature.getGeometry().getInteriorPoint().getCoordinates();
             console.info(center)
             feature.setStyle(new Style({
@@ -2083,7 +2088,8 @@ export default {
           });
           if (!feature || feature.get('type') != 'polygon')
             return;
-
+          if (_this.showRedrawControl) //正在重繪區域 右鍵點擊顯示drawer禁止
+            return;
           var _forbidRegionName = feature.get('name');
 
           let featuresInLayer = _this.RegionLayer.getSource().getFeatures();
@@ -2726,6 +2732,34 @@ export default {
           return; // 如果用戶取消，則中止儲存操作
         }
       }
+      //檢查是否正重繪區域且可按下完成的狀態,若是則自動按下完成，並將settig drawwer 關閉
+      if (this.showRedrawControl) {
+
+        if (this.isRedrawConfirmable) {
+          //先詢問是否要儲存
+          const result = await this.$swal.fire({
+            title: '提示',
+            text: '正在重繪管制區域且尚未儲存，是否要儲存當前重繪結果?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '確定',
+            cancelButtonText: '取消',
+            customClass: 'my-sweetalert'
+          });
+          if (result.isConfirmed) {
+            this.HandleCompleteRegionRedraw();
+          } else {
+            //取消重繪
+            this.HandleCancleRegionRedraw();
+          }
+        } else {
+          this.HandleCancleRegionRedraw();
+        }
+
+      }
+
+      const _forbid_region_editor = this.$refs['forbid_region_editor'];
+      _forbid_region_editor.Hide();
       this.$emit('save', this._GetMapDataCurrent())
       this.SelectedFeatures = [];
     },
@@ -4020,7 +4054,7 @@ export default {
       var regionData = new MapRegion(_forbidRegionName, [])
       _.merge(regionData, ploygonFeature.get('data'));
       console.log(regionData.Name);
-      _forbid_region_editor.Show(_forbidRegionName, textFeature, ploygonFeature);
+      _forbid_region_editor.Show(regionData, textFeature, ploygonFeature);
     },
     HandleSearchTagSelected(tag) {
 
