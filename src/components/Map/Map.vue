@@ -2091,7 +2091,10 @@ export default {
           var ploygonFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'polygon')
 
           _remove_keyboard_press_event_listner();
-          _forbid_region_editor.Show(_forbidRegionName, textFeature, ploygonFeature);
+          var regionData = new MapRegion(_forbidRegionName, [])
+          _.merge(regionData, ploygonFeature.get('data'));
+          console.log(regionData);
+          _forbid_region_editor.Show(regionData, textFeature, ploygonFeature);
         }
       })
       this.map.addInteraction(this.edit_forbid_regions_interaction)
@@ -4014,6 +4017,9 @@ export default {
       let featuresInLayer = this.RegionLayer.getSource().getFeatures();
       var textFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'text')
       var ploygonFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'polygon')
+      var regionData = new MapRegion(_forbidRegionName, [])
+      _.merge(regionData, ploygonFeature.get('data'));
+      console.log(regionData.Name);
       _forbid_region_editor.Show(_forbidRegionName, textFeature, ploygonFeature);
     },
     HandleSearchTagSelected(tag) {

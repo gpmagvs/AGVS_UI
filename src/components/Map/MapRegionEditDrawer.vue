@@ -80,7 +80,6 @@ export default {
   data() {
     return {
       show: false,
-      region_name: '',
       textFeature: new Feature(),
       ploygonFeature: new Feature(),
       /** { "StartPtIndex": 5, "EndPtIndex": 0, "StartCoordination": [ 2.653, 6.213 ], "EndCoordination": [ 0.531, 6.217 ], "PathID": "5_0", "IsEQLink": false, "IsSingleCar": false, "IsPassable": false, "IsExtinguishingPath": false, "Speed": 1, "LsrMode": 0, "DodgeMode": 0, "SpinMode": 0 }*/
@@ -97,24 +96,12 @@ export default {
     }
   },
   methods: {
-    Show(region_name, textFeature = new Feature(), ploygonFeature = new Feature()) {
-      this.region_name = region_name
-      this.textFeature = textFeature
-      this.ploygonFeature = ploygonFeature
-      setTimeout(async () => {
-        var regionDataRaw = await MapStore.dispatch('GetRegionByName', region_name);
-        if (regionDataRaw) {
-          this.RegionData = JSON.parse(JSON.stringify(regionDataRaw))
-        }
-        else {
-          this.RegionData = new MapRegion(region_name)
-        }
-        this.show = true
-      }, 10)
+    Show(regionData = new MapRegion('', []), textFeature = new Feature(), ploygonFeature = new Feature()) {
+      this.RegionData = regionData;
+      this.textFeature = textFeature;
+      this.ploygonFeature = ploygonFeature;
+      this.show = true;
     },
-    // Show() {
-    //   this.show = true;
-    // },
     ChangeNameDisplay(newName) {
       var newStyle = this.textFeature.getStyle().clone();
       var textProp = newStyle.getText().clone();;
@@ -144,6 +131,9 @@ export default {
 
   },
   computed: {
+    region_name() {
+      return this.RegionData.Name;
+    },
     NoramlPointsOptions() {
       var optionsNormalPT = [new StationSelectOptions()];
       var optionsParkablePT = [new StationSelectOptions()];
