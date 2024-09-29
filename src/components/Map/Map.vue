@@ -235,10 +235,11 @@
             <div class="notifiers" style="position:absolute;width: 622px;margin: 12px 60px;">
               <el-alert
                 v-if="showRedrawControl"
-                style="margin-top: 6px; z-index:99999"
+                style="margin-top: 6px; z-index:4;border: 2px solid #409EFF;"
                 title="區域重繪"
                 type="info"
                 :closable="false"
+                class="redraw-control-alert"
               >
                 <div style="position:absolute;right:10px;top:6px;" class="d-flex">
                   <el-button type="danger" @click="HandleCancleRegionRedraw">取消</el-button>

@@ -15,13 +15,13 @@
           <h3>區域設置:{{ region_name }}</h3>
         </div>
       </template>
-      <div class="draw-content">
+      <div class="draw-content" style="width: 90%;">
         <el-form label-width="140" label-position="left">
           <el-form-item label="名稱">
             <el-input v-model="RegionData.Name" @input="ChangeNameDisplay"></el-input>
           </el-form-item>
           <el-form-item label="類型">
-            <el-select v-model="RegionData.RegionType">
+            <el-select disabled v-model="RegionData.RegionType">
               <el-option :value="0" label="禁制區"></el-option>
               <el-option :value="1" label="通行區"></el-option>
             </el-select>
@@ -64,7 +64,7 @@
           </el-form-item>
 
           <el-form-item label="區域">
-            <el-button @click="HandleReDrawBtnClicked">重繪區域</el-button>
+            <el-button type="danger" @click="HandleReDrawBtnClicked">重繪區域</el-button>
           </el-form-item>
         </el-form>
       </div>
