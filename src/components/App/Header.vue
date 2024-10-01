@@ -109,15 +109,14 @@
           </span>
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
-        <div v-if="IsLogin" class="opt">
-          <div>
-            <b-button
-              @click="ResetSysAlarmsHandler"
-              class="mb-0"
-              size="sm"
-              variant="danger"
-            >{{ $t('App.Header.alarmreset') }}</b-button>
-          </div>
+        <div v-if="IsLogin" class="opt d-flex">
+          <b-button @click="StopBuzzerHandler" class="mb-0 mx-1" size="sm" variant="danger">關閉蜂鳴器</b-button>
+          <b-button
+            @click="ResetSysAlarmsHandler"
+            class="mb-0 mx-1"
+            size="sm"
+            variant="danger"
+          >{{ $t('App.Header.alarmreset') }}</b-button>
           <i class="bi bi-clock-history" @click="NavigateToAlarmView"></i>
         </div>
       </div>
@@ -150,7 +149,7 @@
 import bus from '@/event-bus.js'
 import { GetOperationStates, RunMode, HostConnMode, HostOperationMode, TransferMode } from '@/api/SystemAPI';
 import { IsLoginLastTime } from '@/api/AuthHelper';
-import { ResetSystemAlarm, ResetEquipmentAlarm } from '@/api/AlarmAPI.js'
+import { ResetSystemAlarm, ResetEquipmentAlarm, StopBuzzer } from '@/api/AlarmAPI.js'
 import moment from 'moment'
 import { Switch } from 'vue-dark-switch'
 import { watch } from 'vue'
@@ -537,6 +536,9 @@ export default {
     LangSwitch(lang) {
       this.$i18n.locale = lang;
       localStorage.setItem('lang', lang);
+    },
+    async StopBuzzerHandler() {
+      await StopBuzzer();
     },
     async ResetSysAlarmsHandler() {
       await ResetSystemAlarm()

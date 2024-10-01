@@ -85,6 +85,9 @@
       v-if="IsLogin"
       @on-click="() => { show_new_dispatch_panel = true }"
     ></TaskDispathActionButton>
+    <div id="buzzer-stop" v-if="IsOpUsing">
+      <el-button type="danger" @click="HandleStopBuzzerClicked">關閉蜂鳴器</el-button>
+    </div>
   </div>
 </template>
 <script>
@@ -100,6 +103,7 @@ import { userStore, agvs_settings_store } from '@/store';
 import { DArrowRight as MenuExpandIcon, DArrowLeft as MenuFoldIcon } from '@element-plus/icons-vue'
 
 import Header from '@/components/App/Header.vue'
+import { StopBuzzer } from '@/api/AlarmAPI';
 export default {
   components: {
     AGVStatusVue, TaskStatusVue, HomeMap, TaskAllocationVue, EQStatus, TaskDispathActionButton, TaskDispatchNewUI,
@@ -127,6 +131,9 @@ export default {
       } else {
         return null
       }
+    },
+    async HandleStopBuzzerClicked() {
+      await StopBuzzer();
     }
   },
   computed: {
@@ -267,6 +274,12 @@ export default {
 
   .resizer:active {
     background-color: rgb(223, 237, 247);
+  }
+  #buzzer-stop {
+    position: fixed;
+    top: 3px;
+    right: 24px;
+    z-index: 2000;
   }
 }
 </style>

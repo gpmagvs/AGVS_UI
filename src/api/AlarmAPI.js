@@ -39,6 +39,12 @@ export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName
   link.click();
 }
 
+
+/**關閉蜂鳴器 */
+export async function StopBuzzer() {
+  return await axios_entity.post(`/api/Alarm/StopBuzzer`)
+}
+
 export class AlarmHelper {
   constructor(onmessage = (evt) => { }) {
     this.onmessageHandler = onmessage
