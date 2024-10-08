@@ -33,7 +33,7 @@ export default {
     margin-bottom: 10px;
   }
 
-  ::v-deep .el-radio-button .el-radio-button__inner {
+  :deep(.el-radio-button .el-radio-button__inner) {
     text-align: left;
     font-size: 18px;
   }

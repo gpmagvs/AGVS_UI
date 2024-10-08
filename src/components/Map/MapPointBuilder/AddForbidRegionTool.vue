@@ -39,7 +39,7 @@ export default {
 
 <style lang="scss" scoped>
 .add-forbid-region-tool {
-  ::v-deep .el-radio-button .el-radio-button__inner {
+  :deep(.el-radio-button .el-radio-button__inner) {
     text-align: left;
     font-size: 18px;
   }

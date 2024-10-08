@@ -106,7 +106,7 @@ export default {
 <style lang="scss" scoped>
 .map-notify {
   .notify-text {
-    ::v-deep .el-alert__title {
+    :deep(.el-alert__title) {
       font-size: 20px;
       letter-spacing: 2px;
     }

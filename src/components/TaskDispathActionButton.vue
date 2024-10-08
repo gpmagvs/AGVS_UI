@@ -1306,7 +1306,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-::v-deep .el-select .el-input__inner {
+:deep(.el-select .el-input__inner) {
   font-size: 21px !important;
   color: "rgb(13, 110, 253)";
 }

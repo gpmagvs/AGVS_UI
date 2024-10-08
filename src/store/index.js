@@ -296,7 +296,8 @@ export const EqStore = createStore({
     ChargeStation: { 'charge1': {} },
     EqOptions: [DeviceConfig],
     WIPOptions: [],
-    WIPsData: []
+    WIPsData: [],
+    ChargeStationDataReceived: false
   },
   getters: {
     EQData: state => {
@@ -327,6 +328,7 @@ export const EqStore = createStore({
       state.EQ = data.EQPData
       state.ChargeStation = data.ChargeStationData
       state.WIPsData = data.WIPsData
+      state.ChargeStationDataReceived = true
     },
     EqOptions(state, option) {
       state.EqOptions = option

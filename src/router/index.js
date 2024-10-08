@@ -9,7 +9,10 @@ import DataVue from '../views/DataView.vue'
 import AlarmView from '@/views/AlarmView.vue'
 import ChargeStationView from '@/views/ChargeStation/ChargeStationHomeView.vue'
 import Login from '@/views/Login.vue'
+import AGVBatterySetting from '@/components/SystemSettings/AGVBatterySetting.vue'
+import EquipmentManager from '@/components/SystemSettings/EquipmentManager.vue'
 import { Verify } from '@/api/UserAPI'
+
 const routes = [
   {
     path: '/',
@@ -76,7 +79,7 @@ const routes = [
         meta: {
           requiresAuth: true
         },
-        component: () => import('@/components/SystemSettings/AGVBatterySetting.vue')
+        component: AGVBatterySetting
       },
       {
         path: 'Equipment_Setting',
@@ -84,7 +87,7 @@ const routes = [
         meta: {
           requiresAuth: true
         },
-        component: () => import('@/components/SystemSettings/EquipmentManager.vue')
+        component: EquipmentManager
       },
       {
         path: 'RacksManagement',

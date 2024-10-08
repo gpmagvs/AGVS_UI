@@ -53,12 +53,12 @@ export default {
 
 <style lang="scss" scoped>
 .add-point-tool {
-  ::v-deep .el-radio-button,
-  ::v-deep .el-radio-button__inner {
+  :deep(.el-radio-button),
+  :deep(.el-radio-button__inner) {
     width: 140px;
   }
 
-  ::v-deep .el-radio-button .el-radio-button__inner {
+  :deep(.el-radio-button .el-radio-button__inner) {
     text-align: left;
     font-size: 18px;
   }
