@@ -9,8 +9,17 @@
       :row-class-name="row_class_name"
       :empty-text="$t('TaskTable.NoTasks')"
     >
-      <el-table-column :label="$t('TaskTable.TaskName')" prop="TaskName" width="180"></el-table-column>
-      <el-table-column :label="$t('TaskTable.ExcuteAgvName')" prop="DesignatedAGVName"></el-table-column>
+      <el-table-column
+        :label="$t('TaskTable.TaskName')"
+        prop="TaskName"
+        width="180"
+        show-overflow-tooltip
+      ></el-table-column>
+      <el-table-column
+        :label="$t('TaskTable.ExcuteAgvName')"
+        prop="DesignatedAGVName"
+        show-overflow-tooltip
+      ></el-table-column>
       <el-table-column :label="$t('TaskTable.RecievedTime')" prop="RecieveTime_Formated" width="80"></el-table-column>
       <el-table-column :label="$t('TaskTable.FinishTime')" prop="FinishTime_Formated" width="80"></el-table-column>
       <el-table-column :label="$t('TaskTable.TaskStatus')" prop="StateName" width="80">
@@ -31,12 +40,12 @@
       <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID">
         <template #default="scope">{{ scope.row.Carrier_ID == "-1" ? "" : scope.row.Carrier_ID }}</template>
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Source')">
+      <el-table-column :label="$t('TaskTable.Source') " show-overflow-tooltip>
         <template #default="scope">{{ GetStationName(scope.row.From_Station) }}</template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column>
         <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column>-->
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Destine')">
+      <el-table-column :label="$t('TaskTable.Destine')" show-overflow-tooltip>
         <template #default="scope">{{ GetStationName(scope.row.To_Station) }}</template>
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column>
         <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column>-->

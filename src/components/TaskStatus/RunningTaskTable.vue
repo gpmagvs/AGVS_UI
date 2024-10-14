@@ -12,12 +12,18 @@
       fit
       :height="height"
     >
-      <el-table-column :label="$t('TaskTable.TaskName')" width="100" prop="TaskName"></el-table-column>
+      <el-table-column
+        :label="$t('TaskTable.TaskName')"
+        width="100"
+        prop="TaskName"
+        show-overflow-tooltip
+      ></el-table-column>
       <el-table-column
         :label="$t('TaskTable.Time')"
         align="center"
         prop="RecieveTime_Formated"
         width="90"
+        show-overflow-tooltip
       ></el-table-column>
       <el-table-column :label="$t('TaskTable.Action')" align="center" prop="ActionName" width="80">
         <template #default="scope">
@@ -44,6 +50,7 @@
         align="center"
         width="120"
         prop="DesignatedAGVName"
+        show-overflow-tooltip
       >
         <template #default="scope">
           <div class="agv-name">{{ scope.row.DesignatedAGVName }}</div>
@@ -54,6 +61,7 @@
         align="center"
         prop="From_Station"
         width="110"
+        show-overflow-tooltip
       >
         <template #default="scope">
           <div>{{ GetStationName(scope.row.From_Station) }}</div>
@@ -67,7 +75,7 @@
         align="center"
         prop="To_Station"
         width="110"
-        min-width="100%"
+        show-overflow-tooltip
       >
         <template #default="scope">
           <div>{{ GetStationName(scope.row.To_Station) }}</div>
@@ -80,7 +88,7 @@
         <template #default="scope">{{ scope.row.Carrier_ID == "-1" ? "" : scope.row.Carrier_ID }}</template>
       </el-table-column>
       <el-table-column :label="$t('TaskTable.Dispatcher')" width="100" prop="DispatcherName"></el-table-column>
-      <el-table-column v-show="taskCancelable" fixed="right" width="125">
+      <el-table-column v-show="taskCancelable" fixed="right" min-width="125">
         <template #default="scope">
           <div>
             <b-button variant="danger" @click="CancelTaskHandler(scope.row.TaskName)">取消任務</b-button>

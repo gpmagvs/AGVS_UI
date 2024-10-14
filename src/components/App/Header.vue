@@ -108,7 +108,6 @@ import { GetOperationStates, RunMode, HostConnMode, HostOperationMode, TransferM
 import { IsLoginLastTime } from '@/api/AuthHelper';
 import { ResetSystemAlarm, ResetEquipmentAlarm, StopBuzzer } from '@/api/AlarmAPI.js'
 import moment from 'moment'
-import { Switch } from 'vue-dark-switch'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { agvs_settings_store, userStore, UIStore, AlarmStore } from '@/store'
@@ -116,7 +115,7 @@ import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@ele
 import { ElMessage, ElNotification } from 'element-plus';
 export default {
   components: {
-    MenuExpandIcon, MenuFoldIcon, UserFilled, Switch
+    MenuExpandIcon, MenuFoldIcon, UserFilled
   },
   data() {
     return {
