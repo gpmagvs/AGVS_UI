@@ -15,7 +15,8 @@
       "Switch user": "Switch user",
       "systemalarm": "System Alarm",
       "alarmreset": "Alarm Reset",
-      "eqalarm": "EQP Alarm"
+      "eqalarm": "EQP Alarm",
+      "Turnoffbuzzer": "Turn off buzzer"
     }
   },
   "Menu": {

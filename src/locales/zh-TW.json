@@ -15,7 +15,8 @@
       "Switch user": "切換使用者",
       "systemalarm": "系統警報",
       "alarmreset": "清除警報",
-      "eqalarm": "設備警報"
+      "eqalarm": "設備警報",
+      "Turnoffbuzzer": "關閉蜂鳴器"
     }
   },
   "Menu": {
