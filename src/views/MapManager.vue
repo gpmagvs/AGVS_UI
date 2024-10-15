@@ -109,7 +109,6 @@ export default {
       this.map_saving = false;
       if (success) {
         bus.emit('/map_save');
-        //Notifier.Success('圖資儲存成功');
         this.$swal.fire({
           title: '圖資儲存成功',
           icon: 'success',

@@ -91,7 +91,8 @@ export default {
         title_variant: 'primary'
       },
       HeaderShowSysAlarm: true,
-      HeaderShowEqpAlarm: true
+      HeaderShowEqpAlarm: true,
+      mapSaved: false
     }
   },
   computed: {
@@ -198,6 +199,9 @@ export default {
     }
   },
   mounted() {
+    bus.on('/map_save', () => {
+      this.mapSaved = true;
+    });
     document.addEventListener('keydown', (evt) => {
       if (evt.key.toLowerCase() == 'control')
         store.commit('setCtrlKeyPressing', true)
@@ -250,6 +254,9 @@ export default {
     watch(
       () => route.path,
       (newValue, oldValue) => {
+        if (newValue == '/' && this.mapSaved) {
+          location.reload();
+        }
         if ((newValue == '/sys_settings' || newValue == '/map') && userStore.getters.level <= 0) {
           this.$vs.loading.close();
           this.loading = false;
