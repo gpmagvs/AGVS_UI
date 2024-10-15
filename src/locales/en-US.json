@@ -16,7 +16,7 @@
       "systemalarm": "System Alarm",
       "alarmreset": "Alarm Reset",
       "eqalarm": "EQP Alarm",
-      "Turnoffbuzzer": "Turn off buzzer"
+      "Turnoffbuzzer": "Buzzer OFF"
     }
   },
   "Menu": {

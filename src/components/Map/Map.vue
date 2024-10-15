@@ -621,7 +621,7 @@ import ContextMenuContainer, { ContextMenuOptions } from './MapContextMenu/Conte
 import AlignmentToos from './EditTool/AlignmentToos.vue';
 import ActionUndoTool from './EditTool/ActionUndoTool.vue';
 import BuildToolContainer from './MapPointBuilder/BuildToolContainer.vue';
-
+import { MarkIconTranslate } from './mapjs'
 export default {
   components: {
     QuicklyAction, NotifyDisplay, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, ActionUndoTool, BuildToolContainer
@@ -3041,6 +3041,8 @@ export default {
       this.previousSelectedFeatures = []
     },
     HighLightFeatureSelected(features = [new Feature()], color = 'red', useForSearchResult = false) {
+      var _workStationTextFontSize = MapStore.state.MapData.Options.workStationTextFontSize;
+
       features.forEach(_ft => {
         try {
           var style = _ft.getStyle().clone();
@@ -3055,11 +3057,11 @@ export default {
 
               if (useForSearchResult) {
                 text.setOffsetY(-20);
-                text.setFont('bold 40px Calibri,sans-serif');
+                text.setFont(`bold ${_workStationTextFontSize}px Calibri,sans-serif`);
               } else {
                 text.setOffsetX(0);
                 text.setOffsetY(0);
-                text.setFont('bold 18px Calibri,sans-serif');
+                text.setFont(`bold ${_workStationTextFontSize}px Calibri,sans-serif`);
               }
               style.setText(text); // 更新樣式
               _ft.setStyle(style); // 設定新的樣式
@@ -3349,7 +3351,7 @@ export default {
 
         //set backgroundFill color by transfer status
         const unloadableColor = 'rgba(67, 149, 237,0.4)';
-        const loadableColor = 'rgba(255, 234, 18,.5)';
+        const loadableColor = 'rgb(255, 220, 61)';
         const unloadAndloadableColor = 'rgba(10, 101, 69,.6)';
         const eqDownStatusColor = 'rgba(255, 0, 0,.8)';
         const noRequestColor = 'rgba(255,255,255,.1)';
@@ -3415,7 +3417,7 @@ export default {
         this.EqMaintainIconDisplay(tagNumber, IsMaintaining);
         var status_text = ''
         if (status == 1 || status == 2) {
-          let isTw = this.$i18n.locale.toLowerCase() == 'zh-tw'
+          let isTw = this.$i18n.locale.toLowerCase() == 'zh-Tw'
           var loadRequestText = isTw ? ' 入料請求' : ' Load Request';
           var unloadRequestText = isTw ? ' 出料請求' : ' Unload Request';
           status_text = status == 1 ? loadRequestText : unloadRequestText
@@ -3760,7 +3762,7 @@ export default {
             }
             var text = newStyle.getText();
             if (text) {
-              text.setFont('bold 22px Arial')
+              // text.setFont(`bold ${_workStationTextFontSize}px Calibri,sans-serif`)
               var fill = text.getFill()
               if (fill) {
                 var newfill = fill.clone();
@@ -3783,12 +3785,13 @@ export default {
 
 
       var _displayText = () => {
+        const tw = this.$i18n.locale == 'zh-TW';
         var _map = {
-          'move': '目的地',
-          'carry': this.$i18n.locale == 'zh-tw' ? '搬運終點' : 'Destine',
-          'load': '目標放貨設備',
-          'unload': '目標取貨設備',
-          'charge': '目標充電站',
+          'move': tw ? MarkIconTranslate.move.zh : MarkIconTranslate.move.en,
+          'carry': tw ? MarkIconTranslate.carry_destien.zh : MarkIconTranslate.carry_destien.en,
+          'load': tw ? MarkIconTranslate.load.zh : MarkIconTranslate.load.en,
+          'unload': tw ? MarkIconTranslate.unload.zh : MarkIconTranslate.unload.en,
+          'charge': tw ? MarkIconTranslate.charge.zh : MarkIconTranslate.charge.en,
 
         }
         return _map[this.TaskDispatchOptions.action_type];
@@ -4282,7 +4285,7 @@ export default {
         console.info(tagNumber);
         this.TransferTaskIconLayer.getSource().clear();
 
-        var textDisplay = this.$i18n.locale == 'zh-tw' ? '搬運起點' : 'Source';
+        var textDisplay = this.$i18n.locale == 'zh-TW' ? MarkIconTranslate.carry_source.zh : MarkIconTranslate.carry_source.en;
         if (tagNumber.isAGV) {
           textDisplay += "(AGV)";
           this.AddMarkIconWithTextAtAGV(tagNumber.agvName, textDisplay);

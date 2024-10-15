@@ -216,7 +216,7 @@ export function CreateTransTaskMark(coordinate, text = '', bgFillColor = 'rgb(13
         image: source_station_mark,
         text: new Text({
             text: text,
-            font: 'bold 30px Calibri,sans-serif',
+            font: 'bold 26px Calibri,sans-serif',
             offsetX: -7,
             offsetY: -89,
             fill: new Fill({
@@ -935,5 +935,33 @@ export class AgvDisplayProps {
         this.DisplayText = text
         this.DisplayColor = color
         this.Index = index
+    }
+}
+
+
+export const MarkIconTranslate = {
+    move: {
+        zh: '目的地',
+        en: 'Destination'
+    },
+    carry_destien: {
+        zh: '搬運終點',
+        en: 'Destination'
+    },
+    carry_source: {
+        zh: '搬運起點',
+        en: 'Source'
+    },
+    load: {
+        zh: '目標放貨設備',
+        en: 'Load Destination'
+    },
+    unload: {
+        zh: '目標取貨設備',
+        en: 'Unload Destination'
+    },
+    charge: {
+        zh: '目標充電站',
+        en: 'Charge Destination'
     }
 }
