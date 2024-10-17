@@ -592,6 +592,10 @@ export default {
       } catch (error) {
         return false;
       }
+    },
+    TaskDispatchFailString() {
+      //return by i18n current language
+      return this.$t('TaskDispatchFailString')
     }
 
   },
@@ -960,7 +964,7 @@ export default {
         const is_Unauthorized = response.status == 401;
         setTimeout(() => {
           this.$swal.fire({
-            title: is_Unauthorized ? '須重新進行登入' : '任務派送失敗!',
+            title: is_Unauthorized ? '須重新進行登入' : this.TaskDispatchFailString,
             text: is_Unauthorized ? '' : response.mesage,
             icon: 'error',
             showCancelButton: false,
@@ -1003,7 +1007,7 @@ export default {
               this.$swal.fire(
                 {
                   text: response.data.message,
-                  title: '任務派送失敗!',
+                  title: this.TaskDispatchFailString,
                   icon: 'error',
                   showCancelButton: true,
                   confirmButtonText: '設定空/實框',
@@ -1058,8 +1062,8 @@ export default {
 
               this.$swal.fire(
                 {
-                  title: '任務派送失敗!',
-                  html: `<div>${response.data.message}</div>`,
+                  title: this.TaskDispatchFailString,
+                  html: `<div class="text-danger"> <div>${response.data.message}</div><div class="my-2">${response.data.message_en}</div></div>`,
                   icon: 'error',
                   showCancelButton: false,
                   focusConfirmButton: false,

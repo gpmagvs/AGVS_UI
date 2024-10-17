@@ -235,5 +235,6 @@
   "TaskDispatchNewUI": {
     "ConfirmDispatchText": "確定要派送此任務?"
   },
-  "Confirm": "確定"
+  "Confirm": "確定",
+  "TaskDispatchFailString": "任務派送失敗"
 }

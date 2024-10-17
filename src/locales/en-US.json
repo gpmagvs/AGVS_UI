@@ -238,5 +238,6 @@
   "Confirm": "YES",
   "Notifies": {
     "CanNotDoUnloadWhenAGVHasCargo": " Can't do Unload action when AGV has cargo"
-  }
+  },
+  "TaskDispatchFailString": "Dispatch Task Fail"
 }
