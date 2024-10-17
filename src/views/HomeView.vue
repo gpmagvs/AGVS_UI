@@ -86,7 +86,7 @@
       @on-click="() => { show_new_dispatch_panel = true }"
     ></TaskDispathActionButton>
     <div id="buzzer-stop" v-if="IsOpUsing">
-      <el-button type="danger" @click="HandleStopBuzzerClicked">關閉蜂鳴器</el-button>
+      <el-button type="danger" @click="HandleStopBuzzerClicked">{{ $t('App.Header.Turnoffbuzzer') }}</el-button>
     </div>
   </div>
 </template>
