@@ -1,15 +1,11 @@
 <template>
     <div class="agv-battery-setting d-flex h-100">
-        <el-table
-            class="w-50 mx-1"
-            :header-cell-style="tableHeaderStyle"
-            size="large"
-            border
-            :data="datas">
+        <el-table class="w-50 mx-1" :header-cell-style="tableHeaderStyle" size="large" border :data="datas">
             <el-table-column v-for="column in columnMap" :key="column.prop" :label="column.label" :prop="column.prop">
                 <template #default="scope">
                     <div v-if="column.type == 'string'" v-text="scope.row[column.prop]" class=""></div>
-                    <el-input-number v-if="column.type == 'number'" v-model="scope.row[column.prop]" @change="modify(scope.row, scope.row.agvName)"></el-input-number>
+                    <el-input-number v-if="column.type == 'number'" v-model="scope.row[column.prop]"
+                        @change="modify(scope.row, scope.row.agvName)"></el-input-number>
                 </template>
             </el-table-column>
         </el-table>
@@ -17,28 +13,30 @@
             <el-timeline class="bat-timeline" style="max-width: 600px">
                 <el-timeline-item timestamp="100%" placement="top">
                     <el-card class="bg-success text-light">
-                        <h5>高電量區</h5>
-                        <div>- 可執行所有任務訂單。</div>
+                        <h5>-{{ $t('AGVBatterySetting.HighBatteryLevel') }}</h5>
+                        <div>- {{ $t('AGVBatterySetting.CanExecuteAllTask') }}</div>
                     </el-card>
                 </el-timeline-item>
                 <el-timeline-item timestamp="高電量" placement="top">
                     <el-card class="bg-success text-light">
-                        <h5>中高電量區</h5>
-                        <div>- 可執行所有任務訂單。</div>
+                        <h5>-{{ $t('AGVBatterySetting.MediumBatteryLevel') }}</h5>
+                        <div>-{{ $t('AGVBatterySetting.CanExecuteAllTask') }}</div>
                     </el-card>
                 </el-timeline-item>
                 <el-timeline-item timestamp="中電量" placement="top">
                     <el-card class="text-light" style="background-color: orange;">
-                        <h5>中低電量區</h5>
-                        <div>- 當AGV非充電時，可執行所有任務訂單。</div>
-                        <div>- 當AGV進行充電時，僅允許AGV執行充電任務， 等待電量位於中高電量以上方可執行所有任務訂單。</div>
+                        <h5>-{{ $t('AGVBatterySetting.MediumLowBattertLevel') }}</h5>
+                        <div>-{{ $t('AGVBatterySetting.When AGV is not Charging,all task orders can be executed') }}
+                        </div>
+                        <div>-{{ $t('AGVBatterySetting.AGVcharging onlyAGVdocharging tasks') }}</div>
                     </el-card>
                 </el-timeline-item>
                 <el-timeline-item timestamp="低電量-強制充電" placement="top">
                     <el-card class="bg-danger text-light">
-                        <h5>低電量區</h5>
-                        <div>- 當AGV低電量時將無法進行除充電任務以外的所有任務訂單。</div>
-                        <div>- 運轉模式下，系統會強制AGV進行充電。</div>
+                        <h5>-{{ $t('AGVBatterySetting.LowBattertLevel') }}</h5>
+                        <div>-{{ $t('AGVBatterySetting.AGVlowbattery onlyAGVdocharging') }}</div>
+                        <div>-{{ $t('AGVBatterySetting.In operation mode, the system will force the AGV to charge') }}
+                        </div>
                     </el-card>
                 </el-timeline-item>
                 <el-timeline-item timestamp="0%" placement="top">
