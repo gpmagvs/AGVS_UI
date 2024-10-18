@@ -2,17 +2,17 @@
   <div class="avalibity-query d-flex flex-row">
     <div class="options text-start h-100 p-3 bg-light border">
       <el-form :model="options">
-        <el-form-item label="AGV名稱">
+        <el-form-item label>{{ $t('AvalibilityQuery.AGVName') }}
           <AGVSelector v-model="options.AGVName"></AGVSelector>
         </el-form-item>
-        <el-form-item label="起始日期">
+        <el-form-item label>{{ $t('AvalibilityQuery.StartDate') }}
           <el-date-picker value-format="YYYY-MM-DD" v-model="options.StartDate"></el-date-picker>
         </el-form-item>
-        <el-form-item label="結束日期">
+        <el-form-item label>{{ $t('AvalibilityQuery.EndDate') }}
           <el-date-picker value-format="YYYY-MM-DD" v-model="options.EndDate"></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <b-button @click="QueryData" class="w-100" variant="primary">查詢</b-button>
+          <b-button @click="QueryData" class="w-100" variant="primary">{{ $t('AvalibilityQuery.Query') }}</b-button>
         </el-form-item>
       </el-form>
     </div>

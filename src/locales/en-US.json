@@ -249,5 +249,11 @@
   "Confirm": "YES",
   "Notifies": {
     "CanNotDoUnloadWhenAGVHasCargo": " Can't do Unload action when AGV has cargo"
+  },
+  "AvalibilityQuery": {
+    "AGVName": "AGVName",
+    "StartDate": "StartDate",
+    "EndDate": "EndDate",
+    "Query": "Query"
   }
 }
