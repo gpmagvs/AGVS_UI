@@ -25,7 +25,7 @@
                 </el-timeline-item>
                 <el-timeline-item timestamp="中電量" placement="top">
                     <el-card class="text-light" style="background-color: orange;">
-                        <h5>-{{ $t('AGVBatterySetting.MediumLowBattertLevel') }}</h5>
+                        <h5>-{{ $t('AGVBatterySetting.MediumLowBatteryLevel') }}</h5>
                         <div>-{{ $t('AGVBatterySetting.When AGV is not Charging,all task orders can be executed') }}
                         </div>
                         <div>-{{ $t('AGVBatterySetting.AGVcharging onlyAGVdocharging tasks') }}</div>
@@ -33,7 +33,7 @@
                 </el-timeline-item>
                 <el-timeline-item timestamp="低電量-強制充電" placement="top">
                     <el-card class="bg-danger text-light">
-                        <h5>-{{ $t('AGVBatterySetting.LowBattertLevel') }}</h5>
+                        <h5>-{{ $t('AGVBatterySetting.LowBatteryLevel') }}</h5>
                         <div>-{{ $t('AGVBatterySetting.AGVlowbattery onlyAGVdocharging') }}</div>
                         <div>-{{ $t('AGVBatterySetting.In operation mode, the system will force the AGV to charge') }}
                         </div>

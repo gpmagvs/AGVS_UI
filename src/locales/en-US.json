@@ -238,8 +238,8 @@
   "AGVBatterySetting": {
     "HighBatteryLevel": "High Battery Level",
     "MediumBatteryLevel": "Medium Battery Level",
-    "MediumLowBattertLevel": "Medium Low Battert Level",
-    "LowBattertLevel": "Low Battert Level",
+    "MediumLowBatteryLevel": "Medium Low Battert Level",
+    "LowBatteryLevel": "Low Battert Level",
     "CanExecuteAllTask": "CanExecuteAllTask",
     "When AGV is not Charging,all task orders can be executed ": "When AGV is not Charging,all task orders can be executed ",
     "AGVcharging onlyAGVdocharging tasks": "When the AGV is charging, only the AGV is allowed to perform charging tasks. All task orders can be executed after the battery is above the medium-high battery",
