@@ -258,6 +258,9 @@
     "AGVName": "AGV名稱",
     "StartDate": "起始日期",
     "EndDate": "結束日期",
-    "Query": "查詢"
+    "Query": "查詢",
+    "PieChart": "圓餅圖",
+    "StraightChart": "直條圖",
+    "MTBF/MTTR": "MTBF/MTTR分析圖"
   }
 }

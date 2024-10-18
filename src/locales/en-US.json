@@ -254,6 +254,9 @@
     "AGVName": "AGVName",
     "StartDate": "StartDate",
     "EndDate": "EndDate",
-    "Query": "Query"
+    "Query": "Query",
+    "PieChart": "PieChart",
+    "StraightChart": "StraightChart",
+    "MTBF/MTTR": "MTBF/MTTR"
   }
 }
