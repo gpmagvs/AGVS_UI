@@ -622,6 +622,9 @@ import AlignmentToos from './EditTool/AlignmentToos.vue';
 import ActionUndoTool from './EditTool/ActionUndoTool.vue';
 import BuildToolContainer from './MapPointBuilder/BuildToolContainer.vue';
 import { MarkIconTranslate } from './mapjs'
+import { LogMapFeatureClicked } from '@/api/WebSiteAPI.js'
+
+
 export default {
   components: {
     QuicklyAction, NotifyDisplay, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, ActionUndoTool, BuildToolContainer
@@ -1566,11 +1569,12 @@ export default {
         }
       })
       this.map.on('pointerdown', (evt) => {
-
         IsVehicleClicked(evt.pixel);
         var feature = FeatureClicked(evt.pixel);
 
         if (feature) {
+          //TODO Post to backend
+          LogMapFeatureClicked(feature)
           this.clickedFeature = feature;
           if (this.editable)
             this.previousSelectedFeatures = [feature]

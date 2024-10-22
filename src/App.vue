@@ -68,6 +68,7 @@ import { ElNotification } from 'element-plus'
 import RegularULDHotRunStateView from './components/RegularULDHotRunStateView.vue';
 import { CheckMapPointsIsEqTypeButNoEqSetup } from './api/EquipmentAPI';
 import { StopSignalIRHubsConnections } from '@/BackendDataFetchWorker'
+import { ElementClickLog } from './api/WebSiteAPI';
 export default {
   components: {
     Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay, RegularULDHotRunStateView
@@ -202,6 +203,10 @@ export default {
     bus.on('/map_save', () => {
       this.mapSaved = true;
     });
+    document.addEventListener('click', evt => {
+      console.log(evt);
+      ElementClickLog(evt.target.innerText, evt.target.parentElement + '')
+    })
     document.addEventListener('keydown', (evt) => {
       if (evt.key.toLowerCase() == 'control')
         store.commit('setCtrlKeyPressing', true)
