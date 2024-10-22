@@ -790,7 +790,7 @@ export default {
         }
       },
       /**顯示模式 : coordination 實際座標 ; router 整齊的路網*/
-      map_display_mode: 'router',
+      map_display_mode: 'coordination',
       /**name/tag/index */
       station_name_display_mode: 'name',
       agv_display: 'visible',
@@ -4309,6 +4309,10 @@ export default {
         });
         this.$notify({ type: 'success', message: `Delete ${this.SelectedFeatures.length} point done` })
         this.HighLightFeatureSelected(this.SelectedFeatures, 'rgb(230, 162, 60)')
+      })
+
+      bus.on('stop_render', () => {
+        clearInterval(this.renderLDULD_StatusTimerId);
       })
       if (!this.editable) {
         this.renderLDULD_StatusTimerId = setInterval(() => {

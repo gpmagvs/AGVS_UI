@@ -17,7 +17,9 @@
       "alarmreset": "清除警報",
       "eqalarm": "設備警報",
       "Turnoffbuzzer": "關閉蜂鳴器"
-    }
+    },
+    "AutoLogoutNotify": "因閒置太久，請重新登入...",
+    "PushOkToRefreshPage": "因閒置太久，請按下 'OK' 按鈕重新整理頁面"
   },
   "Menu": {
     "Home": "主頁",
@@ -236,5 +238,6 @@
     "ConfirmDispatchText": "確定要派送此任務?"
   },
   "Confirm": "確定",
-  "TaskDispatchFailString": "任務派送失敗"
+  "TaskDispatchFailString": "任務派送失敗",
+  "visitor": "訪客"
 }

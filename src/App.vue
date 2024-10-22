@@ -67,7 +67,7 @@ import param from './gpm_param'
 import { ElNotification } from 'element-plus'
 import RegularULDHotRunStateView from './components/RegularULDHotRunStateView.vue';
 import { CheckMapPointsIsEqTypeButNoEqSetup } from './api/EquipmentAPI';
-
+import { StopSignalIRHubsConnections } from '@/BackendDataFetchWorker'
 export default {
   components: {
     Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay, RegularULDHotRunStateView
@@ -237,16 +237,27 @@ export default {
       this.ShowOKOnlyModal = true;
     });
     bus.on('auto_logout_notify_invoke', () => {
+      StopSignalIRHubsConnections();
+      const _isUserLogined = userStore.getters.IsLogin;
+
+      if (_isUserLogined) {
+        userStore.dispatch('logout')
+      }
+
+      bus.emit('stop_render', '');
+      document.title = "[Idle For Long Time...]"
+      document.close();
       this.$swal.fire(
         {
           text: '',
-          title: '因閒置太久，已自動登出。',
+          title: _isUserLogined ? this.$t('App.AutoLogoutNotify') : this.$t('App.PushOkToRefreshPage'),
           icon: 'warning',
           showCancelButton: false,
           confirmButtonText: 'OK',
           customClass: 'my-sweetalert'
         }).then(() => {
-          window.location.href = '/';
+
+          window.location.href = _isUserLogined ? '/login' : '/';
 
         })
     })

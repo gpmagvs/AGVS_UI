@@ -760,12 +760,17 @@ export default {
 
           if (isAGVSelected) {
             this.HandleFromSelectChanged(_station_data.agvName);
-            setTimeout(() => {
-              bus.emit('mark_as_start_station', this.selected_source);
 
-              this.HandleSelectDestineStationFromMapBtnClick();
-              this.HandleActionSelected('select-destine')
-            }, 100);
+            bus.emit('mark_as_start_station', this.selected_source);
+            //TODO 10/21 bug fix test
+            this.HandleSelectDestineStationFromMapBtnClick();
+            this.HandleActionSelected('select-destine')
+
+            //   setTimeout(() => {
+            //   bus.emit('mark_as_start_station', this.selected_source);
+            //   this.HandleSelectDestineStationFromMapBtnClick();
+            //   this.HandleActionSelected('select-destine')
+            // }, 100);
             return;
           }
           if (_station_data == this.selected_destine)
@@ -780,11 +785,17 @@ export default {
 
           this.selected_source = _station_data;//TODO check bug
           this.HandleFromSelectChanged(this.selected_source.TagNumber);
-          setTimeout(() => {
-            bus.emit('mark_as_start_station', this.selected_source.TagNumber);
-            this.HandleSelectDestineStationFromMapBtnClick();
-            this.HandleActionSelected('select-destine')
-          }, 200);
+
+          //TODO 10/21 bug fix test
+          bus.emit('mark_as_start_station', this.selected_source.TagNumber);
+          this.HandleSelectDestineStationFromMapBtnClick();
+          this.HandleActionSelected('select-destine')
+
+          // setTimeout(() => {
+          //   bus.emit('mark_as_start_station', this.selected_source.TagNumber);
+          //   this.HandleSelectDestineStationFromMapBtnClick();
+          //   this.HandleActionSelected('select-destine')
+          // }, 200);
         }
       })
     },
@@ -863,6 +874,33 @@ export default {
     HandleConfirmBtnClicked() {
       this.isDispatchConfirming = true;
       this.order_info_visible = false;
+
+      if (this.selected_action == 'carry' && (!this.selected_source || !this.selected_source.Graph || this.selected_source.Graph.Display == '') && !this.selected_source.isAGV) {
+        this.$swal.fire(
+          {
+            icon: 'error',
+            html: '<div><div>請選擇來源</div><div>Please Select Source Equipment</div></div>',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+        this.order_info_visible = true;
+        return;
+      }
+
+      if (!this.selected_destine || !this.selected_destine.Graph || this.selected_destine.Graph.Display == '') {
+        this.$swal.fire(
+          {
+            html: '<div><div>請選擇目的地</div><div>Please Select Destine</div></div>',
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+        this.order_info_visible = true;
+        return;
+      }
+
 
       var createOrderDescription = () => {
         var html = '<div class="swal-transfer-info border-top py-2">';

@@ -117,6 +117,13 @@ function generateRandomUserID(length) {
     return result;
 }
 
+export function StopSignalIRHubsConnections() {
+    if (agvsHubConnection)
+        agvsHubConnection.stop();
+    if (vmsHubConnection)
+        vmsHubConnection.stop();
+}
+
 var user_id = generateRandomUserID(10);
 userStore.commit('setUserID', user_id);
 
@@ -161,43 +168,41 @@ var lastHeartbeatTime = Date.now();
 var heartbeatTimer = undefined
 function StartWithLeaderCheck() {
 
-    channel.onmessage = (event) => {
-        if (event.data.type == 'heartbeat') {
+    // channel.onmessage = (event) => {
+    //     if (event.data.type == 'heartbeat') {
 
-            if (!heartbeatTimer) {
-                heartbeatTimer = setInterval(() => {
-                    if (!isLeader && isWindowShowing && Date.now() - lastHeartbeatTime > 2000) {
-                        clearInterval(heartbeatTimer);
-                        BecomeLeader();
-                    }
-                }, 400);
-            }
-            // console.info('hearbeat from leader');
-            leaderExist = true
-            lastHeartbeatTime = Date.now();
-        }
-        if (event.data.type == 'data' && !isLeader) {
-            leaderExist = true
-            fff();
-            _firstFetchFromLeader = false;
-        }
+    //         if (!heartbeatTimer) {
+    //             heartbeatTimer = setInterval(() => {
+    //                 if (!isLeader && isWindowShowing && Date.now() - lastHeartbeatTime > 2000) {
+    //                     clearInterval(heartbeatTimer);
+    //                     BecomeLeader();
+    //                 }
+    //             }, 400);
+    //         }
+    //         // console.info('hearbeat from leader');
+    //         leaderExist = true
+    //         lastHeartbeatTime = Date.now();
+    //     }
+    //     if (event.data.type == 'data' && !isLeader) {
+    //         leaderExist = true
+    //         fff();
+    //         _firstFetchFromLeader = false;
+    //     }
 
-        function fff() {
-            var source = event.data.source;
-            var data = event.data.payload;
-            // console.info('data from leader', source, data);
-            if (source == 'agvs') {
-                StoreAGVSData(data);
-            } else if (source == 'vms') {
-                StoreVMSData(data);
-            }
-        }
-    }
+    //     function fff() {
+    //         var source = event.data.source;
+    //         var data = event.data.payload;
+    //         // console.info('data from leader', source, data);
+    //         if (source == 'agvs') {
+    //             StoreAGVSData(data);
+    //         } else if (source == 'vms') {
+    //             StoreVMSData(data);
+    //         }
+    //     }
+    // }
     setTimeout(() => {
-        if (!leaderExist) {
-            BecomeLeader();
-        }
-    }, 2000);
+        BecomeLeader();
+    }, 100);
 }
 document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible') {

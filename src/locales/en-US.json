@@ -17,7 +17,9 @@
       "alarmreset": "Alarm Reset",
       "eqalarm": "EQP Alarm",
       "Turnoffbuzzer": "Buzzer OFF"
-    }
+    },
+    "AutoLogoutNotify": "Auto Logout Because Idle time too long...",
+    "PushOkToRefreshPage": "Idle for a long time, Push 'OK' button to refresh page..."
   },
   "Menu": {
     "Home": "Home",
@@ -51,7 +53,7 @@
         "status": "Status",
         "carrierid": "Carrier ID",
         "vehicleconn": "AGVC",
-        "position": "Locate",
+        "position": "Location",
         "power": "Bat LV",
         "From": "From",
         "To": "To",
@@ -59,7 +61,7 @@
         "Time": "Time",
         "Online": "Online",
         "Offline": "Offline",
-        "Location": "Locate",
+        "Location": "Location",
         "OnlineRequest": "Online Reqeust",
         "OfflineRequest": "Offline Requset"
       }
@@ -239,5 +241,6 @@
   "Notifies": {
     "CanNotDoUnloadWhenAGVHasCargo": " Can't do Unload action when AGV has cargo"
   },
-  "TaskDispatchFailString": "Dispatch Task Fail"
+  "TaskDispatchFailString": "Dispatch Task Fail",
+  "visitor": "Visitor"
 }

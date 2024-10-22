@@ -137,7 +137,7 @@ export default {
       return userStore.getters.IsLogin;
     },
     MapPoints() {
-      return Object.values(MapStore.getters.MapData.Points)
+      return Object.values(MapStore.state.MapData.Points);
     }
   },
   methods: {

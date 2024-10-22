@@ -2,22 +2,21 @@ import bus from './event-bus'
 import { GetFrontendOptions } from './api/SystemAPI';
 import { userStore } from './store';
 var idleTime = 0
-
+var idleDetectTimer = undefined;
 function resetTimer() {
     idleTime = 0;
 }
 setTimeout(() => {
 
     GetFrontendOptions().then(options => {
-        var interval = setInterval(() => {
+        const _timeTHres = options.WebUserLogoutExipreTime;
+        // const _timeTHres = 10;
+        idleDetectTimer = setInterval(() => {
             idleTime += 1;
-            if (idleTime >= options.WebUserLogoutExipreTime) {
-                if (userStore.getters.IsLogin) {
-                    userStore.dispatch('logout')
-                    bus.emit('auto_logout_notify_invoke', "");
-                }
-
+            if (idleTime >= _timeTHres) {
+                bus.emit('auto_logout_notify_invoke', "");
                 resetTimer();
+                clearInterval(idleDetectTimer);
             }
         }, 1000);
 
