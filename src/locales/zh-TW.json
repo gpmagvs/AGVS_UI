@@ -17,9 +17,7 @@
       "alarmreset": "清除警報",
       "eqalarm": "設備警報",
       "Turnoffbuzzer": "關閉蜂鳴器"
-    },
-    "AutoLogoutNotify": "因閒置太久，請重新登入...",
-    "PushOkToRefreshPage": "因閒置太久，請按下 'OK' 按鈕重新整理頁面"
+    }
   },
   "Menu": {
     "Home": "主頁",
@@ -264,6 +262,17 @@
     "PieChart": "圓餅圖",
     "StraightChart": "直條圖",
     "MTBF/MTTR": "MTBF/MTTR分析圖"
+  },
+  "AGVLocus": {
+    "SelectAGV": "車輛選擇",
+    "StartTime": "起始時間",
+    "EndTime": "結束日期",
+    "Search": "查詢",
+    "TaskID": "任務ID",
+    "CostTime": "花費時間(s)",
+    "ShowTrack": "顯示軌跡",
+    "TrackColor": "軌跡顏色",
+    "TrackWidth": "軌跡寬度"
   },
   "TaskDispatchFailString": "任務派送失敗",
   "visitor": "訪客"

@@ -5,63 +5,46 @@
         <div class="border-bottom my-1 py-2">
           <div class="time-pick text-start d-flex">
             <div>
-              <div class="label">車輛選擇</div>
+              <div class="label">{{ $t('AGVLocus.SelectAGV') }}</div>
               <AGVSelector v-model="agvname"></AGVSelector>
             </div>
             <div>
-              <div class="label">開始時間</div>
-              <el-date-picker
-                v-model="timePick.start_time"
-                type="datetime"
-                placeholder="選擇開始時間"
-                format="YYYY/MM/DD HH:mm:ss"
-              />
+              <div class="label">{{ $t('AGVLocus.StartTime') }}</div>
+              <el-date-picker v-model="timePick.start_time" type="datetime" placeholder="選擇開始時間"
+                format="YYYY/MM/DD HH:mm:ss" />
             </div>
             <div>
-              <div class="label">結束時間</div>
-              <el-date-picker
-                v-model="timePick.end_time"
-                type="datetime"
-                placeholder="選擇結束時間"
-                format="YYYY/MM/DD HH:mm:ss"
-              />
+              <div class="label">{{ $t('AGVLocus.EndTime') }}</div>
+              <el-date-picker v-model="timePick.end_time" type="datetime" placeholder="選擇結束時間"
+                format="YYYY/MM/DD HH:mm:ss" />
             </div>
-            <el-button
-              @click="HandleSearchBtnClicked"
-              style="height:30px;font-size: large;width:120px;position:relative;top:16px"
-              class="my-2"
-              type="primary"
-            >搜尋</el-button>
+            <el-button @click="HandleSearchBtnClicked"
+              style="height:30px;font-size: large;width:120px;position:relative;top:16px" class="my-2" type="primary">{{
+                $t('AGVLocus.Search') }}</el-button>
           </div>
         </div>
-        <el-table
-          v-loading="loading"
-          :data="tableData"
-          style="width:720px"
-          height="700"
-          highlight-current-row
-          size="small"
-        >
+        <el-table v-loading="loading" :data="tableData" style="width:720px" height="700" highlight-current-row
+          size="small">
           <el-table-column align="center" label="No" width="50">
             <template #default="scope">
-              <div>{{GetNo(scope.row)}}</div>
+              <div>{{ GetNo(scope.row) }}</div>
             </template>
           </el-table-column>
-          <el-table-column label="Task ID" prop="task_id"></el-table-column>
-          <el-table-column label="開始時間" prop="start_time">
+          <el-table-column :label="$t('AGVLocus.TaskID')" prop="task_id"></el-table-column>
+          <el-table-column :label="$t('AGVLocus.StartTime')" prop="start_time">
             <template #default="scope">{{ FormatTime(scope.row.start_time) }}</template>
           </el-table-column>
-          <el-table-column label="結束時間" prop="end_time">
+          <el-table-column :label="$t('AGVLocus.EndTime')" prop="end_time">
             <template #default="scope">{{ FormatTime(scope.row.end_time) }}</template>
           </el-table-column>
-          <el-table-column align="center" label="花費時間(秒)" prop="duration" min-width="60">
+          <el-table-column align="center" :label="$t('AGVLocus.CostTime')" prop="duration" min-width="60">
             <template #default="scope">
               <div>
                 <el-tag effect="dark" type="info">{{ CalculatTimeSpend(scope.row) }}</el-tag>
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="顯示軌跡" min-width="50">
+          <el-table-column align="center" :label="$t('AGVLocus.ShowTrack')" min-width="50">
             <template #default="scope">
               <div class="w-100" @click="ShowLocusHandler(scope.row)">
                 <i class="view-icon bi bi-eye-fill"></i>
@@ -73,11 +56,11 @@
       <div class="bg-light border flex-fill">
         <div class="locus-settings bg-dark text-light d-flex py-1 px-3">
           <div>
-            <span>軌跡顏色</span>
+            <span>{{ $t('AGVLocus.TrackColor') }}</span>
             <el-color-picker @change="HandleLocusSettingChange" v-model="locus_settings.color" />
           </div>
           <div>
-            <span>軌跡寬度</span>
+            <span>{{ $t('AGVLocus.TrackWidth') }}</span>
             <el-select v-model="locus_settings.width" @change="HandleLocusSettingChange">
               <el-option v-for="width in 12" :key="width" :value="width"></el-option>
             </el-select>
@@ -86,15 +69,8 @@
             <el-button type="primary">儲存軌跡圖</el-button>
           </div>
         </div>
-        <Map
-          v-loading="locus_painting"
-          class="bg-light border"
-          ref="map"
-          id="locus_map"
-          :editable="false"
-          :agv_show="false"
-          :station_show="true"
-        ></Map>
+        <Map v-loading="locus_painting" class="bg-light border" ref="map" id="locus_map" :editable="false"
+          :agv_show="false" :station_show="true"></Map>
       </div>
     </div>
   </div>
@@ -269,12 +245,14 @@ export default {
 <style lang="scss" scoped>
 .agv-locus {
   padding-right: 3%;
+
   .time-pick {
     .label {
       font-weight: bold;
       letter-spacing: 2px;
     }
   }
+
   .view-icon:hover {
     cursor: pointer;
     font-size: large;
@@ -284,6 +262,7 @@ export default {
     span {
       font-weight: bold;
     }
+
     span,
     div {
       margin-right: 10px;

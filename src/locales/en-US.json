@@ -17,9 +17,7 @@
       "alarmreset": "Alarm Reset",
       "eqalarm": "EQP Alarm",
       "Turnoffbuzzer": "Buzzer OFF"
-    },
-    "AutoLogoutNotify": "Auto Logout Because Idle time too long...",
-    "PushOkToRefreshPage": "Idle for a long time, Push 'OK' button to refresh page..."
+    }
   },
   "Menu": {
     "Home": "Home",
@@ -53,7 +51,7 @@
         "status": "Status",
         "carrierid": "Carrier ID",
         "vehicleconn": "AGVC",
-        "position": "Location",
+        "position": "Locate",
         "power": "Bat LV",
         "From": "From",
         "To": "To",
@@ -61,7 +59,7 @@
         "Time": "Time",
         "Online": "Online",
         "Offline": "Offline",
-        "Location": "Location",
+        "Location": "Locate",
         "OnlineRequest": "Online Reqeust",
         "OfflineRequest": "Offline Requset"
       }
@@ -261,6 +259,17 @@
     "StraightChart": "StraightChart",
     "MTBF/MTTR": "MTBF/MTTR"
   },
-  "TaskDispatchFailString": "Dispatch Task Fail",
-  "visitor": "Visitor"
+  "AGVLocus": {
+    "SelectAGV": "SelectAGV",
+    "StartTime": "StartTime",
+    "EndTime": "EndTime",
+    "Search": "Search",
+    "TaskID": "TaskID",
+    "CostTime": "CostTime(s)",
+    "ShowTrack": "ShowTrack",
+    "TrackColor": "TrackColor",
+    "TrackWidth": "TrackWidth"
+  },
+  "TaskDispatchFailString": "Task_Dispatch_Fail",
+  "visitor": "visitor"
 }
