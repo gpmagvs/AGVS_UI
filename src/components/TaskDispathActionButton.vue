@@ -1106,7 +1106,7 @@ export default {
                   showCancelButton: false,
                   focusConfirmButton: false,
                   confirmButtonText: 'OK',
-                  customClass: 'my-sweetalert'
+                  customClass: 'dispatch-fail-swal'
                 })
             }
           }, 200);

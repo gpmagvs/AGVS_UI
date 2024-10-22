@@ -204,7 +204,6 @@ export default {
       this.mapSaved = true;
     });
     document.addEventListener('click', evt => {
-      console.log(evt);
       ElementClickLog(evt.target.innerText, evt.target.parentElement + '')
     })
     document.addEventListener('keydown', (evt) => {

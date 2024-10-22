@@ -1,16 +1,22 @@
 import axios from 'axios';
 import param from '@/gpm_param';
-
+import { TaskQueryCondition } from '@/ViewModels/Query';
 var axios_entity = axios.create({
   baseURL: param.backend_host,
 })
 /*任務歷史查詢*/
-export async function TaskQuery(currentpage, start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL', ExecuteResultSelected = "ALL", ActionTypeSelected = "ALL", Fail_reason = 'ALL') {
-  var retquery = await axios_entity.get(`/api/TaskQuery/TaskQuery?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&Result=${ExecuteResultSelected}&ActionType=${ActionTypeSelected}&Failurereason=${Fail_reason}`)
+export async function TaskQuery(currentpage, numPerPage, start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL', ExecuteResultSelected = "ALL", ActionTypeSelected = "ALL", Fail_reason = 'ALL') {
+  var retquery = await axios_entity.get(`/api/TaskQuery/TaskQuery?currentpage=${currentpage}&numPerPage=${numPerPage}&StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&Result=${ExecuteResultSelected}&ActionType=${ActionTypeSelected}&Failurereason=${Fail_reason}`)
 
   console.info(retquery.data)
   return retquery.data;
 }
+
+export async function Query(queryCondition = new TaskQueryCondition()) {
+  var ret = await axios_entity.post(`/api/TaskQuery`, queryCondition)
+  return ret.data;
+}
+
 /**輸出CSV */
 export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName = 'ALL', ExecuteResultSelected = "ALL") {
   const response = await axios_entity.get(`/api/TaskQuery/SaveTocsv?StartTime=${start_time}&EndTime=${end_time}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&Result=${ExecuteResultSelected}`, {

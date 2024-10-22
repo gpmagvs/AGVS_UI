@@ -58,7 +58,7 @@
         <el-table-column
           :label="$t('AlarmTable.EQ_Name')"
           prop="Equipment_Name"
-          width="80"
+          width="180"
           align="center"
         ></el-table-column>
         <el-table-column
