@@ -2,30 +2,30 @@
   <div class="avalibity-query d-flex flex-row">
     <div class="options text-start h-100 p-3 bg-light border">
       <el-form :model="options">
-        <el-form-item label="AGV名稱">
+        <el-form-item :label="$t('AvalibilityQuery.AGVName')">
           <AGVSelector v-model="options.AGVName"></AGVSelector>
         </el-form-item>
-        <el-form-item label="起始日期">
+        <el-form-item :label="$t('AvalibilityQuery.StartDate')">
           <el-date-picker value-format="YYYY-MM-DD" v-model="options.StartDate"></el-date-picker>
         </el-form-item>
-        <el-form-item label="結束日期">
+        <el-form-item :label="$t('AvalibilityQuery.EndDate')">
           <el-date-picker value-format="YYYY-MM-DD" v-model="options.EndDate"></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <b-button @click="QueryData" class="w-100" variant="primary">查詢</b-button>
+          <b-button @click="QueryData" class="w-100" variant="primary">{{ $t('AvalibilityQuery.Query') }}</b-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="chart-display h-100 w-100 d-flex justify-content-center" v-loading="loading">
       <div class="w-100 m-1">
         <el-tabs type="border-card" tab-position="top" lazy class="demo-tabs">
-          <el-tab-pane label="圓餅圖">
+          <el-tab-pane :label="$t('AvalibilityQuery.PieChart')">
             <AvailabilityPieChart class ref="piechart"></AvailabilityPieChart>
           </el-tab-pane>
-          <el-tab-pane label="直條圖">
+          <el-tab-pane :label="$t('AvalibilityQuery.StraightChart')">
             <AvailabilityPieChart ref="barchart"></AvailabilityPieChart>
           </el-tab-pane>
-          <el-tab-pane label="MTBF/MTTR">
+          <el-tab-pane :label="$t('AvalibilityQuery.MTBF/MTTR')">
             <MeanTimeChart ref="MTChart" id="mtbf-chart" title=""></MeanTimeChart>
           </el-tab-pane>
         </el-tabs>
