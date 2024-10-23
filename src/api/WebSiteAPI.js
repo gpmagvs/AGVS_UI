@@ -59,9 +59,10 @@ export async function LogMapFeatureClicked(feature = new Feature()) {
 
 
 export async function ElementClickLog(name = 'unknown', source = 'unknown') {
+    if (name === '')
+        return;
     let datModel = new ElementClickLogViewModel(name, source);
     try {
-        console.log('post ', datModel);
         await axios_entity.post('/api/WebUIOperate/ElementClicked', datModel);
     } catch (error) {
         console.error(error);

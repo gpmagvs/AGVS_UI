@@ -22,7 +22,7 @@
         </el-tooltip>
       </div>
     </div>
-    <div @click="HandleVersionClick">V{{ APPVersion }}</div>
+    <div v-if="showVersionInfo" @click="HandleVersionClick">V{{ APPVersion }}</div>
     <div @dblclick="handleTimeDoubleClick" class="sys-time">{{ sys_time }}</div>
   </div>
 </template>
@@ -30,6 +30,7 @@
 import moment from 'moment'
 import { userStore, UIStore } from '@/store'
 import store from '@/store'
+import { watch } from 'vue'
 export default {
   data() {
     return {
@@ -45,7 +46,8 @@ export default {
           },
         },
       ],
-      sys_time: ''
+      sys_time: '',
+      showVersionInfo: true
     }
   },
   mounted() {
@@ -53,6 +55,9 @@ export default {
       this.sys_time = moment(Date.now()).format('yyyy-MM-DD HH:mm:ss')
     }, 1000);
 
+    watch(() => this.$route.path, (newVal) => {
+      this.showVersionInfo = newVal !== '/data/task_history' && newVal !== '/data/alarm_history'
+    })
   },
   methods: {
 
