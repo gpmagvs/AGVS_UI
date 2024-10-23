@@ -66,7 +66,7 @@
             </el-select>
           </div>
           <div class="flex-fill text-end">
-            <el-button type="primary">儲存軌跡圖</el-button>
+            <el-button type="primary">{{ $t('AGVLocus.SaveTrackMap') }}</el-button>
           </div>
         </div>
         <Map v-loading="locus_painting" class="bg-light border" ref="map" id="locus_map" :editable="false"

@@ -3,21 +3,17 @@
     <div class='common-options'>
         <div class="options d-flex">
             <div class="block">
-                <div class="title">開始時間</div>
+                <div class="title">{{ $t('AGVLocus.StartTime') }}</div>
                 <div class="control">
-                    <el-date-picker
-                        v-model="OPTIONS.StartTimeStr"
-                        type="date"
-                        placeholder="選擇開始日期" />
+                    <el-date-picker v-model="OPTIONS.StartTimeStr" type="date"
+                        :placeholder="$t('AGVLocus.SelectStartDate')" />
                 </div>
             </div>
             <div class="block">
-                <div class="title">結束時間</div>
+                <div class="title">{{ $t('AGVLocus.EndTime') }}</div>
                 <div class="control">
-                    <el-date-picker
-                        v-model="OPTIONS.EndTimeStr"
-                        type="date"
-                        placeholder="選擇結束日期" />
+                    <el-date-picker v-model="OPTIONS.EndTimeStr" type="date"
+                        :placeholder="$t('AGVLocus.SelectEndDate')" />
                 </div>
             </div>
             <div class="block">
@@ -29,17 +25,18 @@
                 </div>
             </div>
             <div class="block">
-                <div class="title">量測結果</div>
+                <div class="title">{{ $t('InstrumentMeasureQuery.MeasureResult') }}</div>
                 <div class="control">
                     <el-select v-model="OPTIONS.Result">
-                        <el-option v-for="option in Results" :key="option.value" :label="option.label" :value="option.value"></el-option>
+                        <el-option v-for="option in Results" :key="option.value" :label="option.label"
+                            :value="option.value"></el-option>
                     </el-select>
                 </div>
             </div>
             <div class="block">
                 <div class="title"></div>
                 <div class="my-4">
-                    <b-button @click="HandleQueryBtnClick" variant="primary">查詢</b-button>
+                    <b-button @click="HandleQueryBtnClick" variant="primary">{{ $t('AGVLocus.Search') }}</b-button>
                 </div>
             </div>
         </div>

@@ -268,7 +268,35 @@
     "CostTime": "CostTime(s)",
     "ShowTrack": "ShowTrack",
     "TrackColor": "TrackColor",
-    "TrackWidth": "TrackWidth"
+    "TrackWidth": "TrackWidth",
+    "SaveTrackMap": "Save Track Map",
+    "SelectStartDate": "Select Start Date",
+    "SelectEndDate": "Select End Date",
+    "Success": "Success",
+    "Fail": "Fail"
+  },
+  "InstrumentMeasureQuery": {
+    "StartTime": "StartTime",
+    "EndTime": "EndTime",
+    "AGV": "AGV",
+    "TaskID": "TaskID",
+    "MeasureResult": "MeasureResult",
+    "Search": "Search",
+    "TaskName": "TaskName",
+    "AGVName": "AGVName",
+    "BayName": "BayName",
+    "MeasurePoint": "MeasurePoint",
+    "MeasureStartTime": "MeasureStartTime",
+    "Lux": "Lux",
+    "dB": "dB",
+    "Temperature": "Temperature(℃)",
+    "Moisture": "Moisture(%)"
+  },
+  "InsMesTrendChart": {
+    "MeasureItem": "MeasureItem",
+    "SelectStartDate": "SelectStartDate",
+    "SelectEndDate": "SelectEndDate",
+    "Search": "Search"
   },
   "TaskDispatchFailString": "Task_Dispatch_Fail",
   "visitor": "visitor"
