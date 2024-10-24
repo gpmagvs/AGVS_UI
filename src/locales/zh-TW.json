@@ -266,13 +266,41 @@
   "AGVLocus": {
     "SelectAGV": "車輛選擇",
     "StartTime": "起始時間",
-    "EndTime": "結束日期",
+    "EndTime": "結束時間",
     "Search": "查詢",
     "TaskID": "任務ID",
     "CostTime": "花費時間(s)",
     "ShowTrack": "顯示軌跡",
     "TrackColor": "軌跡顏色",
-    "TrackWidth": "軌跡寬度"
+    "TrackWidth": "軌跡寬度",
+    "SaveTrackMap": "儲存軌跡圖",
+    "SelectStartDate": "選擇開始日期",
+    "SelectEndDate": "選擇結束日期",
+    "Success": "成功",
+    "Fail": "失敗"
+  },
+  "InstrumentMeasureQuery": {
+    "StartTime": "開始時間",
+    "EndTime": "結束時間",
+    "AGV": "AGV",
+    "TaskID": "任務ID",
+    "MeasureResult": "量測結果",
+    "Search": "查詢",
+    "TaskName": "任務名稱",
+    "AGVName": "AGV名稱",
+    "BayName": "Bay名稱",
+    "MeasurePoint": "量測點位",
+    "MeasureStartTime": "開始量測時間",
+    "Lux": "照度(lux)",
+    "dB": "分貝(dB)",
+    "Temperature": "溫度(℃)",
+    "Moisture": "濕度(%)"
+  },
+  "InsMesTrendChart": {
+    "MeasureItem": "量測項目",
+    "SelectStartDate": "選擇開始日期",
+    "SelectEndDate": "選擇結束日期",
+    "Search": "查詢"
   },
   "TaskDispatchFailString": "任務派送失敗",
   "visitor": "訪客"

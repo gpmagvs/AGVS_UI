@@ -6,12 +6,7 @@
         <el-form label-position="top">
           <el-form-item label="Bay">
             <el-select @change="HandleBayNameSelected" v-model="selected_bayname" size="large">
-              <el-option
-                v-for="bayname in baynames"
-                :value="bayname"
-                :key="bayname"
-                :label="bayname"
-              ></el-option>
+              <el-option v-for="bayname in baynames" :value="bayname" :key="bayname" :label="bayname"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="點位(Tag)">
@@ -19,15 +14,15 @@
               <el-option v-for="tag in tagsOfBay" :value="tag" :key="tag" :label="tag"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="量測項目">
+          <el-form-item :label="$t('InsMesTrendChart.MeasureItem')">
             <el-select v-model="selected_mes_item" size="large">
-              <el-option v-for="(des,val) in measureItems" :value="val" :key="val" :label="des"></el-option>
+              <el-option v-for="(des, val) in measureItems" :value="val" :key="val" :label="des"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="From">
+          <el-form-item :label="$t('AGVLocus.SelectStartDate')">
             <el-date-picker v-model="StartTimeStr" type="date" placeholder="選擇開始日期" />
           </el-form-item>
-          <el-form-item label="To">
+          <el-form-item :label="$t('AGVLocus.SelectEndDate')">
             <el-date-picker v-model="EndTimeStr" type="date" placeholder="選擇開始日期" />
           </el-form-item>
         </el-form>
@@ -109,10 +104,10 @@ export default {
     div {
       padding-inline: 3px;
     }
-    .qu-options {
-    }
-    .chart-container {
-    }
+
+    .qu-options {}
+
+    .chart-container {}
   }
 }
 </style>

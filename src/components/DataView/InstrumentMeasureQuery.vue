@@ -3,37 +3,31 @@
   <div class="d-flex flex-column">
     <CommonOptions @OnQueryBtnClick="HandleQueryBtnClick"></CommonOptions>
     <div class="w-100 m-1 border rounded p-2">
-      <b-pagination
-        :per-page="QueryResult.DataNumPerPage"
-        :total-rows="QueryResult.TotalDataNum"
-        aria-controls="measure_result_table"
-        class="pagination justify-content-start"
-        v-model="QueryResult.Page"
-        @click="PageChnageHandle"
-      ></b-pagination>
-      <el-table
-        border
-        :data="QueryResult.dataList"
-        style="width:100%;height:500px"
-        id="measure_result_table"
-        empty-text="尚無數據資料"
-      >
-        <el-table-column prop="TaskName" label="任務名稱" fixed="left" width="210"></el-table-column>
-        <el-table-column prop="AGVName" label="AGV名稱" fixed="left" width="90"></el-table-column>
-        <el-table-column prop="BayName" label="Bay名稱" fixed="left" width="90"></el-table-column>
-        <el-table-column prop="location" label="量測點位" fixed="left"></el-table-column>
-        <el-table-column
-          :formatter="TimeFormatter"
-          prop="StartTime"
-          label="開始量測時間"
-          fixed="left"
-          width="180"
-        ></el-table-column>
-        <el-table-column :formatter="ResultFormatter" prop="result" label="量測結果" fixed="left"></el-table-column>
-        <el-table-column :formatter="ValFormatter" prop="illuminance" label="照度(lux)"></el-table-column>
-        <el-table-column :formatter="ValFormatter" prop="decibel" label="分貝(dB)"></el-table-column>
-        <el-table-column :formatter="ValFormatter" prop="temperature" label="溫度 (℃)"></el-table-column>
-        <el-table-column :formatter="ValFormatter" prop="humudity" label="濕度 (%)"></el-table-column>
+      <b-pagination :per-page="QueryResult.DataNumPerPage" :total-rows="QueryResult.TotalDataNum"
+        aria-controls="measure_result_table" class="pagination justify-content-start" v-model="QueryResult.Page"
+        @click="PageChnageHandle"></b-pagination>
+      <el-table border :data="QueryResult.dataList" style="width:100%;height:500px" id="measure_result_table"
+        empty-text="尚無數據資料">
+        <el-table-column prop="TaskName" :label="$t('InstrumentMeasureQuery.TaskID')" fixed="left"
+          width="210"></el-table-column>
+        <el-table-column prop="AGVName" :label="$t('InstrumentMeasureQuery.AGVName')" fixed="left"
+          width="90"></el-table-column>
+        <el-table-column prop="BayName" :label="$t('InstrumentMeasureQuery.BayName')" fixed="left"
+          width="90"></el-table-column>
+        <el-table-column prop="location" :label="$t('InstrumentMeasureQuery.MeasurePoint')"
+          fixed="left"></el-table-column>
+        <el-table-column :formatter="TimeFormatter" prop="StartTime"
+          :label="$t('InstrumentMeasureQuery.MeasureStartTime')" fixed="left" width="180"></el-table-column>
+        <el-table-column :formatter="ResultFormatter" prop="result" :label="$t('InstrumentMeasureQuery.MeasureResult')"
+          fixed="left"></el-table-column>
+        <el-table-column :formatter="ValFormatter" prop="illuminance"
+          :label="$t('InstrumentMeasureQuery.Lux')"></el-table-column>
+        <el-table-column :formatter="ValFormatter" prop="decibel"
+          :label="$t('InstrumentMeasureQuery.dB')"></el-table-column>
+        <el-table-column :formatter="ValFormatter" prop="temperature"
+          :label="$t('InstrumentMeasureQuery.Temperature')"></el-table-column>
+        <el-table-column :formatter="ValFormatter" prop="humudity"
+          :label="$t('InstrumentMeasureQuery.Moisture')"></el-table-column>
         <el-table-column :formatter="ValFormatter" prop="IPA" label="IPA (異丙醇)"></el-table-column>
         <el-table-column :formatter="ValFormatter" prop="Acetone" label="Acetone (丙酮)"></el-table-column>
         <el-table-column :formatter="ValFormatter" prop="TVOC" label="TVOC (Non-Target)"></el-table-column>
@@ -43,12 +37,8 @@
         <el-table-column :formatter="ValFormatter" prop="partical_10um" label="微塵粒子(1.0μm)"></el-table-column>
         <el-table-column :formatter="ValFormatter" prop="partical_30um" label="微塵粒子(3.0μm)"></el-table-column>
         <el-table-column :formatter="ValFormatter" prop="partical_50um" label="微塵粒子(5.0μm)"></el-table-column>
-        <el-table-column
-          :formatter="ValFormatter"
-          prop="partical_100um"
-          label="微塵粒子(10.0μm)"
-          fixed="right"
-        ></el-table-column>
+        <el-table-column :formatter="ValFormatter" prop="partical_100um" label="微塵粒子(10.0μm)"
+          fixed="right"></el-table-column>
       </el-table>
     </div>
     <trendChart class="flex-fill"></trendChart>
