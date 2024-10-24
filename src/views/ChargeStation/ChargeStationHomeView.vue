@@ -90,7 +90,7 @@
                 </el-form-item>
                 <el-form-item label="充電站溫度">
                   <div class="w-100 d-flex px-3">
-                    <span class="digital-font-charger-station">33.3</span>
+                    <span class="digital-font-charger-station" v-bind:class="data.IsStationTemperatureOverThresHold?'text-danger':''">{{ data.StationTemperature }}</span>
                     <span class="digital-font-unit-charger-station">°C</span>
                   </div>
                 </el-form-item>
@@ -139,8 +139,7 @@
               <h6>充電曲線參考圖示</h6>
               <img class="border rounded p-3" src="/images/charger_curve.png" alt />
             </div>
-          </div>
-
+            
           <div class="state p-3">
             <h5 class="title">充電樁配置</h5>
             <el-form label-width="120" label-position="left">
@@ -231,6 +230,8 @@
               </el-form-item>
             </el-form>
           </div>
+          </div>
+
         </div>
         <div class="text-start" style="font-size: 14px;">
           <span>前次更新時間 :</span>
