@@ -1,9 +1,12 @@
 <template>
   <div class="rack-status-view custom-tabs-head p-1">
-    <div class="text-start">
-      <el-select v-model="display" style="width:120px">
-        <el-option label="Tab" value="tabs"></el-option>
-        <el-option label="整頁" value="div"></el-option>
+    <div class="text-start border-bottom my-1 py-1">
+      <span class="px-2 text-primary">
+        <b>顯示方式</b>
+      </span>
+      <el-select class="mx-2" v-model="display" style="width:120px">
+        <el-option label="分頁顯示" value="tabs"></el-option>
+        <el-option label="單頁顯示" value="div"></el-option>
       </el-select>
     </div>
     <b-tabs v-if="display=='tabs'">
