@@ -197,7 +197,7 @@ export default {
         backgroundColor: 'lime'
       },
       ExistSensorOFFStyle: {
-        backgroundColor: 'rgb(255, 50, 0)'
+        backgroundColor: 'rgb(180, 183, 191)'
       },
       selectedRackContentType: '',
       radioGroupDisable: false,
