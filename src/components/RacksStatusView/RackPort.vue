@@ -42,7 +42,7 @@
     </div>
     <div
       class="item"
-      v-if="!IsOvenAsRacks && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0)"
+      v-if="!IsOvenAsRacks && port_info.Properties.HasTraySensor && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0)"
     >
       <div class="title">Exist Sensor(Tray)</div>
       <div class="values d-flex">
@@ -61,7 +61,7 @@
     </div>
     <div
       class="item"
-      v-if="!IsOvenAsRacks &&( port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)"
+      v-if="!IsOvenAsRacks && port_info.Properties.HasRackSensor&&( port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)"
     >
       <div class="title">Exist Sensor(Rack)</div>
       <div class="values d-flex">
@@ -78,6 +78,23 @@
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
+
+    <!--  -->
+    <div
+      class="item"
+      v-if="!IsOvenAsRacks && port_info.Properties.HasTrayDirectionSensor&&( port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)"
+    >
+      <div class="title">Tray Direction</div>
+      <div class="values d-flex">
+        <div
+          class="exist-sensor round my-1"
+          v-bind:style="TrayDirectionSensor ? ExistSensorOnStyle : ExistSensorOFFStyle"
+        ></div>
+      </div>
+      <!-- <div class="values">{{ port_info.CstExist }}</div> -->
+    </div>
+
+    <!--  -->
     <div class="item" v-if="IsOvenAsRacks">
       <div class="title">貨物在席</div>
       <div class="values">
@@ -144,11 +161,12 @@ export default {
         return {
           CargoExist: false,
           CarrierID: null,
-          ExistSensorStates: {
+          SensorStates: {
             TRAY_1: false,
             TRAY_2: true,
             RACK_1: false,
-            RACK_2: false
+            RACK_2: false,
+            TRAY_DIRECTION: false
           },
           InstallTime: "0001-01-01T00:00:00",
           Properties: {
@@ -159,6 +177,9 @@ export default {
             CargoTypeStore: 2, // 0:tray | 1:Rack| 2:Mixed
             IOLocation: { Tray_Sensor1: 0, Tray_Sensor2: 1, Box_Sensor1: 2, Box_Sensor2: 3 },
             StoragePriority: 0, //數字愈大優先度愈高
+            HasTrayDirectionSensor: false,
+            HasTraySensor: true,
+            HasRackSensor: true,
           },
           RackPlacementState: 0,
           TrayPlacementState: 0
@@ -197,12 +218,13 @@ export default {
     ModifyButtonText() {
       return !this.IsCarrierIDExist ? '新增帳籍' : '修改帳籍';
     },
-    ExistSensorTray_1() { return this.port_info.ExistSensorStates["TRAY_1"] != 0; },
-    ExistSensorTray_2() { return this.port_info.ExistSensorStates["TRAY_2"] != 0; },
-    ExistSensorRack_1() { return this.port_info.ExistSensorStates["RACK_1"] != 0; },
-    ExistSensorRack_2() { return this.port_info.ExistSensorStates["RACK_2"] != 0; },
+    ExistSensorTray_1() { return this.port_info.MaterialExistSensorStates["TRAY_1"] != 0; },
+    ExistSensorTray_2() { return this.port_info.MaterialExistSensorStates["TRAY_2"] != 0; },
+    ExistSensorRack_1() { return this.port_info.MaterialExistSensorStates["RACK_1"] != 0; },
+    ExistSensorRack_2() { return this.port_info.MaterialExistSensorStates["RACK_2"] != 0; },
+    TrayDirectionSensor() { return this.port_info.SensorStates["TRAY_DIRECTION"] != 0; },
     AnySensorFlash() {
-      var states = Object.values(this.port_info.ExistSensorStates)
+      var states = Object.values(this.port_info.MaterialExistSensorStates)
       var flashs = states.filter(sta => sta == 2);
       return flashs.length != 0;
     },

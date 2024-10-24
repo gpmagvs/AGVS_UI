@@ -66,7 +66,7 @@ export default {
             {
               CargoExist: false,
               CarrierID: null,
-              ExistSensorStates: {
+              MaterialExistSensorStates: {
                 TRAY_1: false,
                 TRAY_2: true,
                 RACK_1: false,
