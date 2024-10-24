@@ -28,96 +28,6 @@
           </div>
           <div class="d-flex w-100">
             <div class="state p-3">
-              <h5 class="title">充電樁配置</h5>
-              <el-form label-width="120" label-position="left">
-                <el-form-item label="可使用AGV">
-                  <div class="d-flex w-100">
-                    <el-select
-                      v-if="!IsModify"
-                      :disabled="true"
-                      size="small"
-                      v-model="data.UsableAGVNames"
-                      multiple
-                      placeholder="Select"
-                      style="width: 1000px"
-                    >
-                      <el-option
-                        v-for="agv_name in GetAGVName"
-                        :key="agv_name"
-                        :label="agv_name"
-                        :value="agv_name"
-                      />
-                    </el-select>
-                    <el-select
-                      v-else
-                      size="small"
-                      v-model="UsableAGVNamesEdit"
-                      multiple
-                      placeholder="Select"
-                      style="width: 1000px"
-                    >
-                      <el-option
-                        v-for="agv_name in GetAGVName"
-                        :key="agv_name"
-                        :label="agv_name"
-                        :value="agv_name"
-                      />
-                    </el-select>
-                    <el-button
-                      class="mx-2"
-                      :type="IsModify ? 'success' : ''"
-                      size="large"
-                      @click="() => {
-                        IsModify = !IsModify;
-                        if (IsModify)
-                          UsableAGVNamesEdit = data.UsableAGVNames;
-                        else
-                          SaveUsableAGVSetting(name, UsableAGVNamesEdit)
-                      }"
-                    >{{ IsModify ? '儲存' : '修改' }}</el-button>
-                    <el-button
-                      class="mx-2"
-                      v-if="IsModify"
-                      type="danger"
-                      size="large"
-                      @click="() => { IsModify = false }"
-                    >取消</el-button>
-                  </div>
-                </el-form-item>
-                <el-form-item label="Tag">
-                  <div class="w-100 d-flex"></div>
-                  <el-input-number
-                    size="large"
-                    class="flex-fill"
-                    v-model="data.TagNumber"
-                    v-if="!IsTagNumberModify"
-                    :disabled="true"
-                  ></el-input-number>
-                  <el-input-number size="large" class="flex-fill" v-model="TagNumberForEdit" v-else></el-input-number>
-                  <el-button
-                    size="large"
-                    class="mx-2"
-                    type="success"
-                    v-if="IsTagNumberModify"
-                    @click="() => { IsTagNumberModify = !IsTagNumberModify; ChangeTagNumerOfStation(name, TagNumberForEdit); }"
-                  >儲存</el-button>
-                  <el-button
-                    size="large"
-                    class="mx-2"
-                    v-else
-                    @click="() => { IsTagNumberModify = !IsTagNumberModify; TagNumberForEdit = data.TagNumber; }"
-                  >修改</el-button>
-                  <el-button
-                    size="large"
-                    class="mx-2"
-                    type="danger"
-                    v-if="IsTagNumberModify"
-                    @click="() => { IsTagNumberModify = !IsTagNumberModify; }"
-                  >取消</el-button>
-                </el-form-item>
-              </el-form>
-            </div>
-            <div class="state p-3">
               <h5 class="title">狀態</h5>
               <el-form label-width="150" label-position="left">
                 <el-form-item label="通訊狀態">
@@ -139,18 +49,6 @@
                   <el-tag>{{ GetChargeMode(data.CurrentChargeMode) }}</el-tag>
                   <el-tag v-if="data.IsBatteryFull" type="success" effect="dark">已充飽電</el-tag>
                 </el-form-item>
-                <el-form-item label="輸入電壓(AC)">
-                  <el-tag>{{ data.Vin }} V</el-tag>
-                </el-form-item>
-                <el-form-item label="輸出電壓(DC)">
-                  <el-tag>{{ data.Vout }} V</el-tag>
-                </el-form-item>
-                <el-form-item label="輸出電流">
-                  <el-tag>{{ data.Iout }} A</el-tag>
-                </el-form-item>
-                <el-form-item label="充電器溫度">
-                  <el-tag>{{ data.Temperature }} °C</el-tag>
-                </el-form-item>
                 <el-form-item label="異常">
                   <div class="d-flex flex-column w-100">
                     <el-tag
@@ -164,6 +62,36 @@
                       :key="error_code"
                       type="danger"
                     >{{ error_code }}</el-tag>
+                  </div>
+                </el-form-item>
+                <el-form-item label="輸入電壓(AC)">
+                  <div class="w-100 d-flex px-3">
+                    <span class="digital-font-charger-station">{{ data.Vin }}</span>
+                    <span class="digital-font-unit-charger-station">V</span>
+                  </div>
+                </el-form-item>
+                <el-form-item label="輸出電壓(DC)">
+                  <div class="w-100 d-flex px-3">
+                    <span class="digital-font-charger-station">{{ data.Vout }}</span>
+                    <span class="digital-font-unit-charger-station">V</span>
+                  </div>
+                </el-form-item>
+                <el-form-item label="輸出電流">
+                  <div class="w-100 d-flex px-3">
+                    <span class="digital-font-charger-station">{{ data.Iout }}</span>
+                    <span class="digital-font-unit-charger-station">A</span>
+                  </div>
+                </el-form-item>
+                <el-form-item label="充電器溫度">
+                  <div class="w-100 d-flex px-3">
+                    <span class="digital-font-charger-station">{{ data.Temperature }}</span>
+                    <span class="digital-font-unit-charger-station">°C</span>
+                  </div>
+                </el-form-item>
+                <el-form-item label="充電站溫度">
+                  <div class="w-100 d-flex px-3">
+                    <span class="digital-font-charger-station">33.3</span>
+                    <span class="digital-font-unit-charger-station">°C</span>
                   </div>
                 </el-form-item>
               </el-form>
@@ -211,6 +139,97 @@
               <h6>充電曲線參考圖示</h6>
               <img class="border rounded p-3" src="/images/charger_curve.png" alt />
             </div>
+          </div>
+
+          <div class="state p-3">
+            <h5 class="title">充電樁配置</h5>
+            <el-form label-width="120" label-position="left">
+              <el-form-item label="可使用AGV">
+                <div class="d-flex w-100">
+                  <el-select
+                    v-if="!IsModify"
+                    :disabled="true"
+                    size="small"
+                    v-model="data.UsableAGVNames"
+                    multiple
+                    placeholder="Select"
+                    style="width: 1000px"
+                  >
+                    <el-option
+                      v-for="agv_name in GetAGVName"
+                      :key="agv_name"
+                      :label="agv_name"
+                      :value="agv_name"
+                    />
+                  </el-select>
+                  <el-select
+                    v-else
+                    size="small"
+                    v-model="UsableAGVNamesEdit"
+                    multiple
+                    placeholder="Select"
+                    style="width: 1000px"
+                  >
+                    <el-option
+                      v-for="agv_name in GetAGVName"
+                      :key="agv_name"
+                      :label="agv_name"
+                      :value="agv_name"
+                    />
+                  </el-select>
+                  <el-button
+                    class="mx-2"
+                    :type="IsModify ? 'success' : ''"
+                    size="large"
+                    @click="() => {
+                        IsModify = !IsModify;
+                        if (IsModify)
+                          UsableAGVNamesEdit = data.UsableAGVNames;
+                        else
+                          SaveUsableAGVSetting(name, UsableAGVNamesEdit)
+                      }"
+                  >{{ IsModify ? '儲存' : '修改' }}</el-button>
+                  <el-button
+                    class="mx-2"
+                    v-if="IsModify"
+                    type="danger"
+                    size="large"
+                    @click="() => { IsModify = false }"
+                  >取消</el-button>
+                </div>
+              </el-form-item>
+              <el-form-item label="Tag">
+                <div class="w-100 d-flex"></div>
+                <el-input-number
+                  size="large"
+                  class="flex-fill"
+                  v-model="data.TagNumber"
+                  v-if="!IsTagNumberModify"
+                  :disabled="true"
+                ></el-input-number>
+                <el-input-number size="large" class="flex-fill" v-model="TagNumberForEdit" v-else></el-input-number>
+                <el-button
+                  size="large"
+                  class="mx-2"
+                  type="success"
+                  v-if="IsTagNumberModify"
+                  @click="() => { IsTagNumberModify = !IsTagNumberModify; ChangeTagNumerOfStation(name, TagNumberForEdit); }"
+                >儲存</el-button>
+                <el-button
+                  size="large"
+                  class="mx-2"
+                  v-else
+                  @click="() => { IsTagNumberModify = !IsTagNumberModify; TagNumberForEdit = data.TagNumber; }"
+                >修改</el-button>
+                <el-button
+                  size="large"
+                  class="mx-2"
+                  type="danger"
+                  v-if="IsTagNumberModify"
+                  @click="() => { IsTagNumberModify = !IsTagNumberModify; }"
+                >取消</el-button>
+              </el-form-item>
+            </el-form>
           </div>
         </div>
         <div class="text-start" style="font-size: 14px;">
@@ -456,7 +475,8 @@ export default {
   .title {
     font-weight: bold;
     width: 100%;
-    border-bottom: 1px solid grey;
+    border-bottom: 8px solid rgb(238, 238, 238);
+    padding-bottom: 5px;
   }
 
   .el-form-item__label {

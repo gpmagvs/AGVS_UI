@@ -1,3 +1,21 @@
+@font-face {
+  font-family: 'DigitalFont';
+  src: url('@/assets/fonts/DS-DIGIT.TTF');
+}
+
+.digital-font-charger-station {
+  font-family: 'DigitalFont';
+  font-size: 35px;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.digital-font-unit-charger-station {
+  font-size: 14px;
+  margin-left: 5px;
+
+}
+
 .el-table {
   z-index: 1;
 }
