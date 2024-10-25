@@ -3,7 +3,6 @@ import store from "./store";
 import { MapStore } from '@/components/Map/store'
 import param from "./gpm_param";
 import { GetEQOptions, GetWIPOptions } from '@/api/EquipmentAPI.js';
-
 import { ElMessage } from "element-plus";
 
 import * as signalR from "@microsoft/signalr";
@@ -18,11 +17,21 @@ var vmsStoreTimout = undefined;
 var isWindowShowing = true;
 var _previousAGVSData;
 var _previousVMSData;
+let agvsTimeStamp = Date.now();
+let vmsTimeStamp = Date.now();
+import bus from "./event-bus";
+let isVMSDataFetchDelayDetected = true;
+let isAGVSDataFetchDelayDetected = true;
+
 
 function StoreAGVSData(data) {
+    // console.log('timeStamp', timeStamp);
     if (!data)
         return;
+
+    const timeStamp = data.TimeStamp;
     _previousAGVSData = data;
+    agvsTimeStamp = timeStamp;
     // if (!isWindowShowing)
     //     return;
     // if (agvsStoreTimout) {
@@ -40,7 +49,10 @@ function StoreAGVSData(data) {
 function StoreVMSData(data) {
     if (!data)
         return;
+
+    const timeStamp = data.TimeStamp;
     _previousVMSData = data;
+    vmsTimeStamp = timeStamp;
     // if (!isWindowShowing)
     //     return;
 
@@ -204,22 +216,68 @@ function StartWithLeaderCheck() {
         BecomeLeader();
     }, 100);
 }
-document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') {
-        isWindowShowing = true;
-        console.log('Tab is active');
-        // if (isLeader) {
-        //     if (agvsHubConnection.state == 'Connected')
-        //         agvsHubConnection.invoke("SendMessage", "test", "fetch-data");
-        //     if (vmsHubConnection.state == 'Connected')
-        //         vmsHubConnection.invoke("SendMessage", "test", "fetch-data");
-        // }
 
-    } else {
-        isWindowShowing = false;
-        console.log('Tab is inactive');
-    }
-});
+function ShowAlertDialog(message) {
+    bus.emit('on-data-fetch-delay-detected', message);
+    // this.$swal.fire(
+    //     {
+    //         text: message,
+    //         title: '',
+    //         icon: 'error',
+    //         showCancelButton: false,
+    //         confirmButtonText: 'OK',
+    //         customClass: 'my-sweetalert'
+    //     })
 
+}
+
+async function AGVSAliveCheck() {
+    return await fetch(param.backend_host + '/api/system/alivecheck')
+        .then(response => {
+            return true;
+        })
+        .catch(error => {
+            console.error('AGVS alive check error', error);
+            return false;
+        })
+}
+
+async function VMSAliveCheck() {
+    return await fetch(param.vms_host + '/api/system/alivecheck')
+        .then(response => {
+            return true;
+        })
+        .catch(error => {
+            console.error('VMS alive check error', error);
+            return false;
+        })
+}
+
+
+function CheckBackendConnectStatus() {
+    setInterval(async () => {
+        const agvsAlive = await AGVSAliveCheck();
+        const isAGVSConnectRestored = agvsAlive && !isAGVSDataFetchDelayDetected;
+        isAGVSDataFetchDelayDetected = agvsAlive;
+        const vmsAlive = await VMSAliveCheck();
+        const isVMSConnectRestored = vmsAlive && !isVMSDataFetchDelayDetected;
+        isVMSDataFetchDelayDetected = vmsAlive;
+
+        if (isAGVSConnectRestored || isVMSConnectRestored) {
+            window.location.reload();
+        }
+
+        if (!agvsAlive || !vmsAlive) {
+            if (!agvsAlive)
+                ShowAlertDialog(`AGVS系統斷線(AGVS Disconnected)`);
+            if (!vmsAlive)
+                ShowAlertDialog(`VMS系統斷線(VMS Disconnected)`);
+        }
+    }, 5000);
+}
 //StartHubsConnection();
 StartWithLeaderCheck();
+
+setTimeout(() => {
+    CheckBackendConnectStatus();
+}, 5000);

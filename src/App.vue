@@ -203,6 +203,19 @@ export default {
     bus.on('/map_save', () => {
       this.mapSaved = true;
     });
+    bus.on('on-data-fetch-delay-detected', (message) => {
+      this.$swal.fire(
+        {
+          text: message,
+          title: '',
+          icon: 'error',
+          showCancelButton: false,
+          confirmButtonText: 'Reload',
+          customClass: 'my-sweetalert'
+        }).then(() => {
+          window.location.reload();
+        })
+    })
     document.addEventListener('click', evt => {
       ElementClickLog(evt.target.innerText, evt.target.parentElement + '')
     })
