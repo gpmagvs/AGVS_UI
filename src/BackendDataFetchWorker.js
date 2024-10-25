@@ -264,7 +264,9 @@ function CheckBackendConnectStatus() {
         isVMSDataFetchDelayDetected = vmsAlive;
 
         if (isAGVSConnectRestored || isVMSConnectRestored) {
-            window.location.reload();
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
         }
 
         if (!agvsAlive || !vmsAlive) {
