@@ -956,7 +956,7 @@ export default {
       return _AGVOption;
     },
     agvs_info_other_system() {
-      return MapStore.getters.OthersAGVLocateInfo;
+      return MapStore.state.OthersAGVLocateInfo;
     },
     eq_data() {
 
@@ -1190,15 +1190,19 @@ export default {
           return [0, 0];
         }
       }
+      console.log(payload)
+
       payload.forEach(info => {
+        console.log(info)
 
         var agvName = info.AGVName;
-        if (agvName && agvName == '') {
-
+        if (agvName && agvName != '') {
           var agvLocation = info.Location;
           var featureKey = `other-agv-${agvName}`;
+          console.log(agvName, agvLocation)
           var featureFound = agvFeatures.find(ft => ft.get('agv-addition') == featureKey);
           var coordination = _GetCoordinationByDisplayName(agvLocation);
+
           var isCoordinationNotFound = coordination[0] == 0 && coordination[1] == 0;
           if (!isCoordinationNotFound) {
 

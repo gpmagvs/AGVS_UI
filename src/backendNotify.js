@@ -131,13 +131,13 @@ function InitWSNotification(agvs = true, vms = true) {
         }
     }
 }
-document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') {
-        isWindowShowing = true;
-        console.log('Tab is active');
-    } else {
-        isWindowShowing = false;
-        console.log('Tab is inactive');
-    }
-});
+// document.addEventListener('visibilitychange', function () {
+//     if (document.visibilityState === 'visible') {
+//         isWindowShowing = true;
+//         console.log('Tab is active');
+//     } else {
+//         isWindowShowing = false;
+//         console.log('Tab is inactive');
+//     }
+// });
 InitWSNotification();
