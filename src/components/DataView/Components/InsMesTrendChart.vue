@@ -20,13 +20,14 @@
             </el-select>
           </el-form-item>
           <el-form-item :label="$t('AGVLocus.SelectStartDate')">
-            <el-date-picker v-model="StartTimeStr" type="date" placeholder="選擇開始日期" />
+            <el-date-picker v-model="StartTimeStr" type="date" :placeholder="$t('InsMesTrendChart.SelectStartDate')" />
           </el-form-item>
           <el-form-item :label="$t('AGVLocus.SelectEndDate')">
-            <el-date-picker v-model="EndTimeStr" type="date" placeholder="選擇開始日期" />
+            <el-date-picker v-model="EndTimeStr" type="date" :placeholder="$t('InsMesTrendChart.SelectEndDate')" />
           </el-form-item>
         </el-form>
-        <b-button class="w-100" variant="primary" @click="HandleQueryButtonClick">查詢</b-button>
+        <b-button class="w-100" variant="primary" @click="HandleQueryButtonClick">{{ $t('InsMesTrendChart.Search')
+          }}</b-button>
       </div>
       <div class="flex-fill chart-container">
         <InsMesDisplayChart ref="chart"></InsMesDisplayChart>
