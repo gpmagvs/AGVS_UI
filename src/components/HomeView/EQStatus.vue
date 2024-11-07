@@ -176,7 +176,8 @@
         sortable
         :label="$t('HomeView.EQStatus.EQStatus.EQ_Name')"
         prop="EQName"
-        width="170"
+        width="190"
+        show-overflow-tooltip
       >
         <template #default="scope">
           <div>
@@ -261,6 +262,7 @@
         prop="CarrierID"
         width="200"
         :label="$t('HomeView.EQStatus.EQStatus.CarrierID')"
+        show-overflow-tooltip
       >
         <template #default="scope">
           <div>
