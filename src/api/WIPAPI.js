@@ -16,3 +16,9 @@ export async function RemoveCargoID(WIPID, PortID) {
     var ret = await axios_entity.post(`/api/WIP/RemoveCargoID?WIPID=${WIPID}&PortID=${PortID}`)
     return ret.data;
 }
+
+export async function GetAllSlotsOptions() {
+    var ret = await axios_entity.get(`/api/WIP/GetAllSlotsOptions`)
+    return ret.data;
+}
+

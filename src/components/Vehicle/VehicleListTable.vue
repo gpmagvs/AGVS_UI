@@ -1,5 +1,6 @@
 <template>
   <div class="vehicle-list-table">
+    <el-skeleton :loading="!showTable" animated></el-skeleton>
     <el-table
       header-cell-class-name="my-el-table-cell-class"
       row-key="AGV_Name"
@@ -7,6 +8,7 @@
       :header-cell-style="tableHeaderStyle"
       :data="GetAGVStatesData"
       size="large"
+      v-if="showTable"
     >
       <el-table-column label="AGV ID" prop="AGV_Name" width="130" align="center"></el-table-column>
       <el-table-column label="類型" prop="Model" width="90" align="center">
@@ -14,7 +16,7 @@
           <el-tag effect="dark">{{ VehicleModels[scope.row.Model].labelCN }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="當前狀態" prop="MainStatus" width="90" align="center">
+      <el-table-column label="當前狀態" prop="MainStatus" width="110" align="center">
         <template #default="scope">
           <el-tag v-if="!scope.row.Connected" effect="dark" type="danger">斷線</el-tag>
           <el-tag
@@ -46,7 +48,11 @@
       </el-table-column>
       <el-table-column fixed="right" label="Operations" min-width="160">
         <template #default="scope">
-          <el-button type="success" size="small" @click.prevent="edit_row(scope.row)">編輯</el-button>
+          <el-button size="small" @click.prevent="edit_row(scope.row)">編輯</el-button>
+          <el-button
+            size="small"
+            @click.prevent="show_traffic_control_settings_drawer(scope.row)"
+          >交管設置</el-button>
           <el-button type="danger" size="small" @click.prevent="delete_row(scope.row)">刪除</el-button>
         </template>
       </el-table-column>
@@ -59,23 +65,36 @@
         <AddVehicle ref="AgvPropertyEditor" mode="edit"></AddVehicle>
       </div>
     </el-drawer>
+
+    <el-drawer
+      title="交管設置"
+      append-to-body
+      :z-index="1"
+      v-model="ShowVechicleTrafficControlSettingsDrawer"
+    >
+      <VechicleTrafficControlSettings :agv_row="selectAGVProertyToEdit"></VechicleTrafficControlSettings>
+    </el-drawer>
   </div>
 </template>
 <script>
 import { agv_states_store } from '@/store';
 import AddVehicle from './AddVehicle.vue';
+import VechicleTrafficControlSettings from './VechicleTrafficControlSettings.vue';
 import { ProtocolDisplay, MainStatusDisplay, VehicleModelDisplay } from '@/ViewModels/EnumMaps.js'
 import { VehicleManagerAPI } from '@/api/VMSAPI'
 export default {
   components: {
     AddVehicle,
+    VechicleTrafficControlSettings
   },
   inject: ['tableHeaderStyle'],
   data() {
     return {
       table: [],
+      showTable: false,
       selectAGVProertyToEdit: {},
-      ShowEditAGVPropertyDrawer: false
+      ShowEditAGVPropertyDrawer: false,
+      ShowVechicleTrafficControlSettingsDrawer: false
     }
   },
   computed: {
@@ -144,8 +163,17 @@ export default {
         })
 
 
+    },
+    show_traffic_control_settings_drawer(agv_row) {
+      this.selectAGVProertyToEdit = agv_row;
+      this.ShowVechicleTrafficControlSettingsDrawer = true;
     }
   },
+  mounted() {
+    setTimeout(() => {
+      this.showTable = true
+    }, 1000)
+  }
 }
 </script>
 <style scoped>

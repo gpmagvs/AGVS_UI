@@ -17,7 +17,8 @@
       "alarmreset": "清除警報",
       "eqalarm": "設備警報",
       "Turnoffbuzzer": "關閉蜂鳴器"
-    }
+    },
+    "LaterRemindMe": "稍後再提醒我"
   },
   "Menu": {
     "Home": "主頁",

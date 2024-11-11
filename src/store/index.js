@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import { Login, StoreToLocalStorage, UserRouteChange } from '@/api/UserAPI';
+import { GetAllSlotsOptions } from '@/api/WIPAPI'
 import { clsUserLoginState } from '@/api/AuthHelper'
 import MapAPI from '@/api/MapAPI'
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
@@ -74,7 +75,7 @@ export default createStore({
 /**車輛狀態儲存 */
 export const agv_states_store = createStore({
   state: {
-    agv_states: undefined,
+    agv_states: [new clsAGVStateDto()],
     hotrun_states: [],
 
   },
@@ -297,7 +298,10 @@ export const EqStore = createStore({
     EqOptions: [DeviceConfig],
     WIPOptions: [],
     WIPsData: [],
-    ChargeStationDataReceived: false
+    ChargeStationDataReceived: false,
+    WIPSlotOptions: {
+      2: ["1", "2", "3"] // key:TagNumber , value : string[]
+    }
   },
   getters: {
     EQData: state => {
@@ -311,6 +315,9 @@ export const EqStore = createStore({
     WIPOptions: state => state.WIPOptions,
     GetRowsByStationTag: state => (tag) => {
       return 3
+    },
+    GetWIPSlotsOptionsByStationTag: state => (tag) => {
+      return state.WIPSlotOptions[tag]
     },
     AnyTwoLayerEqExist: state => {
       try {
@@ -335,10 +342,17 @@ export const EqStore = createStore({
     },
     WIPOptions(state, option) {
       state.WIPOptions = option
+    },
+    wipSlotOptions(state, options) {
+      state.WIPSlotOptions = options;
+      console.info(state.WIPSlotOptions)
     }
   },
   actions: {
-
+    async FetchWIPSlotOptions({ commit }) {
+      var result = await GetAllSlotsOptions()
+      commit("wipSlotOptions", result)
+    }
   }
 })
 

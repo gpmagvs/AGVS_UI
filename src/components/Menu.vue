@@ -7,6 +7,7 @@
     </div>
     <el-menu
       class="el-menu-vertical-demo"
+      default-active="/"
       style="height: 100vh;"
       active-text-color="rgb(13, 110, 253)"
       :collapse="isCollapse"
@@ -24,13 +25,13 @@
       </el-menu-item>
       <el-menu-item index="/alarm" v-if="UserPermission.menu.SystemAlarm==1">
         <el-icon>
-          <Message color="red" />
+          <Message />
         </el-icon>
         <template #title>{{ $t('Menu.System Alarm') }}</template>
       </el-menu-item>
       <el-menu-item index="/racks_status" v-if="UserPermission.menu.WIPInfo==1">
         <el-icon>
-          <cargo_icon :color="IconColor" />
+          <cargo_icon />
         </el-icon>
         <template #title>{{ $t('Menu.wip_manager') }}</template>
       </el-menu-item>

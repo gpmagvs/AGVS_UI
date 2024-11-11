@@ -44,7 +44,7 @@ export default {
   data() {
     return {
       test: 'AV',
-      activedTab: 0
+      activedTab: 0,
     }
   },
   computed: {

@@ -17,7 +17,8 @@
       "alarmreset": "Alarm Reset",
       "eqalarm": "EQP Alarm",
       "Turnoffbuzzer": "Buzzer OFF"
-    }
+    },
+    "LaterRemindMe": "Notify Later"
   },
   "Menu": {
     "Home": "Home",

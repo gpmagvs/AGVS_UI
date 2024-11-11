@@ -51,6 +51,7 @@
 </template>
 <script>
 import store from '@/store';
+import { EqStore } from '@/store';
 import Menu from '@/components/Menu.vue'
 import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
@@ -204,23 +205,40 @@ export default {
       this.mapSaved = true;
     });
     bus.on('on-data-fetch-delay-detected', (message) => {
+      const notifyStateStr = localStorage.getItem('AGVS-DISCONNECTED-NO-NOTIFY-STATE')
+      if (notifyStateStr) {
+        const notifyState = JSON.parse(notifyStateStr);
+        const isTimePassed = Date.now() > notifyState.nextNofityTime;
+        if (!isTimePassed)
+          return;
+      }
       this.$swal.fire(
         {
           text: message,
           title: '',
           icon: 'error',
-          showCancelButton: false,
+          showCancelButton: true,
           confirmButtonText: 'Reload',
+          cancelButtonText: this.$t('App.LaterRemindMe'),
           customClass: 'my-sweetalert'
-        }).then(() => {
-          window.location.reload();
+        }).then((res) => {
+          if (res.isConfirmed) {
+            window.location.reload();
+          }
+          if (res.dismiss == 'cancel') {
+            // 稍後提醒我
+            const _nextNofityTime = new Date(Date.now() + 5 * 60 * 1000).getTime();
+            localStorage.setItem('AGVS-DISCONNECTED-NO-NOTIFY-STATE', JSON.stringify({
+              nextNofityTime: _nextNofityTime
+            }))
+          }
         })
     })
     document.addEventListener('click', evt => {
       ElementClickLog(evt.target.innerText, evt.target.parentElement + '')
     })
     document.addEventListener('keydown', (evt) => {
-      if (evt.key.toLowerCase() == 'control')
+      if (evt.key && evt.key.toLowerCase() == 'control')
         store.commit('setCtrlKeyPressing', true)
     })
     document.addEventListener('keyup', (evt) => {
@@ -236,6 +254,7 @@ export default {
     });
     this.$store.dispatch('DownloadSystemConfigs');
     this.$store.dispatch('DownloadVMSAppInfo');
+    EqStore.dispatch('FetchWIPSlotOptions')
     let login_states = IsLoginLastTime();
 
     //嘗試存取前次的登入狀態，並自動登入

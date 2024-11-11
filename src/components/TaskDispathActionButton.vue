@@ -121,6 +121,7 @@
                 </el-select>
                 <!-- {{ selected_source ? selected_source.Graph.Display : '' }} -->
               </el-col>
+              <!-- 選層 slot -->
               <el-col class="item-actions" :span="7">
                 <el-select
                   class="w-100"
@@ -1193,11 +1194,13 @@ export default {
 
     },
     GetLayersOfBuffer(tag) {
-      const rows = EqStore.getters.GetRowsByStationTag(tag);
+      const portNosOfColumn = EqStore.getters.GetWIPSlotsOptionsByStationTag(tag);
       const options = [];
-      for (let index = 0; index < rows; index++) {
+      for (let index = 0; index < portNosOfColumn.length; index++) {
+        const portNo = portNosOfColumn[index];
         options.push({
-          label: `第${index + 1}層`,
+          // label: `第${index + 1}層`,
+          label: portNo,
           value: index
         })
       }

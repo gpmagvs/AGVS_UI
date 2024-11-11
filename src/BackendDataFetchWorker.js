@@ -219,16 +219,6 @@ function StartWithLeaderCheck() {
 
 function ShowAlertDialog(message) {
     bus.emit('on-data-fetch-delay-detected', message);
-    // this.$swal.fire(
-    //     {
-    //         text: message,
-    //         title: '',
-    //         icon: 'error',
-    //         showCancelButton: false,
-    //         confirmButtonText: 'OK',
-    //         customClass: 'my-sweetalert'
-    //     })
-
 }
 
 async function AGVSAliveCheck() {
@@ -271,9 +261,9 @@ function CheckBackendConnectStatus() {
 
         if (!agvsAlive || !vmsAlive) {
             if (!agvsAlive)
-                ShowAlertDialog(`AGVS系統斷線(AGVS Disconnected)`);
+                ShowAlertDialog(`AGVS系統斷線_AGVS Disconnected`);
             if (!vmsAlive)
-                ShowAlertDialog(`VMS系統斷線(VMS Disconnected)`);
+                ShowAlertDialog(`VMS系統斷線_VMS Disconnected`);
         }
     }, 5000);
 }

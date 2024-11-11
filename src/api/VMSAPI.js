@@ -33,6 +33,11 @@ export async function AGVLocating(AGV_Name, Payload) {
   return response.data;
 }
 
+export async function UnregisterFromNetwork(AGV_Name) {
+  var response = await axios_entity_vms.post(`/api/VmsManager/UnregisterFromNetwork?agv_name=${AGV_Name}`);
+  return response.data;
+}
+
 export var VehicleManagerAPI = {
   /**新增車輛 */
   AddVehicle: async (payload) => {

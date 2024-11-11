@@ -8,6 +8,7 @@
     <button @click="RemoveCarrierID">移除卡匣</button>
     <button @click="EMO">定位</button>
     <button @click="OpenMaintainPage()">車輛保養</button>
+    <button class="text-danger" @click="UnregisterFromNetwork()">解除路網註冊</button>
     <!-- <span class="text-light">{{ agvState }}</span> -->
   </div>
 </template>
@@ -15,7 +16,7 @@
 
 <script>
 import { agv_states_store } from '@/store';
-import { EmuAPI, OnlineRequest, OfflineRequest } from '@/api/VMSAPI';
+import { EmuAPI, OnlineRequest, OfflineRequest, UnregisterFromNetwork } from '@/api/VMSAPI';
 import { EMO, Initialize, RemoveCargoID, AlarmReset } from '@/api/VehicleAPI'
 export default {
   props: {
@@ -117,7 +118,33 @@ export default {
           confirmButtonText: 'OK',
           customClass: 'my-sweetalert'
         })
+    },
+    async UnregisterFromNetwork() {
+      this.$swal.fire({
+        text: `確定要解除[${this.agvName}]路網註冊嗎？`,
+        title: '',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '確定',
+        customClass: 'my-sweetalert'
+      }).then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await UnregisterFromNetwork(this.agvName);
+          } catch (error) {
+            this.$swal.fire({
+              text: error.message,
+              title: '',
+              icon: 'error',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            })
+          }
+        }
+      })
     }
+
   },
 }
 </script>
