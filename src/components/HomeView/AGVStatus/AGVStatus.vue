@@ -61,15 +61,34 @@
                 @click="ShowOnlineStateChangeModal(scope.row.AGV_Name, scope.row.OnlineStatus, scope.row.Model)"
                 v-bind:style="{ backgroundColor: scope.row.OnlineStatus == 1 ? 'red' : '#0d6efd' }"
               >{{ scope.row.OnlineStatus == 1 ? $t('HomeView.AGVStatus.AGVStatus.OfflineRequest') : $t('HomeView.AGVStatus.AGVStatus.OnlineRequest') }}</b-button>
-              <b-button
-                v-if="!IsRunMode"
-                class="w-20 my-1 mx-2"
-                @click="ShowAGVChargeConfirmDialog(scope.row)"
-                variant="warning"
-              >
-                <i class="bi bi-lightning-charge-fill"></i>
-                {{ scope.row.Model == 2 ? $t('Exchange Battery') : $t('Charge') }}
-              </b-button>
+              <el-popover width="150" placement="right">
+                <template #reference>
+                  <b-button
+                    v-if="!IsRunMode"
+                    class="w-20 my-1 mx-2"
+                    @click="ShowAGVChargeConfirmDialog(scope.row)"
+                    v-bind:class="getChargeButtnClass(scope.row)"
+                  >
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    {{ scope.row.Model == 2 ? $t('Exchange Battery') : $t('Charge') }}
+                  </b-button>
+                </template>
+                <template #default>
+                  <div class="charge-button-container d-flex flex-column">
+                    <b-button
+                      variant="warning"
+                      style="width: 100%; margin-bottom: 8px;"
+                      @click="ShowAGVChargeConfirmDialog(scope.row)"
+                    >一般充電</b-button>
+                    <b-button
+                      variant="success"
+                      style="width: 100%; margin-bottom: 8px;"
+                      @click="ShowAGVChargeConfirmDialog(scope.row,'deep')"
+                    >深度充電</b-button>
+                    <b-button variant="light" style="width: 100%; margin-bottom: 8px;">解除深度充電</b-button>
+                  </div>
+                </template>
+              </el-popover>
             </div>
           </div>
         </template>
@@ -439,6 +458,7 @@ import { TaskAllocation, clsChargeTaskData, clsExangeBatteryTaskData } from '@/a
 import { userStore, agvs_settings_store, agv_states_store, UIStore } from '@/store'
 import moment from 'moment'
 import { MapStore } from '@/components/Map/store';
+import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 export default {
   mounted() {
     bus.on('/cancel_tracking_agv', () => {
@@ -655,7 +675,18 @@ export default {
       }
 
     },
-    ShowAGVChargeConfirmDialog(agv_status) {
+    /**由狀態取得充電按鈕的類別 */
+    getChargeButtnClass(agv_states = new clsAGVStateDto()) {
+
+      return 'charge-normal'; //TODO: 由狀態取得充電按鈕的類別
+      if (agv_states.MainStatus == 1)
+        return 'charge-normal';
+      else if (agv_states.MainStatus == 3)
+        return 'charge-deep-charge-raising';
+      else
+        return 'charge-deep-charging';
+    },
+    ShowAGVChargeConfirmDialog(agv_status, chargeType = 'normal') {
 
       if (userStore.getters.level < 0) {
         this.$swal.fire({
@@ -977,6 +1008,37 @@ export default {
   .tb-label,
   .val-label {
     font-size: 16px;
+  }
+  .charge-normal,
+  .charge-deep-charging {
+    background-color: var(--charge-button-normal-color);
+  }
+  .charge-deep-charge-raising {
+    background-color: var(--charge-button-deep-charge-raising-color);
+    animation: charge-btn-deep-charge-raising-flash 2s infinite;
+  }
+  .charge-deep-charging {
+    animation: charge-btn-deep-charging-flash 2s infinite;
+  }
+
+  @keyframes charge-btn-deep-charge-raising-flash {
+    0%,
+    100% {
+      background-color: var(--charge-button-deep-charge-raising-color);
+    }
+    50% {
+      background-color: rgb(136, 136, 136);
+    }
+  }
+
+  @keyframes charge-btn-deep-charging-flash {
+    0%,
+    100% {
+      background-color: var(--charge-button-normal-color);
+    }
+    50% {
+      background-color: rgb(136, 136, 136);
+    }
   }
 }
 </style>

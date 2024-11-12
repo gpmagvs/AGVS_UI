@@ -6,6 +6,7 @@ class clsAGVStateDto {
       this.AGV_Description = ''
       this.Model = ''
       this.Simulation = false
+      /** IDLE = 1, RUN=2, DOWN=3, Charging=4, Unknown=5 */
       this.MainStatus = 0
       this.OnlineStatus = 0
       this.CurrentLocation = ''
