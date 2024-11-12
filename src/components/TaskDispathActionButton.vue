@@ -856,6 +856,7 @@ export default {
     async HandleDestineSelectChanged(tag) {
       // alert(tag)
       this.selected_destine = await MapStore.dispatch('GetMapPointByTag', tag)
+      this.selected_destine_slot = 0;
     },
 
     HandleCancelBtnClick() {
@@ -1147,6 +1148,7 @@ export default {
         this.downstream_options = this.GetDownStreamEQOptions(source_tag);
         console.log('validable downstream of ', source_tag, this.downstream_options)
       }
+      this.selected_source_slot = 0;
     },
     GetDownStreamEQOptions(sourceTag) {
 
