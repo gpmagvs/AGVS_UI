@@ -240,10 +240,7 @@
                 </el-select>
                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
               </el-col>
-              <el-col class="item-actions" :span="7">
-                <!-- <b-button size="sm" variant="link" @click="HandleSelectDestineStationFromMapBtnClick">從地圖選取</b-button> -->
-                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
-              </el-col>
+              <el-col class="item-actions" :span="7"></el-col>
             </el-row>
             <!-- 選擇轉運車輛 -->
             <el-row class="order-row" v-if="IsTransferTaskNeedChangeAGV">
@@ -264,10 +261,7 @@
                 </el-select>
               </el-col>
               <!-- <el-col class="item-value" :span="18">{{ IsAutoSelectAGV ? '自動選車' : selected_agv }}</el-col> -->
-              <el-col class="item-actions" :span="7">
-                <!-- <b-button size="sm" variant="link" @click="HandleSelectAGVFromMapBtnClick">從地圖選取</b-button> -->
-                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-agv'; is_reselecting_flag = true }">列表選取</b-button> -->
-              </el-col>
+              <el-col class="item-actions" :span="7"></el-col>
             </el-row>
             <!-- bypass status check of order -->
             <el-row class="order-row" v-if="IsDeveloper">
@@ -278,10 +272,7 @@
                 <el-checkbox size="large" v-model="bypass_eq_status_check"></el-checkbox>
                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
               </el-col>
-              <el-col class="item-actions" :span="7">
-                <!-- <b-button size="sm" variant="link" @click="HandleSelectDestineStationFromMapBtnClick">從地圖選取</b-button> -->
-                <!-- <b-button size="sm" variant="link" @click="() => { current_progress = 'select-destine'; is_reselecting_flag = true }">列表選取</b-button> -->
-              </el-col>
+              <el-col class="item-actions" :span="7"></el-col>
             </el-row>
             <!-- //TODO 任務指派畫面操作Action Buttons -->
             <div class="action-buttons w-100 py-1 d-flex border-top" style="height: auto;">
@@ -683,7 +674,6 @@ export default {
       bus.off(this.map_events_bus.station_selected)
       bus.emit('change_to_select_agv_mode');
       this.current_progress = 'select-agv';
-      this.is_reselecting_flag = true;
       bus.on(this.map_events_bus.agv_selected, (agv_name) => {
 
         console.log(agv_name)
@@ -720,7 +710,6 @@ export default {
       }
       bus.emit('change_to_select_eq_station_mode', map_options);
       this.current_progress = 'select-transfer-station';
-      this.is_reselecting_flag = true;
       bus.on(this.map_events_bus.station_selected, (_station_data) => {
 
         console.info(_station_data);
@@ -746,7 +735,6 @@ export default {
       bus.emit('change_to_select_eq_station_mode', { action_type: this.selected_action, direction: 'source', stations_to_show: this.FromStationOptions });
 
       this.current_progress = 'select-source';
-      this.is_reselecting_flag = false;
 
       this.selected_destine = {
         Graph: {
@@ -829,7 +817,6 @@ export default {
       }
       bus.emit('change_to_select_eq_station_mode', map_options);
       this.current_progress = 'select-destine';
-      this.is_reselecting_flag = true;
       bus.on(this.map_events_bus.station_selected, (_station_data) => {
         console.info(_station_data);
         if (this.selected_action == 'move' && (_station_data.StationType != 0 || _station_data.IsVirtualPoint))
