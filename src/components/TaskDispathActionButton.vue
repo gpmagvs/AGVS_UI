@@ -141,13 +141,22 @@
                   <div v-if="IsSourceStationBuffer">
                     <el-option
                       v-for="layer in GetLayersOfBuffer(selected_source.TagNumber)"
-                      :key="selected_source.Graph.Display + '-' + layer.value"
+                      :key="selected_source.Graph.Display + '-' + layer.value+selected_source.TagNumber"
                       :label="layer.label"
                       :value="layer.value"
                     >
                       <div class="w-100 d-flex">
                         <el-tag class="mx-2" effect="plain">第{{ layer.value+1 }}層</el-tag>
-                        <div class="w-50" style="font-size:15px;">{{ layer.label }}</div>
+                        <div
+                          class="flex-fill"
+                          style="font-size:15px; width:120px;"
+                        >{{ layer.label }}</div>
+                        <el-tag
+                          v-if="layer.portState.isCaroExist"
+                          effect="dark"
+                          type="success"
+                        >Exist</el-tag>
+                        <el-tag v-else effect="plain" type="info">Empty</el-tag>
                       </div>
                     </el-option>
                   </div>
@@ -182,6 +191,7 @@
                 </el-select>
                 <!-- {{ selected_destine ? selected_destine.Graph.Display : '' }} -->
               </el-col>
+              <!-- 選層 slot -->
               <el-col class="item-actions" :span="7">
                 <el-select
                   class="w-100 px-1"
@@ -201,13 +211,22 @@
                   <div v-if="IsDestineStationBuffer">
                     <el-option
                       v-for="layer in GetLayersOfBuffer(selected_destine.TagNumber)"
-                      :key="layer.label"
+                      :key="layer.label+selected_destine.TagNumber"
                       :label="layer.label"
                       :value="layer.value"
                     >
                       <div class="w-100 d-flex">
                         <el-tag class="mx-2" effect="plain">第{{ layer.value+1 }}層</el-tag>
-                        <div class="w-50" style="font-size:15px;">{{ layer.label }}</div>
+                        <div
+                          class="flex-fill"
+                          style="font-size:15px; width:120px;"
+                        >{{ layer.label }}</div>
+                        <el-tag
+                          v-if="layer.portState.isCaroExist"
+                          effect="dark"
+                          type="success"
+                        >Exist</el-tag>
+                        <el-tag v-else effect="plain" type="info">Empty</el-tag>
                       </div>
                     </el-option>
                   </div>
@@ -1195,12 +1214,47 @@ export default {
     GetLayersOfBuffer(tag) {
       const portNosOfColumn = EqStore.getters.GetWIPSlotsOptionsByStationTag(tag);
       const options = [];
+      // Dictionary<int, int[]> ColumnTagMap { get; set; } 
+
+      var _GetSlotsStates = (_tag) => {
+        var _getWIPTags = (wip) => {
+          if (wip.ColumnsTagMap)
+            return Object.values(wip.ColumnsTagMap).flat();
+          else
+            return [];
+        }
+        var _wip = EqStore.state.WIPsData.find(wip => _getWIPTags(wip).includes(_tag));
+
+        if (_wip) {
+          let columnPorts = _wip.Ports.filter(port => port.TagNumbers.includes(tag));
+          return columnPorts.map(port => {
+            return {
+              value: port.Layer,
+              isCaroExist: port.CargoExist,
+              cargoID: port.CarrierID
+            }
+          })
+        } else {
+          return [{
+            value: 0,
+            isCaroExist: false,
+            cargoID: null
+          }]
+        }
+        // console.warn(EqStore.state.WIPsData);
+        // return _wip?.ColumnTagMap[_tag];
+      }
+
+      let _slotsStates = _GetSlotsStates(tag);
+      console.warn(_slotsStates);
+
       for (let index = 0; index < portNosOfColumn.length; index++) {
         const portNo = portNosOfColumn[index];
         options.push({
           // label: `第${index + 1}層`,
           label: portNo,
-          value: index
+          value: index,
+          portState: _slotsStates[index]
         })
       }
       return options;
