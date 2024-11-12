@@ -144,7 +144,12 @@
                       :key="selected_source.Graph.Display + '-' + layer.value"
                       :label="layer.label"
                       :value="layer.value"
-                    ></el-option>
+                    >
+                      <div class="w-100 d-flex">
+                        <el-tag class="mx-2" effect="plain">第{{ layer.value+1 }}層</el-tag>
+                        <div class="w-50" style="font-size:15px;">{{ layer.label }}</div>
+                      </div>
+                    </el-option>
                   </div>
                 </el-select>
               </el-col>
@@ -199,7 +204,12 @@
                       :key="layer.label"
                       :label="layer.label"
                       :value="layer.value"
-                    ></el-option>
+                    >
+                      <div class="w-100 d-flex">
+                        <el-tag class="mx-2" effect="plain">第{{ layer.value+1 }}層</el-tag>
+                        <div class="w-50" style="font-size:15px;">{{ layer.label }}</div>
+                      </div>
+                    </el-option>
                   </div>
                 </el-select>
               </el-col>
