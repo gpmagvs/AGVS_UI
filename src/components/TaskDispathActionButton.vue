@@ -1244,10 +1244,7 @@ export default {
         // console.warn(EqStore.state.WIPsData);
         // return _wip?.ColumnTagMap[_tag];
       }
-
       let _slotsStates = _GetSlotsStates(tag);
-      console.warn(_slotsStates);
-
       for (let index = 0; index < portNosOfColumn.length; index++) {
         const portNo = portNosOfColumn[index];
         options.push({
