@@ -701,6 +701,7 @@ export default {
         this.HandleActionSelected("select-agv");
       bus.off(this.map_events_bus.agv_selected)
       bus.off(this.map_events_bus.station_selected)
+      bus.off('map-rack-port-clicked')
       bus.emit('change_to_select_agv_mode');
       this.current_progress = 'select-agv';
       bus.on(this.map_events_bus.agv_selected, (agv_name) => {
@@ -728,6 +729,7 @@ export default {
       this.HandleActionSelected('select-transfer-station');
       bus.off(this.map_events_bus.agv_selected)
       bus.off(this.map_events_bus.station_selected)
+      bus.off('map-rack-port-clicked')
 
       var _destine_options = this.GetDownStreamEQOptions(this.selected_source.TagNumber);
 
@@ -904,6 +906,9 @@ export default {
 
       bus.off(this.map_events_bus.agv_selected)
       bus.off(this.map_events_bus.station_selected)
+      bus.off('map-rack-port-clicked')
+
+      bus.emit('change_to_select_agv_mode');
       this.order_info_visible = false;
       this.selected_source = this.selected_destine = { Graph: { Display: '' } };
       this.source_select_row_class = this.destine_select_row_class = this.agv_select_row_class = this.transfer_station_select_row_class = '';
