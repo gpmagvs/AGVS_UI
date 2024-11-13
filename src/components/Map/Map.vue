@@ -4656,11 +4656,11 @@ export default {
     .port {
       width: 15px;
       height: 15px;
-      background-color: grey;
+      background-color: rgba(161, 161, 161, 0.3);
       border: 1px solid black;
     }
     .exist-cargo {
-      background-color: lime;
+      background-color: var(--map-rack-port-cargo-exist-color);
     }
   }
 }
