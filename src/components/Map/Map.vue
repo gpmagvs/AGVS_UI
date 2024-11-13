@@ -312,7 +312,7 @@
                   <div
                     v-for="index in [2,1,0]"
                     :key="`${feature.get('data').TagNumber}-${index}`"
-                    class="port layer-3"
+                    class="port"
                     v-bind:class="getCargoExisStateClass(feature,index)"
                     @click="HandleRackPortClicked(feature,index)"
                   ></div>
@@ -1055,9 +1055,12 @@ export default {
       if (!data)
         return '';
       const tag = data.TagNumber;
+      let className = '';
       if (EqStore.getters.QueryCargoExist(tag, slot))
-        return 'exist-cargo';
-      return '';
+        className += ' exist-cargo';
+      if (TaskStore.getters.AnyOrderAssignTagAndSlot(tag, slot))//TODO 是否有任務的終點或起點是這個儲格
+        className += ' port-order-assigned';
+      return className;
     },
     HandleRegionToolComponentChange(val) {
       this.HandleAddForbidRegionClicked(val)
@@ -4667,8 +4670,8 @@ export default {
     .port {
       width: 18px;
       height: 18px;
-      background-color: rgba(161, 161, 161, 0.3);
-      border: 1px solid black;
+      background-color: rgba(161, 161, 161, 1);
+      border: 1px dashed black;
     }
     .port:hover {
       cursor: pointer;
@@ -4676,6 +4679,19 @@ export default {
     }
     .exist-cargo {
       background-color: var(--map-rack-port-cargo-exist-color);
+    }
+    .port-order-assigned {
+      animation: rackHasOrderFlash 1s infinite;
+    }
+
+    @keyframes rackHasOrderFlash {
+      0%,
+      100% {
+        border: 4px solid rgb(0, 3, 204);
+      }
+      50% {
+        border: 3px solid grey;
+      }
     }
   }
 }

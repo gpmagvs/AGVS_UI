@@ -8,6 +8,7 @@ import { DeviceConfig } from '@/ViewModels/EndDeviceOption.js'
 import { AGVSSystemConfigs } from '@/ViewModels/SystemConfigs'
 import param from '@/gpm_param.js'
 import axios from 'axios'
+import clsTaskState from '@/ViewModels/TaskState.js';
 var cachesKeyMap = {
   agvStates: 'agv_states'
 }
@@ -378,12 +379,19 @@ export const EqStore = createStore({
 /**任務狀態管理 */
 export const TaskStore = createStore({
   state: {
-    IncompletedTaskListData: [],
-    CompletedTaskListData: []
+    IncompletedTaskListData: [new clsTaskState({})],
+    CompletedTaskListData: [new clsTaskState({})]
   },
   getters: {
     IncompletedTaskList: state => state.IncompletedTaskListData,
     CompletedTaskList: state => state.CompletedTaskListData,
+    AnyOrderAssignTagAndSlot: state => (tag, slot) => {
+      let _orderFound = state.IncompletedTaskListData.find(order =>
+        (order.From_Station == (tag + '') && order.From_Slot == (slot + '')) ||
+        (order.To_Station == (tag + '') && order.To_Slot == (slot + ''))
+      )
+      return _orderFound != undefined;
+    }
   },
   mutations: {
     StoreTaskData(state, payload) {

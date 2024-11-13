@@ -1,5 +1,6 @@
 import moment from 'moment'
 
+/**任務模型 */
 class clsTaskState {
   constructor(task) {
     this.TaskName = task.TaskName
