@@ -277,6 +277,7 @@
               v-if="mapToolShow"
             ></BuildToolContainer>
 
+            <!-- 地圖渲染 -->
             <div
               :id="id"
               v-bind:style="map_theme_select=='dark'? map_theme_dark:{}"
@@ -299,7 +300,22 @@
                 class="multi-select-info"
                 v-show="SelectedFeatures.length!=0"
               >已選擇 [{{ SelectedFeatures.length }}] 個點位</div>
+              <!-- 選染RACK PORT 旁邊的貨物在席狀態 -->
+              <div
+                v-for="feature in RackPortPointFeatures"
+                :key="feature.id"
+                class="feature-label"
+                :style="getRackCargoExistStateFeatureLabelStyle(feature)"
+              >
+                <div class="buffer-cargo-exist-container">
+                  <!-- rack column display -->
+                  <div class="port layer-3" v-bind:class="getCargoExisStateClass(feature,2)"></div>
+                  <div class="port layer-2" v-bind:class="getCargoExisStateClass(feature,1)"></div>
+                  <div class="port layer-1" v-bind:class="getCargoExisStateClass(feature,0)"></div>
+                </div>
+              </div>
             </div>
+            <!------------->
             <!-- 圖例 -->
             <MapLegend
               v-if="!editable&&legendShow&&id!='locus_map'"
@@ -875,7 +891,8 @@ export default {
       showRedrawControl: false,
       tempHiddenFeaturesOfRegion: [],
       isRedrawConfirmable: false,
-      searchTag: undefined
+      searchTag: undefined,
+      rackPortFeatures: [], // 需要顯示標籤的 features
 
     }
   },
@@ -938,6 +955,17 @@ export default {
         return this.PointRouteLayer.getSource().getFeatures();
       }
     },
+    /**點位類型是 buffer類的點Feature集合 */
+    RackPortPointFeatures() {
+
+      let _isBufferPt = (stationType) => {
+        const bufferStationTypeValues = [4, 5, 41];
+        return bufferStationTypeValues.includes(stationType);
+      }
+      //StationType == 4 ,5,41;
+      return this.StationPointsFeatures.filter(ft => _isBufferPt(ft.get('data').StationType));
+
+    },
     AGVMapFeatures() {
       return this.AGVLocLayer.getSource().getFeatures();
     },
@@ -990,6 +1018,36 @@ export default {
     }
   },
   methods: {
+    getRackCargoExistStateFeatureLabelStyle(feature = new Feature()) {
+
+      if (!feature || !this.map)
+        return {};
+      // 將地理座標轉換為螢幕像素座標
+      const pixel = this.map.getPixelFromCoordinate(feature.getGeometry().getCoordinates());
+
+      if (!pixel) return { display: 'none' };
+
+      // 設置偏移量 (例如右側 10px, 上方 5px)
+      const offsetX = 20;
+      const offsetY = 0;
+
+      return {
+        position: 'absolute',
+        left: `${pixel[0] + offsetX}px`,
+        top: `${pixel[1] + offsetY}px`,
+        transform: 'translate(0, -50%)', // 垂直置中
+        zIndex: 99
+      }
+    },
+    getCargoExisStateClass(feature = new Feature(), slot = 0) {
+      const data = feature.get('data');
+      if (!data)
+        return '';
+      const tag = data.TagNumber;
+      if (EqStore.getters.QueryCargoExist(tag, slot))
+        return 'exist-cargo';
+      return '';
+    },
     HandleRegionToolComponentChange(val) {
       this.HandleAddForbidRegionClicked(val)
     },
@@ -1190,16 +1248,12 @@ export default {
           return [0, 0];
         }
       }
-      console.log(payload)
 
       payload.forEach(info => {
-        console.log(info)
-
         var agvName = info.AGVName;
         if (agvName && agvName != '') {
           var agvLocation = info.Location;
           var featureKey = `other-agv-${agvName}`;
-          console.log(agvName, agvLocation)
           var featureFound = agvFeatures.find(ft => ft.get('agv-addition') == featureKey);
           var coordination = _GetCoordinationByDisplayName(agvLocation);
 
@@ -4596,6 +4650,18 @@ export default {
     top: 160px;
     left: 13px;
     z-index: 3;
+  }
+  .buffer-cargo-exist-container {
+    // background-color: red;
+    .port {
+      width: 15px;
+      height: 15px;
+      background-color: grey;
+      border: 1px solid black;
+    }
+    .exist-cargo {
+      background-color: lime;
+    }
   }
 }
 </style>

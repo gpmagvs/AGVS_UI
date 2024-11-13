@@ -319,6 +319,24 @@ export const EqStore = createStore({
     GetWIPSlotsOptionsByStationTag: state => (tag) => {
       return state.WIPSlotOptions[tag]
     },
+    QueryCargoExist: state => (tag, slot) => {
+      var _getWIPTags = (wip) => {
+        if (wip.ColumnsTagMap)
+          return Object.values(wip.ColumnsTagMap).flat();
+        else
+          return [];
+      }
+      var _wip = state.WIPsData.find(wip => _getWIPTags(wip).includes(tag));
+      if (_wip) {
+        let columnPorts = _wip.Ports.filter(port => port.TagNumbers.includes(tag));
+        let port = columnPorts.find(p => p.Layer == slot);
+        if (port)
+          return port.CargoExist;
+        else
+          return false;
+      }
+      return false;
+    },
     AnyTwoLayerEqExist: state => {
       try {
 
