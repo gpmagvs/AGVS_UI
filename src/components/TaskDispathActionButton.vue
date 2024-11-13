@@ -406,7 +406,7 @@
 import bus from '@/event-bus.js'
 import Notifier from '@/api/NotifyHelper';
 import { ElNotification } from 'element-plus'
-import { StationSelectOptions } from '@/components/Map/mapjs';
+import { MapPointModel, StationSelectOptions } from '@/components/Map/mapjs';
 import { TaskAllocation, clsMoveTaskData, clsMeasureTaskData, clsLoadTaskData, clsUnloadTaskData, clsCarryTaskData, clsExangeBatteryTaskData, clsChargeTaskData, clsParkTaskData } from '@/api/TaskAllocation'
 import { userStore, agv_states_store, agvs_settings_store, EqStore } from '@/store';
 import { SetToFullRackStatusByEqTag, SetToEmptyRackStatusByEqTag } from '@/api/EquipmentAPI'
@@ -760,6 +760,7 @@ export default {
       this.HandleActionSelected("select-source");
       bus.off(this.map_events_bus.agv_selected)
       bus.off(this.map_events_bus.station_selected)
+      bus.off('map-rack-port-clicked')
 
       bus.emit('change_to_select_eq_station_mode', { action_type: this.selected_action, direction: 'source', stations_to_show: this.FromStationOptions });
 
@@ -770,7 +771,18 @@ export default {
           Display: ''
         }
       };
+      bus.on('map-rack-port-clicked', async (rackSlotSelect = { tag: -1, ptData: new MapPointModel(), slot: 0 }) => {
 
+        var isSelectdNotInOptions = this.FromStationOptions.findIndex(option => option.tag == rackSlotSelect.tag) == -1;
+        if (isSelectdNotInOptions)
+          return;
+        this.selected_source = rackSlotSelect.ptData;
+        this.selected_source_slot = rackSlotSelect.slot;
+        await this.HandleFromSelectChanged(this.selected_source.TagNumber, false);
+        bus.emit('mark_as_start_station', this.selected_source.TagNumber);
+        this.HandleSelectDestineStationFromMapBtnClick();
+        this.HandleActionSelected('select-destine')
+      });
       bus.on(this.map_events_bus.station_selected, (_station_data) => {
         const isAGVSelected = _station_data.isAGV;
         const isBuffer = _station_data.StationType == 4 || _station_data.StationType == 5 || _station_data.StationType == 41
@@ -797,7 +809,6 @@ export default {
           console.log(_station_data);
 
           var isSelectdNotInOptions = this.FromStationOptions.findIndex(option => option.tag == _station_data.TagNumber) == -1;
-
           if (isSelectdNotInOptions)
             return;
 
@@ -821,6 +832,7 @@ export default {
       this.HandleActionSelected("select-destine");
       bus.off(this.map_events_bus.agv_selected)
       bus.off(this.map_events_bus.station_selected)
+      bus.off('map-rack-port-clicked');
       if (this.selected_action == 'load' || this.selected_action == 'unload') {
         this.downstream_options = this.EQStations;
       }
@@ -846,6 +858,16 @@ export default {
       }
       bus.emit('change_to_select_eq_station_mode', map_options);
       this.current_progress = 'select-destine';
+
+      bus.on('map-rack-port-clicked', async (rackSlotSelect = { tag: -1, ptData: new MapPointModel(), slot: 0 }) => {
+        var isSelectdNotInOptions = this.downstream_options.findIndex(option => option.tag == rackSlotSelect.tag) == -1;
+        if (isSelectdNotInOptions)
+          return;
+        this.selected_destine = rackSlotSelect.ptData;
+        this.selected_destine_slot = rackSlotSelect.slot;
+        bus.emit('mark_as_destine_station', rackSlotSelect.tag);
+      });
+
       bus.on(this.map_events_bus.station_selected, (_station_data) => {
         console.info(_station_data);
         if (this.selected_action == 'move' && (_station_data.StationType != 0 || _station_data.IsVirtualPoint))
@@ -1138,7 +1160,7 @@ export default {
       }
 
     },
-    async HandleFromSelectChanged(source_tag) {
+    async HandleFromSelectChanged(source_tag, resetSlot = true) {
       console.log('HandleFromSelectChanged selected tag:', source_tag)
       this.selected_destine = { TagNumber: undefined }
       var isSourceAGV = false;
@@ -1164,7 +1186,8 @@ export default {
         this.downstream_options = this.GetDownStreamEQOptions(source_tag);
         console.log('validable downstream of ', source_tag, this.downstream_options)
       }
-      this.selected_source_slot = 0;
+      if (resetSlot)
+        this.selected_source_slot = 0;
     },
     GetDownStreamEQOptions(sourceTag) {
 

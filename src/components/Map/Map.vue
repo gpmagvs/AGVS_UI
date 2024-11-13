@@ -309,9 +309,13 @@
               >
                 <div class="buffer-cargo-exist-container">
                   <!-- rack column display -->
-                  <div class="port layer-3" v-bind:class="getCargoExisStateClass(feature,2)"></div>
-                  <div class="port layer-2" v-bind:class="getCargoExisStateClass(feature,1)"></div>
-                  <div class="port layer-1" v-bind:class="getCargoExisStateClass(feature,0)"></div>
+                  <div
+                    v-for="index in [2,1,0]"
+                    :key="`${feature.get('data').TagNumber}-${index}`"
+                    class="port layer-3"
+                    v-bind:class="getCargoExisStateClass(feature,index)"
+                    @click="HandleRackPortClicked(feature,index)"
+                  ></div>
                 </div>
               </div>
             </div>
@@ -1038,6 +1042,13 @@ export default {
         transform: 'translate(0, -50%)', // 垂直置中
         zIndex: 99
       }
+    },
+    HandleRackPortClicked(feature = new Feature(), slot = 0) {
+      const data = feature.get('data');
+      if (!data)
+        return;
+      const tag = data.TagNumber;
+      bus.emit('map-rack-port-clicked', { tag: tag, ptData: data, slot: slot })
     },
     getCargoExisStateClass(feature = new Feature(), slot = 0) {
       const data = feature.get('data');
@@ -4654,10 +4665,14 @@ export default {
   .buffer-cargo-exist-container {
     // background-color: red;
     .port {
-      width: 15px;
-      height: 15px;
+      width: 18px;
+      height: 18px;
       background-color: rgba(161, 161, 161, 0.3);
       border: 1px solid black;
+    }
+    .port:hover {
+      cursor: pointer;
+      border: 4px solid red;
     }
     .exist-cargo {
       background-color: var(--map-rack-port-cargo-exist-color);
