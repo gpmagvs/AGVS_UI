@@ -41,14 +41,18 @@
         <template #default="scope">{{ scope.row.Carrier_ID == "-1" ? "" : scope.row.Carrier_ID }}</template>
       </el-table-column>
       <el-table-column :label="$t('TaskTable.Source') " show-overflow-tooltip>
-        <template #default="scope">{{ GetStationName(scope.row.From_Station) }}</template>
+        <template #default="scope">
+          <div>{{ GetStationName(scope.row.From_Station) }}</div>
+          <div v-if="scope.row.From_Slot!='-1'">(Slot:{{ scope.row.From_Slot }})</div>
+        </template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column>
         <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column>-->
       </el-table-column>
       <el-table-column :label="$t('TaskTable.Destine')" show-overflow-tooltip>
-        <template #default="scope">{{ GetStationName(scope.row.To_Station) }}</template>
-        <!-- <el-table-column label="站點" prop="To_Station"></el-table-column>
-        <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column>-->
+        <template #default="scope">
+          <div>{{ GetStationName(scope.row.To_Station) }}</div>
+          <div v-if="scope.row.To_Slot!='-1'">(Slot:{{ scope.row.To_Slot }})</div>
+        </template>
       </el-table-column>
       <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName"></el-table-column>
       <el-table-column label="Action" prop="DispatcherName" fixed="right" width="100">
