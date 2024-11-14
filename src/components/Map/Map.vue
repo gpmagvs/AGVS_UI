@@ -1023,7 +1023,6 @@ export default {
   },
   methods: {
     getRackCargoExistStateFeatureLabelStyle(feature = new Feature()) {
-
       if (!feature || !this.map)
         return {};
       // 將地理座標轉換為螢幕像素座標
@@ -1040,7 +1039,7 @@ export default {
         left: `${pixel[0] + offsetX}px`,
         top: `${pixel[1] + offsetY}px`,
         transform: 'translate(0, -50%)', // 垂直置中
-        zIndex: 99
+        zIndex: 1
       }
     },
     HandleRackPortClicked(feature = new Feature(), slot = 0) {
@@ -4581,7 +4580,7 @@ export default {
     text-align: left;
     width: 115px;
     font-size: 16px;
-
+    z-index: 1;
     label {
       width: 100%;
       margin-right: auto;
