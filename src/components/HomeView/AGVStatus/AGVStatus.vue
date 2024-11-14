@@ -23,6 +23,7 @@
       border
       @row-click="HandleRowClick"
     >
+      <!-- 模擬器 column -->
       <el-table-column type="expand" :min-width="AnyAGVIsSimulation?40:1">
         <template #default="scope">
           <b-card title="模擬器操作">
@@ -34,6 +35,7 @@
           </b-card>
         </template>
       </el-table-column>
+      <!-- 車輛名稱 column -->
       <el-table-column
         :label="$t('HomeView.AGVStatus.AGVStatus.vehicle-name')"
         prop="AGV_Name"
@@ -93,7 +95,7 @@
           </div>
         </template>
       </el-table-column>
-
+      <!-- 車輛狀態 column -->
       <el-table-column
         :label="$t('HomeView.AGVStatus.AGVStatus.vehicle-statuslist')"
         prop="AGV_Status"
@@ -233,6 +235,7 @@
           </div>
         </template>
       </el-table-column>
+      <!-- 任務狀態 column -->
       <el-table-column
         v-if="!IsOpUsing"
         :label="$t('HomeView.AGVStatus.AGVStatus.task-status')"
@@ -314,6 +317,7 @@
           </div>
         </template>
       </el-table-column>
+      <!-- 空間 column -->
       <el-table-column width="1">
         <template #default="scope">
           <div v-bind:style="{ height: IsRunMode ? '110px' : '125px' }" class="d-flex flex-column"></div>
