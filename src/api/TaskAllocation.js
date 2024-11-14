@@ -3,6 +3,7 @@ import param from '@/gpm_param'
 import moment from 'moment'
 import { getAuthHeaders } from './AuthHelper'
 import { userStore } from '@/store'
+import clsTaskState from '@/ViewModels/TaskState';
 var axios_entity = axios.create({
   baseURL: param.backend_host,
   headers: getAuthHeaders(),
@@ -161,6 +162,9 @@ export var TaskAllocation = {
         console.error('Error:', error)
       })
   },
+  async RedoTask(clsTaskState = new clsTaskState({}), autoSelectVehicle = false) {
+    return await CallAPI('/api/Task/ReAssignTask', clsTaskState, autoSelectVehicle)
+  },
   async Cancel(taskName) {
     try {
       var ret = await axios_entity.get(`/api/Task/Cancel?task_name=${taskName}`)
@@ -217,8 +221,8 @@ export async function StartHotRun(scriptID) {
 export async function StopHotRun(scriptID) {
   var response = await axios_entity.get(`/api/HotRun/Stop?scriptID=${scriptID}`)
 }
-async function CallAPI(path, data) {
-  var user_param = `?user=${userStore.getters.UserName}`
+async function CallAPI(path, data, autoSelectVehicle = false) {
+  var user_param = `?user=${userStore.getters.UserName}&autoSelectVehicle=${autoSelectVehicle}`
   path += user_param;
   return axios_entity
     .post(path, data)

@@ -170,7 +170,9 @@
     "UnloadTime": "取料時間",
     "LoadTime": "放料時間",
     "StartLocation": "起始位置",
-    "AGVReadID": "AGV讀取ID"
+    "AGVReadID": "AGV讀取ID",
+    "Reassign": "重新執行",
+    "AutoSelectVehicle": "自動選車"
   },
   "AlarmTable": {
     "Time": "時間",
@@ -304,5 +306,8 @@
     "Search": "查詢"
   },
   "TaskDispatchFailString": "任務派送失敗",
-  "visitor": "訪客"
+  "visitor": "訪客",
+  "ConfirmRedoTask": "確定要重新指派任務?",
+  "RedoTaskSuccess": "重新指派任務成功!",
+  "RedoTaskFail": "重新指派任務失敗..."
 }

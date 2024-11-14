@@ -170,7 +170,9 @@
     "UnloadTime": "Unload Time",
     "LoadTime": "Load Time",
     "StartLocation": "Start Location",
-    "AGVReadID": "AGV Read ID"
+    "AGVReadID": "AGV Read ID",
+    "Reassign": "Re-Assign",
+    "AutoSelectVehicle": "Auto Select Vehicle"
   },
   "AlarmTable": {
     "Time": "Time",
@@ -300,5 +302,8 @@
     "Search": "Search"
   },
   "TaskDispatchFailString": "Task_Dispatch_Fail",
-  "visitor": "visitor"
+  "visitor": "visitor",
+  "ConfirmRedoTask": "Are you sure re-assign this order?",
+  "RedoTaskSuccess": "Re-assign Order Success!",
+  "RedoTaskFail": "Re-assign Order Fail..."
 }

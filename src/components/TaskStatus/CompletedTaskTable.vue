@@ -51,12 +51,23 @@
         <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column>-->
       </el-table-column>
       <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName"></el-table-column>
+      <el-table-column label="Action" prop="DispatcherName" fixed="right" width="100">
+        <template #default="scope">
+          <el-button
+            type="primary"
+            size="small"
+            @click="RedoTask(scope.row)"
+          >{{ $t('TaskTable.Reassign') }}</el-button>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
 <script>
 import { GetTaskStateType } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
+import clsTaskState from '@/ViewModels/TaskState';
+import { TaskAllocation } from '@/api/TaskAllocation';
 
 export default {
   props: {
@@ -97,6 +108,61 @@ export default {
       if (row.Action == 8 || row.Action == 14)
         return 'charge-task-row'
       return ''
+    },
+    async RedoTask(row = new clsTaskState({})) {
+      let _canSettingChooseVehicleOrNot = row.Action == 1 || row.Action == 9;
+      let html_content = `
+          <div class="w-100 text-start text-primary">${this.$t('TaskTable.TaskName')}</div>
+          <div class="w-100 text-start my-2 px-3 font-weight-bold">${row.TaskName}</div>
+          <div class="w-100 text-start text-primary">${this.$t('TaskTable.Action')}</div>
+          <div class="w-100 text-start my-2 px-3 font-weight-bold">${row.ActionName}</div>
+          <div class="w-100 text-start text-primary">${this.$t('TaskTable.ExcuteAgvName')}</div>
+          <div class="w-100 text-start my-2 px-3 font-weight-bold">${row.DesignatedAGVName}</div>
+          <div class="w-100 text-start text-primary">${this.$t('TaskTable.Source')}</div>
+          <div class="w-100 text-start my-2 px-3 font-weight-bold">${this.GetStationName(row.From_Station)} _Slot: ${row.From_Slot}</div>
+          <div class="w-100 text-start text-primary">${this.$t('TaskTable.Destine')}</div>
+          <div class="w-100 text-start my-2 px-3 font-weight-bold">${this.GetStationName(row.To_Station)} _Slot: ${row.To_Slot}</div>`;
+      if (_canSettingChooseVehicleOrNot) {
+        html_content += `<div class="w-100 text-end mt-3 border-top pt-2">
+            <input type="checkbox" id="autoSelectVehicle" class="me-1" style="height:24px; width:24px; cursor:pointer;">
+            <label for="autoSelectVehicle" style="font-size:25px; cursor:pointer;">${this.$t('TaskTable.AutoSelectVehicle')}</label>
+          </div>`;
+      }
+      const result = await this.$swal.fire({
+        title: this.$t('ConfirmRedoTask'),
+        html: `<div class="border rounded p-2">
+          ${html_content}
+        </div>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        customClass: 'dispatch-fail-swal',
+        preConfirm: () => {
+          const checkBoxDom = document.getElementById('autoSelectVehicle');
+          return {
+            autoSelectVehicle: checkBoxDom ? checkBoxDom.checked : false
+          }
+        }
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
+      const response = await TaskAllocation.RedoTask(row, result.value.autoSelectVehicle);
+      if (response.status == 200 && response.data.confirm) {
+        this.$swal.fire({
+          title: this.$t('RedoTaskSuccess'),
+          icon: 'success',
+        })
+      } else {
+        this.$swal.fire({
+          title: this.$t('RedoTaskFail'),
+          icon: 'error',
+          html: `<div class="text-danger">${response.data.message}</div> <div class="text-danger border-top pt-2">${response.data.message_en}</div>`,
+          customClass: 'dispatch-fail-swal',
+        })
+      }
     }
   },
 }
