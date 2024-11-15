@@ -55,9 +55,16 @@
         </template>
       </el-table-column>
       <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName"></el-table-column>
-      <el-table-column label="Action" prop="DispatcherName" fixed="right" width="100">
+      <el-table-column
+        v-if="IsUserLogined"
+        label="Action"
+        prop="DispatcherName"
+        fixed="right"
+        width="100"
+      >
         <template #default="scope">
           <el-button
+            :disabled="scope.row.Action ==9 &&scope.row.TaskName.toLowerCase().startsWith('m')"
             type="primary"
             size="small"
             @click="RedoTask(scope.row)"
@@ -72,6 +79,7 @@ import { GetTaskStateType } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
 import clsTaskState from '@/ViewModels/TaskState';
 import { TaskAllocation } from '@/api/TaskAllocation';
+import { userStore } from '@/store';
 
 export default {
   props: {
@@ -91,6 +99,10 @@ export default {
   computed: {
     MapPoints() {
       return Object.values(MapStore.getters.MapData.Points)
+    },
+    /**用戶是否登入 */
+    IsUserLogined() {
+      return userStore.state.user.Role != -1;
     }
   },
   methods: {
