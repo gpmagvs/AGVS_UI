@@ -340,6 +340,8 @@
           </div>
         </el-popover>
         <b-button
+          class="rounded-2"
+          id="dispatch-btn"
           v-if="!IsOpLogining"
           squared
           variant="primary"
@@ -1444,16 +1446,22 @@ export default {
 }
 .task-dispatch-btn-container {
   position: fixed;
-  bottom: 40px;
+  bottom: 48px;
   z-index: 10;
 
-  button {
+  #dispatch-btn {
     font-size: 30px;
-  }
-
-  box-shadow: 4px -1px 14px 1px rgb(61, 61, 61);
-
-  .grabable-region {
+    font-weight: bold;
+    /* Smooth transition for hover effect */
+    transition: all 0.3s ease;
+    /* Add hover effect */
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.1);
+    }
+    &:active {
+      transform: scale(1);
+    }
   }
   .grabable-region:active {
     cursor: grabbing;
