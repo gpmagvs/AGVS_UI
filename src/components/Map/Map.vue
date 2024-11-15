@@ -301,23 +301,13 @@
                 v-show="SelectedFeatures.length!=0"
               >已選擇 [{{ SelectedFeatures.length }}] 個點位</div>
               <!-- 選染RACK PORT 旁邊的貨物在席狀態 -->
-              <div
+              <RackStatusDisplay
                 v-for="feature in RackPortPointFeatures"
-                :key="feature.id"
-                class="feature-label"
-                :style="getRackCargoExistStateFeatureLabelStyle(feature)"
-              >
-                <div class="buffer-cargo-exist-container">
-                  <!-- rack column display -->
-                  <div
-                    v-for="index in [2,1,0]"
-                    :key="`${feature.get('data').TagNumber}-${index}`"
-                    class="port"
-                    v-bind:class="getCargoExisStateClass(feature,index)"
-                    @click="HandleRackPortClicked(feature,index)"
-                  ></div>
-                </div>
-              </div>
+                :key="feature.get('data')?.TagNumber+'-rack-display'||feature.id"
+                :pointData="feature.get('data')"
+                :dynamicStyle="getRackCargoExistStateFeatureLabelStyle(feature)"
+                :tagNumber="feature.get('data')?.TagNumber"
+              ></RackStatusDisplay>
             </div>
             <!------------->
             <!-- 圖例 -->
@@ -643,11 +633,11 @@ import ActionUndoTool from './EditTool/ActionUndoTool.vue';
 import BuildToolContainer from './MapPointBuilder/BuildToolContainer.vue';
 import { MarkIconTranslate } from './mapjs'
 import { LogMapFeatureClicked } from '@/api/WebSiteAPI.js'
-
+import RackStatusDisplay from './RackStatusDisplay.vue';
 
 export default {
   components: {
-    QuicklyAction, NotifyDisplay, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, ActionUndoTool, BuildToolContainer
+    RackStatusDisplay, QuicklyAction, NotifyDisplay, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, ActionUndoTool, BuildToolContainer
 
   },
   props: {
@@ -1041,25 +1031,6 @@ export default {
         transform: 'translate(0, -50%)', // 垂直置中
         zIndex: 1
       }
-    },
-    HandleRackPortClicked(feature = new Feature(), slot = 0) {
-      const data = feature.get('data');
-      if (!data)
-        return;
-      const tag = data.TagNumber;
-      bus.emit('map-rack-port-clicked', { tag: tag, ptData: data, slot: slot })
-    },
-    getCargoExisStateClass(feature = new Feature(), slot = 0) {
-      const data = feature.get('data');
-      if (!data)
-        return '';
-      const tag = data.TagNumber;
-      let className = '';
-      if (EqStore.getters.QueryCargoExist(tag, slot))
-        className += ' exist-cargo';
-      if (TaskStore.getters.AnyOrderAssignTagAndSlot(tag, slot))//TODO 是否有任務的終點或起點是這個儲格
-        className += ' port-order-assigned';
-      return className;
     },
     HandleRegionToolComponentChange(val) {
       this.HandleAddForbidRegionClicked(val)
@@ -4663,35 +4634,6 @@ export default {
     top: 160px;
     left: 13px;
     z-index: 3;
-  }
-  .buffer-cargo-exist-container {
-    // background-color: red;
-    .port {
-      width: 18px;
-      height: 18px;
-      background-color: rgba(161, 161, 161, 1);
-      border: 1px dashed black;
-    }
-    .port:hover {
-      cursor: pointer;
-      border: 4px solid red;
-    }
-    .exist-cargo {
-      background-color: var(--map-rack-port-cargo-exist-color);
-    }
-    .port-order-assigned {
-      animation: rackHasOrderFlash 1s infinite;
-    }
-
-    @keyframes rackHasOrderFlash {
-      0%,
-      100% {
-        border: 4px solid rgb(0, 3, 204);
-      }
-      50% {
-        border: 3px solid grey;
-      }
-    }
   }
 }
 </style>
