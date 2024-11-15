@@ -63,6 +63,7 @@ function GetUserStateFromLS() {
 /**用戶登入狀態資訊 */
 export class clsUserLoginState {
   constructor() {
+    /**用戶角色, -1: 未登入, 0: Operator, 1: Engineer, 2: Developer, 3: GOD */
     this.Role = -1;
     this.UserName = '';
     this.token = '';
