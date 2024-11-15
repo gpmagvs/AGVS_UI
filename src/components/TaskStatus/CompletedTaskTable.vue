@@ -63,6 +63,7 @@
         width="100"
       >
         <template #default="scope">
+          <!-- 重新指派任務按鈕:: 當任務Action為9且任務名稱開頭為m時按鈕會被禁用 -->
           <el-button
             :disabled="scope.row.Action ==9 &&scope.row.TaskName.toLowerCase().startsWith('m')"
             type="primary"
