@@ -320,7 +320,11 @@ export const EqStore = createStore({
     GetWIPSlotsOptionsByStationTag: state => (tag) => {
       return state.WIPSlotOptions[tag]
     },
-    QueryCargoExist: state => (tag, slot) => {
+    QueryCargoExist: (state, getters) => (tag, slot) => {
+      const rackPort = getters.GetRackPort(tag, slot);
+      return rackPort?.CargoExist || false;
+    },
+    GetRackPort: state => (tag, slot) => {
       var _getWIPTags = (wip) => {
         if (wip.ColumnsTagMap)
           return Object.values(wip.ColumnsTagMap).flat();
@@ -331,12 +335,9 @@ export const EqStore = createStore({
       if (_wip) {
         let columnPorts = _wip.Ports.filter(port => port.TagNumbers.includes(tag));
         let port = columnPorts.find(p => p.Layer == slot);
-        if (port)
-          return port.CargoExist;
-        else
-          return false;
+        return port;
       }
-      return false;
+      return {};
     },
     AnyTwoLayerEqExist: state => {
       try {
@@ -371,7 +372,11 @@ export const EqStore = createStore({
     async FetchWIPSlotOptions({ commit }) {
       var result = await GetAllSlotsOptions()
       commit("wipSlotOptions", result)
-    }
+    },
+    async QueryCargoID({ getters }, { tag, slot }) {
+      const rackPort = getters.GetRackPort(tag, slot);
+      return rackPort?.CarrierID || '';
+    },
   }
 })
 

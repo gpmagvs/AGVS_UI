@@ -8,7 +8,16 @@
         class="port"
         v-bind:class="getCargoExisStateClass(tagNumber,index)"
         @click="HandleRackPortClicked(tagNumber,index)"
-      ></div>
+        @mouseover="HandleRackPortMouseOver(index)  "
+        @mouseleave="HandleRackPortMouseLeave(index)"
+      >
+        <div v-if="isPortHover[index]" class="port-tooltip">
+          <div class="tooltip-content">
+            <div>Cargo ID:</div>
+            <el-button :loading="cargoIdLoading" text class="text-primary">{{displayCargoID}}</el-button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -42,6 +51,17 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      isPortHover: {
+        2: false,
+        1: false,
+        0: false
+      },
+      displayCargoID: '556BBDDDS',
+      cargoIdLoading: false
+    }
+  },
   methods: {
     getCargoExisStateClass(tagNumber, slot) {
       let className = '';
@@ -53,6 +73,22 @@ export default {
     },
     HandleRackPortClicked(tag, slot) {
       bus.emit('map-rack-port-clicked', { tag: tag, ptData: this.pointData, slot: slot })
+    },
+    HandleRackPortMouseOver(slot) {
+      this.displayCargoID = '';
+      this.isPortHover[slot] = true;
+      this.cargoIdLoading = true;
+      EqStore.dispatch('QueryCargoID', { tag: this.tagNumber, slot: slot }).then((res) => {
+        setTimeout(() => {
+          this.displayCargoID = res;
+          this.cargoIdLoading = false;
+        }, 200);
+      });
+    },
+    HandleRackPortMouseLeave(slot) {
+      this.isPortHover[slot] = false;
+      this.cargoIdLoading = false;
+      this.displayCargoID = '';
     }
   }
 }
@@ -63,8 +99,8 @@ export default {
   .buffer-cargo-exist-container {
     // background-color: red;
     .port {
-      width: 18px;
-      height: 18px;
+      width: var(--map-rack-port-display-width);
+      height: var(--map-rack-port-display-height);
       background-color: rgba(161, 161, 161, 1);
       border: 1px dashed black;
     }
@@ -86,6 +122,30 @@ export default {
       }
       50% {
         border: 3px solid grey;
+      }
+    }
+    .port-tooltip {
+      position: absolute;
+      top: 0;
+      font-size: 18px;
+      left: calc(var(--map-rack-port-display-width) + 10px);
+      background-color: white;
+      border: 1px solid black;
+      padding: 5px;
+      border-radius: 5px;
+      z-index: 32;
+      white-space: nowrap;
+      pointer-events: none;
+      .tooltip-content {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        min-width: min-content;
+        font-weight: bold;
+        .el-button {
+          padding: 2px;
+          font-size: 20px;
+        }
       }
     }
   }
