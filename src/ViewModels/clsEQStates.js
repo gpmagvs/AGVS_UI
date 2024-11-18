@@ -40,4 +40,7 @@ export default class EQStatusDIDto {
         this.IsMaintaining = false;
         this.IsPartsReplacing = false;
     }
+    get IsReserved() {
+        return this.Cmd_Reserve_Up || this.Cmd_Reserve_Low;
+    }
 }

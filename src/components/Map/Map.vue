@@ -867,7 +867,6 @@ export default {
       highlightingFeatures: [],
       renderLDULD_StatusTimerId: '',
       prviousEQDataJson: '',
-      previousTaskIDCollections:'',
       trackingAGVTimer: '',
       agvSelectedState: {
         isClicked: false,
@@ -3432,7 +3431,7 @@ export default {
           nameDisplay += `\r\n(${paperRollerRptDisplay})`
         }
         if (isAnyOrderAssign) {
-          nameDisplay += `\r\n(Ordered)`
+          nameDisplay += `\r\n(Reserved)`
         }
         _text.setText(nameDisplay);
         _text.setFill(new Fill({
@@ -3493,11 +3492,7 @@ export default {
     RenderEQLDULDStatus() {//TODO EQ狀態渲染
 
       var currentEqDataJson = JSON.stringify(this.eq_data);
-
-      var currentTaskIDCollections = TaskStore.state.IncompletedTaskListData.map(task => task.TaskID).join(',');
-      
-
-      if (this.prviousEQDataJson != currentEqDataJson || currentTaskIDCollections != this.previousTaskIDCollections) {
+      if (this.prviousEQDataJson != currentEqDataJson) {
         console.log('eq data changed');
         this.eq_data.forEach(eq_states => {
           let _EQStatusDIDto = new EQStatusDIDto();
@@ -3506,9 +3501,10 @@ export default {
           const eqs = this.eq_data.filter(eq => eq.Tag == eq_states.Tag);
           const isUniqueTag = eqs.length <= 1;
           if (isUniqueTag) {
-            const _isOrderAssign = TaskStore.getters.AnyOrderAssignTagAndSlot(_EQStatusDIDto.Tag, 0)
+            const _isOrderAssign = _EQStatusDIDto.IsReserved;
             this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing, _isOrderAssign)
           } else {
+            const anyOrderAssign = eqs.find(eq => eq.IsReserved) != undefined;
             const anyLoadadble = eqs.find(eq => eq.TransferStatus == 1) != undefined;
             const anyUnLoadadble = eqs.find(eq => eq.TransferStatus == 2) != undefined;
             const anyPortExist = eqs.find(eq => eq.Port_Exist) != undefined;
@@ -3516,13 +3512,13 @@ export default {
             const anyIsPartsReplacing = eqs.find(eq => eq.IsPartsReplacing) != undefined;
 
             if (anyLoadadble && anyUnLoadadble)
-              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 4, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
+              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 4, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
             else if (anyLoadadble)
-              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 1, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
+              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 1, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
             else if (anyUnLoadadble)
-              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 2, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
+              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 2, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
             else
-              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 3, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
+              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 3, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
           }
           //this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
         });
@@ -3533,7 +3529,6 @@ export default {
       } else {
         // console.log('eq data not changed yet')
       }
-      this.previousTaskIDCollections = currentTaskIDCollections;
     },
     RefreshMap(source = undefined) {
       // source:{
