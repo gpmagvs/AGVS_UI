@@ -98,6 +98,14 @@ export class clsChargeTaskData {
   }
 }
 
+export class clsDeepChargeTaskData extends clsChargeTaskData {
+  constructor(agv_name, Priority = 50, bypass_eq_status_check = false) {
+    super(agv_name, -1, 100, bypass_eq_status_check)
+    this.Action = 17
+  }
+}
+
+
 export class clsExangeBatteryTaskData {
   constructor(agv_name, to_tag, Priority = 50, bypass_eq_status_check = false) {
     this.TaskName = `BatEx_${moment(Date.now()).format('yyMMDD_HHmmssSSS')}`
@@ -163,7 +171,7 @@ export var TaskAllocation = {
       })
   },
   async RedoTask(clsTaskState = new clsTaskState({}), autoSelectVehicle = false) {
-    return await CallAPI('/api/Task/ReAssignTask', clsTaskState, autoSelectVehicle)
+    return await CallAPI('/api/Task/ReAssignTask', clsTaskState, `autoSelectVehicle=${autoSelectVehicle}`)
   },
   async Cancel(taskName) {
     try {
@@ -202,6 +210,10 @@ export var TaskAllocation = {
   async ParkTask(clsChargeTaskData) {
     return await CallAPI('/api/Task/Park', clsChargeTaskData)
   },
+  /**深度充電 */
+  async DeepCharge(agvName) {
+    return await CallAPI(`/api/Task/DeepCharge`, new clsDeepChargeTaskData(agvName, 100, false))
+  }
 }
 export async function SaveHotRunSettings(data) {
   console.log('post:' + JSON.stringify(data));
@@ -221,8 +233,8 @@ export async function StartHotRun(scriptID) {
 export async function StopHotRun(scriptID) {
   var response = await axios_entity.get(`/api/HotRun/Stop?scriptID=${scriptID}`)
 }
-async function CallAPI(path, data, autoSelectVehicle = false) {
-  var user_param = `?user=${userStore.getters.UserName}&autoSelectVehicle=${autoSelectVehicle}`
+async function CallAPI(path, data, param = '') {
+  var user_param = `?user=${userStore.getters.UserName}&${param}`
   path += user_param;
   return axios_entity
     .post(path, data)

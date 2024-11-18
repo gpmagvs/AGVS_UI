@@ -78,7 +78,16 @@ export const agv_states_store = createStore({
   state: {
     agv_states: [new clsAGVStateDto()],
     hotrun_states: [],
-
+    /**車輛電池狀態
+     * key: AGV_Name
+     * value: 電池狀態: 0:UNKNOWN, 1:DEEPCHARGING, 2:LOW, 3:MIDDLE_LOW, 4:MIDDLE_HIGH, 5:HIGH
+     */
+    vehiclesBatteryStatus: {
+      'AGV_001': 0,
+      'AGV_002': 0,
+      'AGV_003': 0,
+      'AGV_004': 0,
+    }
   },
   getters: {
     AGVStatesData: state => {
@@ -117,6 +126,9 @@ export const agv_states_store = createStore({
         return [agv.VehicleLength, agv.VehicleWidth]
       else
         return [0, 0]
+    },
+    VehicleBatteryStatus: state => (name) => {
+      return state.vehiclesBatteryStatus[name]
     }
   },
   mutations: {
@@ -125,6 +137,9 @@ export const agv_states_store = createStore({
     },
     setHotRunStates(state, data) {
       state.hotrun_states = data
+    },
+    setVehiclesBatteryStatus(state, data) {
+      state.vehiclesBatteryStatus = data
     }
   }
 })

@@ -97,7 +97,12 @@ export const VehicleBatteryAPI = {
   ModifySetting: async (agvName, payload) => {
     var response = await axios_entity_vms.post(`api/vehiclebattery?agvName=${agvName}`, payload)
     return response.data;
+  },
+  StopDeepCharge: async (agvName) => {
+    var response = await axios_entity_vms.post(`api/VmsManager/StopDeepCharge?agvName=${agvName}`)
+    return response.data;
   }
+
 }
 
 export const EmuAPI = {

@@ -59,6 +59,9 @@ function StoreVMSData(data) {
     if (data.VMSStatus) {
         agv_states_store.commit('storeAgvStates', data.VMSStatus)
     }
+    if (data.VehicleBatteryStatus) {
+        agv_states_store.commit('setVehiclesBatteryStatus', data.VehicleBatteryStatus)
+    }
     MapStore.commit('setAGVDynamicPathInfo', data.AGVNaviPathsInfoVM);
     MapStore.commit('setOtherAGVLocateInfo', data.OtherAGVLocations);
     // if (vmsStoreTimout) {

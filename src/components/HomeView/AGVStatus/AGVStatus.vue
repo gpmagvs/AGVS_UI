@@ -85,9 +85,13 @@
                     <b-button
                       variant="success"
                       style="width: 100%; margin-bottom: 8px;"
-                      @click="ShowAGVChargeConfirmDialog(scope.row,'deep')"
+                      @click="ShowAGVChargeConfirmDialog(scope.row, true)"
                     >深度充電</b-button>
-                    <b-button variant="light" style="width: 100%; margin-bottom: 8px;">解除深度充電</b-button>
+                    <b-button
+                      variant="light"
+                      style="width: 100%; margin-bottom: 8px;"
+                      @click="StopDeepCharge(scope.row.AGV_Name)"
+                    >解除深度充電</b-button>
                   </div>
                 </template>
               </el-popover>
@@ -457,7 +461,7 @@
 import Notifier from '@/api/NotifyHelper';
 import bus from '@/event-bus';
 import { IsLoginLastTime } from '@/api/AuthHelper';
-import { OnlineRequest, OfflineRequest, AGVLocating, EmuAPI } from '@/api/VMSAPI';
+import { OnlineRequest, OfflineRequest, AGVLocating, EmuAPI, VehicleBatteryAPI } from '@/api/VMSAPI';
 import { TaskAllocation, clsChargeTaskData, clsExangeBatteryTaskData } from '@/api/TaskAllocation.js'
 import { userStore, agvs_settings_store, agv_states_store, UIStore } from '@/store'
 import moment from 'moment'
@@ -681,7 +685,9 @@ export default {
     },
     /**由狀態取得充電按鈕的類別 */
     getChargeButtnClass(agv_states = new clsAGVStateDto()) {
-
+      var battery_status = agv_states_store.getters.VehicleBatteryStatus(agv_states.AGV_Name);
+      if (battery_status == 1)
+        return 'charge-deep-charging';
       return 'charge-normal'; //TODO: 由狀態取得充電按鈕的類別
       if (agv_states.MainStatus == 1)
         return 'charge-normal';
@@ -690,7 +696,7 @@ export default {
       else
         return 'charge-deep-charging';
     },
-    ShowAGVChargeConfirmDialog(agv_status, chargeType = 'normal') {
+    ShowAGVChargeConfirmDialog(agv_status, deepCharge = false) {
 
       if (userStore.getters.level < 0) {
         this.$swal.fire({
@@ -710,26 +716,50 @@ export default {
       this.Agv_Selected = agv_status.AGV_Name;
 
       var isInspectionAGV = agv_status.Model == 2;
+      const _chargeTaskConfirmMessage = (deepCharge) => {
+        if (isInspectionAGV)
+          return `確定要將 ${agv_status.AGV_Name} 派送至交換站交換電池?`
+        else
+          return deepCharge ? `確定要將 ${agv_status.AGV_Name} 派送至充電站進行深度充電?` : `確定要將 ${agv_status.AGV_Name} 派送至充電站充電?`
+      }
       this.$swal.fire(
         {
-          title: `確定要將${agv_status.AGV_Name}${isInspectionAGV ? '派送至交換站交換電池?' : '派送至充電站充電?'}`,
+          title: _chargeTaskConfirmMessage(deepCharge),
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: 'OK',
           customClass: 'my-sweetalert'
         }).then(res => {
           if (res.isConfirmed) {
-            this.AGVChargeTask(isInspectionAGV)
+            this.AGVChargeTask(isInspectionAGV, deepCharge)
           }
         })
+
+
     },
-    async AGVChargeTask(exchangeBattery = false) {
+    async StopDeepCharge(agv_name) {
+      var result = await VehicleBatteryAPI.StopDeepCharge(agv_name)
+      console.log(result)
+      //TODO confirm response 
+      this.$swal.fire(
+        {
+          title: `已解除 [${agv_name}] 電池深度充電`,
+          text: '',
+          icon: 'success',
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        })
+    },
+    async AGVChargeTask(exchangeBattery = false, deepCharge = false) {
       var result = {};
       if (exchangeBattery) {
         result = await TaskAllocation.ExangeBatteryTask(new clsExangeBatteryTaskData(this.Agv_Selected, -1))
       } else {
-        result = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))
-
+        if (deepCharge)
+          result = await TaskAllocation.DeepCharge(this.Agv_Selected)
+        else
+          result = await TaskAllocation.ChargeTask(new clsChargeTaskData(this.Agv_Selected, -1))
       }
       console.log(result)
       this.HandleChargeTaskDispatchResult(result);
