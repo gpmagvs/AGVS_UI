@@ -867,6 +867,7 @@ export default {
       highlightingFeatures: [],
       renderLDULD_StatusTimerId: '',
       prviousEQDataJson: '',
+      previousTaskIDCollections:'',
       trackingAGVTimer: '',
       agvSelectedState: {
         isClicked: false,
@@ -3366,7 +3367,7 @@ export default {
       }))
       return maintainFeature;
     },
-    ChangeEQIconByStatus(tagNumber, status = 1 | 2, cargoExist = false, isEqDownOrMaintain = false, isPartsReplacing = false) {
+    ChangeEQIconByStatus(tagNumber, status = 1 | 2, cargoExist = false, isEqDownOrMaintain = false, isPartsReplacing = false, isAnyOrderAssign = false) {
 
       var trayIconImage = new Icon({
         src: '/images/tray.png', // 设置PNG图像的路径
@@ -3430,11 +3431,15 @@ export default {
           var paperRollerRptDisplay = this.$t('Map.PartsReplacing');
           nameDisplay += `\r\n(${paperRollerRptDisplay})`
         }
-
+        if (isAnyOrderAssign) {
+          nameDisplay += `\r\n(Ordered)`
+        }
         _text.setText(nameDisplay);
         _text.setFill(new Fill({
           color: textDisplayColor
         }));
+
+        style.setText(_text);
         stationFeature.setStyle(style);
         stationFeature.set('oriStyle', style);
       } catch (error) {
@@ -3488,24 +3493,28 @@ export default {
     RenderEQLDULDStatus() {//TODO EQ狀態渲染
 
       var currentEqDataJson = JSON.stringify(this.eq_data);
-      if (this.prviousEQDataJson != currentEqDataJson) {
 
-        var tags = [...new Set(this.eq_data.map(eq => eq.Tag))]
+      var currentTaskIDCollections = TaskStore.state.IncompletedTaskListData.map(task => task.TaskID).join(',');
+      
 
+      if (this.prviousEQDataJson != currentEqDataJson || currentTaskIDCollections != this.previousTaskIDCollections) {
+        console.log('eq data changed');
         this.eq_data.forEach(eq_states => {
           let _EQStatusDIDto = new EQStatusDIDto();
           Object.assign(_EQStatusDIDto, eq_states)
 
-          var eqs = this.eq_data.filter(eq => eq.Tag == eq_states.Tag);
-          var isUniqueTag = eqs.length <= 1;
+          const eqs = this.eq_data.filter(eq => eq.Tag == eq_states.Tag);
+          const isUniqueTag = eqs.length <= 1;
           if (isUniqueTag) {
-            this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing)
+            const _isOrderAssign = TaskStore.getters.AnyOrderAssignTagAndSlot(_EQStatusDIDto.Tag, 0)
+            this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing, _isOrderAssign)
           } else {
             const anyLoadadble = eqs.find(eq => eq.TransferStatus == 1) != undefined;
             const anyUnLoadadble = eqs.find(eq => eq.TransferStatus == 2) != undefined;
             const anyPortExist = eqs.find(eq => eq.Port_Exist) != undefined;
             const anyIsMaintaining = eqs.find(eq => eq.IsMaintaining) != undefined;
             const anyIsPartsReplacing = eqs.find(eq => eq.IsPartsReplacing) != undefined;
+
             if (anyLoadadble && anyUnLoadadble)
               this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 4, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
             else if (anyLoadadble)
@@ -3514,7 +3523,6 @@ export default {
               this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 2, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
             else
               this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 3, anyPortExist, anyIsMaintaining, anyIsPartsReplacing)
-
           }
           //this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
         });
@@ -3525,7 +3533,7 @@ export default {
       } else {
         // console.log('eq data not changed yet')
       }
-
+      this.previousTaskIDCollections = currentTaskIDCollections;
     },
     RefreshMap(source = undefined) {
       // source:{
@@ -4274,9 +4282,6 @@ export default {
           return
         this.UpdateAGVLocationOfOtherSystem(newval)
       }, { deep: true, immediate: true })
-
-
-
       watch(
         () => this.agv_upload_coordi_data, (newval = {}, oldval) => {
           if (this.agv_upload_coordination_mode) {
