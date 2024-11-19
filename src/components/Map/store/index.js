@@ -222,14 +222,19 @@ export const MapStore = createStore({
                 .map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return points;
         },
+        AllNonVirtualStationOptions: state => {
+            var points = Object.values(state.MapData.Points)
+            var points = points.filter(pt => !pt.IsVirtualPoint).sort((a, b) => a.TagNumber - b.TagNumber).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            return points;
+        },
         AllParkableStationOptions: state => {
             var points = Object.values(state.MapData.Points)
-            var points = points.filter(pt => pt.IsParking).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var points = points.filter(pt => pt.IsParking).sort((a, b) => a.TagNumber - b.TagNumber).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return points;
         },
         AllEqStation: (state, getters) => {
             var points = Object.values(state.MapData.Points)
-            var eqs = points.filter(pt => pt.StationType != 0 && pt.StationType != 3).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var eqs = points.filter(pt => pt.StationType != 0 && pt.StationType != 3).sort((a, b) => a.TagNumber - b.TagNumber).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
 
             // 使用 sort 方法按照 name_display 進行排序
             eqs.sort((a, b) => {
@@ -242,22 +247,22 @@ export const MapStore = createStore({
         },
         AllChargeStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 3 || pt.StationType == 5 || pt.StationType == 6)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 3 || pt.StationType == 5 || pt.StationType == 6)).sort((a, b) => a.TagNumber - b.TagNumber).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllExangeBatteryStation: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 16 || pt.StationType == 3)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 16 || pt.StationType == 3)).sort((a, b) => a.TagNumber - b.TagNumber).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllParkingStationOptions: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && pt.IsParking == true || pt.StationType == 4 || pt.StationType == 5).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && pt.IsParking == true || pt.StationType == 4 || pt.StationType == 5).sort((a, b) => a.TagNumber - b.TagNumber).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllBufferStationOptions: state => {
             var points = Object.values(state.MapData.Points)
-            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 4 || pt.StationType == 41 || pt.StationType == 5)).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
+            var options = points.filter(pt => !pt.IsVirtualPoint && (pt.StationType == 4 || pt.StationType == 41 || pt.StationType == 5)).sort((a, b) => a.TagNumber - b.TagNumber).map(pt => new StationSelectOptions(pt.TagNumber, `${pt.Graph.Display}(Tag=${pt.TagNumber})`, pt.Graph.Display))
             return options;
         },
         AllPointsOptions: state => {

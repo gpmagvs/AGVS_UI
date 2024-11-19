@@ -16,7 +16,7 @@
         </div>
       </template>
       <div class="draw-content" style="width: 90%;">
-        <el-form label-width="140" label-position="left">
+        <el-form label-width="160" label-position="left">
           <el-form-item label="名稱">
             <el-input v-model="RegionData.Name" @input="ChangeNameDisplay"></el-input>
           </el-form-item>
@@ -35,6 +35,22 @@
             >
               <el-option
                 v-for="ptOption in NoramlPointsOptions"
+                :key="ptOption.tag"
+                :label="ptOption.tag+`(${ptOption.name_display})`"
+                :value="ptOption.tag"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="路徑僅使用於目的地為">
+            <el-select
+              v-model="RegionData.PathOnlyUseForTagsWhenVehicleFromOutsideRegion"
+              multiple
+              placeholder="Select"
+              @change="HandlePropChanged"
+              clearable
+            >
+              <el-option
+                v-for="ptOption in AllNonVirtualPointsOptions"
                 :key="ptOption.tag"
                 :label="ptOption.tag+`(${ptOption.name_display})`"
                 :value="ptOption.tag"
@@ -138,12 +154,15 @@ export default {
     region_name() {
       return this.RegionData.Name;
     },
+    AllNonVirtualPointsOptions() {
+      return MapStore.getters.AllNonVirtualStationOptions;
+    },
     NoramlPointsOptions() {
       var optionsNormalPT = [new StationSelectOptions()];
       var optionsParkablePT = [new StationSelectOptions()];
       Object.assign(optionsNormalPT, MapStore.getters.AllNormalStationOptions);
       Object.assign(optionsParkablePT, MapStore.getters.AllParkableStationOptions);
-      return [...optionsNormalPT, ...optionsParkablePT];
+      return [...optionsNormalPT, ...optionsParkablePT].sort((a, b) => a.tag - b.tag);
     }
   },
 }
