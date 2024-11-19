@@ -166,8 +166,7 @@ export default {
       try {
         this.locus_painting = true;
         setTimeout(async () => {
-          if (row_data.corrdinations == undefined) {
-
+          if (row_data.corrdinations == undefined || row_data.corrdinations.length == 0) {
             var trajData = await GetTrajectory(row_data.task_id)
             if (trajData) {
               row_data.corrdinations = trajData.coordinations.map(data => ([data.X, data.Y]))
@@ -175,7 +174,20 @@ export default {
             }
           }
 
-          this.$refs.map.ShowLocus(row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
+          try {
+            if (row_data.corrdinations.length > 0)
+              this.$refs.map.ShowLocus(row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
+          } catch (error) {
+            this.$swal.fire(
+              {
+                text: error.message,
+                title: 'Something Wrong...',
+                icon: 'error',
+                showCancelButton: false,
+                confirmButtonText: 'OK',
+                customClass: 'my-sweetalert'
+              })
+          }
           this.locus_painting = false;
         }, 300);
       } catch (error) {
