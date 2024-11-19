@@ -10,21 +10,41 @@
             </div>
             <div>
               <div class="label">{{ $t('AGVLocus.StartTime') }}</div>
-              <el-date-picker v-model="timePick.start_time" type="datetime" placeholder="選擇開始時間"
-                format="YYYY/MM/DD HH:mm:ss" />
+              <el-date-picker
+                v-model="timePick.start_time"
+                type="datetime"
+                placeholder="選擇開始時間"
+                format="YYYY/MM/DD HH:mm:ss"
+              />
             </div>
             <div>
               <div class="label">{{ $t('AGVLocus.EndTime') }}</div>
-              <el-date-picker v-model="timePick.end_time" type="datetime" placeholder="選擇結束時間"
-                format="YYYY/MM/DD HH:mm:ss" />
+              <el-date-picker
+                v-model="timePick.end_time"
+                type="datetime"
+                placeholder="選擇結束時間"
+                format="YYYY/MM/DD HH:mm:ss"
+              />
             </div>
-            <el-button @click="HandleSearchBtnClicked"
-              style="height:30px;font-size: large;width:120px;position:relative;top:16px" class="my-2" type="primary">{{
-                $t('AGVLocus.Search') }}</el-button>
+            <el-button
+              @click="HandleSearchBtnClicked"
+              style="height:30px;font-size: large;width:120px;position:relative;top:16px"
+              class="my-2"
+              type="primary"
+            >
+              {{
+              $t('AGVLocus.Search') }}
+            </el-button>
           </div>
         </div>
-        <el-table v-loading="loading" :data="tableData" style="width:720px" height="700" highlight-current-row
-          size="small">
+        <el-table
+          v-loading="loading"
+          :data="tableData"
+          style="width:720px"
+          height="700"
+          highlight-current-row
+          size="small"
+        >
           <el-table-column align="center" label="No" width="50">
             <template #default="scope">
               <div>{{ GetNo(scope.row) }}</div>
@@ -37,7 +57,12 @@
           <el-table-column :label="$t('AGVLocus.EndTime')" prop="end_time">
             <template #default="scope">{{ FormatTime(scope.row.end_time) }}</template>
           </el-table-column>
-          <el-table-column align="center" :label="$t('AGVLocus.CostTime')" prop="duration" min-width="60">
+          <el-table-column
+            align="center"
+            :label="$t('AGVLocus.CostTime')"
+            prop="duration"
+            min-width="60"
+          >
             <template #default="scope">
               <div>
                 <el-tag effect="dark" type="info">{{ CalculatTimeSpend(scope.row) }}</el-tag>
@@ -69,8 +94,15 @@
             <el-button type="primary">{{ $t('AGVLocus.SaveTrackMap') }}</el-button>
           </div>
         </div>
-        <Map v-loading="locus_painting" class="bg-light border" ref="map" id="locus_map" :editable="false"
-          :agv_show="false" :station_show="true"></Map>
+        <Map
+          v-loading="locus_painting"
+          class="bg-light border"
+          ref="map"
+          id="locus_map"
+          :editable="false"
+          :agv_show="false"
+          :station_show="true"
+        ></Map>
       </div>
     </div>
   </div>
@@ -114,9 +146,8 @@ export default {
         end_time: '2023-08-04 12:00:00'
       },
       locus_settings: {
-
         color: 'red',
-        width: 1,
+        width: 7,
       },
       showing_row_data: {},
       loading: false,
@@ -164,7 +195,12 @@ export default {
       return moment(time).format('YYYY/MM/DD HH:mm:ss')
     },
     HandleLocusSettingChange() {
-      this.$refs.map.ShowLocus(this.showing_row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
+      this.SaveLocusSettingsToLocalStroage();
+      try {
+        this.$refs.map.ShowLocus(this.showing_row_data.corrdinations, this.locus_settings.color, this.locus_settings.width)
+      } catch (error) {
+        console.log(error);
+      }
     },
     async HandleSearchBtnClicked() {
 
