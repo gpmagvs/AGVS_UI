@@ -4454,7 +4454,7 @@ export default {
 
   .tab-open {
     width: 500px;
-
+    z-index:2;
     i {
       cursor: pointer;
       position: absolute;
