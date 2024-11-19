@@ -600,7 +600,7 @@ import { Vector as VectorLayer } from 'ol/layer.js';
 import LineString from 'ol/geom/LineString';
 import Point from 'ol/geom/Point.js';
 import { Circle, Polygon } from 'ol/geom';
-import { Fill, Stroke, Style, Text, Icon } from 'ol/style';
+import { Fill, Stroke, Style, Text, Icon, Circle as CircleStyle } from 'ol/style';
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
 import VectorSource from 'ol/source/Vector.js';
@@ -4454,7 +4454,7 @@ export default {
 
   .tab-open {
     width: 500px;
-    z-index:2;
+    z-index: 2;
     i {
       cursor: pointer;
       position: absolute;
