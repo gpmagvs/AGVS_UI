@@ -276,7 +276,8 @@
     "SelectStartDate": "Select Start Date",
     "SelectEndDate": "Select End Date",
     "Success": "Success",
-    "Fail": "Fail"
+    "Fail": "Fail",
+    "taskID": "Task Name"
   },
   "InstrumentMeasureQuery": {
     "StartTime": "StartTime",

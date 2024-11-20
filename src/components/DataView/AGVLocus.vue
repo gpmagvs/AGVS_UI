@@ -31,10 +31,14 @@
               style="height:30px;font-size: large;width:120px;position:relative;top:16px"
               class="my-2"
               type="primary"
-            >
-              {{
-              $t('AGVLocus.Search') }}
-            </el-button>
+            >{{ $t('AGVLocus.Search') }}</el-button>
+          </div>
+          <!-- Row-2 -->
+          <div class="time-pick text-start d-flex my-3">
+            <div>
+              <div class="label">{{ $t('AGVLocus.taskID') }}</div>
+              <el-input v-model="conditions.taskID" clearable></el-input>
+            </div>
           </div>
         </div>
         <el-table
@@ -145,6 +149,9 @@ export default {
       timePick: {
         start_time: '2023-08-03 12:00:00',
         end_time: '2023-08-04 12:00:00'
+      },
+      conditions: {
+        taskID: ''
       },
       locus_settings: {
         color: 'red',
@@ -299,6 +306,7 @@ export default {
     .label {
       font-weight: bold;
       letter-spacing: 2px;
+      margin-bottom: 0.32rem;
     }
   }
 
