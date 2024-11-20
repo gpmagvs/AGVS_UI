@@ -6,7 +6,7 @@
           <div class="time-pick text-start d-flex">
             <div>
               <div class="label">{{ $t('AGVLocus.SelectAGV') }}</div>
-              <AGVSelector v-model="agvname"></AGVSelector>
+              <AGVSelector style="width:120px;" v-model="agvname"></AGVSelector>
             </div>
             <div>
               <div class="label">{{ $t('AGVLocus.StartTime') }}</div>
