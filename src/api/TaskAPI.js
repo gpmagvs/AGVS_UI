@@ -32,8 +32,8 @@ export async function SaveTocsv(start_time, end_time, AGV_Name = 'ALL', TaskName
 }
 /**查詢任務 */
 
-export async function GetTasks(start, end, agvname) {
-  var ret = await axios_entity.get(`/api/TaskQuery/GetTasks?agv_name=${agvname}&start=${start}&end=${end}`)
+export async function GetTasks(start, end, agvname, taskID = "") {
+  var ret = await axios_entity.get(`/api/TaskQuery/GetTasks?agv_name=${agvname}&start=${start}&end=${end}&taskID=${taskID}`)
   return ret.data;
 }
 

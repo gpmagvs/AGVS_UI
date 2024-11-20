@@ -243,7 +243,7 @@ export default {
       var tasklist = []
       this.loading = true;
       setTimeout(async () => {
-        tasklist = await GetTasks(startTime, endTime, this.agvname)
+        tasklist = await GetTasks(startTime, endTime, this.agvname, this.conditions.taskID)
         this.tableData = tasklist.map(obj => ({
           task_id: obj.TaskName,
           start_time: obj.RecieveTime,
