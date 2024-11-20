@@ -102,6 +102,7 @@
           :editable="false"
           :agv_show="false"
           :station_show="true"
+          :rackInfoShow="false"
         ></Map>
       </div>
     </div>

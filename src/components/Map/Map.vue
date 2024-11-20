@@ -301,13 +301,15 @@
                 v-show="SelectedFeatures.length!=0"
               >已選擇 [{{ SelectedFeatures.length }}] 個點位</div>
               <!-- 選染RACK PORT 旁邊的貨物在席狀態 -->
-              <RackStatusDisplay
-                v-for="feature in RackPortPointFeatures"
-                :key="feature.get('data')?.TagNumber+'-rack-display'||feature.id"
-                :pointData="feature.get('data')"
-                :dynamicStyle="getRackCargoExistStateFeatureLabelStyle(feature)"
-                :tagNumber="feature.get('data')?.TagNumber"
-              ></RackStatusDisplay>
+              <div v-if="rackInfoShow && !editable">
+                <RackStatusDisplay
+                  v-for="feature in RackPortPointFeatures"
+                  :key="feature.get('data')?.TagNumber+'-rack-display'||feature.id"
+                  :pointData="feature.get('data')"
+                  :dynamicStyle="getRackCargoExistStateFeatureLabelStyle(feature)"
+                  :tagNumber="feature.get('data')?.TagNumber"
+                ></RackStatusDisplay>
+              </div>
             </div>
             <!------------->
             <!-- 圖例 -->
@@ -650,6 +652,10 @@ export default {
       default: true
     },
     station_show: {
+      type: Boolean,
+      default: true
+    },
+    rackInfoShow: {
       type: Boolean,
       default: true
     },
