@@ -135,11 +135,19 @@
                 </el-form-item>
                 <el-form-item label="避車角度">
                   <el-input-number v-model="pointData_editing.Direction_Avoid"></el-input-number>
-                  <div class="mx-2">
-                    <label class="mx-2" for>等待進入區域時使用此角度</label>
-                    <el-checkbox
-                      v-model="pointData_editing.UseAvoidThetaWhenStopAtWaitingPointOfEntryRegion"
-                    ></el-checkbox>
+                  <div class="mx-2 d-flex">
+                    <div>
+                      <label class="mx-2" for>等待進入區域時使用此角度</label>
+                      <el-checkbox
+                        v-model="pointData_editing.UseAvoidThetaWhenStopAtWaitingPointOfEntryRegion"
+                      ></el-checkbox>
+                    </div>
+                    <div>
+                      <label class="mx-2" for>交管停等中使用此角度</label>
+                      <el-checkbox
+                        v-model="pointData_editing.AlwayTurnToAvoidThetaWhenWaitingTrafficControl"
+                      ></el-checkbox>
+                    </div>
                   </div>
                 </el-form-item>
                 <el-form-item v-if="pointData_editing.StationType != 0" label="二次定位點角度">
