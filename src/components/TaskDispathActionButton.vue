@@ -1460,7 +1460,7 @@ export default {
       transform: scale(1.1);
     }
     &:active {
-      transform: scale(1);
+      transform: scale(0.9);
     }
   }
   .grabable-region:active {
