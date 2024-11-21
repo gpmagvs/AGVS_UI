@@ -207,6 +207,15 @@
                 <el-checkbox v-model="pointData_editing.IsAutoDoor" label="自動門"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsExtinguishing" label="消防設備"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsNarrowPath" label="窄道"></el-checkbox>
+                <div class="d-flex">
+                  <el-checkbox
+                    v-model="pointData_editing.IsHighestPriorityStation"
+                    label="最高優先執行任務站點"
+                  ></el-checkbox>
+                  <el-tooltip content="最高優先執行任務站點，系統會優先執行此站點的任務，且路權會優先給予。" placement="bottom">
+                    <i class="bi bi-question-circle information"></i>
+                  </el-tooltip>
+                </div>
               </div>
             </el-collapse-item>
             <el-collapse-item title="註冊點" name="3">

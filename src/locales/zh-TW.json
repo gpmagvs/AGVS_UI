@@ -172,7 +172,8 @@
     "StartLocation": "起始位置",
     "AGVReadID": "AGV讀取ID",
     "Reassign": "重新執行",
-    "AutoSelectVehicle": "自動選車"
+    "AutoSelectVehicle": "自動選車",
+    "HighestPriorityTask": "最優先任務"
   },
   "AlarmTable": {
     "Time": "時間",

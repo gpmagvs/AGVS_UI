@@ -213,6 +213,9 @@ export default {
       return tag
     },
     row_class_name({ row, rowIndex }) {
+
+      if (row.IsHighestPriorityTask)
+        return 'highest-priority-task-row'
       return 'task-row'
       if (row.DispatcherName.toUpperCase() == 'TRAFFIC')
         return 'traffic-task-row'
@@ -235,8 +238,17 @@ export default {
     text-decoration: underline;
     font-size: larger;
     font-weight: bold;
-    color: rgb(9, 30, 87);
+    color: rgb(0, 102, 255);
     cursor: pointer;
+  }
+
+  .el-table .highest-priority-task-row {
+    background: linear-gradient(45deg, #ff4d4d, #f5afaf);
+    color: white;
+    &:hover {
+      background: linear-gradient(45deg, #ff854d, #facdcd) !important;
+      color: black !important;
+    }
   }
 
   .el-table .traffic-task-row {
@@ -254,7 +266,7 @@ export default {
     }
 
     .task-row {
-      color: rgb(13, 110, 253);
+      color: rgb(13, 110, 253) !important;
     }
   }
 }

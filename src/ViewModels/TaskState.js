@@ -24,6 +24,7 @@ class clsTaskState {
     this.To_Slot = task.To_Slot
     this.Carrier_ID = task.Carrier_ID
     this.Priority = task.Priority
+    this.IsHighestPriorityTask = false
   }
   get RecieveTime_Formated() {
     return moment(this.RecieveTime).format('HH:mm:ss')

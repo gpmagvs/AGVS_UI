@@ -893,6 +893,7 @@ export default {
       isRedrawConfirmable: false,
       searchTag: undefined,
       rackPortFeatures: [], // 需要顯示標籤的 features
+      postRenderThrottleTimer: null,
 
     }
   },
@@ -1658,6 +1659,18 @@ export default {
             this.HighLightFeatureSelected(this.SelectedFeatures, 'rgb(13, 110, 253)')
           }
         }
+      });
+      this.map.on('postrender', () => {
+        if (this.postRenderThrottleTimer) {
+        return;
+      }
+      
+        this.postRenderThrottleTimer = setTimeout(() => {
+          this.$forceUpdate();
+          this.postRenderThrottleTimer = null;
+          console.log('on postrender')  
+        }, 500); // 每 100ms 最多執行一次
+
       });
     },
     /**切換為刪除禁制區模式 */

@@ -880,6 +880,10 @@ export class MapPointModel {
         this.IsRegisted = false
         this.IsTrafficCheckPoint = false
         this.RegistInfo = null
+        /**任務優先度 */
+        this.PriorityOfTask = 1
+        /**是否為最高優先度站點 */
+        this.IsHighestPriorityStation = false
     }
 }
 
