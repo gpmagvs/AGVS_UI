@@ -304,7 +304,7 @@
               <el-col class="item-actions" :span="7"></el-col>
             </el-row>
             <!-- //TODO 任務指派畫面操作Action Buttons -->
-            <div class="action-buttons w-100 py-1 d-flex border-top" style="height: auto;">
+            <div class="action-buttons actions-btn-conatiner w-100 py-1 d-flex border-top" style="height: auto;">
               <!-- 確認派送 -->
               <b-button
                 @click="HandleConfirmBtnClicked"
@@ -1435,6 +1435,13 @@ export default {
   font-size: 21px !important;
   color: "rgb(13, 110, 253)";
 }
+
+.actions-btn-conatiner {
+  button:hover {
+    transform: scale(1.1) ;
+  }
+}
+
 .action-buttons {
   margin-top: 1.3rem;
   button {
