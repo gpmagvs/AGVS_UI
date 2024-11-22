@@ -1358,6 +1358,11 @@ export default {
           text.setBackgroundFill(fill);
           agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
+          const _isHighestPriorityTask = TaskStore.getters.IsRunningHighestPriorityTask(agv_information.AgvName); //TODO 取得當前任務訂單是否為最高優先度任務
+          const _pathColorUse = _isHighestPriorityTask ? this.convertColorNameToRGBA(agv_information.TextColor, 0.5) : agv_information.TextColor;
+          agvfeatures.path_feature.setStyle(CreateLocusPathStyles(_pathColorUse, 7, _isHighestPriorityTask ? '#ff3636' : undefined))
+
+
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_information.CargoStatus)
 
           //this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
@@ -1662,13 +1667,13 @@ export default {
       });
       this.map.on('postrender', () => {
         if (this.postRenderThrottleTimer) {
-        return;
-      }
-      
+          return;
+        }
+
         this.postRenderThrottleTimer = setTimeout(() => {
           this.$forceUpdate();
           this.postRenderThrottleTimer = null;
-          console.log('on postrender')  
+          console.log('on postrender')
         }, 500); // 每 100ms 最多執行一次
 
       });

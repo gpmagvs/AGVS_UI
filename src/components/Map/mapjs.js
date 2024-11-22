@@ -1,4 +1,3 @@
-
 import { Circle, Fill, Icon, Stroke, Style, Text, RegularShape } from 'ol/style.js';
 import Point from 'ol/geom/Point.js';
 import { Polygon } from 'ol/geom';
@@ -316,16 +315,34 @@ export function GetStationStyle(text = '', station_type = 0, map_data = new MapP
     return textStyle
 }
 /**軌跡顯示Style */
-export function CreateLocusPathStyles(color = 'red', width = 1) {
-    const styles = [
+export function CreateLocusPathStyles(color, width = 7, borderColor = undefined) {
+
+    if (!borderColor) {
+        return new Style({
+            stroke: new Stroke({
+                color: color,
+                width: width
+            })
+        });
+    }
+
+    // 如果有邊框顏色,返回兩個樣式層:底層(邊框)和上層(主要路徑)
+    return [
+        // 底層 - 邊框
+        new Style({
+            stroke: new Stroke({
+                color: borderColor,
+                width: width + 10  // 比主線寬2px
+            })
+        }),
+        // 上層 - 主要路徑
         new Style({
             stroke: new Stroke({
                 color: color,
-                width: width,
-            }),
-        }),
+                width: width
+            })
+        })
     ];
-    return styles;
 }
 /**道路 */
 export function CreateStationPathStyles(feature, color = undefined) {

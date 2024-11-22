@@ -411,6 +411,10 @@ export const TaskStore = createStore({
         (order.To_Station == (tag + '') && order.To_Slot == (slot + ''))
       )
       return _orderFound != undefined;
+    },
+    IsRunningHighestPriorityTask: state => (agvName = '') => {
+      const _order = state.IncompletedTaskListData.find(order => order.DesignatedAGVName == agvName);
+      return _order?.IsHighestPriorityTask || false;
     }
   },
   mutations: {
