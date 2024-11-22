@@ -156,10 +156,13 @@ export default {
   watch: {
     right_side_tabSelected(panlName) {
       // alert(panlName)
-      if (panlName == 'map')
-        this.$refs['task-dispatch-action-btn'].ShowAtRight();
-      else {
-        this.$refs['task-dispatch-action-btn'].ShowAtLeft();
+      const taskDispatchBtn = this.$refs['task-dispatch-action-btn'];
+      if (taskDispatchBtn) {
+        if (panlName == 'map')
+          taskDispatchBtn.ShowAtRight();
+        else {
+          taskDispatchBtn.ShowAtLeft();
+        }
       }
     }
   },
