@@ -1673,7 +1673,6 @@ export default {
         this.postRenderThrottleTimer = setTimeout(() => {
           this.$forceUpdate();
           this.postRenderThrottleTimer = null;
-          console.log('on postrender')
         }, 500); // 每 100ms 最多執行一次
 
       });

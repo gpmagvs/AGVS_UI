@@ -2,7 +2,7 @@
   <div class="running-task-table">
     <el-table
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
-      :data="IncompletedTaskList"
+      :data="taskWithSorted"
       row-key="TaskName"
       size="large"
       :row-class-name="row_class_name"
@@ -11,6 +11,7 @@
       border
       fit
       :height="height"
+      @filter-change="handleFilterChange"
     >
       <el-table-column
         :label="$t('TaskTable.TaskName')"
@@ -40,6 +41,12 @@
         align="center"
         prop="StateName"
         width="80"
+        :filters="[
+          { text: '等待中', value: 5 },
+          { text: '執行中', value: 1 },
+        ]"
+        column-key="State"
+        :filter-method="filterTaskState"
       >
         <template #default="scope">
           <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
@@ -105,13 +112,14 @@ import { GetTaskStateType } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
 import { TableColumnSize, ReStoreTableColumnSizeSettingsFromStorage, SaveTableColumnSizeSettingsToStorage } from '@/ViewModels/UI/TableColumnSize.js'
 import bus from '@/event-bus';
+import clsTaskState from '@/ViewModels/TaskState'
 
 export default {
   props: {
     IncompletedTaskList: {
       type: Array,
       default() {
-        return []
+        return new clsTaskState({})
       }
     },
     height: {
@@ -129,7 +137,7 @@ export default {
         new TableColumnSize('From_Station', 100),
         new TableColumnSize('To_Station', 100)
       ],
-
+      selectedFilters: []
     }
   },
   computed: {
@@ -138,6 +146,15 @@ export default {
     },
     MapPoints() {
       return Object.values(MapStore.state.MapData.Points);
+    },
+    taskWithSorted() {
+      let sorted = this.IncompletedTaskList.sort((a, b) => {
+        return a.IsHighestPriorityTask ? -1 : 1
+      })
+      if (this.selectedFilters.length > 0) {
+        sorted = sorted.filter(item => this.selectedFilters.includes(item.State))
+      }
+      return sorted
     }
   },
   methods: {
@@ -161,6 +178,10 @@ export default {
 
       SaveTableColumnSizeSettingsToStorage('runningTaskTable-column-size', this.columnsSizeSetting)
 
+    },
+    filterTaskState(value, row, column) {
+      console.log(row['State'], value);
+      return row['State'] === value
     },
     CancelTaskHandler(task_name) {
       this.cancelTaskName = task_name;
@@ -225,6 +246,10 @@ export default {
         return 'carry-task-row'
 
       return ''
+    },
+    handleFilterChange(filters) {
+      this.selectedFilters = filters.State || []; // 因為我們的 column-key 是 "State"
+      console.log(this.selectedFilters);
     }
   },
   mounted() {

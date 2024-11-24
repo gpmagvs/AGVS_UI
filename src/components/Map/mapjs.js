@@ -659,7 +659,7 @@ export function AGVPointStyle(agv_name, color, ImageName = undefined, ImageSize 
             text: agv_name,
             offsetX: 0,
             offsetY: 32,
-            font: 'bold 16px Arial',
+            font: 'bold 12px Arial',
             fill: new Fill({
                 color: 'white'
             }),
