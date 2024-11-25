@@ -2,12 +2,13 @@
   <div class="completed-task-table">
     <el-table
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
-      :data="CompletedTaskList"
+      :data="SortedOrders"
       row-key="TaskName"
       border
       :height="height"
       :row-class-name="row_class_name"
       :empty-text="$t('TaskTable.NoTasks')"
+      @filter-change="handleFilterChange"
     >
       <el-table-column
         :label="$t('TaskTable.TaskName')"
@@ -18,16 +19,34 @@
       <el-table-column
         :label="$t('TaskTable.ExcuteAgvName')"
         prop="DesignatedAGVName"
+        width="100"
         show-overflow-tooltip
       ></el-table-column>
-      <el-table-column :label="$t('TaskTable.RecievedTime')" prop="RecieveTime_Formated" width="80"></el-table-column>
-      <el-table-column :label="$t('TaskTable.FinishTime')" prop="FinishTime_Formated" width="80"></el-table-column>
-      <el-table-column :label="$t('TaskTable.TaskStatus')" prop="StateName" width="80">
+      <el-table-column
+        :label="$t('TaskTable.RecievedTime')"
+        prop="RecieveTime_Formated"
+        width="100"
+      ></el-table-column>
+      <el-table-column :label="$t('TaskTable.FinishTime')" prop="FinishTime_Formated" width="100"></el-table-column>
+      <el-table-column
+        :label="$t('TaskTable.TaskStatus')"
+        prop="StateName"
+        :filters="CompletedTaskStateOptions"
+        column-key="State"
+        :filter-method="filterTaskState"
+        width="80"
+      >
         <template #default="scope">
           <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Action')" prop="ActionName" width="60">
+      <el-table-column
+        :label="$t('TaskTable.Action')"
+        prop="ActionName"
+        :filters="TaskActionFileterOptions"
+        :filter-method="filterTaskAction"
+        width="80"
+      >
         <template #default="scope">
           <el-tag
             effect="dark"
@@ -54,7 +73,7 @@
           <div v-if="scope.row.To_Slot!='-1'">(Slot:{{ scope.row.To_Slot }})</div>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName"></el-table-column>
+      <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName" width="100"></el-table-column>
       <el-table-column
         v-if="IsUserLogined"
         label="Action"
@@ -76,7 +95,7 @@
   </div>
 </template>
 <script>
-import { GetTaskStateType } from './TaskStatus'
+import { GetTaskStateType, CompletedTaskStateOptions, TaskActionFileterOptions } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
 import clsTaskState from '@/ViewModels/TaskState';
 import { TaskAllocation } from '@/api/TaskAllocation';
@@ -97,6 +116,14 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      selectedStateFilters: [],
+      selectedActionFilters: [],
+      CompletedTaskStateOptions,
+      TaskActionFileterOptions
+    }
+  },
   computed: {
     MapPoints() {
       return Object.values(MapStore.getters.MapData.Points)
@@ -104,6 +131,16 @@ export default {
     /**用戶是否登入 */
     IsUserLogined() {
       return userStore.state.user.Role != -1;
+    },
+    SortedOrders() {
+      let filteredList = this.CompletedTaskList;
+      if (this.selectedStateFilters.length > 0) {
+        filteredList = filteredList.filter(item => this.selectedStateFilters.includes(item.State));
+      }
+      if (this.selectedActionFilters.length > 0) {
+        filteredList = filteredList.filter(item => this.selectedActionFilters.includes(item.Action));
+      }
+      return filteredList;
     }
   },
   methods: {
@@ -180,7 +217,18 @@ export default {
           customClass: 'dispatch-fail-swal',
         })
       }
+    },
+    filterTaskState(value, row) {
+      return row.State === value;
+    },
+    filterTaskAction(value, row) {
+      return row.Action === value;
+    },
+    handleFilterChange(filters) {
+      this.selectedStateFilters = filters.State || []; // 因為我們的 column-key 是 "State"
+      this.selectedActionFilters = filters.Action || []; // 因為我們的 column-key 是 "Action"
     }
+
   },
 }
 </script>

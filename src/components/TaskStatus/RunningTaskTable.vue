@@ -26,7 +26,14 @@
         width="90"
         show-overflow-tooltip
       ></el-table-column>
-      <el-table-column :label="$t('TaskTable.Action')" align="center" prop="ActionName" width="80">
+      <el-table-column
+        :label="$t('TaskTable.Action')"
+        align="center"
+        :filters="TaskActionFileterOptions"
+        column-key="Action"
+        :filter-method="filterTaskAction"
+        width="80"
+      >
         <template #default="scope">
           <el-tag
             effect="dark"
@@ -41,10 +48,7 @@
         align="center"
         prop="StateName"
         width="80"
-        :filters="[
-          { text: '等待中', value: 5 },
-          { text: '執行中', value: 1 },
-        ]"
+        :filters="RunningTaskStateOptions"
         column-key="State"
         :filter-method="filterTaskState"
       >
@@ -108,11 +112,12 @@
 <script>
 import { userStore } from '@/store'
 import { TaskAllocation } from '@/api/TaskAllocation'
-import { GetTaskStateType } from './TaskStatus'
+import { GetTaskStateType, RunningTaskStateOptions, TaskActionFileterOptions } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
 import { TableColumnSize, ReStoreTableColumnSizeSettingsFromStorage, SaveTableColumnSizeSettingsToStorage } from '@/ViewModels/UI/TableColumnSize.js'
 import bus from '@/event-bus';
 import clsTaskState from '@/ViewModels/TaskState'
+
 
 export default {
   props: {
@@ -137,7 +142,10 @@ export default {
         new TableColumnSize('From_Station', 100),
         new TableColumnSize('To_Station', 100)
       ],
-      selectedFilters: []
+      selectedStateFilters: [],
+      selectedActionFilters: [],
+      RunningTaskStateOptions,
+      TaskActionFileterOptions
     }
   },
   computed: {
@@ -148,13 +156,14 @@ export default {
       return Object.values(MapStore.state.MapData.Points);
     },
     taskWithSorted() {
-      let sorted = this.IncompletedTaskList.sort((a, b) => {
-        return a.IsHighestPriorityTask ? -1 : 1
-      })
-      if (this.selectedFilters.length > 0) {
-        sorted = sorted.filter(item => this.selectedFilters.includes(item.State))
+      let filteredList = this.IncompletedTaskList;
+      if (this.selectedStateFilters.length > 0) {
+        filteredList = filteredList.filter(item => this.selectedStateFilters.includes(item.State));
       }
-      return sorted
+      if (this.selectedActionFilters.length > 0) {
+        filteredList = filteredList.filter(item => this.selectedActionFilters.includes(item.Action));
+      }
+      return filteredList;
     }
   },
   methods: {
@@ -248,8 +257,8 @@ export default {
       return ''
     },
     handleFilterChange(filters) {
-      this.selectedFilters = filters.State || []; // 因為我們的 column-key 是 "State"
-      console.log(this.selectedFilters);
+      this.selectedStateFilters = filters.State || []; // 因為我們的 column-key 是 "State"
+      this.selectedActionFilters = filters.Action || []; // 因為我們的 column-key 是 "Action"
     }
   },
   mounted() {
