@@ -1243,6 +1243,8 @@ export default {
     },
     GetLayersOfBuffer(tag) {
       const portNosOfColumn = EqStore.getters.GetWIPSlotsOptionsByStationTag(tag);
+      if(!portNosOfColumn)
+        return [];
       const options = [];
       // Dictionary<int, int[]> ColumnTagMap { get; set; } 
 
