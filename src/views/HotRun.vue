@@ -74,7 +74,7 @@
             ></el-input-number>
           </template>
         </el-table-column>
-        <el-table-column label="動作數" width="180">
+        <el-table-column label="動作數" width="220">
           <template #default="scope">
             <div>
               <span class="mx-2">{{ scope.row.actions.length }}</span>
@@ -93,6 +93,13 @@
                   selected_script_actions = scope.row.actions;
                 }"
               >{{ scope.row.IsRegularUnloadRequst?'設備出入料設定':'動作設定' }}</el-button>
+
+              <el-button
+                v-if="scope.row.IsRandomCarryRun"
+                type="primary"
+                size="small"
+                @click="HandleUpDownStreamSettingsBtnClick(scope.row)"
+              >上下游設定</el-button>
             </div>
           </template>
         </el-table-column>
@@ -261,6 +268,14 @@
           :regular_unload_settings="selected_regular_unload_settings"
         ></ReqularUnloadHotRunSettings>
       </el-drawer>
+      <el-drawer
+        v-model="updown_stream_settings_drawer_visible"
+        title="上下游設定"
+        direction="rtl"
+        size="60%"
+      >
+        <UpDownStreamSettings ref="UpDownStreamSettings"></UpDownStreamSettings>
+      </el-drawer>
     </div>
     <el-divider content-position="left">進階設置</el-divider>
     <div class="w-100 bg-light px-2 text-start">
@@ -284,12 +299,14 @@ import { userStore, agv_states_store } from '@/store';
 import { MapStore } from '@/components/Map/store'
 import { SaveHotRunSettings, GetHotRunSettings, StartHotRun, StopHotRun } from '@/api/TaskAllocation'
 import ReqularUnloadHotRunSettings from '@/components/HotRunComponents/ReqularUnloadHotRunSettings.vue';
+import UpDownStreamSettings from '@/components/HotRunComponents/UpDownStreamSettings.vue';
 import axios from 'axios';
 import param from '@/gpm_param';
 import { ElMessage } from 'element-plus';
 export default {
   components: {
     ReqularUnloadHotRunSettings,
+    UpDownStreamSettings
   },
   data() {
     return {
@@ -326,6 +343,7 @@ export default {
       ],
       action_drawer_visible: false,
       regular_unload_settings_drawer_visible: false,
+      updown_stream_settings_drawer_visible: false,
       selected_script_name: '123',
       selected_script_actions: [],
       selected_regular_unload_settings: {},
@@ -508,6 +526,12 @@ export default {
       this.regular_unload_settings_drawer_visible = true;
       setTimeout(() => {
         this.$refs['RegularSettings'].update(this.selected_regular_unload_settings);
+      }, 100);
+    },
+    HandleUpDownStreamSettingsBtnClick(script) {
+      this.updown_stream_settings_drawer_visible = true;
+      setTimeout(() => {
+        this.$refs['UpDownStreamSettings'].update(script);
       }, 100);
     },
     async HandleSaveNoJoinRamdomCarryTaskAGVList() {
