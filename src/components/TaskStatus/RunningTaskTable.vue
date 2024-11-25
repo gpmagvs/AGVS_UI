@@ -35,10 +35,7 @@
         width="80"
       >
         <template #default="scope">
-          <el-tag
-            effect="dark"
-            :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : 'primary'"
-          >
+          <el-tag :type="TaskActionTagTypes[scope.row.Action] || TaskActionTagTypes.default">
             <b>{{ scope.row.ActionName }}</b>
           </el-tag>
         </template>
@@ -112,7 +109,7 @@
 <script>
 import { userStore } from '@/store'
 import { TaskAllocation } from '@/api/TaskAllocation'
-import { GetTaskStateType, RunningTaskStateOptions, TaskActionFileterOptions } from './TaskStatus'
+import { GetTaskStateType, RunningTaskStateOptions, TaskActionFileterOptions, TaskActionTagTypes } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
 import { TableColumnSize, ReStoreTableColumnSizeSettingsFromStorage, SaveTableColumnSizeSettingsToStorage } from '@/ViewModels/UI/TableColumnSize.js'
 import bus from '@/event-bus';
@@ -145,7 +142,8 @@ export default {
       selectedStateFilters: [],
       selectedActionFilters: [],
       RunningTaskStateOptions,
-      TaskActionFileterOptions
+      TaskActionFileterOptions,
+      TaskActionTagTypes
     }
   },
   computed: {

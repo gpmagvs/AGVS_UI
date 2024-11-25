@@ -11,6 +11,16 @@ export function GetTaskStateType(state_code) {
         return 'info'         //Failure
 }
 
+/**Task Action Tag Types */
+export const TaskActionTagTypes = {
+    0: 'info', //移動
+    1: 'primary', //取貨
+    7: 'primary', //放貨
+    8: 'success', //充電
+    9: 'primary', //搬運
+    default: 'info'
+}
+
 /**All Task Actions */
 export const TaskActionFileterOptions = [
     { text: '移動', value: 0 },

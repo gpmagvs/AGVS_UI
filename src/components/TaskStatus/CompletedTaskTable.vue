@@ -48,12 +48,8 @@
         width="80"
       >
         <template #default="scope">
-          <el-tag
-            effect="dark"
-            :type="scope.row.Action == 8 || scope.row.Action == 14 ? 'warning' : 'primary'"
-          >
-            <b>{{ scope.row.ActionName }}</b>
-          </el-tag>
+          <el-tag :type="TaskActionTagTypes[scope.row.Action] || TaskActionTagTypes.default"><b>{{ scope.row.ActionName }}</b></el-tag>
+          
         </template>
       </el-table-column>
       <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID">
@@ -95,7 +91,7 @@
   </div>
 </template>
 <script>
-import { GetTaskStateType, CompletedTaskStateOptions, TaskActionFileterOptions } from './TaskStatus'
+import { GetTaskStateType, CompletedTaskStateOptions, TaskActionFileterOptions, TaskActionTagTypes } from './TaskStatus'
 import { MapStore } from '@/components/Map/store'
 import clsTaskState from '@/ViewModels/TaskState';
 import { TaskAllocation } from '@/api/TaskAllocation';
@@ -121,7 +117,8 @@ export default {
       selectedStateFilters: [],
       selectedActionFilters: [],
       CompletedTaskStateOptions,
-      TaskActionFileterOptions
+      TaskActionFileterOptions,
+      TaskActionTagTypes
     }
   },
   computed: {
