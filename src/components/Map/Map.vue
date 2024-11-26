@@ -301,7 +301,7 @@
                 v-show="SelectedFeatures.length!=0"
               >已選擇 [{{ SelectedFeatures.length }}] 個點位</div>
               <!-- 選染RACK PORT 旁邊的貨物在席狀態 -->
-              <div v-if="rackInfoShow && !editable">
+              <div v-if="rackInfoShow && !editable &&rackVisible">
                 <RackStatusDisplay
                   v-for="feature in RackPortPointFeatures"
                   :key="feature.get('data')?.TagNumber+'-rack-display'||feature.id"
@@ -309,6 +309,15 @@
                   :dynamicStyle="getRackCargoExistStateFeatureLabelStyle(feature)"
                   :tagNumber="feature.get('data')?.TagNumber"
                 ></RackStatusDisplay>
+              </div>
+              <!-- 車子電量顯示渲染 -->
+              <div v-if="agv_display=='visible'&&vehicleBatVisible">
+                <VehicleBatteryStatusDisplay
+                  v-for="(featureSet,key ) in AGVFeatures"
+                  :key="'vehicle_bat_status_'+key"
+                  :dynamicStyle="getVehicleBatStatusDisplayStyle(featureSet.agv_feature)"
+                  :agvName="featureSet.agv_feature.get('agvname')"
+                ></VehicleBatteryStatusDisplay>
               </div>
             </div>
             <!------------->
@@ -387,6 +396,19 @@
                   :active-text="$t('Show')"
                   inactive-color="rgb(146, 148, 153)"
                 ></el-switch>
+                <span class="mx-1">{{ $t('Map.Options.AgvBatVisible') }}</span>
+                <el-switch
+                  :disabled="agv_display=='none'"
+                  @change="AgvDisplayOptHandler"
+                  :inactive-value="false"
+                  :active-value="true"
+                  width="70"
+                  v-model="vehicleBatVisible"
+                  inline-prompt
+                  :inactive-text="$t('hidden')"
+                  :active-text="$t('Show')"
+                  inactive-color="rgb(146, 148, 153)"
+                ></el-switch>
               </div>
               <div v-if="!IsOpUsing">
                 <span class="mx-1">{{ $t('Map.Options.BackgroundImage') }}</span>
@@ -443,7 +465,7 @@
                 }"
                 ></el-switch>
               </div>
-              <div class="rounded">
+              <div v-if="!editable" class="rounded">
                 <span class="mx-1">圖例顯示</span>
                 <el-switch
                   class="my-2"
@@ -455,7 +477,20 @@
                   @change="HandleLedgendShowChanged"
                 ></el-switch>
               </div>
-              <div class="rounded">
+              <div v-if="!editable" class="rounded">
+                <span class="mx-1">Rack顯示</span>
+                <el-switch
+                  class="my-2"
+                  inactive-text="OFF"
+                  active-text="ON"
+                  :active-value="true"
+                  :inactive-value="false"
+                  inline-prompt
+                  width="70"
+                  v-model="rackVisible"
+                ></el-switch>
+              </div>
+              <div v-if="!editable" class="rounded">
                 <span class="mx-1">Pan/Zoom</span>
                 <el-switch
                   class="my-2"
@@ -636,10 +671,10 @@ import BuildToolContainer from './MapPointBuilder/BuildToolContainer.vue';
 import { MarkIconTranslate } from './mapjs'
 import { LogMapFeatureClicked } from '@/api/WebSiteAPI.js'
 import RackStatusDisplay from './RackStatusDisplay.vue';
-
+import VehicleBatteryStatusDisplay from './VehicleBatteryStatusDisplay.vue'
 export default {
   components: {
-    RackStatusDisplay, QuicklyAction, NotifyDisplay, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, ActionUndoTool, BuildToolContainer
+    RackStatusDisplay, VehicleBatteryStatusDisplay, QuicklyAction, NotifyDisplay, MapLegend, MapSettingsDialog, MapPointSettingDrawer, MapPathSettingDrawer, MapRegionEditDrawer, ImageEditor, ContextMenuContainer, AlignmentToos, ActionUndoTool, BuildToolContainer
 
   },
   props: {
@@ -825,6 +860,8 @@ export default {
       dragActionLock: true,
       routePathsVisible: true,
       regionsVisible: false,
+      rackVisible: true,
+      vehicleBatVisible: true,
       contextMenuTop: 0,
       contextMenuLeft: 0,
       contextMenuOptions: new MapContextMenuOptions(),
@@ -1039,6 +1076,28 @@ export default {
         zIndex: 1
       }
     },
+
+    getVehicleBatStatusDisplayStyle(feature = new Feature()) {
+      if (!feature || !this.map)
+        return {};
+      // 將地理座標轉換為螢幕像素座標
+      const pixel = this.map.getPixelFromCoordinate(feature.getGeometry().getCoordinates());
+
+      if (!pixel) return { display: 'none' };
+
+      // 設置偏移量 (例如右側 10px, 上方 5px)
+      const offsetX = 20;
+      const offsetY = -5;
+
+      return {
+        position: 'absolute',
+        left: `${pixel[0] + offsetX}px`,
+        top: `${pixel[1] + offsetY}px`,
+        transform: 'translate(0, -50%)', // 垂直置中
+        zIndex: 1
+      }
+    },
+
     HandleRegionToolComponentChange(val) {
       this.HandleAddForbidRegionClicked(val)
     },

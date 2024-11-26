@@ -204,7 +204,8 @@
       "AgvVisible": "顯示 AGV",
       "BackgroundImage": "地圖背景",
       "PathVisible": "路網顯示",
-      "RegionVisible": "顯示區域"
+      "RegionVisible": "顯示區域",
+      "AgvBatVisible": "AGV電量"
     },
     "Notification": {
       "SelectSource": "選擇[來源]設備",

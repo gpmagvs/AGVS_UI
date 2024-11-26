@@ -129,6 +129,18 @@ export const agv_states_store = createStore({
     },
     VehicleBatteryStatus: state => (name) => {
       return state.vehiclesBatteryStatus[name]
+    },
+    VehicleBattery: state => (name) => {
+      if (!state.agv_states)
+        return undefined;
+      const agvState = state.agv_states.find(v => v.AGV_Name == name);
+      let status = {
+        batLv: 0,
+        isCharging: false
+      }
+      status.batLv = !agvState ? -1 : agvState.BatteryLevel_1;
+      status.isCharging = !agvState ? false : agvState.IsCharging;
+      return status;
     }
   },
   mutations: {

@@ -203,7 +203,8 @@
       "AgvVisible": "AGV Visible",
       "BackgroundImage": "Background Image",
       "PathVisible": "Path Visible",
-      "RegionVisible": "Region Visible"
+      "RegionVisible": "Region Visible",
+      "AgvBatVisible": "AGV Bat."
     },
     "Notification": {
       "SelectSource": "Select [SOURCE] Equipment",
