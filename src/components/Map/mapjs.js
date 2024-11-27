@@ -989,3 +989,20 @@ export const MarkIconTranslate = {
         en: 'Charge Destination'
     }
 }
+
+/**地圖LocalStorage設定 */
+export class MapLocalStorage {
+    constructor() {
+        this.zoom = 1;
+        this.zoom_route = 1;
+        this.mode = 'coordination';
+        this.center = [0, 0];
+        this.center_route = [0, 0];
+        this.station_name_display_mode = 'name';
+        this.map_image_display = 'visible';
+        this.legendShow = true;
+        this.dragActionLock = false;
+        this.vehicleBatStatus = false;
+        this.rackStatusDisplay = true;
+    }
+}

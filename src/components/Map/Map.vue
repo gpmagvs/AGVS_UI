@@ -399,7 +399,7 @@
                 <span class="mx-1">{{ $t('Map.Options.AgvBatVisible') }}</span>
                 <el-switch
                   :disabled="agv_display=='none'"
-                  @change="AgvDisplayOptHandler"
+                  @change="()=>{SaveSettingsToLocalStorage();}"
                   :inactive-value="false"
                   :active-value="true"
                   width="70"
@@ -488,6 +488,7 @@
                   inline-prompt
                   width="70"
                   v-model="rackVisible"
+                  @change="()=>{SaveSettingsToLocalStorage();}"
                 ></el-switch>
               </div>
               <div v-if="!editable" class="rounded">
@@ -650,7 +651,7 @@ import { getWidth } from 'ol/extent.js';
 // 本地模組
 import bus from '@/event-bus.js';
 import { clsMapStation, MapPointModel, clsAGVDisplay, MapRegion } from './mapjs';
-import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image, AGVOption } from './mapjs';
+import { GetStationStyle, CreateStationPathStyles, CreateEQLDULDFeature, CreateLocusPathStyles, AGVPointStyle, AGVCargoIconStyle, MapContextMenuOptions, MenuUseTaskOption, ChangeCargoIcon, createBezierCurvePoints, CreateNewStationPointFeature, CreateStationFeature, GetPointByIndex, CreateLocIcon, CreateTransTaskMark, CreateRegionPolygon, SimpleAGVStyle, normal_station_image, AGVOption, MapLocalStorage } from './mapjs';
 import { MapStore } from './store';
 import store, { EqStore, TaskStore, agv_states_store, userStore } from '@/store';
 import MapSettingsDialog from './MapSettingsDialog.vue';
@@ -721,6 +722,7 @@ export default {
   },
   data() {
     return {
+      settings: new MapLocalStorage(),
       map: new Map(),
       map_name: 'Unkown',
       renderKey: 1,
@@ -2290,34 +2292,32 @@ export default {
         this.center_route = center
       }
       //儲存目前的地圖設定
-      localStorage.setItem(this.map_name_with_url, JSON.stringify({
-        zoom: this.zoom,
-        zoom_route: this.zoom_route,
-        mode: this.map_display_mode,
-        center: this.center,
-        center_route: this.center_route,
-        station_name_display_mode: this.station_name_display_mode,
-        map_image_display: this.map_image_display,
-        legendShow: this.legendShow,
-        dragActionLock: this.dragActionLock
-      }))
-
+      this.settings.zoom = this.zoom;
+      this.settings.zoom_route = this.zoom_route;
+      this.settings.mode = this.map_display_mode;
+      this.settings.center = this.center;
+      this.settings.center_route = this.center_route;
+      this.settings.station_name_display_mode = this.station_name_display_mode;
+      this.settings.map_image_display = this.map_image_display;
+      this.settings.legendShow = this.legendShow;
+      this.settings.dragActionLock = this.dragActionLock;
+      this.settings.vehicleBatStatus = this.vehicleBatVisible;
+      this.settings.rackStatusDisplay = this.rackVisible;
+      localStorage.setItem(this.map_name_with_url, JSON.stringify(this.settings))
     },
     RestoreSettingsFromLocalStorage() {
       var settings_json = localStorage.getItem(this.map_name_with_url)
       if (settings_json) {
-        var settings = JSON.parse(settings_json)
-        this.station_name_display_mode = settings.station_name_display_mode
-        this.map_image_display = settings.map_image_display
-        this.map_display_mode = this.editable ? 'coordination' : settings.mode
-        this.zoom = settings.zoom;
-        this.legendShow = settings.legendShow;
-        this.map.getView().setCenter(settings.center);
-        this.map.getView().setZoom(settings.zoom);
+        this.settings = new MapLocalStorage();
+        _.merge(this.settings, JSON.parse(settings_json));
+        this.station_name_display_mode = this.settings.station_name_display_mode
+        this.map_image_display = this.settings.map_image_display
+        this.map_display_mode = this.editable ? 'coordination' : this.settings.mode
+        this.zoom = this.settings.zoom;
+        this.legendShow = this.settings.legendShow;
+        this.map.getView().setCenter(this.settings.center);
+        this.map.getView().setZoom(this.settings.zoom);
         this.ImageLayer.setVisible(this.map_image_display == 'visible')
-        //this.center = settings.center
-        //this.zoom_route = settings.zoom_route;
-        //this.center_route = settings.center_route
 
         if (this.editable)
           this.dragActionLock = true;
@@ -2325,10 +2325,12 @@ export default {
           if (this.IsOpUsing) {
             this.dragActionLock = false;
           } else {
-            this.dragActionLock = settings.dragActionLock;
+            this.dragActionLock = this.settings.dragActionLock;
           }
         }
         this.setDragPanEnabled(this.dragActionLock)
+        this.vehicleBatVisible = this.settings.vehicleBatStatus;
+        this.rackVisible = this.settings.rackStatusDisplay;
 
       }
     },
