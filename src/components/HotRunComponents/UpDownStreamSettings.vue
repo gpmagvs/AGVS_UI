@@ -14,6 +14,11 @@
         label="主設備出貨後僅搬運至Rack"
         v-model="script.RandomHotRunSettings.IsMainEqUnloadTransferToRackOnly"
       ></el-checkbox>
+      <el-checkbox
+        size="large"
+        label="僅取放Rack第一層"
+        v-model="script.RandomHotRunSettings.IsOnlyUseRackFirstLayer"
+      ></el-checkbox>
     </div>
     <h5>Rack Up/Down Stream</h5>
     <el-table :data="RackTable" border>
