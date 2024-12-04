@@ -67,6 +67,12 @@
           </div>
         </template>
       </el-table-column>
+      <el-table-column label="SECS ID" prop="DeviceID" width="210" fixed="left">
+        <template #default="scope">
+          <el-input v-model="scope.row.DeviceID"></el-input>
+        </template>
+      </el-table-column>
+
       <el-table-column label="Tag ID" prop="TagID" width="120" align="center" fixed="left">
         <template #default="scope">
           <b-form-input
