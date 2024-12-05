@@ -46,6 +46,20 @@
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
     <!-- <MoveAGVNotifty></MoveAGVNotifty> -->
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
+    <b-alert
+      class="fixed-bottom mb-3"
+      v-model="showMCSMessage"
+      variant="danger"
+      dismissible
+    >{{ mcsMessage }}</b-alert>
+    <el-transition name="el-fade-in-linear">
+      <b-alert
+        class="fixed-bottom mb-3"
+        v-model="showAGVSDissconnectDismissibleAlert"
+        variant="danger"
+        dismissible
+      >派車系統斷線-AGVS Disconnect</b-alert>
+    </el-transition>
     <ConnectionState v-if="!IsOpUsing" :IsMenuExpanded="!menu_collapse"></ConnectionState>
   </div>
 </template>
@@ -82,6 +96,9 @@ export default {
   },
   data() {
     return {
+      showAGVSDissconnectDismissibleAlert: false,
+      showMCSMessage: false,
+      mcsMessage: '',
       loading: false,
       isNoPermission: false,
       showMenuToggleIcon: true,
@@ -201,9 +218,16 @@ export default {
     }
   },
   mounted() {
+
     bus.on('/map_save', () => {
       this.mapSaved = true;
     });
+    bus.on('agvs-disconnected', () => this.showAGVSDissconnectDismissibleAlert = true)
+    bus.on('MCSMessage', (msg) => {
+      console.info(msg);
+      this.mcsMessage = msg;
+      this.showMCSMessage = true;
+    })
     bus.on('on-data-fetch-delay-detected', (message) => {
       const notifyStateStr = localStorage.getItem('AGVS-DISCONNECTED-NO-NOTIFY-STATE')
       if (notifyStateStr) {

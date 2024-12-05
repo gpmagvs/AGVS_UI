@@ -12,6 +12,7 @@ let isLeader = false;
 // import { MessagePackHubProtocol } from "@microsoft/signalr-protocol-msgpack";
 var agvsHubConnection = null;
 var vmsHubConnection = null;
+var secs_platformHubConnection = null;
 var agvsStoreTimout = undefined;
 var vmsStoreTimout = undefined;
 var isWindowShowing = true;
@@ -89,6 +90,11 @@ function StartHubsConnection() {
         .withAutomaticReconnect([0, 1000, 2000, 3000])
         .build();
 
+    secs_platformHubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(hubUrls.secs_platform)
+        .withAutomaticReconnect([0, 1000, 2000, 3000])
+        .build();
+
     agvsHubConnection.on("ReceiveData", (user, data) => {
         StoreAGVSData(data);
     });
@@ -102,6 +108,10 @@ function StartHubsConnection() {
             message: message
         })
     })
+    agvsHubConnection.on('MCSMessage', msg => {
+        console.info(msg);
+        bus.emit(msg);
+    });
 
     vmsHubConnection.on("ReceiveData", (user, data) => {
         StoreVMSData(data);
@@ -110,6 +120,19 @@ function StartHubsConnection() {
     vmsHubConnection.onreconnected((connectionId) => {
         console.log(`VMS Hub Connection reestablished. Connected with connectionId "${connectionId}".`);
     });
+
+
+    secs_platformHubConnection.on("ControlState", (_cs) => {
+        console.info(_cs);
+        if (_cs == -1) {
+            bus.emit('secs-offline-by-agvs-disoneect');
+        }
+    })
+
+    secs_platformHubConnection.onreconnected(() => {
+        console.log(`SECS Platform Hub Connection reestablished. Connected with connectionId "${connectionId}".`);
+    });
+
     try {
         agvsHubConnection.start();
     } catch (err) {
@@ -119,6 +142,11 @@ function StartHubsConnection() {
         vmsHubConnection.start();
     } catch (err) {
         console.error("VMS SignalR connection error: ", err);
+    }
+    try {
+        secs_platformHubConnection.start();
+    } catch (err) {
+        console.error("SECS Platform SignalR connection error: ", err);
     }
 }
 
@@ -264,7 +292,7 @@ function CheckBackendConnectStatus() {
 
         if (!agvsAlive || !vmsAlive) {
             if (!agvsAlive)
-                ShowAlertDialog(`AGVS系統斷線_AGVS Disconnected`);
+                bus.emit('agvs-disconnected');
             if (!vmsAlive)
                 ShowAlertDialog(`VMS系統斷線_VMS Disconnected`);
         }

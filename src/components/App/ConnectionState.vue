@@ -34,6 +34,7 @@ import { watch } from 'vue'
 export default {
   data() {
     return {
+
       Connections: [
         {
           name: "SERVER",

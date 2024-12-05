@@ -309,6 +309,21 @@ export default {
     bus.on('reload-system-modes-from-server', () => {
       this.DownloadSystemOperationsSettings(100);
     })
+    bus.on('secs-offline-by-agvs-disoneect', () => {
+      if (!this.modes.host_conn_mode.actived)
+        return;
+      this.modes.host_conn_mode.actived = false;
+      this.modes.host_operation_mode.actived = false;
+      this.$swal.fire(
+        {
+          text: '因派車系統已斷線，SECS/GEM現在為OFFLINE',
+          title: '',
+          icon: 'warning',
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        })
+    })
     const route = useRoute()
     watch(
       () => route.path,

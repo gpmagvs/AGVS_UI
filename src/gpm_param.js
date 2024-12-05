@@ -25,6 +25,10 @@ var param = {
     return this.backend_host.replace(/:\d+/, ':5036')
     //return this.backend_host.replace('5216', '5036')
   },
+  get secs_platform_host() {
+    return this.backend_host.replace(/:\d+/, ':7107')
+    //return this.backend_host.replace('5216', '5036')
+  },
   get vms_ws_host() {
     return this.vms_host.replace('http', 'ws')
   },
@@ -35,6 +39,7 @@ var param = {
     return {
       agvs: `${this.backend_host}/FrontEndDataHub`,
       vms: `${this.vms_host}/FrontEndDataHub`,
+      secs_platform: `${this.secs_platform_host}/SecsPlatform`,
     }
   }
 }
