@@ -50,7 +50,12 @@
         :filter-method="filterTaskState"
       >
         <template #default="scope">
-          <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
+          <el-tooltip :content="scope.row.State+''" placement="top">
+            <el-tag
+              effect="dark"
+              :type="GetTaskStateType(scope.row.State)"
+            >{{ scope.row.StateName }}</el-tag>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column
@@ -69,10 +74,15 @@
         align="center"
         prop="From_Station"
         width="110"
-        show-overflow-tooltip
       >
         <template #default="scope">
-          <div>{{ GetStationName(scope.row.From_Station) }}</div>
+          <el-tooltip
+            :content="'Tag:'+scope.row.From_Station+''"
+            placement="right"
+            popper-class="bg-primary"
+          >
+            <div>{{ GetStationName(scope.row.From_Station) }}</div>
+          </el-tooltip>
           <div v-if="scope.row.From_Slot!='-1'">(Slot:{{ scope.row.From_Slot }})</div>
         </template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column> -->
@@ -83,10 +93,15 @@
         align="center"
         prop="To_Station"
         width="110"
-        show-overflow-tooltip
       >
         <template #default="scope">
-          <div>{{ GetStationName(scope.row.To_Station) }}</div>
+          <el-tooltip
+            :content="'Tag:'+scope.row.To_Station+''"
+            placement="right"
+            popper-class="bg-primary"
+          >
+            <div>{{ GetStationName(scope.row.To_Station) }}</div>
+          </el-tooltip>
           <div v-if="scope.row.To_Slot!='-1'">(Slot:{{ scope.row.To_Slot }})</div>
         </template>
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
@@ -189,6 +204,9 @@ export default {
     filterTaskState(value, row, column) {
       console.log(row['State'], value);
       return row['State'] === value
+    },
+    filterTaskAction(value, row) {
+      return row.Action === value;
     },
     CancelTaskHandler(task_name) {
       this.cancelTaskName = task_name;

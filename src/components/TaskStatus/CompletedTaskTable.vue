@@ -37,7 +37,12 @@
         width="80"
       >
         <template #default="scope">
-          <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
+          <el-tooltip :content="scope.row.State+''" placement="top">
+            <el-tag
+              effect="dark"
+              :type="GetTaskStateType(scope.row.State)"
+            >{{ scope.row.StateName }}</el-tag>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column
@@ -48,24 +53,37 @@
         width="80"
       >
         <template #default="scope">
-          <el-tag :type="TaskActionTagTypes[scope.row.Action] || TaskActionTagTypes.default"><b>{{ scope.row.ActionName }}</b></el-tag>
-          
+          <el-tag :type="TaskActionTagTypes[scope.row.Action] || TaskActionTagTypes.default">
+            <b>{{ scope.row.ActionName }}</b>
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID">
         <template #default="scope">{{ scope.row.Carrier_ID == "-1" ? "" : scope.row.Carrier_ID }}</template>
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Source') " show-overflow-tooltip>
+      <el-table-column :label="$t('TaskTable.Source') ">
         <template #default="scope">
-          <div>{{ GetStationName(scope.row.From_Station) }}</div>
+          <el-tooltip
+            :content="'Tag:'+scope.row.From_Station+''"
+            placement="right"
+            popper-class="bg-primary"
+          >
+            <div>{{ GetStationName(scope.row.From_Station) }}</div>
+          </el-tooltip>
           <div v-if="scope.row.From_Slot!='-1'">(Slot:{{ scope.row.From_Slot }})</div>
         </template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column>
         <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column>-->
       </el-table-column>
-      <el-table-column :label="$t('TaskTable.Destine')" show-overflow-tooltip>
+      <el-table-column :label="$t('TaskTable.Destine')">
         <template #default="scope">
-          <div>{{ GetStationName(scope.row.To_Station) }}</div>
+          <el-tooltip
+            :content="'Tag:'+scope.row.To_Station+''"
+            placement="right"
+            popper-class="bg-primary"
+          >
+            <div>{{ GetStationName(scope.row.To_Station) }}</div>
+          </el-tooltip>
           <div v-if="scope.row.To_Slot!='-1'">(Slot:{{ scope.row.To_Slot }})</div>
         </template>
       </el-table-column>
