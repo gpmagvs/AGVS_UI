@@ -321,6 +321,19 @@ export default {
 
         })
     })
+
+    bus.on('secs-host-message', (message) => {
+      this.$swal.fire(
+        {
+          text: message,
+          title: 'HOST MESSAGE',
+          icon: 'warning',
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        })
+    })
+
     const route = useRoute()
     watch(
       () => route.path,

@@ -129,6 +129,11 @@ function StartHubsConnection() {
         }
     })
 
+    //HostMessage
+    secs_platformHubConnection.on('HostMessage', msg => {
+        bus.emit('secs-host-message', msg);
+    })
+
     secs_platformHubConnection.onreconnected(() => {
         console.log(`SECS Platform Hub Connection reestablished. Connected with connectionId "${connectionId}".`);
     });
