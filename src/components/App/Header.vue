@@ -22,6 +22,7 @@
           <span class="mx-1">{{ $i18n.locale == 'zh-TW' ? mode.name : mode.name_eng }}</span>
           <el-switch
             v-model="mode.actived"
+            :disabled="!IsLogin"
             style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
             :active-text="mode.active_text"
             :inactive-text="mode.inactive_text"
@@ -235,9 +236,8 @@ export default {
     },
   },
   computed: {
-
     IsLogin() {
-      return userStore.getters.IsLogin;
+      return userStore.state.user.Role != -1;
     },
     IsOpUsing() {
       return userStore.getters.IsOPLogining;
