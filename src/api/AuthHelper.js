@@ -100,5 +100,11 @@ export class WebViewPermission {
       UserManagnment: 0,
       ChargerManagnment: 0
     }
+    this.systemModesOperations = {
+      RunModeSwitch: 1,
+      AutoTransferModeSwitch: 1,
+      HostOnlineSwitch: 1,
+      HostRemoteSwitch: 1,
+    }
   }
 }

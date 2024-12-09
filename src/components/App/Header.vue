@@ -350,15 +350,22 @@ export default {
       }
       bus.emit('bus-show-task-allocation', { agv_name: "", agv_type: "", action: '', station_data: undefined });
     },
+    /** */
     GetModeVisible(modeKey) {
-
-      if (!this.IsLogin)
-        return false;
-      var visibleModesWhenOpLogin = ['system_operation_mode']
-      if (this.IsOpUsing) {
-        return visibleModesWhenOpLogin.includes(modeKey)
+      // modeKey: system_operation_mode, transfer_mode, host_conn_mode, host_operation_mode
+      // 權限設定
+      var permission = userStore.state.user.Permission;
+      switch (modeKey) {
+        case 'system_operation_mode':
+          return permission.systemModesOperations.RunModeSwitch == 1;
+        case 'transfer_mode':
+          return permission.systemModesOperations.AutoTransferModeSwitch == 1;
+        case 'host_conn_mode':
+          return permission.systemModesOperations.HostOnlineSwitch == 1;
+        case 'host_operation_mode':
+          return permission.systemModesOperations.HostRemoteSwitch == 1;
       }
-      return true;
+      return false;
     },
     async DownloadSystemOperationsSettings(delay_ms = 1000) {
       setTimeout(async () => {

@@ -52,7 +52,8 @@ export default {
       permissionSections: {
         menu: { title: '選單權限' },
         dataQuerySubMenu: { title: '資料查詢子選單權限' },
-        systemConfigurationSubMenu: { title: '系統設定子選單權限' }
+        systemConfigurationSubMenu: { title: '系統設定子選單權限' },
+        systemModesOperations: { title: '系統運行模式操作權限' }
       },
       isSaving: false
     }
@@ -94,6 +95,12 @@ export default {
         'RackManagnment': 'RACK管理',
         'UserManagnment': '用戶管理',
         'ChargerManagnment': '充電站管理',
+
+        // 系統運行模式操作權限
+        'RunModeSwitch': '運行模式切換',
+        'AutoTransferModeSwitch': '派工模式切換',
+        'HostOnlineSwitch': 'HOST Online 切換',
+        'HostRemoteSwitch': 'HOST Remote 切換',
       };
       return translations[key] || key; // 如果沒有翻譯,返回原始key
     },
