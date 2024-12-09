@@ -191,7 +191,7 @@ export default {
 
       if (this.IsOpUsing) {
         //{"right":"854px","left":"842px"}
-        leftPanel.style.width = '842px';
+        leftPanel.style.width = '930px';
         rightPanel.style.width = '854px';
         return;
       }
