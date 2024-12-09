@@ -82,7 +82,7 @@ import param from './gpm_param'
 import { ElNotification } from 'element-plus'
 import RegularULDHotRunStateView from './components/RegularULDHotRunStateView.vue';
 import { CheckMapPointsIsEqTypeButNoEqSetup } from './api/EquipmentAPI';
-import { StopSignalIRHubsConnections } from '@/BackendDataFetchWorker'
+import { Startup, StopSignalIRHubsConnections } from '@/BackendDataFetchWorker'
 import { ElementClickLog } from './api/WebSiteAPI';
 export default {
   components: {
@@ -218,7 +218,7 @@ export default {
     }
   },
   mounted() {
-
+    Startup();
     bus.on('/map_save', () => {
       this.mapSaved = true;
     });

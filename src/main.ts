@@ -13,7 +13,6 @@ import './global.scss'
 import VueApexCharts from 'vue3-apexcharts'
 import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
-import './BackendDataFetchWorker.js'
 import './idling_detector.js'
 import './backendNotify.js'
 const i18n = createI18n({
