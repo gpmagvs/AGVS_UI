@@ -7,16 +7,30 @@ var axios_entity = axios.create({
 
 /**修改Port位帳籍ID */
 export async function ModifyCargoID(WIPID, PortID, NewCargoID) {
-    var ret = await axios_entity.post(`/api/WIP/ModifyCargoID?WIPID=${WIPID}&PortID=${PortID}&NewCargoID=${NewCargoID}`)
-    return ret.data;
+    let response = { confirm: false, message: 'no-response' }
+    try {
+        var ret = await axios_entity.post(`/api/WIP/ModifyCargoID?WIPID=${WIPID}&PortID=${PortID}&NewCargoID=${NewCargoID}`)
+        _.merge(response, ret.data)
+    } catch (error) {
+        response.message = error.message
+    }
+    return response;
 }
 
 // create a Delete CargoID fucntion
+/**return : { confirm = confirm, message = message } */
 export async function RemoveCargoID(WIPID, PortID) {
-    var ret = await axios_entity.post(`/api/WIP/RemoveCargoID?WIPID=${WIPID}&PortID=${PortID}`)
-    return ret.data;
+    let response = { confirm: false, message: 'no-response' }
+    try {
+        var ret = await axios_entity.post(`/api/WIP/RemoveCargoID?WIPID=${WIPID}&PortID=${PortID}`)
+        _.merge(response, ret.data)
+    } catch (error) {
+        response.message = error.message
+    }
+    return response;
 }
 
+/**return : { confirm = confirm, message = message } */
 export async function GetAllSlotsOptions() {
     var ret = await axios_entity.get(`/api/WIP/GetAllSlotsOptions`)
     return ret.data;

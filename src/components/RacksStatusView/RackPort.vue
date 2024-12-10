@@ -264,12 +264,22 @@ export default {
         inputValidator: (_input) => {
           return _input != '';
         }
-
-      }).then((msg_data) => {
+      }).then(async (msg_data) => {
         console.info(msg_data)
         var _newid = !msg_data.value ? "" : msg_data.value;
-        ModifyCargoID(this.rack_name, this.port_info.Properties.ID, _newid)
-        this.$message({ message: '帳籍已修改。', type: 'success' })
+        let result = await ModifyCargoID(this.rack_name, this.port_info.Properties.ID, _newid)
+        if (result.confirm)
+          this.$message({ message: '帳籍已修改。', type: 'success' })
+        else
+          this.$swal.fire(
+          {
+          text:result.message,
+          title:'',
+          icon:'error',
+          showCancelButton:false,
+          confirmButtonText:'OK',
+          customClass: 'my-sweetalert'
+          })
         // this.port_info.CarrierID = msg_data.value
       }).catch(() => {
 
@@ -284,10 +294,21 @@ export default {
           showCancelButton: true,
           confirmButtonText: 'OK',
           customClass: 'my-sweetalert'
-        }).then(res => {
+        }).then(async (res) => {
           if (res.isConfirmed) {
-            RemoveCargoID(this.rack_name, this.port_info.Properties.ID);
-            this.$message({ message: '帳籍已移除。' })
+            let result = await RemoveCargoID(this.rack_name, this.port_info.Properties.ID);
+            if (result.confirm)
+              this.$message({ message: '帳籍已移除。' })
+            else
+              this.$swal.fire(
+                {
+                  text: result.message,
+                  title: '',
+                  icon: 'error',
+                  showCancelButton: false,
+                  confirmButtonText: 'OK',
+                  customClass: 'my-sweetalert'
+                })
           }
         })
     },
