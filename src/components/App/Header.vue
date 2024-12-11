@@ -65,8 +65,15 @@
             {{ $i18n.locale == 'zh-TW' ? 'ENGLISH' : "中文" }}
           </b-button>
         </div>
-        <div @click="LoginClickHandler">
-          <el-popover placement="left" title width trigger="hover" content popper-class="bg-light">
+        <div class="user-login-container" @click="LoginClickHandler">
+          <el-popover
+            placement="bottom"
+            title
+            width
+            trigger="hover"
+            content
+            popper-class="bg-light"
+          >
             <template #reference>
               <b-button style="border: none;background-color: transparent;color:white">
                 <el-icon>
@@ -113,11 +120,11 @@
           <span class="alarm-text">{{ system_alrm_text }}</span>
         </div>
         <div v-if="IsLogin" class="opt d-flex">
-          <b-button @click="StopBuzzerHandler" class="mb-0 mx-1" size="sm" variant="danger">
+          <b-button @click="StopBuzzerHandler" class="mb-0 mx-1" variant="danger">
             {{
             $t('App.Header.Turnoffbuzzer') }}
           </b-button>
-          <b-button @click="ResetSysAlarmsHandler" class="mb-0 mx-1" size="sm" variant="danger">
+          <b-button @click="ResetSysAlarmsHandler" class="mb-0 mx-1" variant="danger">
             {{
             $t('App.Header.alarmreset') }}
           </b-button>
@@ -710,7 +717,7 @@ export default {
         z-index: 1;
 
         button {
-          width: 110px;
+          width: 120px;
         }
 
         div {
@@ -755,6 +762,7 @@ export default {
         font-size: 16px;
       }
     }
+
   }
 
   @keyframes alarm_blink {

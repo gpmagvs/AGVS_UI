@@ -188,14 +188,12 @@ export default {
     var _this = this;
 
     setTimeout(() => {
-
       if (this.IsOpUsing) {
         //{"right":"854px","left":"842px"}
-        leftPanel.style.width = '930px';
+        leftPanel.style.width = '800px';
         rightPanel.style.width = '854px';
         return;
       }
-
       var resizer_pnls_width_cache = this.GetPanlWidthFromLocalStorage();
       if (resizer_pnls_width_cache) {
 
