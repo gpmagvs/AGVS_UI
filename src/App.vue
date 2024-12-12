@@ -47,11 +47,16 @@
     <!-- <MoveAGVNotifty></MoveAGVNotifty> -->
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
     <b-alert
-      class="fixed-bottom mb-3"
+      class="fixed-bottom mb-3 mcs-message"
       v-model="showMCSMessage"
-      variant="danger"
+      :variant="mcsMessgeType"
       dismissible
-    >{{ mcsMessage }}</b-alert>
+    >
+      <div class="d-flex">
+        <div>{{ mcsMessageDto.time }}</div>
+        <div class="flex-fill" v-bind:class="'msg-text-'+mcsMessgeType">{{ mcsMessageDto.message }}</div>
+      </div>
+    </b-alert>
     <el-transition name="el-fade-in-linear">
       <b-alert
         class="fixed-bottom mb-3"
@@ -97,8 +102,14 @@ export default {
   data() {
     return {
       showAGVSDissconnectDismissibleAlert: false,
+      secsInfoMsgAutoDispearTimeout: null,
       showMCSMessage: false,
-      mcsMessage: '',
+      mcsMessageDto: {
+        time: '',
+        message: '',
+        type: 'info'
+      },
+      mcsMessgeType: '',
       loading: false,
       isNoPermission: false,
       showMenuToggleIcon: true,
@@ -223,10 +234,17 @@ export default {
       this.mapSaved = true;
     });
     bus.on('agvs-disconnected', () => this.showAGVSDissconnectDismissibleAlert = true)
-    bus.on('MCSMessage', (msg) => {
-      console.info(msg);
-      this.mcsMessage = msg;
+    bus.on('MCSMessage', (messageDto) => {
+      console.info(messageDto);
+      const isSucess = messageDto.type != 'error';
+      this.mcsMessageDto = messageDto;
+      this.mcsMessgeType = !isSucess ? 'danger' : 'info';
       this.showMCSMessage = true;
+      if (isSucess) {
+        clearTimeout(this.secsInfoMsgAutoDispearTimeout);
+        this.secsInfoMsgAutoDispearTimeout = setTimeout(() => this.showMCSMessage = false, 5000);
+      }
+
     })
     bus.on('on-data-fetch-delay-detected', (message) => {
       const notifyStateStr = localStorage.getItem('AGVS-DISCONNECTED-NO-NOTIFY-STATE')
@@ -441,5 +459,12 @@ html {
   // user-select: none;
   // //overflow-x: hidden;
   // // overflow-y: hidden;
+}
+
+.mcs-message {
+  font-size: 2rem;
+  .msg-text-danger {
+    color: red;
+  }
 }
 </style>

@@ -17,6 +17,7 @@ let vmsTimeStamp = Date.now();
 let isVMSDataFetchDelayDetected = true;
 let isAGVSDataFetchDelayDetected = true;
 var user_id = generateRandomUserID(10);
+import moment from "moment";
 
 function generateRandomUserID(length) {
     var result = '';
@@ -119,7 +120,7 @@ async function StartHubsConnection() {
     })
     agvsHubConnection.on('MCSMessage', msg => {
         console.info(msg);
-        bus.emit(msg);
+        bus.emit('MCSMessage', msg);
     });
 
     vmsHubConnection.on("ReceiveData", (user, data) => {
@@ -139,7 +140,8 @@ async function StartHubsConnection() {
     })
 
     secs_platformHubConnection.on('HostMessage', msg => {
-        bus.emit('secs-host-message', msg);
+        // bus.emit('secs-host-message', msg);
+        bus.emit('MCSMessage', { message: msg, type: 'info', time: moment(Date.now()).format('yyyy/MM/DD HH:mm:ss') });
     })
 
     secs_platformHubConnection.onreconnected(() => {
