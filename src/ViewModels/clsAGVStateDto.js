@@ -3,8 +3,9 @@ class clsAGVStateDto {
   constructor(dto) {
     if (dto == undefined) {
       this.AGV_Name = ''
+      this.AGV_ID = ''
       this.AGV_Description = ''
-      this.Model = ''
+      this.Model = '0'
       this.Simulation = false
       /** IDLE = 1, RUN=2, DOWN=3, Charging=4, Unknown=5 */
       this.MainStatus = 0
@@ -43,6 +44,7 @@ class clsAGVStateDto {
 
     } else {
       this.AGV_Name = dto.AGV_Name
+      this.AGV_ID = dto.AGV_ID
       this.AGV_Description = dto.AGV_Description
       this.Model = dto.Model
       this.MainStatus = dto.MainStatus

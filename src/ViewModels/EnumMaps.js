@@ -21,4 +21,5 @@ export const VehicleModelDisplay = {
     2: { label: 'INSPECTOIN', labelCN: '巡檢', color: 'green' },
     3: { label: 'SUBMARINE', labelCN: '潛盾', color: 'red' },
     4: { label: 'PARTS', labelCN: 'Parts', color: 'blue' },
+    undefined: { label: 'UNKNOWN', labelCN: '未知', color: 'rgb(64, 158, 255)' },
 }

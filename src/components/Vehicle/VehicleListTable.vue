@@ -11,9 +11,10 @@
       v-if="showTable"
     >
       <el-table-column label="AGV ID" prop="AGV_Name" width="130" align="center"></el-table-column>
+      <el-table-column label="SECS Device ID" prop="AGV_ID" width="130" align="center"></el-table-column>
       <el-table-column label="類型" prop="Model" width="90" align="center">
         <template #default="scope">
-          <el-tag effect="dark">{{ VehicleModels[scope.row.Model].labelCN }}</el-tag>
+          <el-tag effect="dark">{{ VehicleModelDisplay[scope.row.Model].labelCN }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="當前狀態" prop="MainStatus" width="110" align="center">
@@ -29,7 +30,7 @@
       <el-table-column label="當前位置" prop="CurrentLocation" align="center" width="100"></el-table-column>
       <el-table-column label="通訊方式" prop="Protocol" width="120" align="center">
         <template #default="scope">
-          <el-tag>{{ ProtocolText[scope.row.Protocol] }}</el-tag>
+          <el-tag>{{ ProtocolText[scope.row.ProtocolText] }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="IP" prop="IP" width="150" align="center"></el-table-column>
@@ -82,6 +83,7 @@ import AddVehicle from './AddVehicle.vue';
 import VechicleTrafficControlSettings from './VechicleTrafficControlSettings.vue';
 import { ProtocolDisplay, MainStatusDisplay, VehicleModelDisplay } from '@/ViewModels/EnumMaps.js'
 import { VehicleManagerAPI } from '@/api/VMSAPI'
+import clsAGVStateDto from '@/ViewModels/clsAGVStateDto.js'
 export default {
   components: {
     AddVehicle,
@@ -94,21 +96,24 @@ export default {
       showTable: false,
       selectAGVProertyToEdit: {},
       ShowEditAGVPropertyDrawer: false,
-      ShowVechicleTrafficControlSettingsDrawer: false
+      ShowVechicleTrafficControlSettingsDrawer: false,
+      VehicleModelDisplay
     }
   },
   computed: {
     GetAGVStatesData() {
-      return agv_states_store.getters.AGVStatesData;
+      let _newData = [new clsAGVStateDto()];
+      var _data = agv_states_store.getters.AGVStatesData;
+      if (_data.length != 0) {
+        _.merge(_newData, _data);
+      }
+      return _newData;
     },
     ProtocolText() {
       return ProtocolDisplay
     },
     AGVMainStatus() {
       return MainStatusDisplay
-    },
-    VehicleModels() {
-      return VehicleModelDisplay
     },
     drawerText() {
       return this.selectAGVProertyToEdit.AGV_Name
@@ -167,12 +172,22 @@ export default {
     show_traffic_control_settings_drawer(agv_row) {
       this.selectAGVProertyToEdit = agv_row;
       this.ShowVechicleTrafficControlSettingsDrawer = true;
+    },
+    GetAGVModelDisplay(model) {
+      try {
+        return VehicleModels[model].labelCN
+      }
+      catch (e) {
+        return '未知'
+      }
     }
   },
   mounted() {
-    setTimeout(() => {
-      this.showTable = true
-    }, 1000)
+    let _interval = setInterval(() => {
+      this.showTable = this.GetAGVStatesData.length > 0;
+      if (this.showTable)
+        clearInterval(_interval);
+    }, 300)
   }
 }
 </script>
