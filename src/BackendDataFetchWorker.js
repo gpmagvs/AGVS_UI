@@ -144,8 +144,19 @@ async function StartHubsConnection() {
         bus.emit('MCSMessage', { message: msg, type: 'info', time: moment(Date.now()).format('yyyy/MM/DD HH:mm:ss') });
     })
 
+    secs_platformHubConnection.on('MessageTransmited', msg => {
+        store.commit('storeSecsMessage', msg);
+    })
+    secs_platformHubConnection.on('ConnectionStates', states => {
+        store.commit('storeConnectionStates', states);
+    })
     secs_platformHubConnection.onreconnected(() => {
         console.log(`SECS Platform Hub Connection reestablished. Connected with connectionId "${connectionId}".`);
+    });
+    secs_platformHubConnection.onclose(() => {
+        console.log(`SECS Platform Hub Connection closed.`);
+        store.commit('storeConnectionStates', { cim: 4, mcs: 4 });
+        store.commit('setSecsPlatformRunning', false);
     });
 
     try {
@@ -160,6 +171,7 @@ async function StartHubsConnection() {
     }
     try {
         await secs_platformHubConnection.start();
+        store.commit('setSecsPlatformRunning', true);
     } catch (err) {
         console.error("SECS Platform SignalR connection error: ", err);
     }

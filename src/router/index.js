@@ -11,6 +11,7 @@ import ChargeStationView from '@/views/ChargeStation/ChargeStationHomeView.vue'
 import Login from '@/views/Login.vue'
 import AGVBatterySetting from '@/components/SystemSettings/AGVBatterySetting.vue'
 import EquipmentManager from '@/components/SystemSettings/EquipmentManager.vue'
+import SECSGEM from '@/views/SECSGEM.vue'
 import { Verify } from '@/api/UserAPI'
 
 const routes = [
@@ -178,6 +179,14 @@ const routes = [
     },
     component: () => import('../views/HotRun.vue'),
   },
+  {
+    path: '/secsgem',
+    name: 'secsgem',
+    meta: {
+      requiresAuth: false
+    },
+    component: SECSGEM,
+  }
 ]
 
 export const tsmc_routes = [

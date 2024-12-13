@@ -11,16 +11,16 @@
         $t('Rack.Sensor_Flash') }}
       </div>
       <span class="flex-fill text-start px-1">
-        <el-tag effect="dark">{{ PortNameDisplay }}</el-tag>
+        <label class="port-no-display">{{ PortNameDisplay }}</label>
       </span>
-      <div class="px-2" v-if="!IsOvenAsRacks">
+      <!-- <div class="px-2" v-if="!IsOvenAsRacks">
         <el-tag
           v-bind:class="ProductQualityClassName + ' text-dark'"
           v-if=" port_info.Properties.ProductionQualityStore == 0"
           effect="dark"
         >NORMAL PORT</el-tag>
         <el-tag v-bind:class="ProductQualityClassName + ' text-dark'" v-else effect="dark">NG PORT</el-tag>
-      </div>
+      </div>-->
     </div>
     <div class="item">
       <div class="title">Carrier ID</div>
@@ -29,7 +29,7 @@
           size="large"
           effect="dark"
           :type="port_info.CarrierID==''?'info':'primary'"
-          style="width: 135px;"
+          style="width: 135px; font-weight: bold; letter-spacing: 3px;"
         >{{ port_info.CarrierID }}</el-tag>
         <el-tooltip placement="top-start" :content="$t('Rack.copy')">
           <i
@@ -173,6 +173,7 @@ export default {
             ID: "0-0",
             Row: 0,
             Column: 0,
+            PortNo: '',
             ProductionQualityStore: 0,//0: ok | 1: ng
             CargoTypeStore: 2, // 0:tray | 1:Rack| 2:Mixed
             IOLocation: { Tray_Sensor1: 0, Tray_Sensor2: 1, Box_Sensor1: 2, Box_Sensor2: 3 },
@@ -207,10 +208,18 @@ export default {
     ProductQualityClassName() {
       if (this.IsOvenAsRacks)
         return 'oven-port'
-      return this.port_info.Properties.ProductionQualityStore == 0 ? 'ok-port' : 'ng-port';
+      if (this.port_info.CargoExist && this.port_info.CarrierID)
+        return 'has-cst-port'
+      if (!this.port_info.CargoExist && this.port_info.CarrierID) //有帳籍但無貨
+        return 'has-data-but-no-cargo-port'
+
+      if (this.port_info.CargoExist && !this.port_info.CarrierID) //有貨但無帳籍
+        return 'has-cargo-but-no-cst-port'
+      return 'empty-port'
     },
     PortNameDisplay() {
-      return `${this.port_info.NickName} | ${this.port_info.Properties.ID}`
+      return `${this.port_info.PortNo}`
+      // return `${this.port_info.NickName} | ${this.port_info.Properties.ID}`
     },
     IsCarrierIDExist() {
       return this.port_info.CarrierID && this.port_info.CarrierID != '';
@@ -272,14 +281,14 @@ export default {
           this.$message({ message: '帳籍已修改。', type: 'success' })
         else
           this.$swal.fire(
-          {
-          text:result.message,
-          title:'',
-          icon:'error',
-          showCancelButton:false,
-          confirmButtonText:'OK',
-          customClass: 'my-sweetalert'
-          })
+            {
+              text: result.message,
+              title: '',
+              icon: 'error',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            })
         // this.port_info.CarrierID = msg_data.value
       }).catch(() => {
 
@@ -379,6 +388,16 @@ export default {
       cursor: pointer;
     }
   }
+
+  .port-no-display {
+    font-size: 18px;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 0);
+    border-radius: 5px;
+    padding: 2px 10px;
+    letter-spacing: 3px;
+  }
 }
 .rack-port:hover {
   border: 5px solid rgb(0, 149, 255);
@@ -386,9 +405,21 @@ export default {
 }
 .ok-port {
   font-weight: bold;
-  background: rgb(217, 232, 255);
+  background: rgb(255, 255, 255);
+}
+.has-data-but-no-cargo-port,
+.has-cargo-but-no-cst-port {
+  background: rgb(255, 62, 62);
+  color: rgb(255, 255, 255);
 }
 
+.has-cst-port {
+  background: rgb(61, 61, 61);
+  color: rgb(255, 255, 255);
+}
+.empty-port {
+  background: rgb(255, 255, 255);
+}
 .ng-port {
   background: rgb(255, 196, 196);
 }

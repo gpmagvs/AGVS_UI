@@ -1,11 +1,11 @@
 <template>
-  <div class="rack-status rounded m-3 p-1">
+  <div class="rack-status rounded m-0 p-1">
     <div class="my-1 d-flex flex-row bg-light">
       <h3 class="w-50 text-start px-2">{{ rack_info.WIPName }}</h3>
-      <div class="p-1">
+      <div class="p-1" v-if="showLevel">
         <b>{{ $t('Rack.Cargo_Spaces') }}</b>
       </div>
-      <div class="flex-fill p-2">
+      <div class="flex-fill p-2" v-if="showLevel">
         <el-progress
           :stroke-width="18"
           :percentage="Level"
@@ -86,6 +86,10 @@ export default {
         }
       }
     },
+    showLevel: {
+      type: Boolean,
+      default: true
+    }
   },
   computed: {
 
@@ -116,7 +120,6 @@ export default {
   .ports-container {
     // background-color: black;
     overflow-x: scroll;
-    width: 95vw;
   }
 }
 </style>

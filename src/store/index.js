@@ -9,6 +9,7 @@ import { AGVSSystemConfigs } from '@/ViewModels/SystemConfigs'
 import param from '@/gpm_param.js'
 import axios from 'axios'
 import clsTaskState from '@/ViewModels/TaskState.js';
+import SecsPlatformAPI from '@/api/SecsPlatform'
 var cachesKeyMap = {
   agvStates: 'agv_states'
 }
@@ -28,7 +29,13 @@ export default createStore({
       scriptID: '',
       unloaderStates: {}
     },
-    isCtrlPressing: false
+    isCtrlPressing: false,
+    secsPlatformRunning: false,
+    secsmessages: [],
+    connectionStates: {
+      cim: 4,
+      mcs: 4
+    }
   },
   getters: {
     GetWebsiteSetting: (state) => { return state.websiteSetting; },
@@ -51,7 +58,24 @@ export default createStore({
     },
     setCtrlKeyPressing(state, isPressed) {
       state.isCtrlPressing = isPressed;
+    },
+    setSecsPlatformRunning(state, running) {
+      state.secsPlatformRunning = running;
+    },
+    storeSecsMessage(state, message) {
+      state.secsmessages.push(message);
+      if (state.secsmessages.length > 50) {
+        state.secsmessages.shift();
+      }
+      console.info(state.secsmessages);
+    },
+    setSecsMessages(state, messages) {
+      state.secsmessages = messages;
+    },
+    storeConnectionStates(state, states) {
+      state.connectionStates = states;
     }
+
   },
   actions: {
     async GetDynamicWebsiteData({ commit }, user) {
@@ -69,6 +93,19 @@ export default createStore({
       var response = await axios.get(`${param.vms_host}/api/system/GetVMSAppInfo`)
       commit('setVmsAppInfo', response.data)
       return response.data;
+    },
+    async StoreSecsMessage({ commit }, message) {
+      commit('storeSecsMessage', message)
+    },
+    async DownLoadSecsNewestMessages({ commit }) {
+      SecsPlatformAPI.getSecsNewestMessages().then(response => {
+        commit('setSecsMessages', response)
+      })
+    },
+    async updageConnectionStates({ commit }) {
+      SecsPlatformAPI.getConnectionState().then(response => {
+        commit('storeConnectionStates', response)
+      })
     }
   }
 })

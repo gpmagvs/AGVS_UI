@@ -120,6 +120,12 @@
         </el-icon>
         <template #title>Hot Run</template>
       </el-menu-item>
+      <el-menu-item index="/secsgem" v-if="IsAdmin">
+        <el-icon>
+          <DataAnalysis :color="IconColor" />
+        </el-icon>
+        <template #title>SECS/GEM</template>
+      </el-menu-item>
       <el-sub-menu index="/sys_settings" v-if="UserPermission.menu.SystemConfiguration==1">
         <template #title>
           <el-icon>
