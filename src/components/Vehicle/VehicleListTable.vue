@@ -11,7 +11,7 @@
       v-if="showTable"
     >
       <el-table-column label="AGV ID" prop="AGV_Name" width="130" align="center"></el-table-column>
-      <el-table-column label="SECS Device ID" prop="AGV_ID" width="130" align="center"></el-table-column>
+      <el-table-column label="SECS Device ID" prop="AGV_ID" width="200" align="center"></el-table-column>
       <el-table-column label="類型" prop="Model" width="90" align="center">
         <template #default="scope">
           <el-tag effect="dark">{{ VehicleModelDisplay[scope.row.Model].labelCN }}</el-tag>
@@ -30,7 +30,7 @@
       <el-table-column label="當前位置" prop="CurrentLocation" align="center" width="100"></el-table-column>
       <el-table-column label="通訊方式" prop="Protocol" width="120" align="center">
         <template #default="scope">
-          <el-tag>{{ ProtocolText[scope.row.ProtocolText] }}</el-tag>
+          <el-tag>{{ ProtocolText[scope.row.Protocol] }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="IP" prop="IP" width="150" align="center"></el-table-column>
