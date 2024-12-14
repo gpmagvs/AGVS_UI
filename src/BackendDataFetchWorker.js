@@ -21,6 +21,7 @@ import moment from "moment";
 
 EqStore.dispatch('downloadRackStatusData')
 EqStore.dispatch('downloadEQData')
+AlarmStore.dispatch('downloadUncheckedAlarms')
 function generateRandomUserID(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -43,7 +44,6 @@ function StoreAGVSData(data) {
     agv_states_store.commit('setHotRunStates', data.HotRun)
     EqStore.commit('setData', data.EQStatus)
     TaskStore.commit('StoreTaskData', data.TaskData);
-    AlarmStore.commit('StoreAlarmData', data.UncheckedAlarm);
     MapStore.commit('setControledPathesBySystem', data.ControledPathesByTraffic)
     UIStore.commit('SetVMSAlive', data.VMSAliveCheck);
 }
@@ -110,6 +110,11 @@ async function StartHubsConnection() {
     agvsHubConnection.on("ReceiveData", (user, data) => {
         StoreAGVSData(data);
     });
+
+    agvsHubConnection.on("UnCheckedAlarms", data => {
+        AlarmStore.commit('StoreAlarmData', data);
+    });
+
     agvsHubConnection.on("RackDataChanged", data => {
         EqStore.commit("rackStatusData", data)
     });

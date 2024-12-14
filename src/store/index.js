@@ -11,6 +11,7 @@ import axios from 'axios'
 import clsTaskState from '@/ViewModels/TaskState.js';
 import SecsPlatformAPI from '@/api/SecsPlatform'
 import { GetEQData } from '@/api/EquipmentAPI'
+import { GetUncheckedAlarms } from '@/api/AlarmAPI'
 var cachesKeyMap = {
   agvStates: 'agv_states'
 }
@@ -500,6 +501,12 @@ export const AlarmStore = createStore({
   mutations: {
     StoreAlarmData(state, payload) {
       state.alarmsCollection = payload;
+    }
+  },
+  actions: {
+    async downloadUncheckedAlarms({ commit }) {
+      var result = await GetUncheckedAlarms()
+      commit("StoreAlarmData", result)
     }
   }
 })

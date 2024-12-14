@@ -53,3 +53,7 @@ export class AlarmHelper {
     _alarm_ws.onmessage = onmessage
   }
 }
+
+export async function GetUncheckedAlarms() {
+  return (await axios_entity.get(`/api/Alarm`)).data
+}
