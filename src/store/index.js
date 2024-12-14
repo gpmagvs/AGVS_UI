@@ -15,6 +15,7 @@ import { GetUncheckedAlarms } from '@/api/AlarmAPI'
 var cachesKeyMap = {
   agvStates: 'agv_states'
 }
+import bus from '@/event-bus'
 
 export default createStore({
 
@@ -433,9 +434,11 @@ export const EqStore = createStore({
     },
     rackStatusData(state, data) {
       state.WIPsData = data;
+      bus.emit('rack_data_changed', data)
     },
     setEQData(state, data) {
       state.EQ = data;
+      bus.emit('eq_data_changed', data)
     }
   },
   actions: {

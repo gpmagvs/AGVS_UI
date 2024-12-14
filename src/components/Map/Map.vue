@@ -911,7 +911,6 @@ export default {
       featureHighlightTimerID: '',
       highlightingFeatures: [],
       renderLDULD_StatusTimerId: '',
-      prviousEQDataJson: '',
       trackingAGVTimer: '',
       agvSelectedState: {
         isClicked: false,
@@ -1025,9 +1024,6 @@ export default {
     },
     agvs_info_other_system() {
       return MapStore.state.OthersAGVLocateInfo;
-    },
-    eq_data() {
-      return EqStore.state.EQ;
     },
     /**dictionary<string:path_id,MapPath> */
     ControledPathesBySystem() {
@@ -3572,46 +3568,36 @@ export default {
       }
 
     },
-    RenderEQLDULDStatus() {//TODO EQ狀態渲染
+    RenderEQLDULDStatus(data) {//TODO EQ狀態渲染
+      console.log('eq data changed');
+      data.forEach(eq_states => {
+        let _EQStatusDIDto = new EQStatusDIDto();
+        Object.assign(_EQStatusDIDto, eq_states)
 
-      var currentEqDataJson = JSON.stringify(this.eq_data);
-      if (this.prviousEQDataJson != currentEqDataJson) {
-        console.log('eq data changed');
-        this.eq_data.forEach(eq_states => {
-          let _EQStatusDIDto = new EQStatusDIDto();
-          Object.assign(_EQStatusDIDto, eq_states)
+        const eqs = data.filter(eq => eq.Tag == eq_states.Tag);
+        const isUniqueTag = eqs.length <= 1;
+        if (isUniqueTag) {
+          const _isOrderAssign = _EQStatusDIDto.IsReserved;
+          this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing, _isOrderAssign)
+        } else {
+          const anyOrderAssign = eqs.find(eq => eq.IsReserved) != undefined;
+          const anyLoadadble = eqs.find(eq => eq.TransferStatus == 1) != undefined;
+          const anyUnLoadadble = eqs.find(eq => eq.TransferStatus == 2) != undefined;
+          const anyPortExist = eqs.find(eq => eq.Port_Exist) != undefined;
+          const anyIsMaintaining = eqs.find(eq => eq.IsMaintaining) != undefined;
+          const anyIsPartsReplacing = eqs.find(eq => eq.IsPartsReplacing) != undefined;
 
-          const eqs = this.eq_data.filter(eq => eq.Tag == eq_states.Tag);
-          const isUniqueTag = eqs.length <= 1;
-          if (isUniqueTag) {
-            const _isOrderAssign = _EQStatusDIDto.IsReserved;
-            this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.Port_Exist, _EQStatusDIDto.IsMaintaining, _EQStatusDIDto.IsPartsReplacing, _isOrderAssign)
-          } else {
-            const anyOrderAssign = eqs.find(eq => eq.IsReserved) != undefined;
-            const anyLoadadble = eqs.find(eq => eq.TransferStatus == 1) != undefined;
-            const anyUnLoadadble = eqs.find(eq => eq.TransferStatus == 2) != undefined;
-            const anyPortExist = eqs.find(eq => eq.Port_Exist) != undefined;
-            const anyIsMaintaining = eqs.find(eq => eq.IsMaintaining) != undefined;
-            const anyIsPartsReplacing = eqs.find(eq => eq.IsPartsReplacing) != undefined;
-
-            if (anyLoadadble && anyUnLoadadble)
-              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 4, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
-            else if (anyLoadadble)
-              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 1, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
-            else if (anyUnLoadadble)
-              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 2, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
-            else
-              this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 3, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
-          }
-          //this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
-        });
-
-        //無重複的Tag
-        //有重複的Tag
-        this.prviousEQDataJson = currentEqDataJson
-      } else {
-        // console.log('eq data not changed yet')
-      }
+          if (anyLoadadble && anyUnLoadadble)
+            this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 4, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
+          else if (anyLoadadble)
+            this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 1, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
+          else if (anyUnLoadadble)
+            this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 2, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
+          else
+            this.ChangeEQIconByStatus(_EQStatusDIDto.Tag, 3, anyPortExist, anyIsMaintaining, anyIsPartsReplacing, anyOrderAssign)
+        }
+        //this.ChangeLDULDStatus(_EQStatusDIDto.Tag, _EQStatusDIDto.TransferStatus, _EQStatusDIDto.IsMaintaining)
+      });
     },
     RefreshMap(source = undefined) {
       // source:{
@@ -4443,16 +4429,18 @@ export default {
       bus.on('stop_render', () => {
         clearInterval(this.renderLDULD_StatusTimerId);
       })
-      if (!this.editable) {
-        this.renderLDULD_StatusTimerId = setInterval(() => {
-          this.RenderEQLDULDStatus();
-        }, 200);
-      }
+
       var mapdom = document.getElementById(this.id);
       if (mapdom)
         mapdom.addEventListener('contextmenu', (ev) => {
           ev.preventDefault()
         })
+
+      bus.on('eq_data_changed', (data) => {
+        if (!this.editable) {
+          this.RenderEQLDULDStatus(data);
+        }
+      })
       this.UpdateAGVLocLocation();
       this.loading = false;
 
