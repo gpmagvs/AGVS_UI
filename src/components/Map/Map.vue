@@ -4435,12 +4435,13 @@ export default {
         mapdom.addEventListener('contextmenu', (ev) => {
           ev.preventDefault()
         })
-
-      bus.on('eq_data_changed', (data) => {
-        if (!this.editable) {
+      //render first 
+      if (!this.editable) {
+        this.RenderEQLDULDStatus(EqStore.state.EQ);
+        bus.on('eq_data_changed', (data) => {
           this.RenderEQLDULDStatus(data);
-        }
-      })
+        })
+      }
       this.UpdateAGVLocLocation();
       this.loading = false;
 
