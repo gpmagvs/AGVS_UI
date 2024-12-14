@@ -1027,8 +1027,7 @@ export default {
       return MapStore.state.OthersAGVLocateInfo;
     },
     eq_data() {
-
-      return EqStore.getters.EQData;
+      return EqStore.state.EQ;
     },
     /**dictionary<string:path_id,MapPath> */
     ControledPathesBySystem() {

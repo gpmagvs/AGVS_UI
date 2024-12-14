@@ -376,6 +376,20 @@ export default {
             })
           return;
         }
+
+        const isRackStatusPage = newValue == '/racks_status';
+        const isHomePage = newValue == '/';
+        if (isRackStatusPage || isHomePage) {
+          if (oldValue != newValue) {
+            // Handle route change to A or B
+            if (isRackStatusPage) {
+              EqStore.dispatch('downloadRackStatusData')
+            }
+            if (isHomePage) {
+              EqStore.dispatch('downloadEQData')
+            }
+          }
+        }
       }
     )
 

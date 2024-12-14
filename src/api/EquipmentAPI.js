@@ -5,6 +5,12 @@ var axios_entity = axios.create({
   baseURL: param.backend_host,
 })
 
+export async function GetEQData() {
+  var ret = await axios_entity.get(`/api/Equipment/GetEQData`)
+  return ret.data;
+}
+
+
 /**GetEQSettings */
 export async function GetEQOptions() {
   var ret = await axios_entity.get(`/api/Equipment/GetEQOptions`)

@@ -36,3 +36,9 @@ export async function GetAllSlotsOptions() {
     return ret.data;
 }
 
+export async function GetRackStatusData() {
+    var ret = await axios_entity.get(`/api/WIP/GetRackStatusData`)
+    return ret.data;
+}
+
+

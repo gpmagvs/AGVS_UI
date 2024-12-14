@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
 import { Login, StoreToLocalStorage, UserRouteChange } from '@/api/UserAPI';
-import { GetAllSlotsOptions } from '@/api/WIPAPI'
+import { GetAllSlotsOptions, GetRackStatusData } from '@/api/WIPAPI'
 import { clsUserLoginState } from '@/api/AuthHelper'
 import MapAPI from '@/api/MapAPI'
 import clsAGVStateDto from "@/ViewModels/clsAGVStateDto.js"
@@ -10,6 +10,7 @@ import param from '@/gpm_param.js'
 import axios from 'axios'
 import clsTaskState from '@/ViewModels/TaskState.js';
 import SecsPlatformAPI from '@/api/SecsPlatform'
+import { GetEQData } from '@/api/EquipmentAPI'
 var cachesKeyMap = {
   agvStates: 'agv_states'
 }
@@ -416,9 +417,7 @@ export const EqStore = createStore({
   },
   mutations: {
     setData(state, data) {
-      state.EQ = data.EQPData
       state.ChargeStation = data.ChargeStationData
-      state.WIPsData = data.WIPsData
       state.ChargeStationDataReceived = true
     },
     EqOptions(state, option) {
@@ -430,6 +429,12 @@ export const EqStore = createStore({
     wipSlotOptions(state, options) {
       state.WIPSlotOptions = options;
       console.info(state.WIPSlotOptions)
+    },
+    rackStatusData(state, data) {
+      state.WIPsData = data;
+    },
+    setEQData(state, data) {
+      state.EQ = data;
     }
   },
   actions: {
@@ -441,6 +446,15 @@ export const EqStore = createStore({
       const rackPort = getters.GetRackPort(tag, slot);
       return rackPort?.CarrierID || '';
     },
+    async downloadRackStatusData({ commit }) {
+      var result = await GetRackStatusData()
+      commit("rackStatusData", result)
+    },
+    async downloadEQData({ commit }) {
+      var result = await GetEQData()
+      console.info(result)
+      commit("setEQData", result)
+    }
   }
 })
 

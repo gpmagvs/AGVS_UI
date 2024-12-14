@@ -19,6 +19,8 @@ let isAGVSDataFetchDelayDetected = true;
 var user_id = generateRandomUserID(10);
 import moment from "moment";
 
+EqStore.dispatch('downloadRackStatusData')
+EqStore.dispatch('downloadEQData')
 function generateRandomUserID(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -108,7 +110,12 @@ async function StartHubsConnection() {
     agvsHubConnection.on("ReceiveData", (user, data) => {
         StoreAGVSData(data);
     });
-
+    agvsHubConnection.on("RackDataChanged", data => {
+        EqStore.commit("rackStatusData", data)
+    });
+    agvsHubConnection.on("EQDataChanged", data => {
+        EqStore.commit("setEQData", data)
+    });
     agvsHubConnection.on("RegularHotRunInfo", data => {
         store.commit('setRegularHotRunState', data)
     })
