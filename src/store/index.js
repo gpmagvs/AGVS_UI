@@ -106,9 +106,15 @@ export default createStore({
       })
     },
     async updageConnectionStates({ commit }) {
-      SecsPlatformAPI.getConnectionState().then(response => {
+      try {
+        const response = await SecsPlatformAPI.getConnectionState();
+        console.error(response);
         commit('storeConnectionStates', response)
-      })
+        return response;
+      } catch (error) {
+        console.error(error);
+        return undefined;
+      }
     }
   }
 })

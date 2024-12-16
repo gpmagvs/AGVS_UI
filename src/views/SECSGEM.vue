@@ -113,7 +113,18 @@ export default {
     }
   },
   mounted() {
-    store.dispatch('updageConnectionStates')
+    setTimeout(async () => {
+      try {
+        const response = await store.dispatch('updageConnectionStates')
+        console.log(response);
+        if (response === undefined) {
+          this.$swal.fire('錯誤', '無法取得SECS/GEM連線狀態', 'error');
+        }
+      } catch (error) {
+        // console.error(error);
+        alert('無法取得SECS/GEM連線狀態');
+      }
+    }, 1000);
   }
 }
 </script>
