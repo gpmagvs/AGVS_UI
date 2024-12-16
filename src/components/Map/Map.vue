@@ -627,7 +627,7 @@
   </div>
 </template>
 <script>
-
+import html2canvas from 'html2canvas';
 import { watch } from 'vue'; // Vue 內建模組
 
 // OpenLayers 相關模組
@@ -1053,6 +1053,14 @@ export default {
     }
   },
   methods: {
+    saveMapImage(filename = `MapImageShot_${Date.now()}.png`) {
+      html2canvas(this.map.getTargetElement()).then(canvas => {
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    },
     getRackCargoExistStateFeatureLabelStyle(feature = new Feature()) {
       if (!feature || !this.map)
         return {};

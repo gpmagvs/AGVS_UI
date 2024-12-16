@@ -84,18 +84,22 @@
       </div>
       <div class="bg-light border flex-fill">
         <div class="locus-settings bg-dark text-light d-flex py-1 px-3">
-          <div>
-            <span>{{ $t('AGVLocus.TrackColor') }}</span>
+          <div class="d-flex">
+            <span style="white-space: nowrap">{{ $t('AGVLocus.TrackColor') }}</span>
             <el-color-picker @change="HandleLocusSettingChange" v-model="locus_settings.color" />
           </div>
-          <div>
-            <span>{{ $t('AGVLocus.TrackWidth') }}</span>
-            <el-select v-model="locus_settings.width" @change="HandleLocusSettingChange">
-              <el-option v-for="width in 12" :key="width" :value="width"></el-option>
+          <div class="d-flex">
+            <span style="white-space: nowrap">{{ $t('AGVLocus.TrackWidth') }}</span>
+            <el-select
+              v-model="locus_settings.width"
+              @change="HandleLocusSettingChange"
+              style="width: 80px"
+            >
+              <el-option v-for="width in 32" :key="width" :value="width"></el-option>
             </el-select>
           </div>
-          <div class="flex-fill text-end">
-            <el-button type="primary">{{ $t('AGVLocus.SaveTrackMap') }}</el-button>
+          <div class="ms-auto">
+            <el-button type="primary" @click="saveMapImage">{{ $t('AGVLocus.SaveTrackMap') }}</el-button>
           </div>
         </div>
         <Map
@@ -163,6 +167,9 @@ export default {
     }
   },
   methods: {
+    saveMapImage() {
+      this.$refs.map.saveMapImage(`AGV_Locus_Map_${this.agvname}_${this.showing_row_data.task_id}_${Date.now()}.png`);
+    },
     SetDefaultTimeInterval() {
 
     },
