@@ -283,7 +283,9 @@
     "SelectEndDate": "選擇結束日期",
     "Success": "成功",
     "Fail": "失敗",
-    "taskID": "任務ID"
+    "taskID": "任務ID",
+    "State": "任務狀態",
+    "AGV": "車輛"
   },
   "InstrumentMeasureQuery": {
     "StartTime": "開始時間",

@@ -278,7 +278,9 @@
     "SelectEndDate": "Select End Date",
     "Success": "Success",
     "Fail": "Fail",
-    "taskID": "Task Name"
+    "taskID": "Task Name",
+    "State": "Status",
+    "AGV": "Vehicle"
   },
   "InstrumentMeasureQuery": {
     "StartTime": "StartTime",

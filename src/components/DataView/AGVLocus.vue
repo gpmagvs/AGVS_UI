@@ -48,6 +48,7 @@
           height="700"
           highlight-current-row
           size="small"
+          border
         >
           <el-table-column align="center" label="No" width="50">
             <template #default="scope">
@@ -55,6 +56,18 @@
             </template>
           </el-table-column>
           <el-table-column :label="$t('AGVLocus.TaskID')" prop="task_id"></el-table-column>
+          <el-table-column :label="$t('AGVLocus.State')" prop="state" align="center" width="80">
+            <template #default="scope">
+              <span
+                :style="{
+                color: scope.row.state === '完成' ? '#67C23A' : 
+                       scope.row.state === '失敗' ? '#F56C6C' : 
+                       '#909399'
+              }"
+              >{{ scope.row.state }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column :label="$t('AGVLocus.AGV')" prop="agv_name"></el-table-column>
           <el-table-column :label="$t('AGVLocus.StartTime')" prop="start_time">
             <template #default="scope">{{ FormatTime(scope.row.start_time) }}</template>
           </el-table-column>
@@ -251,13 +264,17 @@ export default {
       this.loading = true;
       setTimeout(async () => {
         tasklist = await GetTasks(startTime, endTime, this.agvname, this.conditions.taskID)
-        this.tableData = tasklist.map(obj => ({
-          task_id: obj.TaskName,
-          start_time: obj.RecieveTime,
-          end_time: obj.FinishTime,
-          duration: 0,
-          corrdinations: undefined
-        }))
+        this.tableData = tasklist
+          .sort((a, b) => new Date(b.RecieveTime) - new Date(a.RecieveTime))
+          .map(obj => ({
+            task_id: obj.TaskName,
+            agv_name: obj.DesignatedAGVName,
+            start_time: obj.RecieveTime,
+            end_time: obj.FinishTime,
+            duration: 0,
+            state: obj.StateName,
+            corrdinations: undefined
+          }));
         this.loading = false
       }, 200);
 
@@ -301,14 +318,12 @@ export default {
     //   })
 
     // }
-  },
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .agv-locus {
-  padding-right: 3%;
-
   .time-pick {
     .label {
       font-weight: bold;
