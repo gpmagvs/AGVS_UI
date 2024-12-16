@@ -280,7 +280,9 @@
     "Fail": "Fail",
     "taskID": "Task Name",
     "State": "Status",
-    "AGV": "Vehicle"
+    "AGV": "Vehicle",
+    "FromStation": "Source",
+    "ToStation": "Destine"
   },
   "InstrumentMeasureQuery": {
     "StartTime": "StartTime",

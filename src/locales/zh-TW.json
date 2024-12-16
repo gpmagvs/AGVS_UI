@@ -285,7 +285,9 @@
     "Fail": "失敗",
     "taskID": "任務ID",
     "State": "任務狀態",
-    "AGV": "車輛"
+    "AGV": "車輛",
+    "FromStation": "來源",
+    "ToStation": "目的地"
   },
   "InstrumentMeasureQuery": {
     "StartTime": "開始時間",

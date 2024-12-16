@@ -44,8 +44,8 @@
         <el-table
           v-loading="loading"
           :data="tableData"
-          style="width:720px"
-          height="700"
+          style="width:100%"
+          height="720"
           highlight-current-row
           size="small"
           border
@@ -55,7 +55,7 @@
               <div>{{ GetNo(scope.row) }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('AGVLocus.TaskID')" prop="task_id"></el-table-column>
+          <el-table-column :label="$t('AGVLocus.TaskID') " prop="task_id" show-overflow-tooltip></el-table-column>
           <el-table-column :label="$t('AGVLocus.State')" prop="state" align="center" width="80">
             <template #default="scope">
               <span
@@ -67,6 +67,8 @@
               >{{ scope.row.state }}</span>
             </template>
           </el-table-column>
+          <el-table-column :label="$t('AGVLocus.FromStation')" prop="from_station"></el-table-column>
+          <el-table-column :label="$t('AGVLocus.ToStation')" prop="to_station"></el-table-column>
           <el-table-column :label="$t('AGVLocus.AGV')" prop="agv_name"></el-table-column>
           <el-table-column :label="$t('AGVLocus.StartTime')" prop="start_time">
             <template #default="scope">{{ FormatTime(scope.row.start_time) }}</template>
@@ -78,7 +80,7 @@
             align="center"
             :label="$t('AGVLocus.CostTime')"
             prop="duration"
-            min-width="60"
+            min-width="80"
           >
             <template #default="scope">
               <div>
@@ -86,7 +88,12 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column align="center" :label="$t('AGVLocus.ShowTrack')" min-width="50">
+          <el-table-column
+            fixed="right"
+            align="center"
+            :label="$t('AGVLocus.ShowTrack')"
+            min-width="70"
+          >
             <template #default="scope">
               <div class="w-100" @click="ShowLocusHandler(scope.row)">
                 <i class="view-icon bi bi-eye-fill"></i>
@@ -261,6 +268,7 @@ export default {
       var startTime = moment(this.timePick.start_time).format('YYYY/MM/DD HH:mm:ss')
       var endTime = moment(this.timePick.end_time).format('YYYY/MM/DD HH:mm:ss')
       var tasklist = []
+      this.$refs.map.ClearLocus();
       this.loading = true;
       setTimeout(async () => {
         tasklist = await GetTasks(startTime, endTime, this.agvname, this.conditions.taskID)
@@ -273,13 +281,22 @@ export default {
             end_time: obj.FinishTime,
             duration: 0,
             state: obj.StateName,
+            from_station: this.GetStationName(obj.From_Station_Tag),
+            to_station: this.GetStationName(obj.To_Station_Tag),
             corrdinations: undefined
           }));
         this.loading = false
       }, 200);
 
     },
-
+    GetStationName(tagNumber) {
+      const stations = Object.values(MapStore.state.MapData.Points);
+      const station = stations.find(station => station.TagNumber == tagNumber);
+      if (station && station.Graph)
+        return station.Graph.Display;
+      else
+        return '';
+    },
     SaveLocusSettingsToLocalStroage() {
       localStorage.setItem('locus', JSON.stringify({ locus_paint: this.locus_settings, time: this.timePick }))
     },
@@ -318,17 +335,44 @@ export default {
     //   })
 
     // }
+  },
+  watch: {
+    '$route.query': {
+      handler(newVal) {
+        if (newVal.taskName) {
+          this.loading = true;
+          this.$refs.map.ClearLocus();
+          setTimeout(async () => {
+            this.tableData = [];
+            this.conditions.taskID = newVal.taskName;
+            this.agvname = newVal.agvName;
+            await this.HandleSearchBtnClicked();
+            setTimeout(() => {
+              if (this.tableData.length > 0) {
+                this.ShowLocusHandler(this.tableData[0]);
+              }
+            }, 300);
+          }, 400);
+
+
+        }
+      },
+      deep: true
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .agv-locus {
-  .time-pick {
-    .label {
-      font-weight: bold;
-      letter-spacing: 2px;
-      margin-bottom: 0.32rem;
+  .menu-container {
+    width: 820px;
+    .time-pick {
+      .label {
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 0.32rem;
+      }
     }
   }
 

@@ -253,10 +253,21 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column min-width="120" v-if="isDevLogin" label="Action" fixed="right">
+        <el-table-column
+          :min-width="isDevLogin ? 220 : 120"
+          v-if="isDevLogin||isEngUserLogin"
+          label="Action"
+          fixed="right"
+        >
           <template #default="scope">
             <div class="w-100">
-              <b-button variant="danger" @click="DeleteTaskHandle(scope.row)">Delete</b-button>
+              <b-button class="mx-1" variant="primary" squared @click="ShowLocus(scope.row)">軌跡</b-button>
+              <b-button
+                v-if="isDevLogin"
+                variant="danger"
+                squared
+                @click="DeleteTaskHandle(scope.row)"
+              >Delete</b-button>
             </div>
           </template>
         </el-table-column>
@@ -316,6 +327,9 @@ export default {
     },
     isDevLogin() {
       return userStore.getters.IsDeveloperLogining;
+    },
+    isEngUserLogin() {
+      return userStore.state.user.Role == 1;
     },
     taskResultList() {
       return TaskQueryCondition.TASK_RUN_STATUS;
@@ -420,6 +434,18 @@ export default {
     },
     filterAGVName(value, row) {
       return row.DesignatedAGVName === value;
+    },
+    ShowLocus(taskRow) {
+      console.log(taskRow);
+      const taskName = taskRow.TaskName;
+      const agvName = taskRow.DesignatedAGVName;
+      this.$router.push({
+        path: '/data/agv_locus',
+        query: {
+          taskName: taskName,
+          agvName: agvName
+        }
+      });
     }
   },
 }

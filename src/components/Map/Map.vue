@@ -2848,6 +2848,9 @@ export default {
         source.addFeatures(features)
       }
     },
+    ClearLocus() {
+      this.AGVLocusLayer.getSource().clear();
+    },
     /**儲存按鈕處理 */
     async HandlerSaveBtnClick() {
       //如果有任務在運行中須詢問
