@@ -187,6 +187,27 @@ export default {
     }
   },
   methods: {
+    async handleTaskNameQuery(taskName, agvName) {
+      this.loading = true;
+      this.$refs.map?.ClearLocus();
+
+      setTimeout(async () => {
+        this.timePick.end_time = Date.now() + 1000 * 60 * 60 * 24;
+        this.tableData = [];
+        this.conditions.taskID = taskName;
+        this.agvname = agvName;
+        await this.HandleSearchBtnClicked();
+
+        const checkLoading = () => {
+          if (!this.loading && this.tableData.length > 0) {
+            this.ShowLocusHandler(this.tableData[0]);
+          } else if (this.loading) {
+            setTimeout(checkLoading, 100);
+          }
+        };
+        checkLoading();
+      }, 400);
+    },
     saveMapImage() {
       this.$refs.map.saveMapImage(`AGV_Locus_Map_${this.agvname}_${this.showing_row_data.task_id}_${Date.now()}.png`);
     },
@@ -317,44 +338,20 @@ export default {
       return moment(row.end_time).unix() - moment(row.start_time).unix();
     }
   },
+
   mounted() {
     this.SetDefaultTimeInterval();
     this.ReloadLocusSettingsFromLocalStorage();
-    //假資料 
-    this.tableData = []
-    // for (let index = 1; index < 51; index++) {
-    //   var coordinates = []
-    //   for (let n = 1; n < 100; n++) {
-    //     coordinates.push([(n / 50.0) + (n % index * (n % 2 == 0 ? 0.1 : -1)), n / 10])
-    //   }
-    //   this.tableData.push({
-    //     start_time: `2022-08-03 12:${index}:00`,
-    //     end_time: '2022-08-03 12:10:00',
-    //     duration: 600,
-    //     corrdinations: coordinates
-    //   })
-
-    // }
+    if (this.$route.query.taskName) {
+      this.handleTaskNameQuery(this.$route.query.taskName, this.$route.query.agvName);
+    }
   },
+
   watch: {
     '$route.query': {
       handler(newVal) {
         if (newVal.taskName) {
-          this.loading = true;
-          this.$refs.map.ClearLocus();
-          setTimeout(async () => {
-            this.tableData = [];
-            this.conditions.taskID = newVal.taskName;
-            this.agvname = newVal.agvName;
-            await this.HandleSearchBtnClicked();
-            setTimeout(() => {
-              if (this.tableData.length > 0) {
-                this.ShowLocusHandler(this.tableData[0]);
-              }
-            }, 300);
-          }, 400);
-
-
+          this.handleTaskNameQuery(newVal.taskName, newVal.agvName);
         }
       },
       deep: true
