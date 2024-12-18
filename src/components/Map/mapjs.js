@@ -233,12 +233,17 @@ export function CreateTransTaskMark(coordinate, text = '', bgFillColor = 'rgb(13
     }))
     return iconFeture;
 }
-export function CreateLocIcon(coordinate, isStart = true, text = '') {
+export function CreateLocIcon(coordinate, isStart = true, text = '', marker_color = 'red') {
     let iconFeture = new Feature({
         geometry: new Point(coordinate),
     })
     iconFeture.setStyle(new Style({
-        image: isStart ? loc_icon : loc_icon,
+        image: new Icon({
+            src: '/images/location.png', // 设置PNG图像的路径
+            offset: [-25, -5],
+            scale: 0.5,
+            size: [180, 180],
+        }),
         text: new Text({
             text: text,
             font: 'bold 16px Calibri,sans-serif',
@@ -251,7 +256,7 @@ export function CreateLocIcon(coordinate, isStart = true, text = '') {
                 color: 'black',
                 width: 2,
             }),
-        })
+        }),
     }))
     return iconFeture;
 }

@@ -2826,14 +2826,23 @@ export default {
       // })
       this.SaveSettingsToLocalStorage();
     },
+    ToggleLocus(id) {
+      if (this.AGVLocusLayer.getSource().getFeatures().find(f => f.get('id') == id)) {
+        this.HideLocus(id);
+      } else {
+        this.ShowLocus(id);
+      }
+    },
     /**顯示軌跡 */
-    ShowLocus(coordinate_list = [], color = 'red', width = 1) {
+    ShowLocus(coordinate_list = [], color = 'red', width = 1, marker_color = 'red', id = '') {
+      //Hide AGV layer while showing locus
+      this.AGVLocLayer.setVisible(false);
       var source = this.AGVLocusLayer.getSource()
       if (source) {
         var features = []
-        source.clear()
         //創建起終點圖標
-        let iconFeature_end = CreateLocIcon(coordinate_list[coordinate_list.length - 1], false);
+        let iconFeature_end = CreateLocIcon(coordinate_list[coordinate_list.length - 1], false, '', marker_color);
+        iconFeature_end.set('id', id)
         //features.push(iconFeature_start);
         //創建軌跡 LineString
         let lineFeature = new Feature(
@@ -2841,15 +2850,40 @@ export default {
             geometry: new LineString(coordinate_list),
           },
         );
+        lineFeature.set('id', id)
         lineFeature.setStyle(CreateLocusPathStyles(color, width))
+        lineFeature.set('oriGeometry', lineFeature.getGeometry())
+        iconFeature_end.set('oriGeometry', iconFeature_end.getGeometry())
         features.push(lineFeature)
         features.push(iconFeature_end);
 
         source.addFeatures(features)
       }
     },
+    HideLocusByID(id) {
+      var source = this.AGVLocusLayer.getSource()
+      var features = source.getFeatures()
+      var feature = features.filter(f => f.get('id') == id)
+      feature.forEach(f => {
+        f.setGeometry(null)
+      })
+    },
+    ShowLocusByID(id) {
+      var source = this.AGVLocusLayer.getSource()
+      var features = source.getFeatures()
+      var feature = features.filter(f => f.get('id') == id)
+      feature.forEach(f => {
+        f.setGeometry(f.get('oriGeometry'))
+      })
+    },
     ClearLocus() {
       this.AGVLocusLayer.getSource().clear();
+    },
+    HiddenAgvLayer() {
+      this.AGVLocLayer.setVisible(false);
+    },
+    ShowAgvLayer() {
+      this.AGVLocLayer.setVisible(true);
     },
     /**儲存按鈕處理 */
     async HandlerSaveBtnClick() {
@@ -4447,7 +4481,7 @@ export default {
           ev.preventDefault()
         })
       //render first 
-      if (!this.editable) {
+      if (!this.editable && this.eq_lduld_status_show) {
         this.RenderEQLDULDStatus(EqStore.state.EQ);
         bus.on('eq_data_changed', (data) => {
           this.RenderEQLDULDStatus(data);
