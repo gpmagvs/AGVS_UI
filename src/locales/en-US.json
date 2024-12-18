@@ -18,7 +18,9 @@
       "eqalarm": "EQP Alarm",
       "Turnoffbuzzer": "Buzzer OFF"
     },
-    "LaterRemindMe": "Notify Later"
+    "LaterRemindMe": "Notify Later",
+    "AutoLogoutNotify": "Logout Automatically",
+    "PushOkToRefreshPage": "Push 'OK' Button To Refresh Page"
   },
   "Menu": {
     "Home": "Home",
