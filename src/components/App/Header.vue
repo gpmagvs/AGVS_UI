@@ -7,8 +7,9 @@
           <MenuFoldIcon class="menu-icon" v-else />
         </el-icon>
       </i>
-      <div class="flex-fill text-start">
+      <div class="flex-fill text-start d-flex">
         <div class="field-name">{{ fieldName }}</div>
+        <div v-if="!IsOpUsing" class="field-name mx-3">- {{ current_route_info.route_display_name }}</div>
       </div>
       <div class="options d-flex justify-content-between">
         <i class="bi bi-three-dots-vertical pt-2"></i>
@@ -303,13 +304,15 @@ export default {
     HasEqpAlarm(newVal) {
       this.$emit('update:HasEqpAlarm', newVal)
       UIStore.commit('IsEqpAlarmShowing', newVal)
+    },
+    '$route'(to, from) {
+      this.current_route_info.route_display_name = this.$i18n.locale == 'zh-TW' ?
+        (to.meta?.Display || to.name) :
+        (to.meta?.Display_Eng || to.name)
     }
   },
   mounted() {
     this.DownloadSystemOperationsSettings();
-    bus.on('/router-change', (new_rotue) => {
-      this.current_route_info = new_rotue
-    });
     bus.on('/show-login-view-invoke', () => {
       this.LoginClickHandler();
     })
@@ -393,10 +396,6 @@ export default {
     },
     LogoClickHandler() {
       this.$router.push('/');
-      this.current_route_info = {
-        route_display_name: 'Home',
-        route_name: '/'
-      }
     },
     LoginClickHandler() {
       var currpath = this.$route.path;
@@ -671,8 +670,8 @@ export default {
     font-size: 23px;
     font-weight: bold;
     letter-spacing: 2px;
+    text-wrap: nowrap;
   }
-
   .menu-toggle-icon {
     font-size: 26px;
     z-index: 3100;
@@ -762,7 +761,6 @@ export default {
         font-size: 16px;
       }
     }
-
   }
 
   @keyframes alarm_blink {

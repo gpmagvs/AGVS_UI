@@ -18,24 +18,38 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta: {
+      Display: "首頁",
+      Display_Eng: "Home"
+    }
   },
   {
     path: '/Login',
     name: 'Login',
-    component: Login
+    component: Login,
+    meta: {
+      Display: "登入",
+      Display_Eng: "Login"
+    }
   },
   {
     path: '/OP',
     name: 'OP',
     component: () => import('../views/SimpleOpUsePage.vue'),
+    meta: {
+      Display: "操作模式",
+      Display_Eng: "Operation Mode"
+    }
   },
   {
     path: '/maptest',
     name: 'maptest',
     component: () => import('../components/Map/Map.vue'),
     meta: {
-      isAdminUse: true
+      isAdminUse: true,
+      Display: "地圖測試",
+      Display_Eng: "Map Test"
     }
   },
   {
@@ -46,11 +60,19 @@ const routes = [
         path: 'map_editor',
         name: 'map_editor',
         component: () => import('../views/MapManager.vue'),
+        meta: {
+          Display: "地圖編輯",
+          Display_Eng: "Map Editor"
+        }
       },
       {
         path: 'agv_display',
         name: 'agv_display',
         component: () => import('../components/Map/AGVDesigner/AGVDisplaySettings.vue'),
+        meta: {
+          Display: "AGV顯示",
+          Display_Eng: "AGV Display"
+        }
       }
     ],
     meta: {
@@ -61,24 +83,36 @@ const routes = [
     path: '/racks_status',
     name: 'racks_status',
     component: () => import('../views/RacksStatusView.vue'),
+    meta: {
+      Display: "帳籍管理",
+      Display_Eng: "Material Management"
+    }
   },
   {
     path: '/vehicle',
     name: 'vehicle',
     component: () => import('../views/VehicleManager.vue'),
+    meta: {
+      Display: "車輛管理",
+      Display_Eng: "Vehicle Manager"
+    }
   },
   {
     path: '/sys_settings',
     name: 'sys_settings',
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      Display: "系統設定",
+      Display_Eng: "System Settings"
     },
     children: [
       {
         path: 'AGV_Battery_Setting',
         name: 'AGV_Battery_Setting',
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          Display: "AGV電量管理",
+          Display_Eng: "AGV Battery Management"
         },
         component: AGVBatterySetting
       },
@@ -86,7 +120,9 @@ const routes = [
         path: 'Equipment_Setting',
         name: 'Equipment_Setting',
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          Display: "設備管理",
+          Display_Eng: "Equipment Manager"
         },
         component: EquipmentManager
       },
@@ -94,7 +130,9 @@ const routes = [
         path: 'RacksManagement',
         name: 'RacksManagement',
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          Display: "Rack 設定",
+          Display_Eng: "Racks Setting"
         },
         component: () => import('@/components/SystemSettings/RacksManager.vue')
       },
@@ -102,7 +140,9 @@ const routes = [
         path: 'User_Setting',
         name: 'User_Setting',
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          Display: "使用者管理",
+          Display_Eng: "User Manager"
         },
         component: () => import('@/components/SystemSettings/UserManager.vue')
       },
@@ -110,7 +150,9 @@ const routes = [
         path: 'Charge_Station_Setting',
         name: 'Charge_Station_Setting',
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          Display: "充電站管理",
+          Display_Eng: "Charge Station Manager"
         },
         component: ChargeStationView
       },
@@ -118,7 +160,9 @@ const routes = [
         path: 'SystemSettings',
         name: 'SystemSettings',
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
+          Display: "系統設定",
+          Display_Eng: "System Settings"
         },
         component: ChargeStationView
       }
@@ -134,32 +178,56 @@ const routes = [
       {
         path: 'task_history',
         name: 'task_history',
-        component: () => import('@/components/DataView/TaskQuery.vue')
+        component: () => import('@/components/DataView/TaskQuery.vue'),
+        meta: {
+          Display: "歷史任務查詢",
+          Display_Eng: "Task History"
+        }
       },
       {
         path: 'alarm_history',
         name: 'alarm_history',
-        component: () => import('@/components/DataView/AlarmQuery.vue')
+        component: () => import('@/components/DataView/AlarmQuery.vue'),
+        meta: {
+          Display: "歷史警報查詢",
+          Display_Eng: "Alarm History"
+        }
       },
       {
         path: 'agv_locus',
         name: 'agv_locus',
-        component: () => import('@/components/DataView/AGVLocus.vue')
+        component: () => import('@/components/DataView/AGVLocus.vue'),
+        meta: {
+          Display: "AGV軌跡",
+          Display_Eng: "AGV Locus"
+        }
       },
       {
         path: 'InstrumentMeasureQuery',
         name: 'InstrumentMeasureQuery',
-        component: () => import('@/components/DataView/InstrumentMeasureQuery.vue')
+        component: () => import('@/components/DataView/InstrumentMeasureQuery.vue'),
+        meta: {
+          Display: "儀器量測查詢",
+          Display_Eng: "Instrument Measure Query"
+        }
       },
       {
         path: 'Avalibility',
         name: 'Avalibility',
-        component: () => import('@/components/DataView/AvalibilityQuery.vue')
+        component: () => import('@/components/DataView/AvalibilityQuery.vue'),
+        meta: {
+          Display: "稼動率",
+          Display_Eng: "Avalibility"
+        }
       },
       {
         path: 'TrafficState',
         name: 'TrafficState',
-        component: () => import('@/components/DataView/TrafficState.vue')
+        component: () => import('@/components/DataView/TrafficState.vue'),
+        meta: {
+          Display: "交通狀態",
+          Display_Eng: "Traffic State"
+        }
       }
     ]
   },
@@ -167,6 +235,10 @@ const routes = [
     path: '/alarm',
     name: 'alarm',
     component: AlarmView,
+    meta: {
+      Display: "系統警報",
+      Display_Eng: "System Alarm"
+    }
   },
   {
     path: '/playground',
@@ -180,7 +252,9 @@ const routes = [
     path: '/hotrun',
     name: 'hotrun',
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      Display: "HOT RUN",
+      Display_Eng: "HOT RUN"
     },
     component: () => import('../views/HotRun.vue'),
   },
@@ -188,7 +262,9 @@ const routes = [
     path: '/secsgem',
     name: 'secsgem',
     meta: {
-      requiresAuth: false
+      requiresAuth: false,
+      Display: "SECS/GEM",
+      Display_Eng: "SECS/GEM"
     },
     component: SECSGEM,
   }

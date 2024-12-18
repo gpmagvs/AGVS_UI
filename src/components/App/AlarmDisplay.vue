@@ -45,7 +45,6 @@ export default {
     }
   },
   mounted() {
-    // bus.emit('/router-change', display_name);
     const currentRoute = ref('')
     const route = useRoute()
     watch(
