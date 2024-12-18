@@ -65,7 +65,7 @@
         dismissible
       >派車系統斷線-AGVS Disconnect</b-alert>
     </el-transition>
-    <ConnectionState v-if="!IsOpUsing" :IsMenuExpanded="!menu_collapse"></ConnectionState>
+    <FixFooter v-if="!IsOpUsing" :IsMenuExpanded="!menu_collapse"></FixFooter>
   </div>
 </template>
 <script>
@@ -74,7 +74,7 @@ import { EqStore } from '@/store';
 import Menu from '@/components/Menu.vue'
 import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
-import ConnectionState from '@/components/App/ConnectionState.vue'
+import FixFooter from '@/components/App/FixFooter.vue'
 import bus from '@/event-bus.js'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -91,7 +91,7 @@ import { Startup, StopSignalIRHubsConnections } from '@/BackendDataFetchWorker'
 import { ElementClickLog } from './api/WebSiteAPI';
 export default {
   components: {
-    Header, Menu, AlarmDisplayVue, ConnectionState, MoveAGVNotifty, AGVAlarmMessageDisplay, RegularULDHotRunStateView
+    Header, Menu, AlarmDisplayVue, FixFooter, MoveAGVNotifty, AGVAlarmMessageDisplay, RegularULDHotRunStateView
 
   },
   provide() {
