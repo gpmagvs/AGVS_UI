@@ -113,6 +113,12 @@
           </el-icon>
           <template #title>{{ $t('Menu.utilization rate') }}</template>
         </el-menu-item>
+        <el-menu-item index="/data/TrafficState">
+          <el-icon>
+            <PieChart />
+          </el-icon>
+          <template #title>{{ $t('Menu.Traffic State') }}</template>
+        </el-menu-item>
       </el-sub-menu>
       <el-menu-item index="/hotrun" v-if="UserPermission.menu.HotRun==1">
         <el-icon>

@@ -155,6 +155,11 @@ const routes = [
         path: 'Avalibility',
         name: 'Avalibility',
         component: () => import('@/components/DataView/AvalibilityQuery.vue')
+      },
+      {
+        path: 'TrafficState',
+        name: 'TrafficState',
+        component: () => import('@/components/DataView/TrafficState.vue')
       }
     ]
   },

@@ -647,6 +647,7 @@ import { defaults as defaultInteractions, Pointer, MouseWheelZoom, DragPan, Doub
 import Projection from 'ol/proj/Projection.js';
 import { noModifierKeys, platformModifierKeyOnly } from 'ol/events/condition';
 import { getWidth } from 'ol/extent.js';
+import { Heatmap as HeatmapLayer } from 'ol/layer.js';
 
 // 本地模組
 import bus from '@/event-bus.js';
@@ -803,6 +804,19 @@ export default {
             features: []
           }
         )
+      }),
+      TrafficStateLayer: new HeatmapLayer({
+        source: new VectorSource(),
+        blur: 23,
+        radius: 23,
+        opacity: 1,
+        gradient: [
+          'rgba(0, 0, 255, 0)',
+          'rgba(0, 255, 0, 1)',
+          'rgba(255, 255, 0, 1)',
+          'rgba(255, 0, 0, 1)'
+        ],
+        zIndex: 100
       }),
       gridLayer: new VectorLayer(),
       TransferTaskIconLayer: new VectorLayer({
@@ -3027,7 +3041,7 @@ export default {
         source: new VectorSource({ features: [] }),
       })
       this.map = new Map({
-        layers: [this.ImageLayer, this.RegionLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer],
+        layers: [this.ImageLayer, this.RegionLayer, this.EQMaintainIconLayer, this.TransferTaskIconLayer, this.EQLDULDStatusLayer, this.PathLayerForCoordination, this.PathLayerForRouter, this.PointLayer, this.PointRouteLayer, this.AGVLocLayer, this.AGVLocusLayer, this.TrafficStateLayer],
         target: this.id,
         renderer: 'canvas',
         view: new View({
@@ -3068,6 +3082,10 @@ export default {
       }
       // this.map.addControl(new ZoomSlider());
       //this.AddDrawBoxInteraction();
+    },
+    UpdateTrafficStateLayer(traffic_state_data_features = []) {
+      this.TrafficStateLayer.getSource().clear();
+      this.TrafficStateLayer.getSource().addFeatures(traffic_state_data_features);
     },
     ResetImageExtend(newExtent) {
 
@@ -4323,6 +4341,7 @@ export default {
         selectedFeatures.clear();
       });
     },
+
   },
   mounted() {
     this.loading = true;

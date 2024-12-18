@@ -41,7 +41,8 @@
     "Alarm History": "Alarm History",
     "Trajectory": "Trajectory",
     "Instruments Measure Result": "Instruments Measure",
-    "utilization rate": "Utilization"
+    "utilization rate": "Utilization",
+    "Traffic State": "Traffic State"
   },
   "HomeView": {
     "AGVStatus": {

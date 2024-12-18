@@ -41,7 +41,8 @@
     "Alarm History": "歷史警報",
     "Trajectory": "軌跡查詢",
     "Instruments Measure Result": "儀器量測結果查詢",
-    "utilization rate": "稼動率"
+    "utilization rate": "稼動率",
+    "Traffic State": "交管狀態統計"
   },
   "HomeView": {
     "AGVStatus": {
