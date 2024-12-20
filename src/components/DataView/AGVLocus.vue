@@ -1,238 +1,261 @@
 <template>
   <div class="agv-locus border rounded">
     <div class="w-100 d-flex">
-      <div class="menu-container bg-light p-2 border" ref="menuContainer">
-        <div class="resize-handle" @mousedown="startResize"></div>
-        <b-tabs>
-          <b-tab title="單次任務軌跡查詢">
-            <div class="border-bottom my-1 py-2">
-              <div class="time-pick text-start d-flex">
-                <div>
-                  <div class="label">{{ $t('AGVLocus.SelectAGV') }}</div>
-                  <AGVSelector style="width:120px;" v-model="agvname"></AGVSelector>
+      <el-row class="w-100">
+        <el-col :lg="10">
+          <div class="menu-container bg-light p-2 border" ref="menuContainer">
+            <div class="resize-handle" @mousedown="startResize"></div>
+            <b-tabs>
+              <b-tab title="單次任務軌跡查詢">
+                <div class="border-bottom my-1 py-2">
+                  <div class="time-pick text-start d-flex">
+                    <div>
+                      <div class="label">{{ $t('AGVLocus.SelectAGV') }}</div>
+                      <AGVSelector style="width:120px;" v-model="agvname"></AGVSelector>
+                    </div>
+                    <div>
+                      <div class="label">{{ $t('AGVLocus.StartTime') }}</div>
+                      <el-date-picker
+                        v-model="timePick.start_time"
+                        type="datetime"
+                        placeholder="選擇開始時間"
+                        format="YYYY/MM/DD HH:mm:ss"
+                      />
+                    </div>
+                    <div>
+                      <div class="label">{{ $t('AGVLocus.EndTime') }}</div>
+                      <el-date-picker
+                        v-model="timePick.end_time"
+                        type="datetime"
+                        placeholder="選擇結束時間"
+                        format="YYYY/MM/DD HH:mm:ss"
+                      />
+                    </div>
+                    <el-button
+                      @click="HandleSearchBtnClicked"
+                      style="height:30px;font-size: large;width:120px;position:relative;top:30px"
+                      type="primary"
+                    >{{ $t('AGVLocus.Search') }}</el-button>
+                  </div>
+                  <!-- Row-2 -->
+                  <div class="time-pick text-start d-flex my-3">
+                    <div>
+                      <div class="label">{{ $t('AGVLocus.taskID') }}</div>
+                      <el-input v-model="conditions.taskID" clearable></el-input>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div class="label">{{ $t('AGVLocus.StartTime') }}</div>
-                  <el-date-picker
-                    v-model="timePick.start_time"
-                    type="datetime"
-                    placeholder="選擇開始時間"
-                    format="YYYY/MM/DD HH:mm:ss"
-                  />
-                </div>
-                <div>
-                  <div class="label">{{ $t('AGVLocus.EndTime') }}</div>
-                  <el-date-picker
-                    v-model="timePick.end_time"
-                    type="datetime"
-                    placeholder="選擇結束時間"
-                    format="YYYY/MM/DD HH:mm:ss"
-                  />
-                </div>
-                <el-button
-                  @click="HandleSearchBtnClicked"
-                  style="height:30px;font-size: large;width:120px;position:relative;top:30px"
-                  type="primary"
-                >{{ $t('AGVLocus.Search') }}</el-button>
-              </div>
-              <!-- Row-2 -->
-              <div class="time-pick text-start d-flex my-3">
-                <div>
-                  <div class="label">{{ $t('AGVLocus.taskID') }}</div>
-                  <el-input v-model="conditions.taskID" clearable></el-input>
-                </div>
-              </div>
-            </div>
-            <el-table
-              v-loading="loading"
-              :data="tableData"
-              style="width:100%"
-              height="720"
-              highlight-current-row
-              size="small"
-              border
-            >
-              <el-table-column align="center" label="No" width="50">
-                <template #default="scope">
-                  <div>{{ GetNo(scope.row) }}</div>
-                </template>
-              </el-table-column>
-              <el-table-column :label="$t('AGVLocus.TaskID') " prop="task_id" show-overflow-tooltip></el-table-column>
-              <el-table-column :label="$t('AGVLocus.State')" prop="state" align="center" width="80">
-                <template #default="scope">
-                  <span
-                    :style="{
+                <el-table
+                  v-loading="loading"
+                  :data="tableData"
+                  style="width:100%"
+                  height="720"
+                  highlight-current-row
+                  size="small"
+                  border
+                >
+                  <el-table-column align="center" label="No" width="50">
+                    <template #default="scope">
+                      <div>{{ GetNo(scope.row) }}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    :label="$t('AGVLocus.TaskID') "
+                    prop="task_id"
+                    show-overflow-tooltip
+                  ></el-table-column>
+                  <el-table-column
+                    :label="$t('AGVLocus.State')"
+                    prop="state"
+                    align="center"
+                    width="80"
+                  >
+                    <template #default="scope">
+                      <span
+                        :style="{
                 color: scope.row.state === '完成' ? '#67C23A' : 
                        scope.row.state === '失敗' ? '#F56C6C' : 
                        '#909399'
               }"
-                  >{{ scope.row.state }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column :label="$t('AGVLocus.FromStation')" prop="from_station"></el-table-column>
-              <el-table-column :label="$t('AGVLocus.ToStation')" prop="to_station"></el-table-column>
-              <el-table-column :label="$t('AGVLocus.AGV')" prop="agv_name"></el-table-column>
-              <el-table-column :label="$t('AGVLocus.StartTime')" prop="start_time">
-                <template #default="scope">{{ FormatTime(scope.row.start_time) }}</template>
-              </el-table-column>
-              <el-table-column :label="$t('AGVLocus.EndTime')" prop="end_time">
-                <template #default="scope">{{ FormatTime(scope.row.end_time) }}</template>
-              </el-table-column>
-              <el-table-column
-                align="center"
-                :label="$t('AGVLocus.CostTime')"
-                prop="duration"
-                min-width="80"
-              >
-                <template #default="scope">
-                  <div>
-                    <el-tag effect="dark" type="info">{{ CalculatTimeSpend(scope.row) }}</el-tag>
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                fixed="right"
-                align="center"
-                :label="$t('AGVLocus.ShowTrack')"
-                min-width="70"
-              >
-                <template #default="scope">
-                  <div class="w-100" @click="ShowLocusHandler(scope.row)">
-                    <i class="view-icon bi bi-eye-fill"></i>
-                  </div>
-                </template>
-              </el-table-column>
-            </el-table>
-          </b-tab>
-          <b-tab title="軌跡回顧">
-            <div class="p-3">
-              <div class="time-pick text-start d-flex">
-                <div>
-                  <div class="label">{{ $t('AGVLocus.StartTime') }}</div>
-                  <el-date-picker
-                    v-model="timePick_TrajPlayer.start_time"
-                    type="datetime"
-                    placeholder="選擇開始時間"
-                    format="YYYY/MM/DD HH:mm:ss"
-                  />
-                </div>
-                <div>
-                  <div class="label">{{ $t('AGVLocus.EndTime') }}</div>
-                  <el-date-picker
-                    v-model="timePick_TrajPlayer.end_time"
-                    type="datetime"
-                    placeholder="選擇結束時間"
-                    format="YYYY/MM/DD HH:mm:ss"
-                  />
-                </div>
-                <el-button
-                  @click="HandleSearchTrajOnlyWithTimeRangeBtnClicked"
-                  style="height:30px;font-size: large;width:120px;position:relative;top:30px"
-                  type="primary"
-                >{{ $t('AGVLocus.Search') }}</el-button>
-              </div>
-              <!--  -->
-              <el-divider></el-divider>
-              <div class>
-                <div class="text-start">範圍選取</div>
-                <el-slider
-                  class="w-100 px-3"
-                  range
-                  :format-tooltip="FormatSliderToolTip"
-                  v-model="trajPlayTimeOffset"
-                  :max="totalSecOfTrajRePlay"
-                  @change="HandleRecordPlaySliderChanged"
-                ></el-slider>
-                <div class="d-flex justify-content-between">
-                  <label>{{ recordPlayStartTimeMoment.format('YYYY/MM/DD HH:mm:ss') }}</label>
-                  <label>{{ recordPlayEndTimeMoment.format('YYYY/MM/DD HH:mm:ss') }}</label>
-                </div>
-                <el-divider></el-divider>
-                <div class="d-flex align-items-center mb-2">
-                  <el-checkbox
-                    class="ms-auto"
-                    v-model="showAllTracks"
-                    :indeterminate="isIndeterminate"
-                    @change="handleShowAllChange"
-                  >{{ showAllTracks ? '全部隱藏' : '全部顯示' }}</el-checkbox>
-                </div>
-                <el-table :data="trajPlayWindowDatas" border height="700" style="width:100%">
-                  <el-table-column prop="TaskName" label="任務名稱" show-overflow-tooltip></el-table-column>
-                  <el-table-column prop="AGVName" label="車輛名稱"></el-table-column>
-                  <!-- <el-table-column prop="Coordinations" label="軌跡"></el-table-column> -->
-                  <el-table-column label="Action">
+                      >{{ scope.row.state }}</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column :label="$t('AGVLocus.FromStation')" prop="from_station"></el-table-column>
+                  <el-table-column :label="$t('AGVLocus.ToStation')" prop="to_station"></el-table-column>
+                  <el-table-column :label="$t('AGVLocus.AGV')" prop="agv_name"></el-table-column>
+                  <el-table-column :label="$t('AGVLocus.StartTime')" prop="start_time">
+                    <template #default="scope">{{ FormatTime(scope.row.start_time) }}</template>
+                  </el-table-column>
+                  <el-table-column :label="$t('AGVLocus.EndTime')" prop="end_time">
+                    <template #default="scope">{{ FormatTime(scope.row.end_time) }}</template>
+                  </el-table-column>
+                  <el-table-column
+                    align="center"
+                    :label="$t('AGVLocus.CostTime')"
+                    prop="duration"
+                    min-width="80"
+                  >
                     <template #default="scope">
                       <div>
-                        <el-icon
-                          :size="20"
-                          v-if="scope.row.isShowing"
-                          @click="ToggleLocus(scope.row)"
-                        >
-                          <View />
-                        </el-icon>
-                        <el-icon :size="20" v-else @click="ToggleLocus(scope.row)">
-                          <Hide />
-                        </el-icon>
+                        <el-tag effect="dark" type="info">{{ CalculatTimeSpend(scope.row) }}</el-tag>
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    fixed="right"
+                    align="center"
+                    :label="$t('AGVLocus.ShowTrack')"
+                    min-width="70"
+                  >
+                    <template #default="scope">
+                      <div class="w-100" @click="ShowLocusHandler(scope.row)">
+                        <i class="view-icon bi bi-eye-fill"></i>
                       </div>
                     </template>
                   </el-table-column>
                 </el-table>
-                <!-- <pre>
+              </b-tab>
+              <b-tab title="軌跡回顧">
+                <div class="p-3">
+                  <div class="time-pick text-start d-flex">
+                    <div>
+                      <div class="label">{{ $t('AGVLocus.StartTime') }}</div>
+                      <el-date-picker
+                        v-model="timePick_TrajPlayer.start_time"
+                        type="datetime"
+                        placeholder="選擇開始時間"
+                        format="YYYY/MM/DD HH:mm:ss"
+                      />
+                    </div>
+                    <div>
+                      <div class="label">{{ $t('AGVLocus.EndTime') }}</div>
+                      <el-date-picker
+                        v-model="timePick_TrajPlayer.end_time"
+                        type="datetime"
+                        placeholder="選擇結束時間"
+                        format="YYYY/MM/DD HH:mm:ss"
+                      />
+                    </div>
+                    <el-button
+                      @click="HandleSearchTrajOnlyWithTimeRangeBtnClicked"
+                      style="height:30px;font-size: large;width:120px;position:relative;top:30px"
+                      type="primary"
+                    >{{ $t('AGVLocus.Search') }}</el-button>
+                  </div>
+                  <!--  -->
+                  <el-divider></el-divider>
+                  <div class>
+                    <div class="text-start">範圍選取</div>
+                    <el-slider
+                      class="w-100 px-3"
+                      range
+                      :format-tooltip="FormatSliderToolTip"
+                      v-model="trajPlayTimeOffset"
+                      :max="totalSecOfTrajRePlay"
+                      @change="HandleRecordPlaySliderChanged"
+                    ></el-slider>
+                    <div class="d-flex justify-content-between">
+                      <label>{{ recordPlayStartTimeMoment.format('YYYY/MM/DD HH:mm:ss') }}</label>
+                      <label>{{ recordPlayEndTimeMoment.format('YYYY/MM/DD HH:mm:ss') }}</label>
+                    </div>
+                    <el-divider></el-divider>
+                    <div class="d-flex align-items-center mb-2">
+                      <el-checkbox
+                        class="ms-auto"
+                        v-model="showAllTracks"
+                        :indeterminate="isIndeterminate"
+                        @change="handleShowAllChange"
+                      >{{ showAllTracks ? '全部隱藏' : '全部顯示' }}</el-checkbox>
+                    </div>
+                    <el-table :data="trajPlayWindowDatas" border height="700" style="width:100%">
+                      <el-table-column prop="TaskName" label="任務名稱" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="AGVName" label="車輛名稱"></el-table-column>
+                      <!-- <el-table-column prop="Coordinations" label="軌跡"></el-table-column> -->
+                      <el-table-column label="Action">
+                        <template #default="scope">
+                          <div>
+                            <el-icon
+                              :size="20"
+                              v-if="scope.row.isShowing"
+                              @click="ToggleLocus(scope.row)"
+                            >
+                              <View />
+                            </el-icon>
+                            <el-icon :size="20" v-else @click="ToggleLocus(scope.row)">
+                              <Hide />
+                            </el-icon>
+                          </div>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                    <!-- <pre>
                   {{trajPlayWindowDatas}}
-                </pre>-->
+                    </pre>-->
+                  </div>
+                </div>
+              </b-tab>
+            </b-tabs>
+          </div>
+        </el-col>
+        <el-col :lg="14" class="d-flex flex-column">
+          <player
+            ref="player"
+            @onplay="HandlePlayerPlay"
+            @onstop="HandlePlayerStop"
+            @onpause="HandlePlayerPause"
+            @onskipstart="HandlePlayerSkipStart"
+            @onskipend="HandlePlayerSkipEnd"
+          ></player>
+          <div class="bg-light border flex-fill">
+            <div class="locus-settings bg-dark text-light d-flex py-1 px-3">
+              <div class="d-flex">
+                <span style="white-space: nowrap">{{ $t('AGVLocus.TrackColor') }}</span>
+                <el-color-picker @change="HandleLocusSettingChange" v-model="locus_settings.color" />
+              </div>
+              <div class="d-flex">
+                <span style="white-space: nowrap">{{ $t('AGVLocus.TrackWidth') }}</span>
+                <el-select
+                  v-model="locus_settings.width"
+                  @change="HandleLocusSettingChange"
+                  style="width: 80px"
+                >
+                  <el-option v-for="width in 32" :key="width" :value="width"></el-option>
+                </el-select>
+              </div>
+              <div class="ms-auto">
+                <el-button type="primary" @click="saveMapImage">{{ $t('AGVLocus.SaveTrackMap') }}</el-button>
               </div>
             </div>
-          </b-tab>
-        </b-tabs>
-      </div>
-      <div class="bg-light border flex-fill">
-        <div class="locus-settings bg-dark text-light d-flex py-1 px-3">
-          <div class="d-flex">
-            <span style="white-space: nowrap">{{ $t('AGVLocus.TrackColor') }}</span>
-            <el-color-picker @change="HandleLocusSettingChange" v-model="locus_settings.color" />
+            <Map
+              v-loading="locus_painting"
+              class="bg-light border"
+              ref="map"
+              id="locus_map"
+              :editable="false"
+              :agv_show="false"
+              :station_show="true"
+              :rackInfoShow="false"
+              :eq_lduld_status_show="false"
+            ></Map>
           </div>
-          <div class="d-flex">
-            <span style="white-space: nowrap">{{ $t('AGVLocus.TrackWidth') }}</span>
-            <el-select
-              v-model="locus_settings.width"
-              @change="HandleLocusSettingChange"
-              style="width: 80px"
-            >
-              <el-option v-for="width in 32" :key="width" :value="width"></el-option>
-            </el-select>
-          </div>
-          <div class="ms-auto">
-            <el-button type="primary" @click="saveMapImage">{{ $t('AGVLocus.SaveTrackMap') }}</el-button>
-          </div>
-        </div>
-        <Map
-          v-loading="locus_painting"
-          class="bg-light border"
-          ref="map"
-          id="locus_map"
-          :editable="false"
-          :agv_show="false"
-          :station_show="true"
-          :rackInfoShow="false"
-          :eq_lduld_status_show="false"
-        ></Map>
-      </div>
+        </el-col>
+      </el-row>
     </div>
   </div>
 </template>
 
 <script>
 import AGVSelector from '@/components/AGVSelector'
-
 import Map from '@/components/Map/Map.vue'
 import { GetTasks, GetTrajectory, GetTrajectorysWithTimeRange } from '@/api/TaskAPI.js'
 import { agv_states_store } from '@/store'
 import { MapStore } from '@/components/Map/store'
 import moment from 'moment'
 import { View, Hide } from '@element-plus/icons-vue'
+import player from '../General/Player.vue'
 export default {
   components: {
-    Map, AGVSelector, View, Hide
+    Map, AGVSelector, View, Hide, player
   },
   computed: {
     agvNameList() {
@@ -297,6 +320,8 @@ export default {
       menuContainerResizeStartHeight: 0,
       showAllTracks: true,
       isIndeterminate: false,
+      playInterval: undefined,
+      isPlayPause: false
 
     }
   },
@@ -345,7 +370,8 @@ export default {
       this.$refs.map.saveMapImage(`AGV_Locus_Map_${this.agvname}_${this.showing_row_data.task_id}_${Date.now()}.png`);
     },
     SetDefaultTimeInterval() {
-
+      this.timePick_TrajPlayer.end_time = moment(Date.now()).format('YYYY/MM/DD HH:mm:ss')
+      this.timePick_TrajPlayer.start_time = moment(Date.now()).add(-1, 'days').format('YYYY/MM/DD HH:mm:ss')
     },
     GetNo(row) {
       return this.tableData.indexOf(row) + 1;
@@ -413,6 +439,8 @@ export default {
       }
     },
     async HandleSearchTrajOnlyWithTimeRangeBtnClicked() {
+      this.$refs.player.stop();
+      clearInterval(this.playInterval);
       this.trajPlayWindowDatas = [];
       var startTimeMoment = moment(this.timePick_TrajPlayer.start_time);
       var startTimeQuery = startTimeMoment.format('YYYY/MM/DD HH:mm:ss')
@@ -422,6 +450,19 @@ export default {
       this.trajPlayTimeOffset = [0, 0];
       this.totalSecOfTrajRePlay = endTimeMoment.diff(startTimeMoment) / 1000;
       this.trajPlayDataStore = await GetTrajectorysWithTimeRange(startTimeQuery, endTimeQuery)
+      if (this.trajPlayDataStore && this.trajPlayDataStore.length > 0) {
+        // Get first timestamp from first coordination point of first trajectory
+        const firstTraj = this.trajPlayDataStore[0];
+        if (firstTraj.Coordinations && firstTraj.Coordinations.length > 0) {
+          const firstTimestamp = moment(firstTraj.Coordinations[0].Time);
+          this.trajPlayTimeOffset[0] = firstTimestamp.diff(startTimeMoment) / 1000;
+          this.trajPlayTimeOffset[1] = this.totalSecOfTrajRePlay;
+          console.log('First timestamp:', firstTimestamp.format('YYYY/MM/DD HH:mm:ss'));
+          setTimeout(() => {
+            this.HandleRecordPlaySliderChanged();
+          }, 500);
+        }
+      }
     },
     ToggleLocus(row) {
       row.isShowing = !row.isShowing;
@@ -433,50 +474,49 @@ export default {
     HandleRecordPlaySliderChanged() {
       if (this.debunceTimeout)
         clearTimeout(this.debunceTimeout)
-
       this.debunceTimeout = setTimeout(() => {
         //alert('Debunce')
-        var startTimeMoment = moment(this.timePick_TrajPlayer.start_time);
-        this.recordPlayStartTimeMoment = startTimeMoment.clone();
-        this.recordPlayStartTimeMoment.add(this.trajPlayTimeOffset[0], "second");
-        this.recordPlayEndTimeMoment = startTimeMoment.clone();
-        this.recordPlayEndTimeMoment.add(this.trajPlayTimeOffset[1], "second")
+        this.ShowLocusByTimeOffset();
+      }, 100);
+    },
+    ShowLocusByTimeOffset() {
+      var startTimeMoment = moment(this.timePick_TrajPlayer.start_time);
+      this.recordPlayStartTimeMoment = startTimeMoment.clone();
+      this.recordPlayStartTimeMoment.add(this.trajPlayTimeOffset[0], "second");
+      this.recordPlayEndTimeMoment = startTimeMoment.clone();
+      this.recordPlayEndTimeMoment.add(this.trajPlayTimeOffset[1], "second")
 
-        this.trajPlayWindowDatas = this.trajPlayDataStore.filter(item => {
-          return item.Coordinations.some(pt =>
-            moment(pt.Time) >= this.recordPlayStartTimeMoment &&
-            moment(pt.Time) <= this.recordPlayEndTimeMoment
-          );
-        }).map(item => {
-          return {
-            TaskName: item.TaskName,
-            AGVName: item.AGVName,
-            Coordinations: item.Coordinations.filter(pt => moment(pt.Time) >= this.recordPlayStartTimeMoment && moment(pt.Time) <= this.recordPlayEndTimeMoment).map(pt => ([pt.X, pt.Y])),
-            isShowing: true
-          }
-        });
-        this.$refs.map.ClearLocus();
-        // Create a map to store task colors if it doesn't exist
-        if (!this.taskColors) {
-          this.taskColors = {};
+      this.trajPlayWindowDatas = this.trajPlayDataStore.filter(item => {
+        return item.Coordinations.some(pt =>
+          moment(pt.Time) >= this.recordPlayStartTimeMoment &&
+          moment(pt.Time) <= this.recordPlayEndTimeMoment
+        );
+      }).map(item => {
+        return {
+          TaskName: item.TaskName,
+          AGVName: item.AGVName,
+          Coordinations: item.Coordinations.filter(pt => moment(pt.Time) >= this.recordPlayStartTimeMoment && moment(pt.Time) <= this.recordPlayEndTimeMoment).map(pt => ([pt.X, pt.Y])),
+          isShowing: true
         }
+      });
+      this.$refs.map.ClearLocus();
+      // Create a map to store task colors if it doesn't exist
+      if (!this.taskColors) {
+        this.taskColors = {};
+      }
 
-        this.trajPlayWindowDatas.forEach(element => {
-          if (element.Coordinations.length > 0) {
-            // Get existing color or generate random color for task
-            let taskColor = this.taskColors[element.TaskName];
-            if (!taskColor) {
-              // Generate random hex color
-              taskColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
-              this.taskColors[element.TaskName] = taskColor;
-            }
-            this.$refs.map.ShowLocus(element.Coordinations, taskColor, this.locus_settings.width, taskColor, element.TaskName)
+      this.trajPlayWindowDatas.forEach(element => {
+        if (element.Coordinations.length > 0) {
+          // Get existing color or generate random color for task
+          let taskColor = this.taskColors[element.TaskName];
+          if (!taskColor) {
+            // Generate random hex color
+            taskColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+            this.taskColors[element.TaskName] = taskColor;
           }
-        });
-
-
-
-      }, 1000);
+          this.$refs.map.ShowLocus(element.Coordinations, taskColor, this.locus_settings.width, taskColor, element.TaskName)
+        }
+      });
     },
     async HandleSearchBtnClicked() {
 
@@ -544,7 +584,34 @@ export default {
     },
     CalculatTimeSpend(row) {
       return moment(row.end_time).unix() - moment(row.start_time).unix();
-    }
+    },
+    HandlePlayerPlay() {
+      this.playInterval = setInterval(() => {
+        this.trajPlayTimeOffset[1] = this.trajPlayTimeOffset[1] + 1;
+        console.log('play', this.trajPlayTimeOffset)
+        this.ShowLocusByTimeOffset();
+        if (this.trajPlayTimeOffset[1] >= this.totalSecOfTrajRePlay) {
+          clearInterval(this.playInterval);
+          this.$refs.player.stop();
+        }
+      }, 100);
+      this.isPlayPause = false;
+    },
+    HandlePlayerStop() {
+      clearInterval(this.playInterval);
+      this.trajPlayTimeOffset[1] = this.trajPlayTimeOffset[0] + 1;
+      this.isPlayPause = false;
+    },
+    HandlePlayerPause() {
+      this.isPlayPause = true;
+      clearInterval(this.playInterval);
+    },
+    HandlePlayerSkipStart() {
+      this.isPlayPause = false;
+    },
+    HandlePlayerSkipEnd() {
+      this.isPlayPause = false;
+    },
   },
 
   mounted() {
@@ -578,7 +645,7 @@ export default {
 <style lang="scss" scoped>
 .agv-locus {
   .menu-container {
-    width: 820px;
+    width: 100%;
     .time-pick {
       .label {
         font-weight: bold;
