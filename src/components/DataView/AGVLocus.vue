@@ -5,8 +5,8 @@
         <el-col :lg="10">
           <div class="menu-container bg-light p-2 border" ref="menuContainer">
             <div class="resize-handle" @mousedown="startResize"></div>
-            <b-tabs>
-              <b-tab title="單次任務軌跡查詢">
+            <b-tabs v-model="activeTab" @activate-tab="handleTabChange">
+              <b-tab title="單次任務軌跡查詢" name="single-task-traj-query">
                 <div class="border-bottom my-1 py-2">
                   <div class="time-pick text-start d-flex">
                     <div>
@@ -115,7 +115,7 @@
                   </el-table-column>
                 </el-table>
               </b-tab>
-              <b-tab title="軌跡回顧">
+              <b-tab active title="軌跡回顧" name="trajecort-review">
                 <div class="p-3">
                   <div class="time-pick text-start d-flex">
                     <div>
@@ -168,6 +168,11 @@
                       >{{ showAllTracks ? '全部隱藏' : '全部顯示' }}</el-checkbox>
                     </div>
                     <el-table :data="trajPlayWindowDatas" border height="700" style="width:100%">
+                      <el-table-column label="時間" prop="Time">
+                        <template #default="scope">
+                          <div>{{ FormatTime(scope.row.Time) }}</div>
+                        </template>
+                      </el-table-column>
                       <el-table-column prop="TaskName" label="任務名稱" show-overflow-tooltip></el-table-column>
                       <el-table-column prop="AGVName" label="車輛名稱"></el-table-column>
                       <!-- <el-table-column prop="Coordinations" label="軌跡"></el-table-column> -->
@@ -184,6 +189,10 @@
                             <el-icon :size="20" v-else @click="ToggleLocus(scope.row)">
                               <Hide />
                             </el-icon>
+                            <el-button
+                              type="text"
+                              @click="HandlePlayFromThisTime(scope.row)"
+                            >從此時間開始播放</el-button>
                           </div>
                         </template>
                       </el-table-column>
@@ -200,6 +209,7 @@
         <el-col :lg="14" class="d-flex flex-column">
           <player
             ref="player"
+            :disabled="activeTab != 1"
             @onplay="HandlePlayerPlay"
             @onstop="HandlePlayerStop"
             @onpause="HandlePlayerPause"
@@ -267,6 +277,7 @@ export default {
   },
   data() {
     return {
+      activeTab: 0,
       tableData: [
         {
           task_id: '',
@@ -326,6 +337,12 @@ export default {
     }
   },
   methods: {
+    handleTabChange(current, previous) {
+      if (current != 1 && this.$refs.player) {
+        this.$refs.player.stop();
+        clearInterval(this.playInterval);
+      }
+    },
     handleShowAllChange(val) {
       this.isIndeterminate = false;
       this.trajPlayWindowDatas.forEach(item => {
@@ -495,6 +512,7 @@ export default {
         return {
           TaskName: item.TaskName,
           AGVName: item.AGVName,
+          Time: item.Coordinations.filter(pt => moment(pt.Time) >= this.recordPlayStartTimeMoment && moment(pt.Time) <= this.recordPlayEndTimeMoment)[0].Time,
           Coordinations: item.Coordinations.filter(pt => moment(pt.Time) >= this.recordPlayStartTimeMoment && moment(pt.Time) <= this.recordPlayEndTimeMoment).map(pt => ([pt.X, pt.Y])),
           isShowing: true
         }
@@ -611,6 +629,12 @@ export default {
     },
     HandlePlayerSkipEnd() {
       this.isPlayPause = false;
+    },
+    HandlePlayFromThisTime(row) {
+      this.trajPlayTimeOffset[0] = moment(row.Time).diff(moment(this.timePick_TrajPlayer.start_time)) / 1000;
+      this.trajPlayTimeOffset[1] = this.trajPlayTimeOffset[0] + 1;
+      this.$refs.player.stop();
+      this.$refs.player.play();
     },
   },
 
