@@ -591,20 +591,25 @@ export function AGVCargoIconStyle(cargo_type = 0, cargo_id = '', cst_exist = fal
         text: new Text({
             // text: `${cargo_type.toUpperCase()}\r\n${cargo_id}`,
             text: cargo_id,
-            offsetX: -55,
+            offsetX: -5,
             offsetY: -45,
             textAlign: 'left',
             font: 'bold 16px Arial',
             fill: new Fill({
-                color: 'white'
+                color: 'white',
             }),
             backgroundFill: new Fill({
-                color: 'rgb(13, 110, 253)',
+                color: 'rgba(0, 0, 176,0.7)',
             }),
-            padding: [5, 8, 5, 8]
-
-
-        })
+            backgroundStroke: new Stroke({
+                color: '#333',
+                width: 2,
+                lineDash: [3, 3], // 可選
+                lineCap: 'round',  // 'round' 可以讓邊框角落更圓滑
+                lineJoin: 'round'
+            }),
+            padding: [8, 8, 8, 8],
+        }),
     })
 }
 export function ChangeCargoIcon(feature = new Feature(), cargoStates = new clsCargoStates()) {

@@ -946,6 +946,7 @@ export default {
       searchTag: undefined,
       rackPortFeatures: [], // 需要顯示標籤的 features
       postRenderThrottleTimer: null,
+      agvRenderDebounceTimer: null,
     }
   },
   computed: {
@@ -4412,7 +4413,12 @@ export default {
         if (JSON.stringify(newval) == JSON.stringify(oldval)) {
           return;
         }
-        this.UpdateAGVLayer()
+        if (this.agvRenderDebounceTimer){
+          clearTimeout(this.agvRenderDebounceTimer);
+          console.log('clear agvRenderDebounceTimer');
+        }
+        this.agvRenderDebounceTimer = setTimeout(() => { this.UpdateAGVLayer() }, 100)
+
       }, { deep: true, immediate: false })
 
       watch(() => this.agvs_info_other_system, (newval, oldval) => {
