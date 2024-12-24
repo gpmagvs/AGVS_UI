@@ -315,6 +315,7 @@ export default {
       trajPlayWindowDatas: [{
         TaskName: "",
         AGVName: "",
+        Time: '',
         Coordinations: [{ Time: '', X: 0, Y: 0 }]
       }],
       trajPlayTimeOffset: [0, 0],
@@ -517,6 +518,8 @@ export default {
           isShowing: true
         }
       });
+      // Sort trajPlayWindowDatas by Time
+      this.trajPlayWindowDatas.sort((a, b) => moment(a.Time).valueOf() - moment(b.Time).valueOf());
       this.$refs.map.ClearLocus();
       // Create a map to store task colors if it doesn't exist
       if (!this.taskColors) {
