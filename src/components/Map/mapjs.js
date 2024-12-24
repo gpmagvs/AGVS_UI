@@ -559,11 +559,29 @@ export function CreateRegionPolygon(name = "禁制區", polygon_coordinations = 
 function GetCargoIcon(cargo_type, exist = false) {
     if (!exist)
         return null
+    let cargoImg = 'images/tray.png';
+    let scale = 0.8;
+    let anchor = [1.3, 0.95];
+    let size = [60, 60];
+
+    if (cargo_type != 200 && cargo_type != 201) {
+        cargoImg = 'images/unknown_cargo_orange.png'
+        scale = 0.6;
+        anchor = [1.4, 1.35];
+        size = [64, 64];
+    }
+    else {
+        cargoImg = cargo_type == 201 ? 'images/rack2.png' : 'images/tray.png';
+        scale = cargo_type == 201 ? .8 : .12;
+        anchor = cargo_type == 201 ? [1.3, 0.95] : [1, 0.85];
+        size = cargo_type == 201 ? [60, 60] : [1052, 781];
+    }
+
     return new Icon({
-        src: cargo_type == 201 ? 'images/rack2.png' : 'images/tray.png',
-        scale: cargo_type == 201 ? .8 : .12, // 设置PNG图像的缩放比例
-        anchor: cargo_type == 201 ? [1.3, 0.95] : [1, 0.85], // 设置PNG图像的锚点，即图片的中心点位置
-        size: cargo_type == 201 ? [60, 60] : [1052, 781],// 设置PNG图像的大小
+        src: cargoImg,
+        scale: scale, // 设置PNG图像的缩放比例
+        anchor: anchor, // 设置PNG图像的锚点，即图片的中心点位置
+        size: size,// 设置PNG图像的大小
         opacity: 1,
     })
 }
@@ -811,7 +829,7 @@ export class clsMap {
         this.PointIndex = 0;
         this.Map_Image_Size = [400, 400];
         this.Map_Image_Boundary = [-20, -20, 20, 20];
-        this.Points = {};
+        this.Points = [new MapPointModel()];
         this.BezierCurves = {};
         this.Pathes = [];
         this.Segments = [];
@@ -873,7 +891,8 @@ export class MapPointModel {
             IsBezierCurvePoint: false,
             BezierCurveID: '',
             textOffsetX: 0,
-            textOffsetY: -22
+            textOffsetY: -22,
+            rackDisplay: new RackDisplay()
         }
         this.Target = {
 
@@ -967,6 +986,13 @@ export class AgvDisplayProps {
     }
 }
 
+export class RackDisplay {
+    constructor() {
+        this.Rotation = 0;
+        this.OffsetX = 20.0;
+        this.OffsetY = 0.0;
+    }
+}
 
 export const MarkIconTranslate = {
     move: {

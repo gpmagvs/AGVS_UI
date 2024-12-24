@@ -286,6 +286,28 @@
                     ></el-input>
                   </div>
                 </el-form-item>
+                <el-form-item label="Rack顯示">
+                  <div class="d-flex text-offset">
+                    <span class="mx-3">X</span>
+                    <el-input
+                      class="mx-2"
+                      type="number"
+                      v-model="pointData_editing.Graph.rackDisplay.OffsetX"
+                    ></el-input>
+                    <span class="mx-3">Y</span>
+                    <el-input
+                      class="mx-2"
+                      type="number"
+                      v-model="pointData_editing.Graph.rackDisplay.OffsetY"
+                    ></el-input>
+                    <span class="mx-3">Rotation</span>
+                    <el-input
+                      class="mx-2"
+                      type="number"
+                      v-model="pointData_editing.Graph.rackDisplay.Rotation"
+                    ></el-input>
+                  </div>
+                </el-form-item>
               </el-form>
             </el-collapse-item>
 
@@ -409,6 +431,9 @@ export default {
         this.BindingEQInfo = await GetEQInfoByTag(this.pointData.TagNumber);
       }
       this.show = true;
+      setTimeout(() => {
+        this.$emit('OnPointSettingChanged', { index: this.index, pointData: this.pointData_editing })
+      }, 500);
     },
     InitRegisterTableData() {
       this.RegistersTable = []
@@ -475,8 +500,10 @@ export default {
           customClass: 'my-sweetalert'
         }).then((result) => {
           this.show = !result.isConfirmed;
-          if (!this.show)
+          if (!this.show) {
             this.$emit('OnLeve')
+            this.$emit('OnPointSettingChanged', { index: this.index, pointData: this.pointData })
+          }
         })
 
       } else {

@@ -397,6 +397,13 @@ export const EqStore = createStore({
       const rackPort = getters.GetRackPort(tag, slot);
       return rackPort?.CargoExist || false;
     },
+    QueryPortDisabled: (state, getters) => (tag, slot) => {
+      const portOption = getters.GetRackPortOption(tag, slot);
+      if (portOption) {
+        return portOption.PortUsable == 0;
+      } else
+        return true;
+    },
     GetRackPort: state => (tag, slot) => {
       var _getWIPTags = (wip) => {
         if (wip.ColumnsTagMap)
@@ -411,6 +418,24 @@ export const EqStore = createStore({
         return port;
       }
       return {};
+    },
+    GetRackPortOption: state => (tag, slot) => {
+      var _getWIPTags = (wip) => {
+        if (wip.ColumnTagMap)
+          return Object.values(wip.ColumnTagMap).flat();
+        else
+          return [];
+      }
+
+      const wipOption = state.WIPOptions.find(wip => _getWIPTags(wip).includes(tag));
+      if (wipOption) {
+        const col_ = Object.keys(wipOption.ColumnTagMap).find(col =>
+          wipOption.ColumnTagMap[col].includes(tag)
+        );
+        return wipOption.PortsOptions.find(portOption => portOption.Column == col_ && portOption.Row == slot);
+      } else {
+        return undefined;
+      }
     },
     AnyTwoLayerEqExist: state => {
       try {

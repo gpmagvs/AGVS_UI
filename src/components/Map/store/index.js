@@ -287,6 +287,7 @@ export const MapStore = createStore({
         Rotation: state => state.MapData.Options.Rotation ? state.MapData.Options.Rotation : 0,
         DefaultShowBackgroundImage: state => state.MapData.Options.defaultShowBackgroudImage,
 
+
     },
     mutations: {
         setToolState(state, _state) {

@@ -6,12 +6,19 @@
         v-for="index in [2,1,0]"
         :key="`${tagNumber}-${index}`"
         class="port"
-        v-bind:class="getCargoExisStateClass(tagNumber,index)"
+        v-bind:class="[getCargoExisStateClass(tagNumber,index),index==0?'first-slot':'']"
         @click="HandleRackPortClicked(tagNumber,index)"
         @mouseover="HandleRackPortMouseOver(index)  "
         @mouseleave="HandleRackPortMouseLeave(index)"
       >
-        <div v-if="isPortHover[index]" class="port-tooltip">
+        <!-- <div v-if="true" class="port-tooltip" :style="dynamicTooltipStyle"> -->
+        <div v-if="isPortHover[index] && !IsRotated" class="port-tooltip" style="z-index: 2323;">
+          <div class="tooltip-content">
+            <div>Cargo ID:</div>
+            <el-button :loading="cargoIdLoading" text class="text-primary">{{displayCargoID}}</el-button>
+          </div>
+        </div>
+        <div v-if="isPortHover[index] && IsRotated" :style="dynamicTooltipStyle">
           <div class="tooltip-content">
             <div>Cargo ID:</div>
             <el-button :loading="cargoIdLoading" text class="text-primary">{{displayCargoID}}</el-button>
@@ -69,6 +76,8 @@ export default {
         className += ' exist-cargo';
       if (TaskStore.getters.AnyOrderAssignTagAndSlot(tagNumber, slot))//TODO 是否有任務的終點或起點是這個儲格
         className += ' port-order-assigned';
+      if (EqStore.getters.QueryPortDisabled(tagNumber, slot))
+        className += ' port-disable';
       return className;
     },
     HandleRackPortClicked(tag, slot) {
@@ -90,6 +99,42 @@ export default {
       this.cargoIdLoading = false;
       this.displayCargoID = '';
     }
+  },
+  computed: {
+    dynamicTooltipStyle() {
+      let rotateTheta = 0;
+      let isRotated = false;
+      function getRotationFromTransform(transformString) {
+        const matches = transformString.match(/rotate\(([-\d.]+)deg\)/);
+        return matches ? parseFloat(matches[1]) : 0;
+      }
+
+      if (this.dynamicStyle.transform) {
+        rotateTheta = getRotationFromTransform(this.dynamicStyle.transform);
+        isRotated = rotateTheta != 0;
+      }
+      if (isRotated)
+        return {
+          transform: `rotate(${rotateTheta * -1}deg)`,
+        }
+      else
+        return {};
+    },
+    IsRotated() {
+      let rotateTheta = 0;
+      let isRotated = false;
+      function getRotationFromTransform(transformString) {
+        const matches = transformString.match(/rotate\(([-\d.]+)deg\)/);
+        return matches ? parseFloat(matches[1]) : 0;
+      }
+
+      if (this.dynamicStyle.transform) {
+        rotateTheta = getRotationFromTransform(this.dynamicStyle.transform);
+        isRotated = rotateTheta != 0;
+      }
+      return isRotated;
+    }
+
   }
 }
 </script>
@@ -98,6 +143,13 @@ export default {
 .rack-status-display {
   .buffer-cargo-exist-container {
     // background-color: red;
+    // transform: rotate(-90deg);
+    transform-origin: left top;
+    .first-slot {
+      border-bottom: 7px solid rgb(0, 0, 0) !important;
+      height: calc(var(--map-rack-port-display-height) + 4px) !important;
+      // background: red !important;
+    }
     .port {
       width: var(--map-rack-port-display-width);
       height: var(--map-rack-port-display-height);
@@ -106,10 +158,13 @@ export default {
     }
     .port:hover {
       cursor: pointer;
-      border: 4px solid red;
+      border: 4px solid rgb(115, 255, 0);
     }
     .exist-cargo {
       background-color: var(--map-rack-port-cargo-exist-color);
+    }
+    .port-disable {
+      border: 4px solid red;
     }
     .port-order-assigned {
       animation: rackHasOrderFlash 1s infinite;
@@ -126,26 +181,26 @@ export default {
     }
     .port-tooltip {
       position: absolute;
-      top: 0;
-      font-size: 18px;
       left: calc(var(--map-rack-port-display-width) + 10px);
+      transform-origin: none !important;
+    }
+    .tooltip-content {
+      font-size: 18px;
       background-color: white;
       border: 1px solid black;
       padding: 5px;
       border-radius: 5px;
-      z-index: 32;
       white-space: nowrap;
+      width: fit-content;
       pointer-events: none;
-      .tooltip-content {
-        display: flex;
-        flex-direction: row;
-        gap: 8px;
-        min-width: min-content;
-        font-weight: bold;
-        .el-button {
-          padding: 2px;
-          font-size: 20px;
-        }
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 1px;
+      font-weight: bold;
+      .el-button {
+        padding: 2px;
+        font-size: 20px;
       }
     }
   }

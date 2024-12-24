@@ -301,7 +301,7 @@
                 v-show="SelectedFeatures.length!=0"
               >已選擇 [{{ SelectedFeatures.length }}] 個點位</div>
               <!-- 選染RACK PORT 旁邊的貨物在席狀態 -->
-              <div v-if="rackInfoShow && !editable &&rackVisible">
+              <div v-if="rackInfoShow  &&rackVisible">
                 <RackStatusDisplay
                   v-for="feature in RackPortPointFeatures"
                   :key="feature.get('data')?.TagNumber+'-rack-display'||feature.id"
@@ -477,7 +477,7 @@
                   @change="HandleLedgendShowChanged"
                 ></el-switch>
               </div>
-              <div v-if="!editable" class="rounded">
+              <div class="rounded">
                 <span class="mx-1">Rack顯示</span>
                 <el-switch
                   class="my-2"
@@ -946,7 +946,6 @@ export default {
       searchTag: undefined,
       rackPortFeatures: [], // 需要顯示標籤的 features
       postRenderThrottleTimer: null,
-
     }
   },
   computed: {
@@ -1079,19 +1078,30 @@ export default {
       if (!feature || !this.map)
         return {};
       // 將地理座標轉換為螢幕像素座標
+      const tagNumber = feature.get('data').TagNumber;
       const pixel = this.map.getPixelFromCoordinate(feature.getGeometry().getCoordinates());
 
       if (!pixel) return { display: 'none' };
 
+      //Get Rack Display Options from map model;
       // 設置偏移量 (例如右側 10px, 上方 5px)
-      const offsetX = 20;
-      const offsetY = 0;
+      let offsetX = 20;
+      let offsetY = 0;
+      let rotation = 0;
+      const ptData = feature.get('data');
+      if (ptData) {
+        const rackDisplay = ptData.Graph.rackDisplay;
+        offsetX = rackDisplay.OffsetX;
+        offsetY = rackDisplay.OffsetY;
+        rotation = rackDisplay.Rotation;
 
+      }
       return {
         position: 'absolute',
-        left: `${pixel[0] + offsetX}px`,
-        top: `${pixel[1] + offsetY}px`,
-        transform: 'translate(0, -50%)', // 垂直置中
+        left: `${parseFloat(pixel[0]) + parseFloat(offsetX)}px`,
+        top: ` ${parseFloat(pixel[1]) + parseFloat(offsetY)}px`,
+        transform: `rotate(${rotation}deg) translate(0,-50%)`, // 垂直置中
+        transformOrigin: 'center center',
         zIndex: 1
       }
     },
