@@ -122,7 +122,7 @@ export default {
       },
       HeaderShowSysAlarm: true,
       HeaderShowEqpAlarm: true,
-      mapSaved: false
+      reloadAfterBackToHome: false
     }
   },
   computed: {
@@ -352,11 +352,14 @@ export default {
         })
     })
 
+    bus.on('home-reload-request', (reason) => {
+      this.reloadAfterBackToHome = true;
+    })
     const route = useRoute()
     watch(
       () => route.path,
       (newValue, oldValue) => {
-        if (newValue == '/' && this.mapSaved) {
+        if (newValue == '/' && this.reloadAfterBackToHome) {
           location.reload();
         }
         if ((newValue == '/sys_settings' || newValue == '/map') && userStore.getters.level <= 0) {

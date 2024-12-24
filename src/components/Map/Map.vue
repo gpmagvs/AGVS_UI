@@ -4413,9 +4413,8 @@ export default {
         if (JSON.stringify(newval) == JSON.stringify(oldval)) {
           return;
         }
-        if (this.agvRenderDebounceTimer){
+        if (this.agvRenderDebounceTimer) {
           clearTimeout(this.agvRenderDebounceTimer);
-          console.log('clear agvRenderDebounceTimer');
         }
         this.agvRenderDebounceTimer = setTimeout(() => { this.UpdateAGVLayer() }, 100)
 
@@ -4509,7 +4508,6 @@ export default {
       bus.on('stop_render', () => {
         clearInterval(this.renderLDULD_StatusTimerId);
       })
-
       var mapdom = document.getElementById(this.id);
       if (mapdom)
         mapdom.addEventListener('contextmenu', (ev) => {

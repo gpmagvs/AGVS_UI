@@ -108,7 +108,7 @@ export default {
       var success = await MapStore.dispatch('SaveMap', { data: mapData, file: mapDataSave.ImageFile });
       this.map_saving = false;
       if (success) {
-        bus.emit('/map_save');
+        bus.emit('home-reload-request');
         this.$swal.fire({
           title: '圖資儲存成功',
           icon: 'success',

@@ -1,6 +1,9 @@
 <template>
-  <div class="rack-port" v-bind:class="ProductQualityClassName">
+  <div class="rack-port" v-bind:class="[ProductQualityClassName,UsableStateClass]">
     <div class="bg-light border-bottom d-flex py-1">
+      <span class="flex-fill text-start px-1">
+        <label class="port-no-display">{{ PortNameDisplay }}</label>
+      </span>
       <div
         v-show="AnySensorFlash"
         class="text-danger bg-light w-100 text-start"
@@ -10,9 +13,20 @@
         {{
         $t('Rack.Sensor_Flash') }}
       </div>
-      <span class="flex-fill text-start px-1">
-        <label class="port-no-display">{{ PortNameDisplay }}</label>
-      </span>
+      <div v-if="IsUserLoginAndPermissionAboveOP" class="px-2">
+        <el-switch
+          active-text="啟用"
+          inactive-text="禁用"
+          :active-value="1"
+          :inactive-value="0"
+          inactive-color="rgb(146, 148, 153)"
+          v-model="port_info.Properties.PortUsable"
+          :before-change="HandlePortUsableSwitchClicked"
+        ></el-switch>
+      </div>
+      <div v-else>
+        <span class="text-danger" v-if="port_info.Properties.PortUsable==0">已禁用</span>
+      </div>
       <!-- <div class="px-2" v-if="!IsOvenAsRacks">
         <el-tag
           v-bind:class="ProductQualityClassName + ' text-dark'"
@@ -145,10 +159,11 @@
 <script>
 import Clipboard from 'clipboard'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
-import { ModifyCargoID, RemoveCargoID } from '@/api/WIPAPI.js'
+import { ModifyCargoID, RemoveCargoID, PortUsableSwitch } from '@/api/WIPAPI.js'
 import { userStore } from '@/store'
 import { RackEmuAPI, SetToFullRackStatusByEqTag, SetToEmptyRackStatusByEqTag } from '@/api/EquipmentAPI'
-
+import { EqStore } from '@/store'
+import bus from '@/event-bus'
 export default {
   props: {
     rack_name: {
@@ -174,6 +189,7 @@ export default {
             Row: 0,
             Column: 0,
             PortNo: '',
+            PortUsable: 0,
             ProductionQualityStore: 0,//0: ok | 1: ng
             CargoTypeStore: 2, // 0:tray | 1:Rack| 2:Mixed
             IOLocation: { Tray_Sensor1: 0, Tray_Sensor2: 1, Box_Sensor1: 2, Box_Sensor2: 3 },
@@ -205,6 +221,9 @@ export default {
     }
   },
   computed: {
+    IsUserLoginAndPermissionAboveOP() {
+      return userStore.state.user.Role > 0;
+    },
     ProductQualityClassName() {
       if (this.IsOvenAsRacks)
         return 'oven-port'
@@ -216,6 +235,9 @@ export default {
       if (this.port_info.CargoExist && !this.port_info.CarrierID) //有貨但無帳籍
         return 'has-cargo-but-no-cst-port'
       return 'empty-port'
+    },
+    UsableStateClass() {
+      return this.port_info.Properties.PortUsable == 1 ? 'port-usable' : 'port-not-usable';
     },
     PortNameDisplay() {
       return `${this.port_info.PortNo}`
@@ -349,6 +371,32 @@ export default {
       await SetToFullRackStatusByEqTag(this.port_info.TagNumbers[0], true)
       await SetToEmptyRackStatusByEqTag(this.port_info.TagNumbers[0], false)
       this.radioGroupDisable = false;
+    },
+    async HandlePortUsableSwitchClicked() {
+      setTimeout(async () => {
+        const nameDisplay = `${this.rack_name}-${this.port_info.PortNo}`
+        const switchToUsable = this.port_info.Properties.PortUsable != 1;
+        const response = await PortUsableSwitch(this.rack_name, this.port_info.Properties.ID, switchToUsable);
+        if (response.confirm) {
+          bus.emit('home-reload-request', 'rack-port-usable-changed')
+          ElNotification({
+            title: '成功',
+            message: switchToUsable ? `${nameDisplay}已啟用` : `${nameDisplay}已停用`,
+            type: 'success',
+            duration: 1500
+          })
+        } else {
+          this.$swal.fire({
+            text: response.message,
+            title: `切換${nameDisplay} ${switchToUsable ? '啟用' : '禁用'}失敗`,
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonText: 'OK',
+            customClass: 'my-sweetalert'
+          })
+        }
+      }, 300);
+      return false;
     }
   },
 }
@@ -360,7 +408,6 @@ export default {
   //   background-color: rgb(236, 236, 236);
   border: 3px solid rgb(0, 0, 0);
   margin: 2px;
-
   .item {
     display: flex;
     flex-direction: row;
@@ -400,7 +447,7 @@ export default {
   }
 }
 .rack-port:hover {
-  border: 5px solid rgb(0, 149, 255);
+  border: 5px solid rgb(51, 51, 51);
   border-radius: 8px;
 }
 .ok-port {
@@ -426,5 +473,8 @@ export default {
 .oven-port {
   background-color: rgb(213, 213, 213);
   color: black;
+}
+.port-not-usable {
+  border: 6px solid red;
 }
 </style>
