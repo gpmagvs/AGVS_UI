@@ -1,6 +1,6 @@
 <template>
   <div class="rack-status-view custom-tabs-head p-1">
-    <div class="text-start border-bottom my-1 py-1">
+    <div class="display-mode-container text-start border-bottom my-1 py-1">
       <span class="px-2 text-primary">
         <b>顯示方式</b>
       </span>
@@ -21,13 +21,13 @@
               text-inside
               striped
               striped-flow
-              :duration="40"
+              :duration="500"
             >
               <span>{{ zone.hasCstPortNum }}/{{ zone.totalPorts }}</span>
             </el-progress>
           </div>
         </div>
-        <div class="d-flex flex-row flex-wrap w-100">
+        <div class="d-flex flex-row flex-no-wrap w-100 overflow-auto">
           <div v-for="Rack in zone.zones" :key="Rack.WIPName">
             <RackStatus :rack_info="Rack" :showLevel="false"></RackStatus>
           </div>
@@ -40,7 +40,8 @@
       </b-tab>-->
     </b-tabs>
     <div v-else>
-      <div v-for="zone in GroupedWipData" :key="zone.zoneName">
+      <div v-for="zone in GroupedWipData" :key="zone.zoneName" class="my-2 border">
+        <h3 class="bg-dark text-light">{{ zone.zoneName }}</h3>
         <div class="d-flex flex-row">
           <b>{{ $t('Rack.Cargo_Spaces') }}</b>
           <div class="flex-fill">
@@ -50,13 +51,13 @@
               text-inside
               striped
               striped-flow
-              :duration="40"
+              :duration="500"
             >
               <span>{{ zone.hasCstPortNum }}/{{ zone.totalPorts }}</span>
             </el-progress>
           </div>
         </div>
-        <div class="d-flex flex-row flex-wrap w-100">
+        <div class="d-flex flex-row flex-no-wrap overflow-auto">
           <div v-for="Rack in zone.zones" :key="Rack.WIPName">
             <RackStatus :rack_info="Rack" :showLevel="false"></RackStatus>
           </div>
@@ -130,5 +131,9 @@ export default {
 </script>
 <style lang="scss">
 .rack-status-view {
+  .display-mode-container {
+    position: absolute;
+    right: 1rem;
+  }
 }
 </style>

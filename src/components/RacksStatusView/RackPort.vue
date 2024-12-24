@@ -133,7 +133,7 @@
         </el-radio-group>
       </div>
     </div>
-    <div class="item" v-if="!IsOvenAsRacks">
+    <div class="item" v-if="false">
       <div class="title">Install Priority</div>
       <div class="values">
         <el-input type="text" size="small" v-model="port_info.Properties.StoragePriority"></el-input>

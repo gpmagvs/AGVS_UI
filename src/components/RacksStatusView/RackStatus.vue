@@ -1,5 +1,5 @@
 <template>
-  <div class="rack-status rounded m-0 p-1">
+  <div class="rack-status m-0 p-1">
     <div class="my-1 d-flex flex-row bg-light">
       <h3 class="w-50 text-start px-2">{{ rack_info.WIPName }}</h3>
       <div class="p-1" v-if="showLevel">
@@ -115,8 +115,6 @@ export default {
 <style lang="scss" scoped>
 .rack-status {
   border: 2px solid black;
-  box-shadow: 4px -1px 12px 1px grey;
-
   .ports-container {
     // background-color: black;
     overflow-x: scroll;
