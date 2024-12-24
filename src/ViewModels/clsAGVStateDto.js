@@ -30,7 +30,7 @@ class clsAGVStateDto {
       this.TransferProcess = 0
       this.CurrentAction = 0
       this.TaskRunAction = 0
-      this.TaskETA = ""
+      this.TaskETA = "9999-12-31T23:59:59.9999999"
       this.IsExecutingOrder = false
       this.VehicleLength = 145
       this.VehicleWidth = 70
