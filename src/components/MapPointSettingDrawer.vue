@@ -2,7 +2,7 @@
   <div class="map-point-setting-drawer">
     <el-drawer
       v-model="show"
-      size="35%"
+      size="40%"
       :close-on-press-escape="true"
       :close-on-click-modal="true"
       :show-close="false"
@@ -15,7 +15,7 @@
           <h3>點位設定-{{ index }}</h3>
         </div>
       </template>
-      <div class="draw-content w-100 px-2">
+      <div class="draw-content w-100">
         <div class="text-start py-2 d-flex">
           <!-- <b-button variant="danger" @click="CancelBtnClickHandle">離開</b-button> -->
           <b-button variant="danger" @click="CancelBtnClickHandle">離開</b-button>
@@ -26,8 +26,11 @@
           </div>
         </div>
         <div class="settings px-2">
-          <el-collapse v-model="activeNames" :accordion="true">
-            <el-collapse-item title="基本設定" name="1">
+          <el-collapse v-model="activeNames" :accordion="false">
+            <el-collapse-item name="1">
+              <template #title>
+                <span class="collapse-title">基本設定</span>
+              </template>
               <el-form label-width="120px" label-position="left">
                 <el-form-item label="Point Index">
                   <el-input v-model="index" disabled></el-input>
@@ -195,7 +198,10 @@
                 </el-form-item>
               </el-form>
             </el-collapse-item>
-            <el-collapse-item title="功能設定" name="2">
+            <el-collapse-item name="2">
+              <template #title>
+                <span class="collapse-title">功能設定</span>
+              </template>
               <div class="d-flex flex-column">
                 <el-checkbox v-model="pointData_editing.Enable" label="啟用"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsTrafficCheckPoint" label="交管檢查點"></el-checkbox>
@@ -222,7 +228,10 @@
                 </div>
               </div>
             </el-collapse-item>
-            <el-collapse-item title="註冊點" name="3">
+            <el-collapse-item name="3">
+              <template #title>
+                <span class="collapse-title">註冊點</span>
+              </template>
               <div class="text-start">
                 <el-button
                   @click="() => {
@@ -264,7 +273,10 @@
                 </el-table-column>
               </el-table>
             </el-collapse-item>
-            <el-collapse-item disabled title="分區設定" name="4">
+            <el-collapse-item name="4" disabled>
+              <template #title>
+                <span class="collapse-title">分區設定</span>
+              </template>
               <el-form>
                 <el-form-item label="所屬區域">
                   <RegionsSelector v-model="pointData_editing.Region"></RegionsSelector>
@@ -272,8 +284,11 @@
               </el-form>
             </el-collapse-item>
 
-            <el-collapse-item title="顯示設定" name="5">
-              <el-form>
+            <el-collapse-item name="5">
+              <template #title>
+                <span class="collapse-title">顯示設定</span>
+              </template>
+              <el-form label-width="120px" label-position="left">
                 <el-form-item label="Text Offset">
                   <div class="d-flex text-offset">
                     <span class="mx-3">X</span>
@@ -290,7 +305,7 @@
                     ></el-input>
                   </div>
                 </el-form-item>
-                <el-form-item label="Rack顯示">
+                <el-form-item label="Rack 顯示">
                   <div class="d-flex text-offset">
                     <span class="mx-3">X</span>
                     <el-input
@@ -316,10 +331,12 @@
             </el-collapse-item>
 
             <el-collapse-item
-              title="進出點位設定"
               v-if="pointData_editing.StationType == 3 || pointData_editing.StationType == 7"
               name="6"
             >
+              <template #title>
+                <span class="collapse-title">進出點位設定</span>
+              </template>
               <el-form>
                 <el-form-item label="進入點">
                   <el-input-number v-model="pointData_editing.TagOfInPoint"></el-input-number>
@@ -621,6 +638,15 @@ export default {
 </script>
 <style lang="scss" scoped>
 .map-point-setting-drawer {
+  ::v-deep .draw-content button {
+    width: 100%;
+  }
+
+  .collapse-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(0, 99, 247);
+  }
   .modal-style {
     opacity: 0.3;
   }
@@ -648,7 +674,7 @@ export default {
     height: 100%;
 
     .settings {
-      height: 800px;
+      height: 80vh;
       overflow-y: scroll;
     }
 
