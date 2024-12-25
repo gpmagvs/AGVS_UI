@@ -264,7 +264,7 @@
                 </el-table-column>
               </el-table>
             </el-collapse-item>
-            <el-collapse-item title="分區設定" name="4">
+            <el-collapse-item disabled title="分區設定" name="4">
               <el-form>
                 <el-form-item label="所屬區域">
                   <RegionsSelector v-model="pointData_editing.Region"></RegionsSelector>
