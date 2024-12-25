@@ -14,7 +14,7 @@
         <Menu :isCollapse="menu_collapse"></Menu>
       </el-aside>
       <el-container>
-        <el-header v-if="!IsOpUsing" style="padding:0;">
+        <el-header style="padding:0;">
           <Header
             ref="header"
             :MenuExpanded="menu_collapse"

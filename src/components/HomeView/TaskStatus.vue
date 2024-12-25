@@ -1,13 +1,22 @@
 <template>
   <div class="task-status card-like">
-    <div v-show="show_card_title" class="title d-flex flex-row justify-content-between">
-      <div><i class="bi bi-three-dots-vertical"></i>{{ $t('HomeView.TaskStatus') }} </div>
-      <div><i class="bi bi-sliders" @click="ShowSettingsDrawer = true"></i></div>
+    <div v-if="show_card_title" class="title d-flex flex-row justify-content-between">
+      <div>
+        <i class="bi bi-three-dots-vertical"></i>
+        {{ $t('HomeView.TaskStatus') }}
+      </div>
+      <div>
+        <i class="bi bi-sliders" @click="ShowSettingsDrawer = true"></i>
+      </div>
     </div>
-    <div class="" v-if="display_mode == 'tabs'">
+    <div class v-if="display_mode == 'tabs'">
       <el-tabs lazy size type="border-card">
         <el-tab-pane :label="$t('IncompleteTasks')">
-          <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskListTbData"></RunningTaskTable>
+          <RunningTaskTable
+            :height="height"
+            :IncompletedTaskList="IncompletedTaskListTbData"
+            :display_mode="'cards'"
+          ></RunningTaskTable>
         </el-tab-pane>
         <el-tab-pane :label="$t('CompleteTasks')">
           <CompletedTaskTable :height="height" :CompletedTaskList="CompletedTaskListTbData"></CompletedTaskTable>
@@ -16,13 +25,21 @@
     </div>
     <div v-else class="column-display-mode">
       <div class="title-display">等待/執行中任務</div>
-      <RunningTaskTable :height="height" :IncompletedTaskList="IncompletedTaskListTbData"></RunningTaskTable>
+      <RunningTaskTable
+        :height="height"
+        :IncompletedTaskList="IncompletedTaskListTbData"
+        display_mode="cards"
+      ></RunningTaskTable>
       <div class="title-display">已結束任務</div>
       <CompletedTaskTable :height="height" :CompletedTaskList="CompletedTaskListTbData"></CompletedTaskTable>
     </div>
     <el-drawer v-model="ShowSettingsDrawer" title="任務狀態設定">
       <div class="setting-container w-100 bg-light text-start">
-        <el-checkbox @change="HandleShowTrafficCkbChg" v-model="Settings.ShowTrafficTask" label="顯示交管任務"></el-checkbox>
+        <el-checkbox
+          @change="HandleShowTrafficCkbChg"
+          v-model="Settings.ShowTrafficTask"
+          label="顯示交管任務"
+        ></el-checkbox>
       </div>
     </el-drawer>
   </div>

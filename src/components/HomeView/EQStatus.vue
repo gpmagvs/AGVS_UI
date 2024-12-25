@@ -8,7 +8,7 @@
         <RegionsSelector v-model="selected_region"></RegionsSelector>
       </div>-->
       <div class="d-flex">
-        <div class="p-1" style="width:80px">
+        <div class="p-1" style="width:120px">
           <i class="bi bi-three-dots-vertical pt-2"></i>
           {{ $t('HomeView.EQStatus.EQStatus.ViewMode') }}
         </div>
@@ -17,7 +17,7 @@
           <el-option :label="$t('HomeView.EQStatus.EQStatus.IO')" value="io_siganl"></el-option>
         </el-select>
       </div>
-      <div v-if="!show_lduld_state" class="legend d-flex flex-row px-2 w-100">
+      <div v-if="!show_lduld_state" class="legend d-flex flex-row flex-nowrap px-2 w-100">
         <div class="disconnect"></div>
         <span>{{ $t('HomeView.EQStatus.EQStatus.DisConnect') }}</span>
         <div class="signal-on"></div>
@@ -190,7 +190,13 @@
       </el-table-column>
       <el-table-column sortable label="Tag" prop="Tag" width="80" align="center">
         <template #default="scope">
-          <div style="color:grey">{{ scope.row.Tag }}</div>
+          <div style="color:grey">
+            {{ scope.row.Tag }}
+            <i
+              class="bi bi-geo-alt-fill px-2"
+              style="font-size:14px;cursor:pointer"
+            ></i>
+          </div>
         </template>
       </el-table-column>
       <el-table-column

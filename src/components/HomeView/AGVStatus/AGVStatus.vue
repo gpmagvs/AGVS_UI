@@ -1,10 +1,10 @@
 <template>
   <div class="agv-status card-like">
     <div class="title d-flex flex-row">
-      <div class="flex-fill">
+      <!-- <div class="flex-fill">
         <i class="bi bi-three-dots-vertical"></i>
         {{ $t('HomeView.AGVStatus.AGVStatus.vehicle-status') }}
-      </div>
+      </div>-->
       <div
         class="text-danger"
         v-if="!IsVMSConnect"

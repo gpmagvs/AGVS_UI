@@ -7,9 +7,20 @@
       class="d-flex flex-row"
     >
       <div v-show="MenuExpanded" class="left-col border-right left-panel">
-        <Header v-if="IsOpUsing"></Header>
-        <AGVStatusVue></AGVStatusVue>
-        <TaskStatusVue height="330px"></TaskStatusVue>
+        <!-- <Header v-if="IsOpUsing"></Header> -->
+        <b-card no-body>
+          <b-tabs>
+            <b-tab title="Vehicles">
+              <AGVStatusVue></AGVStatusVue>
+            </b-tab>
+            <b-tab title="Missions">
+              <TaskStatusVue height="80vh" :show_card_title="false"></TaskStatusVue>
+            </b-tab>
+            <b-tab :title="$t('HomeView.EQ_Status')">
+              <EQStatus></EQStatus>
+            </b-tab>
+          </b-tabs>
+        </b-card>
       </div>
       <div
         v-bind:style=" IsOpUsing? {
@@ -35,8 +46,8 @@
         </div>
       </div>
       <div class="right-panel flex-fill">
-        <!-- <HomeMap style="width:100%"></HomeMap> -->
-        <el-tabs
+        <HomeMap style="width:100%;height:100%"></HomeMap>
+        <!-- <el-tabs
           lazy
           v-model="right_side_tabSelected"
           tab-position="top"
@@ -49,7 +60,7 @@
           <el-tab-pane name="eqStatus" :label="$t('HomeView.EQ_Status')">
             <EQStatus></EQStatus>
           </el-tab-pane>
-        </el-tabs>
+        </el-tabs>-->
       </div>
       <TaskAllocationVue></TaskAllocationVue>
     </div>
@@ -85,9 +96,6 @@
       v-if="IsLogin"
       @on-click="() => { show_new_dispatch_panel = true }"
     ></TaskDispathActionButton>
-    <div id="buzzer-stop" v-if="IsOpUsing">
-      <el-button type="danger" @click="HandleStopBuzzerClicked">{{ $t('App.Header.Turnoffbuzzer') }}</el-button>
-    </div>
   </div>
 </template>
 <script>

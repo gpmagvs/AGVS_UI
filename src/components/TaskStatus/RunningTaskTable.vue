@@ -1,6 +1,7 @@
 <template>
   <div class="running-task-table">
     <el-table
+      v-if="display_mode == 'table'"
       :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
       :data="taskWithSorted"
       row-key="TaskName"
@@ -119,6 +120,9 @@
         </template>
       </el-table-column>
     </el-table>
+    <div v-else>
+      <MissionCard v-for="task in IncompletedTaskList" :key="task.TaskName" :mission="task"></MissionCard>
+    </div>
   </div>
 </template>
 <script>
@@ -129,9 +133,12 @@ import { MapStore } from '@/components/Map/store'
 import { TableColumnSize, ReStoreTableColumnSizeSettingsFromStorage, SaveTableColumnSizeSettingsToStorage } from '@/ViewModels/UI/TableColumnSize.js'
 import bus from '@/event-bus';
 import clsTaskState from '@/ViewModels/TaskState'
-
+import MissionCard from './MissionCard.vue'
 
 export default {
+  components: {
+    MissionCard
+  },
   props: {
     IncompletedTaskList: {
       type: Array,
@@ -143,6 +150,15 @@ export default {
       type: String,
       default() {
         return '260px'
+      }
+    },
+    /**
+     * table or cards
+     */
+    display_mode: {
+      type: String,
+      default() {
+        return 'table' // table or cards
       }
     }
   },
