@@ -1471,11 +1471,12 @@ export default {
             var nameFillColor = this.convertColorNameToRGBA(agv_information.TextColor, 1);
             var bodyColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.4);
             var safyRegionColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.2);
+            var safyRegionStrokeColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.8);
             const _agvSaftyRegionFeature = new Feature(_agvSaftyCircle)
             _agvSaftyRegionFeature.setStyle(new Style({
               fill: new Fill({ color: safyRegionColor }),
               stroke: new Stroke({
-                color: safyRegionColor, width: 1, lineDash: [5, 2]
+                color: safyRegionStrokeColor, width: 1, lineDash: [13, 12]
               }),
               text: new Text({
                 text: "",
@@ -1487,8 +1488,10 @@ export default {
             _agvBodyFeature.setStyle(new Style({
               fill: new Fill({ color: bodyColor }),
               stroke: new Stroke({
-                color: 'black',
-                width: 1
+                color: 'grey',
+                width: 1,
+                lineCap: 'round',
+                lineJoin: 'round'
               }),
             }))
             var _style = AGVPointStyle(agv_information.DisplayText, nameFillColor, vehicleImageName)

@@ -640,11 +640,11 @@ export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
         height = agv_img.height == 0 ? 64 : agv_img.height;
     }
     return new Icon({
-        src: _imgUrl, // 设置PNG图像的路径
-        scale: 48 / width, // 设置PNG图像的缩放比例
+        src: '/agv2.png', // 设置PNG图像的路径
+        scale: 0.6, // 设置PNG图像的缩放比例
         anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
-        size: [width, height],// 设置PNG图像的大小
-        opacity: 1,
+        size: [64, 64],// 设置PNG图像的大小
+        opacity: 0.9,
         rotation: 0 * Math.PI / 180.0 //3.14 180
 
     })
