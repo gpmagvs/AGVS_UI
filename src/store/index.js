@@ -12,10 +12,13 @@ import clsTaskState from '@/ViewModels/TaskState.js';
 import SecsPlatformAPI from '@/api/SecsPlatform'
 import { GetEQData } from '@/api/EquipmentAPI'
 import { GetUncheckedAlarms } from '@/api/AlarmAPI'
+import { ElNotification } from 'element-plus';
+import { useRoute } from 'vue-router';
 var cachesKeyMap = {
   agvStates: 'agv_states'
 }
 import bus from '@/event-bus'
+const route = useRoute()
 
 export default createStore({
 
@@ -375,7 +378,9 @@ export const EqStore = createStore({
     ChargeStationDataReceived: false,
     WIPSlotOptions: {
       2: ["1", "2", "3"] // key:TagNumber , value : string[]
-    }
+    },
+    HasDataButNoCargoWIPs: [],
+    IsAnyPortHasDataButNoCargo: false
   },
   getters: {
     EQData: state => {
@@ -447,6 +452,7 @@ export const EqStore = createStore({
         return false;
       }
     }
+
   },
   mutations: {
     setData(state, data) {
@@ -465,6 +471,25 @@ export const EqStore = createStore({
     },
     rackStatusData(state, data) {
       state.WIPsData = data;
+      state.HasDataButNoCargoWIPs = data.filter(item => item.IsAnyPortHasDataButNoCargo);
+      state.IsAnyPortHasDataButNoCargo = state.HasDataButNoCargoWIPs.length > 0;
+      // if (state.IsAnyPortHasDataButNoCargo) {
+      //   state.HasDataButNoCargoWIPs.forEach(item => {
+      //     setTimeout(() => {
+      //       ElNotification({
+      //         message: `[${item.WIPName}(${item.DeviceID})] 儲格有帳籍但貨物不存在`,
+      //         type: 'warning',
+      //         offset: 114,
+      //         duration: 60000,
+      //         showClose: true,
+      //         customClass: 'rack-has-data-not-cargo-notify',
+      //         onClick: () => {
+      //           window.location.href = '/racks_status'
+      //         }
+      //       })
+      //     }, 400);
+      //   })
+      // }
       bus.emit('rack_data_changed', data)
     },
     setEQData(state, data) {

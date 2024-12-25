@@ -337,7 +337,8 @@
             </div>
             <!-- 設定 -->
             <div v-if="IsUserLogin" class="options bg-light border-start text-start px-1 py-3">
-              <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column">
+              <!-- <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column"> -->
+              <div v-if="false" class="rounded d-flex flex-column">
                 <span class="border-bottom">Theme</span>
                 <el-switch
                   v-model="map_theme_select"

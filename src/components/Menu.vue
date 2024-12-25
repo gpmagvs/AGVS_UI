@@ -24,12 +24,20 @@
         <template #title>{{ $t('Menu.Home') }}</template>
       </el-menu-item>
       <el-menu-item index="/alarm" v-if="UserPermission.menu.SystemAlarm==1">
+        <el-badge v-if="AnyAlarmsExist" value="!" class="menu-badge" :style="badgeStyle"></el-badge>
         <el-icon>
           <Message />
         </el-icon>
         <template #title>{{ $t('Menu.System Alarm') }}</template>
       </el-menu-item>
       <el-menu-item index="/racks_status" v-if="UserPermission.menu.WIPInfo==1">
+        <el-badge
+          v-if="AnyRackPortHasDataButNotExist"
+          value="!"
+          type="warning"
+          class="menu-badge"
+          :style="badgeStyle"
+        ></el-badge>
         <el-icon>
           <cargo_icon />
         </el-icon>
@@ -202,7 +210,7 @@ import {
   DataAnalysis, PieChart, Message, Management, Van
 } from '@element-plus/icons-vue'
 import bus from '@/event-bus'
-import { userStore } from '@/store'
+import { AlarmStore, EqStore, userStore } from '@/store'
 export default {
 
   components: {
@@ -227,6 +235,17 @@ export default {
     },
     UserPermission() {
       return userStore.state.user.Permission;
+    },
+    badgeStyle() {
+      return {
+        top: this.isCollapse ? '-26px' : '-13px'
+      }
+    },
+    AnyAlarmsExist() {
+      return AlarmStore.state.alarmsCollection.length > 0;
+    },
+    AnyRackPortHasDataButNotExist() {
+      return EqStore.state.IsAnyPortHasDataButNoCargo;
     }
   },
   methods: {
@@ -249,7 +268,11 @@ export default {
 .menu {
   padding: 0;
   margin: 0;
-
+  .menu-badge {
+    position: absolute;
+    right: 0.32rem;
+    top: -26px;
+  }
   .menu-top {
     padding: 0;
     margin: 0;

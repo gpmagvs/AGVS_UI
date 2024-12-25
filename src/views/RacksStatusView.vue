@@ -11,7 +11,11 @@
     </div>
     <!-- {{ GroupedWipData }} -->
     <b-tabs v-if="display=='tabs'">
-      <b-tab v-for="zone in GroupedWipData" :key="zone.zoneName" :title="zone.zoneName">
+      <b-tab v-for="zone in GroupedWipData" :key="zone.zoneName">
+        <template #title>
+          <span>{{zone.zoneName}}</span>
+          <el-badge class="mx-2" type="warning" :value="IsHasDataButNoCargo(zone.zoneName)?'!':''"></el-badge>
+        </template>
         <div class="d-flex flex-row">
           <b>{{ $t('Rack.Cargo_Spaces') }}</b>
           <div class="flex-fill p-2">
@@ -125,6 +129,12 @@ export default {
     var _displayStored = localStorage.getItem('wips-display-mode');
     if (_displayStored) {
       this.display = _displayStored;
+    }
+  },
+  methods: {
+    IsHasDataButNoCargo(zoneID) {
+      const wip = EqStore.state.HasDataButNoCargoWIPs.find(wip => wip.DeviceID == zoneID);
+      return wip != undefined;
     }
   }
 }

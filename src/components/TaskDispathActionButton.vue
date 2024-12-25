@@ -304,7 +304,10 @@
               <el-col class="item-actions" :span="7"></el-col>
             </el-row>
             <!-- //TODO 任務指派畫面操作Action Buttons -->
-            <div class="action-buttons actions-btn-conatiner w-100 py-1 d-flex border-top" style="height: auto;">
+            <div
+              class="action-buttons actions-btn-conatiner w-100 py-1 d-flex border-top"
+              style="height: auto;"
+            >
               <!-- 確認派送 -->
               <b-button
                 @click="HandleConfirmBtnClicked"
@@ -466,7 +469,7 @@ export default {
       routePath: '',
       showFullEmptyContentSetting: false,
       DynamicStyle: {
-        right: '28px'
+        right: '132px'
       },
       fixLoc: 'right',
       grabStates: {
@@ -1243,7 +1246,7 @@ export default {
     },
     GetLayersOfBuffer(tag) {
       const portNosOfColumn = EqStore.getters.GetWIPSlotsOptionsByStationTag(tag);
-      if(!portNosOfColumn)
+      if (!portNosOfColumn)
         return [];
       const options = [];
       // Dictionary<int, int[]> ColumnTagMap { get; set; } 
@@ -1423,7 +1426,7 @@ export default {
         this.grabStates.updateKey++;
       } else if (loc == 'right') {
         this.DynamicStyle = {
-          right: '28px'
+          right: '132px'
         }
         this.grabStates.oriRightOffset = this.grabStates.newRightOffset = 28;
         this.grabStates.updateKey++;
@@ -1440,7 +1443,7 @@ export default {
 
 .actions-btn-conatiner {
   button:hover {
-    transform: scale(1.1) ;
+    transform: scale(1.1);
   }
 }
 
