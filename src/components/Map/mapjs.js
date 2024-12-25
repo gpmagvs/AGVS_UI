@@ -925,6 +925,8 @@ export class MapPointModel {
         this.IsCross = false
         this.IsRegisted = false
         this.IsTrafficCheckPoint = false
+        /**是否為轉換站 */
+        this.IsTransferStation = false
         this.RegistInfo = null
         /**任務優先度 */
         this.PriorityOfTask = 1

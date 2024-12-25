@@ -207,6 +207,10 @@
                 <el-checkbox v-model="pointData_editing.IsAutoDoor" label="自動門"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsExtinguishing" label="消防設備"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsNarrowPath" label="窄道"></el-checkbox>
+                <el-checkbox
+                  v-model="pointData_editing.IsTransferStation"
+                  label="轉換站(換車用，比如RACK撈爪)"
+                ></el-checkbox>
                 <div class="d-flex">
                   <el-checkbox
                     v-model="pointData_editing.IsHighestPriorityStation"
