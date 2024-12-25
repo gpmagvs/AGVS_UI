@@ -359,6 +359,7 @@
                 >
                   <el-radio value="index" size="large">Index</el-radio>
                   <el-radio value="name" size="large">Name</el-radio>
+                  <el-radio value="name_tag" size="large">Name & Tag</el-radio>
                   <el-radio value="tag" size="large">Tag</el-radio>
                 </el-radio-group>
               </div>
@@ -4136,6 +4137,8 @@ export default {
         let index = feature.get('index') + ''
         if (mode == 'name')
           return display;
+        else if (mode == 'name_tag')
+          return `${display} (${tag})`;
         else if (mode == 'tag')
           return tag;
         else if (mode == 'index')
@@ -4143,10 +4146,20 @@ export default {
         else
           return display;
       }
+
+      const _fixOffsetOfText = mode == 'index' || mode == 'tag';
       this.StationPointsFeatures.forEach(_feature => {
         var _textToDisplay = getDisplayOfFeature(_feature)
         var _style = _feature.getStyle();
         var _text = _style.getText();
+        if (_fixOffsetOfText) {
+          _text.setOffsetX(-20);
+          _text.setOffsetY(-20);
+        } else {
+          const mptData = _feature.get('data');
+          _text.setOffsetX(mptData.Graph.textOffsetX);
+          _text.setOffsetY(mptData.Graph.textOffsetY);
+        }
         _text.setText(_textToDisplay);
         _style.setText(_text);
         _feature.setStyle(_style);
