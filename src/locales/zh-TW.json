@@ -42,7 +42,8 @@
     "Trajectory": "軌跡查詢",
     "Instruments Measure Result": "儀器量測結果查詢",
     "utilization rate": "稼動率",
-    "Traffic State": "交管狀態統計"
+    "Traffic State": "交管狀態統計",
+    "secs_gem_settings": "SECS/GEM 設定"
   },
   "HomeView": {
     "AGVStatus": {
@@ -319,5 +320,27 @@
   "visitor": "訪客",
   "ConfirmRedoTask": "確定要重新指派任務?",
   "RedoTaskSuccess": "重新指派任務成功!",
-  "RedoTaskFail": "重新指派任務失敗..."
+  "RedoTaskFail": "重新指派任務失敗...",
+  "secsGem": {
+    "UnloadButCargoIDReadNotMatched": "貨物ID讀值與任務不相符",
+    "UnloadButCargoIDReadFail": "貨物ID讀取失敗", 
+    "EqUnloadButNoCargo": "設備出貨請求但貨物不存在",
+    "AGVDownWhenLDULDWithCargo": "取放貨過程中發生異常-Carrier在車上",
+    "AGVDownWhenLDWithoutCargo": "放貨過程中發生異常-Carrier在設備上",
+    "AGVDownWhenULDWithoutCargo": "取貨過程中發生異常-Carrier在設備上",
+    "AGVDownWhenMovingToDestine": "移動至目的地的過程中AGV發生異常",
+    "OtherErrors": "其他錯誤",
+    "ZoneIsFull": "區域已滿",
+    "InterlockError": "互鎖錯誤",
+    "DestineEqLoadReqeustOff": "目的地設備放貨請求關閉",
+    "DestineEqHasCargo": "目的地設備已有貨物",
+    "DestineEqMachechStateError": "目的地設備機械狀態錯誤",
+    "DestineEqDown": "目的地設備異常",
+    "SourceEqUnloadReqeustOff": "來源設備取貨請求關閉",
+    "SourceEqNotHasCargo": "來源設備無貨物",
+    "SourceEqMachechStateError": "來源設備機械狀態錯誤",
+    "SourceEqDown": "來源設備異常",
+    "DestineRackPortHasCargo": "目的地 Rack Port 已有貨物",
+    "SourceRackPortNotHasCargo": "來源 Rack Port 無貨物"
+  }
 }

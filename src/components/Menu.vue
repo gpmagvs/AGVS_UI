@@ -192,6 +192,15 @@
           </el-icon>
           <template #title>{{ $t('Menu.charge station management') }}</template>
         </el-menu-item>
+        <el-menu-item
+          index="/sys_settings/secs_gem_settings"
+          v-if="UserPermission.systemConfigurationSubMenu.ChargerManagnment==1"
+        >
+          <el-icon>
+            <setting />
+          </el-icon>
+          <template #title>{{ $t('Menu.secs_gem_settings') }}</template>
+        </el-menu-item>
       </el-sub-menu>
     </el-menu>
   </div>

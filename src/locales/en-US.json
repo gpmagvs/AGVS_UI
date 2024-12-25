@@ -42,7 +42,8 @@
     "Trajectory": "Trajectory",
     "Instruments Measure Result": "Instruments Measure",
     "utilization rate": "Utilization",
-    "Traffic State": "Traffic State"
+    "Traffic State": "Traffic State",
+    "secs_gem_settings": "SECS/GEM Settings"
   },
   "HomeView": {
     "AGVStatus": {
@@ -64,8 +65,8 @@
         "Online": "Online",
         "Offline": "Offline",
         "Location": "Locate",
-        "OnlineRequest": "Online Reqeust",
-        "OfflineRequest": "Offline Requset"
+        "OnlineRequest": "Online",
+        "OfflineRequest": "Offline"
       }
     },
     "TaskStatus": "TASK STATUS",
@@ -314,5 +315,27 @@
   "visitor": "visitor",
   "ConfirmRedoTask": "Are you sure re-assign this order?",
   "RedoTaskSuccess": "Re-assign Order Success!",
-  "RedoTaskFail": "Re-assign Order Fail..."
+  "RedoTaskFail": "Re-assign Order Fail...",
+  "secsGem": {
+    "UnloadButCargoIDReadNotMatched": "CST ID Read Value Not Matched",
+    "UnloadButCargoIDReadFail": "CST ID Read Fail", 
+    "EqUnloadButNoCargo": "Port Unload But Carrier Not Exist",
+    "AGVDownWhenLDULDWithCargo": "AGV Error During Load/Unload - Carrier On AGV",
+    "AGVDownWhenLDWithoutCargo": "AGV Error During Load - Carrier On Equipment",
+    "AGVDownWhenULDWithoutCargo": "AGV Error During Unload - Carrier On Equipment",
+    "AGVDownWhenMovingToDestine": "AGV Error While Moving To Destination",
+    "OtherErrors": "Other Errors",
+    "ZoneIsFull": "Zone Is Full",
+    "InterlockError": "Interlock Error",
+    "DestineEqLoadReqeustOff": "Destination Equipment Load Request Off",
+    "DestineEqHasCargo": "Destination Equipment Has Carrier",
+    "DestineEqMachechStateError": "Destination Equipment Mechanical State Error",
+    "DestineEqDown": "Destination Equipment Down",
+    "SourceEqUnloadReqeustOff": "Source Equipment Unload Request Off",
+    "SourceEqNotHasCargo": "Source Equipment No Carrier",
+    "SourceEqMachechStateError": "Source Equipment Mechanical State Error",
+    "SourceEqDown": "Source Equipment Down",
+    "DestineRackPortHasCargo": "Destination Rack Port Has Carrier",
+    "SourceRackPortNotHasCargo": "Source Rack Port No Carrier"
+  }
 }

@@ -157,14 +157,14 @@ const routes = [
         component: ChargeStationView
       },
       {
-        path: 'SystemSettings',
-        name: 'SystemSettings',
+        path: 'secs_gem_settings',
+        name: 'secs_gem_settings',
         meta: {
           requiresAuth: true,
-          Display: "系統設定",
-          Display_Eng: "System Settings"
+          Display: "SECS/GEM 設定",
+          Display_Eng: "SECS/GEM Settings"
         },
-        component: ChargeStationView
+        component: () => import('@/views/SecsGemSettings.vue')
       }
     ],
     meta: {
