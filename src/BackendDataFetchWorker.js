@@ -134,7 +134,9 @@ async function StartHubsConnection() {
         console.info(msg);
         bus.emit('MCSMessage', msg);
     });
-
+    agvsHubConnection.on('DatabaseState', dataDto => {
+        store.commit('updateDatabaseState', dataDto);
+    })
     vmsHubConnection.on("ReceiveData", (user, data) => {
         StoreVMSData(data);
     });

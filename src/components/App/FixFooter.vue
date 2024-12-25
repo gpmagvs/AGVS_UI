@@ -6,13 +6,23 @@
     }"
   >
     <div class="d-flex flex-row">
-      <el-tooltip :content="databaseInfo" placement="top-end">
-        <i
-          class="bi bi-database-fill-check border-end border-start px-1"
-          style="font-size: 1.3rem;"
-        ></i>
+      <el-tooltip
+        placement="top-end"
+        :popper-class="DatabaseState.state? '': 'bg-danger text-light'"
+      >
+        <template #content>
+          {{ databaseInfo }}
+          <br />
+          {{ DatabaseState.message }}
+        </template>
+        <el-badge type="warning" :value="!DatabaseState.state? '!':undefined">
+          <i
+            class="bi bi-database-fill-check border-end border-start px-1"
+            style="font-size: 1.3rem;"
+          ></i>
+        </el-badge>
       </el-tooltip>
-      <div class="conn-block px-1 border-end">
+      <div class="conn-block px-3 border-end">
         <el-tooltip :content="vmsAppInfo.AppVersion" placement="top-end">
           <el-tag
             effect="dark"
@@ -125,10 +135,14 @@ export default {
       }
       //Server=127.0.0.1;Database=GPMAGVs_V3;
       var dbInfo = parseConnectionString(store.state.systemConfigs.DBConnection);
-      return `${dbInfo.Database}(${dbInfo.Server})`;
+      let string = `${dbInfo.Database}(${dbInfo.Server})`;
+      return string;
     },
     vmsAppInfo() {
       return store.state.vmsAppInfo;
+    },
+    DatabaseState() {
+      return store.state.databaseState;
     }
   },
 }

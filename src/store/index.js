@@ -41,6 +41,10 @@ export default createStore({
     connectionStates: {
       cim: 4,
       mcs: 4
+    },
+    databaseState: {
+      state: true,
+      message: ""
     }
   },
   getters: {
@@ -80,6 +84,9 @@ export default createStore({
     },
     storeConnectionStates(state, states) {
       state.connectionStates = states;
+    },
+    updateDatabaseState(state, dto) {
+      state.databaseState = dto;
     }
 
   },
