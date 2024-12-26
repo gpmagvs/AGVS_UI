@@ -8,7 +8,7 @@
     >
       <div v-show="MenuExpanded" class="left-col border-right left-panel">
         <!-- <Header v-if="IsOpUsing"></Header> -->
-        <b-card no-body class="p-1">
+        <b-card no-body class="p-1 bg-light h-100">
           <b-tabs pills>
             <b-tab title="Vehicles">
               <AGVStatusVue></AGVStatusVue>
