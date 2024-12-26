@@ -120,8 +120,15 @@
         </template>
       </el-table-column>
     </el-table>
-    <div v-else>
-      <MissionCard v-for="task in IncompletedTaskList" :key="task.TaskName" :mission="task"></MissionCard>
+    <div v-else class="py-2 text-start" style="height: 80vh;overflow-y: scroll;">
+      <label class="px-3">執行中</label>
+      <MissionCard v-for="task in ExecutingTasks" :key="task.TaskName" :mission="task"></MissionCard>
+      <div class="no-mission-notify" v-if="ExecutingTasks.length==0">No Missions.</div>
+      <el-divider></el-divider>
+
+      <label class="px-3">等待執行</label>
+      <MissionCard v-for="task in WaitingForExecutTasks" :key="task.TaskName" :mission="task"></MissionCard>
+      <div class="no-mission-notify" v-if="WaitingForExecutTasks.length==0">No Missions.</div>
     </div>
   </div>
 </template>
@@ -178,6 +185,12 @@ export default {
     }
   },
   computed: {
+    WaitingForExecutTasks() {
+      return this.IncompletedTaskList.filter(order => order.State == 5);
+    },
+    ExecutingTasks() {
+      return this.IncompletedTaskList.filter(order => order.State == 1);
+    },
     taskCancelable() {
       return userStore.getters.IsLogin;
     },
@@ -334,6 +347,13 @@ export default {
     .task-row {
       color: rgb(13, 110, 253) !important;
     }
+  }
+  .no-mission-notify {
+    width: 100%;
+    text-align: center;
+    background-color: rgb(223, 223, 223);
+    padding: 5px;
+    margin-block: 5px;
   }
 }
 </style>
