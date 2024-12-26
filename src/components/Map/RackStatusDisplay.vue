@@ -19,7 +19,7 @@
           </div>
         </div>
         <div v-if="isPortHover[index] && IsRotated" :style="dynamicTooltipStyle">
-          <div class="tooltip-content">
+          <div class="tooltip-content" :style="dynamicToolTipContentStyle">
             <div>Cargo ID:</div>
             <el-button :loading="cargoIdLoading" text class="text-primary">{{displayCargoID}}</el-button>
           </div>
@@ -104,13 +104,8 @@ export default {
     dynamicTooltipStyle() {
       let rotateTheta = 0;
       let isRotated = false;
-      function getRotationFromTransform(transformString) {
-        const matches = transformString.match(/rotate\(([-\d.]+)deg\)/);
-        return matches ? parseFloat(matches[1]) : 0;
-      }
-
       if (this.dynamicStyle.transform) {
-        rotateTheta = getRotationFromTransform(this.dynamicStyle.transform);
+        rotateTheta = this.getRotationFromTransform;
         isRotated = rotateTheta != 0;
       }
       if (isRotated)
@@ -120,19 +115,40 @@ export default {
       else
         return {};
     },
+    dynamicToolTipContentStyle() {
+      const rotateTheta = this.getRotationFromTransform;
+      if (rotateTheta > 0 && rotateTheta <= 90)
+        return {
+          position: 'relative',
+          right: '-40px',
+          top: '-40px'
+        }
+      else if (rotateTheta < 0 && rotateTheta >= -90)
+        return {
+          position: 'relative',
+          right: '10px',
+          top: '-40px'
+        }
+      else {
+        return {
+          position: 'relative',
+          right: '-30px',
+          top: '-10px'
+        };
+      }
+    },
     IsRotated() {
       let rotateTheta = 0;
       let isRotated = false;
-      function getRotationFromTransform(transformString) {
-        const matches = transformString.match(/rotate\(([-\d.]+)deg\)/);
-        return matches ? parseFloat(matches[1]) : 0;
-      }
-
       if (this.dynamicStyle.transform) {
-        rotateTheta = getRotationFromTransform(this.dynamicStyle.transform);
+        rotateTheta = this.getRotationFromTransform;
         isRotated = rotateTheta != 0;
       }
       return isRotated;
+    },
+    getRotationFromTransform() {
+      const matches = this.dynamicStyle.transform.match(/rotate\(([-\d.]+)deg\)/);
+      return matches ? parseFloat(matches[1]) : 0;
     }
 
   }
