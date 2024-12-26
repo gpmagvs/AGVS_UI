@@ -318,7 +318,7 @@
   "RedoTaskFail": "Re-assign Order Fail...",
   "secsGem": {
     "UnloadButCargoIDReadNotMatched": "CST ID Read Value Not Matched",
-    "UnloadButCargoIDReadFail": "CST ID Read Fail", 
+    "UnloadButCargoIDReadFail": "CST ID Read Fail",
     "EqUnloadButNoCargo": "Port Unload But Carrier Not Exist",
     "AGVDownWhenLDULDWithCargo": "AGV Error During Load/Unload - Carrier On AGV",
     "AGVDownWhenLDWithoutCargo": "AGV Error During Load - Carrier On Equipment",
@@ -337,5 +337,9 @@
     "SourceEqDown": "Source Equipment Down",
     "DestineRackPortHasCargo": "Destination Rack Port Has Carrier",
     "SourceRackPortNotHasCargo": "Source Rack Port No Carrier"
+  },
+  "MissionCard": {
+    "CancelOrder": "Cancel",
+    "AbortOrder": "Abort"
   }
 }

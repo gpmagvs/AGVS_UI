@@ -7,7 +7,11 @@
       >{{ action }}</h6>
       <h6 class="flex-fill text-nowrap"># {{ mission.TaskName }}</h6>
       <!-- <label>Local</label> -->
-      <el-button type="danger" size="sm" @click="CancelTaskHandler(mission.TaskName)">取消/中止</el-button>
+      <el-button
+        type="danger"
+        size="sm"
+        @click="CancelTaskHandler(mission.TaskName)"
+      >{{ mission.State==1 ?$t('MissionCard.AbortOrder') :$t('MissionCard.CancelOrder')}}</el-button>
     </div>
     <div class="from-to-info d-flex p-2 m-1">
       <div style="width: 140px;">

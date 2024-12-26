@@ -323,7 +323,7 @@
   "RedoTaskFail": "重新指派任務失敗...",
   "secsGem": {
     "UnloadButCargoIDReadNotMatched": "貨物ID讀值與任務不相符",
-    "UnloadButCargoIDReadFail": "貨物ID讀取失敗", 
+    "UnloadButCargoIDReadFail": "貨物ID讀取失敗",
     "EqUnloadButNoCargo": "設備出貨請求但貨物不存在",
     "AGVDownWhenLDULDWithCargo": "取放貨過程中發生異常-Carrier在車上",
     "AGVDownWhenLDWithoutCargo": "放貨過程中發生異常-Carrier在設備上",
@@ -342,5 +342,9 @@
     "SourceEqDown": "來源設備異常",
     "DestineRackPortHasCargo": "目的地 Rack Port 已有貨物",
     "SourceRackPortNotHasCargo": "來源 Rack Port 無貨物"
+  },
+  "MissionCard": {
+    "CancelOrder": "取消任務",
+    "AbortOrder": "中止任務"
   }
 }

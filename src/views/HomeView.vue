@@ -1,5 +1,5 @@
 <template>
-  <div class="home-view h-100 custom-tabs-head" v-loading="loading">
+  <div class="home-view h-100" v-loading="loading">
     <div
       v-bind:style="{
       visibility: isEasyMode ? 'hidden' : 'visible'
@@ -8,8 +8,8 @@
     >
       <div v-show="MenuExpanded" class="left-col border-right left-panel">
         <!-- <Header v-if="IsOpUsing"></Header> -->
-        <b-card no-body>
-          <b-tabs>
+        <b-card no-body class="p-1">
+          <b-tabs pills>
             <b-tab title="Vehicles">
               <AGVStatusVue></AGVStatusVue>
             </b-tab>
@@ -248,6 +248,21 @@ export default {
 </script>
 <style lang="scss">
 .home-view {
+  .nav-item {
+    button {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .nav-link {
+      color: rgb(90, 90, 90);
+    }
+
+    .nav-link.active {
+      color: white;
+      background-color: rgb(57, 62, 73);
+    }
+  }
   .dispatch-show {
     animation: slideInFromLeft 0.2s ease-out forwards;
 
