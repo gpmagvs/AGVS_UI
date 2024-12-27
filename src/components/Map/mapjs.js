@@ -617,28 +617,28 @@ export function ChangeCargoIcon(feature = new Feature(), cargoStates = new clsCa
     feature.setStyle(style);
 }
 
-export var AGVIcon = (imgUrl = undefined, ImageSize = undefined) => {
-    var width = 64;
-    var height = 64;
+export var AGVIcon = (type = 'submarine') => {
 
-    var _isblob = imgUrl.substring(0, 4) == 'blob';
-    var _imgUrl = imgUrl
-    // var _imgUrl = _isblob || !IsDev() ? imgUrl : `${gpm_param.backend_host}/AGVImages/AGV_001-Icon.png`
-    if (ImageSize) {
-        width = ImageSize[0]
-        height = ImageSize[1]
+    if (type == 'submarine')
+        return new Icon({
+            src: '/agv_submarine.png', // 设置PNG图像的路径
+            scale: 0.5, // 设置PNG图像的缩放比例
+            anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
+            size: [87, 134],// 设置PNG图像的大小
+            opacity: 1,
+            rotation: 0 * Math.PI / 180.0 //3.14 180
 
-    } else {
-        function delay(ms) {
-            return new Promise(resolve => {
-                setTimeout(resolve, ms)
-            })
-        }
-        var agv_img = new Image();
-        agv_img.src = _imgUrl;
-        width = agv_img.width == 0 ? 64 : agv_img.width;
-        height = agv_img.height == 0 ? 64 : agv_img.height;
-    }
+        })
+    if (type == 'forklift')
+        return new Icon({
+            src: '/agv_forklift.png', // 设置PNG图像的路径
+            scale: 0.5, // 设置PNG图像的缩放比例
+            anchor: [0.5, 0.5], // 设置PNG图像的锚点，即图片的中心点位置
+            size: [87, 134],// 设置PNG图像的大小
+            opacity: 1,
+            rotation: 0 * Math.PI / 180.0 //3.14 180
+
+        })
     return new Icon({
         src: '/agv2.png', // 设置PNG图像的路径
         scale: 0.6, // 设置PNG图像的缩放比例
@@ -680,9 +680,9 @@ export function SimpleAGVStyle(agv_name, color) {
         }),
     })
 }
-export function AGVPointStyle(agv_name, color, ImageName = undefined, ImageSize = undefined) {
+export function AGVPointStyle(agv_name, color, type = 'submarine') {
     return new Style({
-        image: AGVIcon(ImageName),
+        image: AGVIcon(type),
         text: new Text({
             text: agv_name,
             offsetX: 0,
@@ -767,7 +767,7 @@ function GetActionName(action, CargoStates = new clsCargoStates()) {
 }
 /**AGV地圖顯示參數 */
 export class AGVOption {
-    constructor(AGVNum = 1, AGVDisplayOptions = []) {
+    constructor(AGVNum = 1, AGVDisplayOptions = [new clsAGVDisplay()]) {
         this.AGVNum = AGVNum
         this.AGVDisplays = AGVDisplayOptions
 
@@ -775,8 +775,10 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "", vehicleLength = 145, vehicleWidth = 80) {
+    constructor(AgvName = "AGV", AgvModel = 0, TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "", vehicleLength = 145, vehicleWidth = 80) {
         this.AgvName = AgvName
+        /**FORK = 0,YUNTECH_FORK_AGV = 1,INSPECTION_AGV = 2,SUBMERGED_SHIELD = 3,SUBMERGED_SHIELD_Parts = 4,Any = 999,Null = -1 */
+        this.AgvModel = AgvModel
         this.TextColor = TextColor
         this.Coordination = initCoordination;
         this.NavPathCoordinationList = navCoorList

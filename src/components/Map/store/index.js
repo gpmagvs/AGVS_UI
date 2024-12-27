@@ -163,7 +163,8 @@ export const MapStore = createStore({
                 return new AGVOption(0, [])
             }
             var agv_num = Object.keys(agv_nav_info).length;
-            var agvDataLs = [];
+            var agvDataLs = [new clsAGVDisplay()];
+            agvDataLs = [];
             var index = 0;
             Object.keys(agv_nav_info).forEach(name => {
                 if (name.toLocaleLowerCase().includes('agv')) {
@@ -191,7 +192,8 @@ export const MapStore = createStore({
                         }
                     }
 
-
+                    const agvStateStored = agv_states_store.state.agv_states.find(agv => agv.AGV_Name == name);
+                    const agvType = agvStateStored.Model;
                     var _agv_style_custom = getters.CustomAGVStyles[name];
                     var _agv_color = 'black'
                     var _agv_display_text = name
@@ -202,7 +204,7 @@ export const MapStore = createStore({
                     } else {
                         _agv_color = state.agv_colors[index];
                     }
-                    var agvDisplayModel = new clsAGVDisplay(name, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text, vehicleLength, vehicleWidth);
+                    var agvDisplayModel = new clsAGVDisplay(name, agvType, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text, vehicleLength, vehicleWidth);
                     agvDataLs.push(agvDisplayModel)
                     index += 1;
                 }

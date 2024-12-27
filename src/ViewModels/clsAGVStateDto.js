@@ -5,6 +5,9 @@ class clsAGVStateDto {
       this.AGV_Name = ''
       this.AGV_ID = ''
       this.AGV_Description = ''
+      /**
+       * FORK = 0,YUNTECH_FORK_AGV = 1,INSPECTION_AGV = 2,SUBMERGED_SHIELD = 3,SUBMERGED_SHIELD_Parts = 4,Any = 999,Null = -1
+       */
       this.Model = '0'
       this.Simulation = false
       /** IDLE = 1, RUN=2, DOWN=3, Charging=4, Unknown=5 */

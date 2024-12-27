@@ -1034,7 +1034,7 @@ export default {
       return MapStore.getters.BezierCurves
     },
     agvs_info() {
-      var _AGVOption = new AGVOption(0, []);
+      var _AGVOption = new AGVOption(0, [new clsAGVDisplay()]);
       Object.assign(_AGVOption, MapStore.getters.AGVNavInfo)
       return _AGVOption;
     },
@@ -1382,14 +1382,20 @@ export default {
       }
 
       this.agvs_info.AGVDisplays.forEach(agv_information => {
-        const vehicleSize = agv_states_store.getters.VehicleSize(agv_information.AgvName);//[length,width]
+
+        let getAGVType = (modelInt) => {
+          if (modelInt == 0)
+            return 'forklift'
+          else if (modelInt == 3)
+            return 'submarine'
+          return 'unknown';
+        };
+
         const vehicleLength = agv_information.vehicleLength / 100.0; //unit:m
         const vehicleWidth = agv_information.vehicleWidth / 100.0;//unit:m
-        const vehicleImageName = param.backend_host + '/AGVImages/' + agv_information.AgvName + '-Icon.png';//[length,width]
+        const agvType = getAGVType(agv_information.AgvModel);
         const vehicleSaftyRotationRadious = Math.sqrt(Math.pow(vehicleLength / 2, 2) + Math.pow(vehicleWidth / 2, 2));//unit:m
         var _polygon_coordinations = this.CalculateAGVPolygonCoordination(agv_information.Coordination, vehicleLength, vehicleWidth, agv_information.Theta)
-        var agvnames = Object.keys(this.AGVFeatures);
-        // console.log(this.id, agvnames);
         var agvfeatures = this.AGVFeatures[agv_information.AgvName]
         if (agvfeatures) {  //以新增
           var currentDataJsonStr = JSON.stringify(agv_information);
@@ -1494,7 +1500,7 @@ export default {
                 lineJoin: 'round'
               }),
             }))
-            var _style = AGVPointStyle(agv_information.DisplayText, nameFillColor, vehicleImageName)
+            var _style = AGVPointStyle(agv_information.DisplayText, nameFillColor, agvType)
             // var _style = AGVPointStyle(agv_information.DisplayText, nameFillColor, vehicleImageName + `?version=${Date.now()}`)
             _agvfeature.setStyle(_style)
             _agvfeature.set('agvname', agv_information.AgvName)
