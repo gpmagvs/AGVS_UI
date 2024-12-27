@@ -346,5 +346,6 @@
   "MissionCard": {
     "CancelOrder": "取消任務",
     "AbortOrder": "中止任務"
-  }
+  },
+  "DeepCharge": "深充"
 }

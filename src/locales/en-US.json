@@ -341,5 +341,6 @@
   "MissionCard": {
     "CancelOrder": "Cancel",
     "AbortOrder": "Abort"
-  }
+  },
+  "DeepCharge": "Deep Charge"
 }

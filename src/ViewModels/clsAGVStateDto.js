@@ -2,7 +2,7 @@
 class clsAGVStateDto {
   constructor(dto) {
     if (dto == undefined) {
-      this.AGV_Name = ''
+      this.AGV_Name = 'AGV'
       this.AGV_ID = ''
       this.AGV_Description = ''
       /**

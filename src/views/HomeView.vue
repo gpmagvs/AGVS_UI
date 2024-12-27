@@ -11,7 +11,7 @@
         <b-card no-body class="p-1 bg-light h-100">
           <b-tabs pills>
             <b-tab title="Vehicles">
-              <AGVStatusVue></AGVStatusVue>
+              <AGVStatusVue DisplayMode="cards"></AGVStatusVue>
             </b-tab>
             <b-tab title="Missions">
               <TaskStatusVue height="80vh" :show_card_title="false"></TaskStatusVue>

@@ -11,7 +11,7 @@
       >{{ $t('HomeView.AGVStatus.AGVStatus.vms_disconnect') }}</div>
     </div>
     <el-table
-      v-if="!IsEasyMode"
+      v-if="DisplayMode=='table'"
       :header-cell-style="{fontSize:'20px', color: 'white', border: '1px solid rgb(222, 226, 230)', backgroundColor: IsVMSConnect ? 'rgb(13, 110, 253)' : 'red' }"
       :data="AGVDatas"
       size="large"
@@ -328,86 +328,26 @@
         </template>
       </el-table-column>
     </el-table>
-    <div v-else class="easy-mode">
-      <div
-        v-for="state in AGVDatas"
-        :key="state.AGV_Name"
-        class="easy-mode-car-card border rounded my-2 p-2"
-        v-bind:style="{ backgroundColor: state.Connected ? 'rgb(229, 255, 240)' : 'rgb(255, 184, 182)' }"
-      >
-        <!-- {{ state.AGV_Name }} -->
-        <div class="d-flex">
-          <div class="mx-1 border-end px-1">
-            <span class="border-bottom" style="font-weight:bolder">{{ state.AGV_Name }}</span>
-            <div class="py-1">
-              <img src="agv.png" @click="HandleShowAGVInMapCenter(state.AGV_Name)" />
-              <el-tag
-                effect="dark"
-                @click="ShowOnlineStateChangeModal(state.AGV_Name, state.OnlineStatus, state.Model)"
-                :type="state.OnlineStatus == 0 ? 'danger' : 'success'"
-              >
-                <b>{{ state.OnlineStatus == 1 ? 'ONLINE' : 'OFFLINE' }}</b>
-              </el-tag>
-            </div>
-          </div>
-          <div style="padding-top:5px" class="w-100">
-            <div class="d-flex w-100">
-              <div class="item-title">狀態</div>
-              <div class="w-100 text-start">
-                <el-tag effect="dark" :type="AGV_Status_TagType(state.MainStatus)">
-                  <b>{{ AGVStatusFormatter(state) }}</b>
-                </el-tag>
-              </div>
-            </div>
-            <div class="d-flex w-100 my-2">
-              <div class="item-title">電量</div>
-              <div class="w-100 px-1 text-start">
-                <div style="width:110px">
-                  <b-progress class="flex-fill" :max="100" :min="0" animated>
-                    <b-progress-bar
-                      :animated="true"
-                      v-bind:class="BatteryClass(state.BatteryLevel_1)"
-                      :value="state.BatteryLevel_1"
-                      :label="`${((state.BatteryLevel_1 / 100) * 100).toFixed(2)}%`"
-                    ></b-progress-bar>
-                  </b-progress>
-                  <b-progress
-                    v-if="state.BatteryLevel_2 != -1.0"
-                    class="flex-fill my-1"
-                    :max="100"
-                    :min="0"
-                    animated
-                  >
-                    <b-progress-bar
-                      :animated="true"
-                      v-bind:class="BatteryClass(state.BatteryLevel_2)"
-                      :value="state.BatteryLevel_2"
-                      :label="`${((state.BatteryLevel_2 / 100) * 100).toFixed(2)}%`"
-                    ></b-progress-bar>
-                  </b-progress>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex w-100 my-1">
-              <div class="item-title">位置</div>
-              <div class="w-100 text-start" style="font-size:14px;">
-                <b>{{ state.StationName }}</b>
-                <i
-                  class="bi bi-geo-alt-fill"
-                  style="font-size:20px;cursor:pointer"
-                  @click="HandleShowAGVInMapCenter(state.AGV_Name)"
-                ></i>
-              </div>
-            </div>
-            <div class="d-flex w-100 my-1">
-              <div class="item-title">載物ID</div>
-              <div class="w-100 text-start">
-                <b>{{ state.Cst }}</b>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div
+      v-if="DisplayMode=='cards'"
+      style="height:90vh;background: #80808040;overflow-y: auto;"
+      class="py-1"
+    >
+      <vehicle-info-card
+        v-for="vehicleState in AGVDatas"
+        :key="vehicleState.AGV_Name"
+        :vehicleStateData="vehicleState"
+        :isMapViewTracking="TrackingAGV == vehicleState.AGV_Name"
+        @OnOnlineBtnClicked="(vstate)=>{
+          ShowOnlineStateChangeModal(vstate.AGV_Name,vstate.OnlineStatus,vstate.Model)
+        }"
+        @OnLocateClicked="(agvName)=>{HandleShowAGVInMapCenter(agvName)}"
+        @OnTrackingVehicleClick="(agvName)=>{TrackingVehicle(agvName)}"
+        @OnWebSiteIconClicked="(vstate)=>{HandleAGVNameClicked(vstate)}"
+        @ShowAGVChargeConfirmDialog="(vstate)=>ShowAGVChargeConfirmDialog(vstate)"
+        @ShowAGVDeepChargeConfirmDialog="(vstate)=>ShowAGVChargeConfirmDialog(vstate,true)"
+        @StopDeepCharge="(agvName)=>StopDeepCharge(agvName)"
+      ></vehicle-info-card>
     </div>
   </div>
   <!--Modals-->
@@ -467,7 +407,11 @@ import { userStore, agvs_settings_store, agv_states_store, UIStore } from '@/sto
 import moment from 'moment'
 import { MapStore } from '@/components/Map/store';
 import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
+import VehicleInfoCard from '@/components/Vehicle/VehicleInfoCard.vue';
 export default {
+  components: {
+    VehicleInfoCard,
+  },
   mounted() {
     bus.on('/cancel_tracking_agv', () => {
       this.TrackingAGV = '';
@@ -505,6 +449,12 @@ export default {
       type: Boolean,
       default: false
     },
+    /**table | cards */
+    DisplayMode: {
+      type: String,
+      /**table or cards */
+      default: 'table'
+    }
   },
   methods: {
     HandleAGVNameClicked(agvInfo) {

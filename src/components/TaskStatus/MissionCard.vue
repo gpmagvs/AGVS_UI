@@ -97,6 +97,8 @@ export default {
           return this.$t('Transfer')
         case 12:
           return this.$t('Park')
+        case 17:
+          return this.$t('DeepCharge')
         default:
           return _actionInt;
       }
@@ -112,7 +114,7 @@ export default {
       return this.mission.Action == 9;
     },
     isChargeOrder() {
-      return this.mission.Action == 8;
+      return this.mission.Action == 8 || this.mission.Action == 17;
     },
     finalStepActionDisplay() {
       const _actionInt = this.mission.Action;
@@ -129,6 +131,8 @@ export default {
           return this.$t('Load')
         case 12:
           return this.$t('Park')
+        case 17:
+          return this.$t('DeepCharge')
         default:
           return _actionInt;
       }

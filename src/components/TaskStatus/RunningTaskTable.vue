@@ -120,7 +120,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <div v-else class="py-2 text-start" style="height: 80vh;overflow-y: scroll;">
+    <div v-else class="py-2 text-start" style="height: 80vh;overflow-y: auto;">
       <label class="px-3">執行中</label>
       <MissionCard v-for="task in ExecutingTasks" :key="task.TaskName" :mission="task"></MissionCard>
       <div class="no-mission-notify" v-if="ExecutingTasks.length==0">No Missions.</div>
