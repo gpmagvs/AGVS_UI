@@ -328,11 +328,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <div
-      v-if="DisplayMode=='cards'"
-      style="height:90vh;background: #80808040;overflow-y: auto;"
-      class="py-1"
-    >
+    <div v-if="DisplayMode=='cards'" style="height:90vh;overflow-y: auto;" class="py-1">
       <vehicle-info-card
         v-for="vehicleState in AGVDatas"
         :key="vehicleState.AGV_Name"
@@ -347,6 +343,7 @@
         @ShowAGVChargeConfirmDialog="(vstate)=>ShowAGVChargeConfirmDialog(vstate)"
         @ShowAGVDeepChargeConfirmDialog="(vstate)=>ShowAGVChargeConfirmDialog(vstate,true)"
         @StopDeepCharge="(agvName)=>StopDeepCharge(agvName)"
+        @onTaskIdClick="taskid=>{$emit('onTaskIDClicked',taskid)}"
       ></vehicle-info-card>
     </div>
   </div>

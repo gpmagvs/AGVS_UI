@@ -16,6 +16,7 @@
             :height="height"
             :IncompletedTaskList="IncompletedTaskListTbData"
             :display_mode="'cards'"
+            :taskIDSelected="taskIDSelected"
           ></RunningTaskTable>
         </el-tab-pane>
         <el-tab-pane :label="$t('CompleteTasks')">
@@ -66,6 +67,10 @@ export default {
     height: {
       type: String,
       defualt: '310px'
+    },
+    taskIDSelected: {
+      type: String,
+      default: ""
     }
   },
   data() {

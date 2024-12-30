@@ -46,16 +46,21 @@
           </el-tooltip>
         </div>
         <div
+          class="text-bold"
           @click="()=>{$emit('OnLocateClicked',vehicleStateData.AGV_Name)}"
         >{{ vehicleStateData.StationName }}</div>
       </div>
       <div>
         <label class="item-name-label">{{ $t('TaskTable.CstID') }}</label>
-        <div>{{ vehicleStateData.CurrentCarrierID }}</div>
+        <div class="text-bold">{{ vehicleStateData.CurrentCarrierID }}</div>
       </div>
       <div>
         <label class="item-name-label">{{ $t('TaskTable.TaskName') }}</label>
-        <div class="text-truncate" style="width: 120px">{{ vehicleStateData.TaskName }}</div>
+        <div
+          class="text-truncate text-bold task-id"
+          @click="HandleTaskIDClicked"
+          style="width: 120px"
+        >{{ CurrentOrderID }}</div>
       </div>
     </div>
 
@@ -128,7 +133,7 @@ import clsTaskState from '@/ViewModels/TaskState';
 import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import { TaskAllocation } from '@/api/TaskAllocation';
 import { MapStore } from '../Map/store';
-import { userStore, agv_states_store } from '@/store';
+import { userStore, agv_states_store, TaskStore } from '@/store';
 import moment from 'moment';
 import { dot } from 'element-plus'
 export default {
@@ -188,7 +193,20 @@ export default {
       }
     },
     IsOrderRunning() {
-      return false;
+      return this.CurrentOrderStatus.isExecuting;
+    },
+    CurrentOrderID() {
+      if (!this.IsOrderRunning)
+        return '';
+      return this.CurrentOrderStatus.order.TaskName;
+    },
+    CurrentOrderStatus() {
+      const _agvName = this.vehicleStateData.AGV_Name;
+      const orderExecuting = TaskStore.state.IncompletedTaskListData.find(_order => _order.State == 1 && _order.DesignatedAGVName == _agvName);
+      return {
+        order: orderExecuting,
+        isExecuting: orderExecuting != undefined
+      }
     }
   },
   methods: {
@@ -207,6 +225,11 @@ export default {
     },
     HandleOnlineButtonClicked() {
       this.$emit('OnOnlineBtnClicked', this.vehicleStateData)
+    },
+    HandleTaskIDClicked() {
+      if (!this.IsOrderRunning)
+        return;
+      this.$emit('onTaskIdClick', this.CurrentOrderID)
     }
   },
   mounted() {
@@ -243,6 +266,12 @@ export default {
       text-align: left;
       font-size: 1.3rem;
       font-weight: 700;
+    }
+  }
+  .center-content {
+    .task-id:hover {
+      color: rgb(64, 158, 255);
+      font-weight: bold;
     }
   }
   .center-content:hover {
@@ -311,7 +340,9 @@ export default {
     font-size: 16px;
     text-wrap: nowrap;
   }
-
+  .text-bold {
+    font-weight: bold;
+  }
   ::v-deep .el-step__title {
     font-size: 12px;
     line-height: 25px;
@@ -355,8 +386,9 @@ export default {
 }
 
 .v-Offline {
-  background-color: rgb(141, 141, 141);
-  color: white !important;
+  background-color: rgb(231, 231, 231);
+  //   color: white !important;
+  border: 1px solid rgb(148, 148, 148);
 }
 .vehicle-card-disconnect {
   background-color: rgb(255, 112, 112);

@@ -1,5 +1,8 @@
 <template>
-  <div class="mission-card" v-bind:class="[this.mission.State==1?'executing':'waiting']">
+  <div
+    class="mission-card"
+    v-bind:class="[this.mission.State==1?'executing':'waiting',selectedClassName]"
+  >
     <div class="mission-card-header py-1 border-bottom">
       <h6
         class="mx-2 border py-1 px-2 rounded text-light text-nowrap"
@@ -16,11 +19,11 @@
     <div class="from-to-info d-flex p-2 m-1">
       <div style="width: 140px;">
         <label class="item-name-label">{{ $t('TaskTable.Source') }}</label>
-        <div>{{ source }}</div>
+        <div :class="this.mission.State==1?'executing':''">{{ source }}</div>
       </div>
       <div class="flex-fill">
         <el-steps
-          style="width:100%;padding-top: 30px; padding-right: 40px;"
+          style="width:100%;padding-top: 0px; padding-right: 10px;"
           :active="currentStep"
           finish-status="success"
         >
@@ -32,7 +35,7 @@
       </div>
       <div style="width: 140px;">
         <label class="item-name-label w-100 text-end">{{ $t('TaskTable.Destine') }}</label>
-        <div class="w-100 text-end">{{ destine }}</div>
+        <div class="w-100 text-end" :class="this.mission.State==1?'executing':''">{{ destine }}</div>
       </div>
     </div>
     <div class="d-flex justify-content-between p-2 m-1 border-top">
@@ -47,7 +50,12 @@
       <div>
         <label class="item-name-label">VEHICLE</label>
         <div>
-          <el-tag effect="dark">{{ vehicleName }}</el-tag>
+          <el-tooltip placement="bottom-end" effect="light">
+            <template #content>
+              <VehicleInfoCard v-if="executingVehicleInfo" :vehicleStateData="executingVehicleInfo"></VehicleInfoCard>
+            </template>
+            <el-tag effect="dark">{{ vehicleName }}</el-tag>
+          </el-tooltip>
         </div>
       </div>
       <div style="width: 140px;">
@@ -63,14 +71,19 @@
 import clsTaskState from '@/ViewModels/TaskState'
 import { TaskAllocation } from '@/api/TaskAllocation'
 import { MapStore } from '../Map/store';
-import { userStore } from '@/store';
+import { userStore, agv_states_store } from '@/store';
 import moment from 'moment';
+import VehicleInfoCard from '../Vehicle/VehicleInfoCard.vue';
 export default {
+  components: {
+    VehicleInfoCard,
+  },
   data() {
     return {
       MapPoints: Object.values(MapStore.state.MapData.Points),
       show: false,
       isLeaving: false,
+      selectedClassName: ''
     }
   },
   props: {
@@ -79,6 +92,16 @@ export default {
       default() {
         return new clsTaskState({})
       }
+    },
+    selected: {
+      type: Boolean,
+      default: false
+    }
+  },
+  watch: {
+    selected(newVal) {
+      //alert(newVal)
+      this.selectedClassName = newVal ? 'selected' : ''
     }
   },
   computed: {
@@ -143,7 +166,7 @@ export default {
       return this.mission.DesignatedAGVName;
     },
     recieveTime() {
-      return moment(this.mission.RecieveTime).format('y/M/D HH:mm:ss');
+      return moment(this.mission.RecieveTime).format('M/D HH:mm:ss');
     },
     state() {
       return this.mission.StateName + `(${this.mission.State})`;
@@ -186,6 +209,12 @@ export default {
         return 3;
       }
       return 0;
+    },
+    executingVehicleInfo() {
+      if (!this.vehicleName || this.vehicleName == '')
+        return undefined;
+      const vehicleStates = agv_states_store.getters.AGVStatesData;
+      return vehicleStates.find(v => v.AGV_Name == this.vehicleName);
     }
   },
   methods: {
@@ -247,13 +276,15 @@ export default {
 
 <style lang="scss" scoped>
 .mission-card {
-  border: 1px solid #818181;
+  --card-border: 1px solid #818181;
+  --selected-card-border: 1px solid #818181;
+  border: var(--card-border);
   padding: 10px;
   margin: 10px;
   border-radius: 4px;
   font-size: 16px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: rgb(198 198 198);
+  background-color: rgb(231, 231, 231);
   color: rgb(54, 54, 54);
   flex-wrap: nowrap;
   .mission-card-header {
@@ -266,6 +297,10 @@ export default {
 
   .from-to-info {
     font-weight: bold;
+
+    .executing {
+      color: rgb(64, 158, 255) !important;
+    }
   }
 
   .item-name-label {
@@ -278,6 +313,19 @@ export default {
     font-size: 12px;
     line-height: 25px;
     font-weight: lighter;
+  }
+}
+.selected {
+  animation: blink-border 1s 3;
+  border: 3px solid rgb(64, 158, 255);
+  @keyframes blink-border {
+    0%,
+    100% {
+      border-color: rgb(78, 78, 78);
+    }
+    50% {
+      border-color: rgb(64, 158, 255);
+    }
   }
 }
 .executing {

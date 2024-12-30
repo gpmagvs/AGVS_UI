@@ -9,12 +9,12 @@
       <div v-show="MenuExpanded" class="left-col border-right left-panel">
         <!-- <Header v-if="IsOpUsing"></Header> -->
         <b-card no-body class="p-1 bg-light h-100">
-          <b-tabs pills>
+          <b-tabs pills v-model="selectTab">
             <b-tab title="Vehicles">
-              <AGVStatusVue DisplayMode="cards"></AGVStatusVue>
+              <AGVStatusVue DisplayMode="cards" @onTaskIDClicked="handleTaskIDClicked"></AGVStatusVue>
             </b-tab>
             <b-tab title="Missions">
-              <TaskStatusVue height="80vh" :show_card_title="false"></TaskStatusVue>
+              <TaskStatusVue height="80vh" :show_card_title="false" :taskIDSelected="selectTaskID"></TaskStatusVue>
             </b-tab>
             <b-tab :title="$t('HomeView.EQ_Status')">
               <EQStatus></EQStatus>
@@ -142,6 +142,13 @@ export default {
     },
     async HandleStopBuzzerClicked() {
       await StopBuzzer();
+    },
+    handleTaskIDClicked(taskID) {
+      this.selectTaskID = taskID;
+      this.selectTab = 1;
+      setTimeout(() => {
+        this.selectTaskID = '';
+      }, 1000);
     }
   },
   computed: {
@@ -158,7 +165,9 @@ export default {
       show_new_dispatch_panel: false,
       right_side_tabSelected: 'map',
       MenuExpanded: true,
-      previousLeftSideWidthStyle: ''
+      previousLeftSideWidthStyle: '',
+      selectTab: 0,
+      selectTaskID: ''
     }
   },
   watch: {
