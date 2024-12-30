@@ -292,6 +292,7 @@ export default {
       border-radius: 0.41rem;
     }
     .battery-info {
+      padding-top: 8px !important;
       width: 140px;
       ::v-deep .el-progress-bar__outer {
         border: 4px solid var(--battery-outline-color);
