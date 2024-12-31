@@ -262,7 +262,11 @@
                 :EditorOption="EditorOption"
                 :DragBackgroundImageMode="DragBackgroundImageMode"
               ></NotifyDisplay>
-              <div v-if="true" class="cursour-coordination-show d-flex flex-column">
+              <div
+                v-if="true"
+                class="cursour-coordination-show d-flex flex-column"
+                :style="{'position':'relative','top':'0','right':settingCollapsed?'-76px':'40px'}"
+              >
                 <span
                   :style="map_theme_select=='dark'?'color:white':'color:rgb(24, 24, 24)'"
                 >{{ MouseCoordinationDisplay }}</span>
@@ -335,107 +339,116 @@
                 </button>
               </el-tooltip>
             </div>
+            <i
+              class="bi bi-list"
+              style="position:absolute;top:-2px;right:6px;z-index:2;font-size: 25px;color: rgb(13, 110, 253);"
+              @click="settingCollapsed=!settingCollapsed"
+            ></i>
             <!-- 設定 -->
-            <div v-if="IsUserLogin" class="options bg-light border-start text-start px-1 py-3">
-              <!-- <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column"> -->
-              <div v-if="false" class="rounded d-flex flex-column">
-                <span class="border-bottom">Theme</span>
-                <el-switch
-                  v-model="map_theme_select"
-                  active-value="dark"
-                  active-text="Dark"
-                  inactive-value="custom"
-                  inactive-text="Custom"
-                  inline-prompt
-                  width="70"
-                  @change="HanldeThemeChanged"
-                ></el-switch>
-              </div>
-              <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column">
-                <span class="border-bottom">{{ $t('Map.Options.DisplayMode') }}</span>
-                <el-radio-group
-                  v-model="station_name_display_mode"
-                  @change="StationNameDisplayOptHandler"
-                >
-                  <el-radio value="index" size="large">Index</el-radio>
-                  <el-radio value="name" size="large">Name</el-radio>
-                  <el-radio value="name_tag" size="large">Name & Tag</el-radio>
-                  <el-radio value="tag" size="large">Tag</el-radio>
-                </el-radio-group>
-              </div>
-              <div v-if="!IsOpUsing" v-bind:class="mapModeCLass">
-                <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
-                <el-tooltip placement="left">
-                  <template #content>
-                    <div>
-                      ■ Slam:點位位置使用真實座標
-                      <br />■ 路網:點位顯示位置可隨意變更。
-                    </div>
-                  </template>
+            <transition name="el-zoom-in-top">
+              <div
+                v-if="!settingCollapsed"
+                class="options bg-light border-start text-start px-1 py-3"
+              >
+                <!-- <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column"> -->
+                <div v-if="false" class="rounded d-flex flex-column">
+                  <span class="border-bottom">Theme</span>
                   <el-switch
-                    @change="MapDisplayModeOptHandler"
-                    inactive-value="router"
-                    active-value="coordination"
-                    width="70"
-                    v-model="map_display_mode"
+                    v-model="map_theme_select"
+                    active-value="dark"
+                    active-text="Dark"
+                    inactive-value="custom"
+                    inactive-text="Custom"
                     inline-prompt
-                    :inactive-text="$t('PathNetwork')"
-                    active-text="Slam"
-                    inactive-color="seagreen"
+                    width="70"
+                    @change="HanldeThemeChanged"
                   ></el-switch>
-                </el-tooltip>
-              </div>
-              <div v-if="agv_show">
-                <span class="mx-1">{{ $t('Map.Options.AgvVisible') }}</span>
-                <el-switch
-                  @change="AgvDisplayOptHandler"
-                  inactive-value="none"
-                  active-value="visible"
-                  width="70"
-                  v-model="agv_display"
-                  inline-prompt
-                  :inactive-text="$t('hidden')"
-                  :active-text="$t('Show')"
-                  inactive-color="rgb(146, 148, 153)"
-                ></el-switch>
-                <span class="mx-1">{{ $t('Map.Options.AgvBatVisible') }}</span>
-                <el-switch
-                  :disabled="agv_display=='none'"
-                  @change="()=>{SaveSettingsToLocalStorage();}"
-                  :inactive-value="false"
-                  :active-value="true"
-                  width="70"
-                  v-model="vehicleBatVisible"
-                  inline-prompt
-                  :inactive-text="$t('hidden')"
-                  :active-text="$t('Show')"
-                  inactive-color="rgb(146, 148, 153)"
-                ></el-switch>
-              </div>
-              <div v-if="!IsOpUsing">
-                <span class="mx-1">{{ $t('Map.Options.BackgroundImage') }}</span>
-                <el-switch
-                  v-model="map_image_display"
-                  inactive-value="none"
-                  :inactive-text="$t('hidden')"
-                  active-value="visible"
-                  :active-text="$t('Show')"
-                  inactive-color="rgb(146, 148, 153)"
-                  inline-prompt
-                  width="70"
-                  @change="SlamImageDisplayOptHandler"
-                ></el-switch>
-              </div>
-              <div v-if="!IsOpUsing">
-                <span class="mx-1">{{ $t('Map.Options.PathVisible') }}</span>
-                <el-switch
-                  v-model="routePathsVisible"
-                  :inactive-text="$t('hidden')"
-                  :active-text="$t('Show')"
-                  inline-prompt
-                  inactive-color="rgb(146, 148, 153)"
-                  width="70"
-                  @change="(visible) => {
+                </div>
+                <div v-if="station_show&&!IsOpUsing" class="rounded d-flex flex-column">
+                  <span class="border-bottom">{{ $t('Map.Options.DisplayMode') }}</span>
+                  <el-radio-group
+                    v-model="station_name_display_mode"
+                    @change="StationNameDisplayOptHandler"
+                  >
+                    <el-radio value="index" size="large">Index</el-radio>
+                    <el-radio value="name" size="large">Name</el-radio>
+                    <el-radio value="name_tag" size="large">Name & Tag</el-radio>
+                    <el-radio value="tag" size="large">Tag</el-radio>
+                  </el-radio-group>
+                </div>
+                <div v-if="!IsOpUsing" v-bind:class="mapModeCLass">
+                  <span class="mx-1">{{ $t('Map.Options.MapMode') }}</span>
+                  <el-tooltip placement="left">
+                    <template #content>
+                      <div>
+                        ■ Slam:點位位置使用真實座標
+                        <br />■ 路網:點位顯示位置可隨意變更。
+                      </div>
+                    </template>
+                    <el-switch
+                      @change="MapDisplayModeOptHandler"
+                      inactive-value="router"
+                      active-value="coordination"
+                      width="70"
+                      v-model="map_display_mode"
+                      inline-prompt
+                      :inactive-text="$t('PathNetwork')"
+                      active-text="Slam"
+                      inactive-color="seagreen"
+                    ></el-switch>
+                  </el-tooltip>
+                </div>
+                <div v-if="agv_show">
+                  <span class="mx-1">{{ $t('Map.Options.AgvVisible') }}</span>
+                  <el-switch
+                    @change="AgvDisplayOptHandler"
+                    inactive-value="none"
+                    active-value="visible"
+                    width="70"
+                    v-model="agv_display"
+                    inline-prompt
+                    :inactive-text="$t('hidden')"
+                    :active-text="$t('Show')"
+                    inactive-color="rgb(146, 148, 153)"
+                  ></el-switch>
+                  <span class="mx-1">{{ $t('Map.Options.AgvBatVisible') }}</span>
+                  <el-switch
+                    :disabled="agv_display=='none'"
+                    @change="()=>{SaveSettingsToLocalStorage();}"
+                    :inactive-value="false"
+                    :active-value="true"
+                    width="70"
+                    v-model="vehicleBatVisible"
+                    inline-prompt
+                    :inactive-text="$t('hidden')"
+                    :active-text="$t('Show')"
+                    inactive-color="rgb(146, 148, 153)"
+                  ></el-switch>
+                </div>
+                <div v-if="!IsOpUsing">
+                  <span class="mx-1">{{ $t('Map.Options.BackgroundImage') }}</span>
+                  <el-switch
+                    v-model="map_image_display"
+                    inactive-value="none"
+                    :inactive-text="$t('hidden')"
+                    active-value="visible"
+                    :active-text="$t('Show')"
+                    inactive-color="rgb(146, 148, 153)"
+                    inline-prompt
+                    width="70"
+                    @change="SlamImageDisplayOptHandler"
+                  ></el-switch>
+                </div>
+                <div v-if="!IsOpUsing">
+                  <span class="mx-1">{{ $t('Map.Options.PathVisible') }}</span>
+                  <el-switch
+                    v-model="routePathsVisible"
+                    :inactive-text="$t('hidden')"
+                    :active-text="$t('Show')"
+                    inline-prompt
+                    inactive-color="rgb(146, 148, 153)"
+                    width="70"
+                    @change="(visible) => {
                   if (visible) {
                     if (map_display_mode == 'router') {
                       PathLayerForCoordination.setVisible(false);
@@ -450,93 +463,94 @@
                   }
                   HideNormalStations(!visible);
                 }"
-                ></el-switch>
-              </div>
-              <div v-if="!IsOpUsing">
-                <span class="mx-1">{{ $t('Map.Options.RegionVisible') }}</span>
-                <el-switch
-                  :disabled="map_display_mode != 'coordination'"
-                  v-model="regionsVisible"
-                  :inactive-text="$t('hidden')"
-                  :active-text="$t('Show')"
-                  inline-prompt
-                  inactive-color="rgb(146, 148, 153)"
-                  width="70"
-                  @change="(visible) => {
+                  ></el-switch>
+                </div>
+                <div v-if="!IsOpUsing">
+                  <span class="mx-1">{{ $t('Map.Options.RegionVisible') }}</span>
+                  <el-switch
+                    :disabled="map_display_mode != 'coordination'"
+                    v-model="regionsVisible"
+                    :inactive-text="$t('hidden')"
+                    :active-text="$t('Show')"
+                    inline-prompt
+                    inactive-color="rgb(146, 148, 153)"
+                    width="70"
+                    @change="(visible) => {
                   RegionLayer.setVisible(visible && map_display_mode == 'coordination');
                 }"
-                ></el-switch>
+                  ></el-switch>
+                </div>
+                <div v-if="!editable" class="rounded">
+                  <span class="mx-1">圖例顯示</span>
+                  <el-switch
+                    class="my-2"
+                    inactive-text="OFF"
+                    active-text="ON"
+                    inline-prompt
+                    width="70"
+                    v-model="legendShow"
+                    @change="HandleLedgendShowChanged"
+                  ></el-switch>
+                </div>
+                <div class="rounded">
+                  <span class="mx-1">Rack顯示</span>
+                  <el-switch
+                    class="my-2"
+                    inactive-text="OFF"
+                    active-text="ON"
+                    :active-value="true"
+                    :inactive-value="false"
+                    inline-prompt
+                    width="70"
+                    v-model="rackVisible"
+                    @change="()=>{SaveSettingsToLocalStorage();}"
+                  ></el-switch>
+                </div>
+                <div v-if="!editable" class="rounded">
+                  <span class="mx-1">Pan/Zoom</span>
+                  <el-switch
+                    class="my-2"
+                    inactive-text="Disable"
+                    active-text="Enable"
+                    inline-prompt
+                    width="70"
+                    v-model="dragActionLock"
+                    @change="HandleDragLockSwitchChanged"
+                  ></el-switch>
+                </div>
+                <!-- 點位搜尋 -->
+                <div class="rounded">
+                  <span class="mx-1">Search</span>
+                  <el-select
+                    filterable
+                    clearable
+                    v-model="searchTag"
+                    @change="HandleSearchTagSelected"
+                  >
+                    <el-option
+                      v-for="opt in allPointsSimpleOptions"
+                      :key="opt.value"
+                      :value="opt.value"
+                      :label="opt.label"
+                    ></el-option>
+                  </el-select>
+                </div>
+                <div v-if="editable" class="rounded">
+                  <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
+                    <span class="mx-1">AGV上報點位模式</span>
+                  </el-tooltip>
+                  <el-switch
+                    class="my-2"
+                    inactive-text="OFF"
+                    active-text="ON"
+                    inline-prompt
+                    width="70"
+                    v-model="agv_upload_coordination_mode"
+                    @change="HandleAGVUploadCorrdinationChanged"
+                  ></el-switch>
+                </div>
               </div>
-              <div v-if="!editable" class="rounded">
-                <span class="mx-1">圖例顯示</span>
-                <el-switch
-                  class="my-2"
-                  inactive-text="OFF"
-                  active-text="ON"
-                  inline-prompt
-                  width="70"
-                  v-model="legendShow"
-                  @change="HandleLedgendShowChanged"
-                ></el-switch>
-              </div>
-              <div class="rounded">
-                <span class="mx-1">Rack顯示</span>
-                <el-switch
-                  class="my-2"
-                  inactive-text="OFF"
-                  active-text="ON"
-                  :active-value="true"
-                  :inactive-value="false"
-                  inline-prompt
-                  width="70"
-                  v-model="rackVisible"
-                  @change="()=>{SaveSettingsToLocalStorage();}"
-                ></el-switch>
-              </div>
-              <div v-if="!editable" class="rounded">
-                <span class="mx-1">Pan/Zoom</span>
-                <el-switch
-                  class="my-2"
-                  inactive-text="Disable"
-                  active-text="Enable"
-                  inline-prompt
-                  width="70"
-                  v-model="dragActionLock"
-                  @change="HandleDragLockSwitchChanged"
-                ></el-switch>
-              </div>
-              <!-- 點位搜尋 -->
-              <div class="rounded">
-                <span class="mx-1">Search</span>
-                <el-select
-                  filterable
-                  clearable
-                  v-model="searchTag"
-                  @change="HandleSearchTagSelected"
-                >
-                  <el-option
-                    v-for="opt in allPointsSimpleOptions"
-                    :key="opt.value"
-                    :value="opt.value"
-                    :label="opt.label"
-                  ></el-option>
-                </el-select>
-              </div>
-              <div v-if="editable" class="rounded">
-                <el-tooltip content="開啟後於車載畫面上傳座標資訊後將會自動新增點位至地圖上">
-                  <span class="mx-1">AGV上報點位模式</span>
-                </el-tooltip>
-                <el-switch
-                  class="my-2"
-                  inactive-text="OFF"
-                  active-text="ON"
-                  inline-prompt
-                  width="70"
-                  v-model="agv_upload_coordination_mode"
-                  @change="HandleAGVUploadCorrdinationChanged"
-                ></el-switch>
-              </div>
-            </div>
+            </transition>
           </div>
         </div>
         <!-- <MapSettingsDialog ref="settings"></MapSettingsDialog> -->
@@ -725,6 +739,7 @@ export default {
   },
   data() {
     return {
+      settingCollapsed: false,
       settings: new MapLocalStorage(),
       map: new Map(),
       map_name: 'Unkown',
@@ -4722,7 +4737,7 @@ export default {
   }
   .options {
     text-align: left;
-    width: 115px;
+    width: 125px;
     font-size: 16px;
     z-index: 1;
     label {
