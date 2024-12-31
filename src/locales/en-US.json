@@ -71,7 +71,7 @@
     },
     "TaskStatus": "TASK STATUS",
     "Map": "Map",
-    "EQ_Status": "EQ_Status",
+    "EQ_Status": "EQ Status",
     "EQStatus": {
       "EQStatus": {
         "ViewMode": "ViewMode",
@@ -102,7 +102,9 @@
         "IsMaintaining": "Maintaining",
         "IsPartsReplacing": "Replacing"
       }
-    }
+    },
+    "Vehicles": "Vehicles",
+    "Missions": "Missions"
   },
   "Action": "Action",
   "Vehicle": "Vehicle",

@@ -102,7 +102,9 @@
         "IsMaintaining": "維修",
         "IsPartsReplacing": "換紙捲"
       }
-    }
+    },
+    "Vehicles": "車輛",
+    "Missions": "任務"
   },
   "Action": "動作",
   "Vehicle": "車輛",

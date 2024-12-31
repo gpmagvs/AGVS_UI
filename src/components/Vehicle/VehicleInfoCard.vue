@@ -5,7 +5,10 @@
   >
     <div class="vehicle-info-card-header p-2 border-bottom">
       <div class="vehicle-icon" :style="StyleOfAGVDisplayColor"></div>
-      <h6 class="flex-fill">{{ vehicleStateData.AGV_Name }}</h6>
+      <h6
+        class="flex-fill"
+        :class="vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online'"
+      >{{ vehicleStateData.AGV_Name }}</h6>
       <el-tooltip content="點擊顯示車載頁面" placement="top">
         <i
           class="bi bi-globe mx-2"
@@ -56,11 +59,16 @@
       </div>
       <div>
         <label class="item-name-label">{{ $t('TaskTable.TaskName') }}</label>
-        <div
-          class="text-truncate text-bold task-id"
-          @click="HandleTaskIDClicked"
-          style="width: 120px"
-        >{{ CurrentOrderID }}</div>
+        <el-tooltip content="點擊顯示任務詳情" placement="right" effect="light">
+          <template #content>
+            <MissionCard style="width: 620px" :mission="CurrentOrderStatus.order" />
+          </template>
+          <div
+            class="text-truncate text-bold task-id"
+            @click="HandleTaskIDClicked"
+            style="width: 120px"
+          >{{ CurrentOrderID }}</div>
+        </el-tooltip>
       </div>
     </div>
 
@@ -80,13 +88,14 @@
           class="station-name"
         >{{ vehicleStateData.TaskDestineStationName }}</span>
       </div>
-      <div class="button-like-container battery-info">
+      <div
+        class="button-like-container battery-info"
+        :class="vehicleStateData.BatteryLevel_1 < 30 ? 'battery-low':'battery-normal'"
+      >
         <el-progress
           :percentage="vehicleStateData.BatteryLevel_1"
           stroke-width="20"
-          striped
-          striped-flow
-          duration="12"
+          :color="batteryStatusColor"
         >
           <div class="battery-head"></div>
           <div
@@ -134,10 +143,14 @@ import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import { TaskAllocation } from '@/api/TaskAllocation';
 import { MapStore } from '../Map/store';
 import { userStore, agv_states_store, TaskStore } from '@/store';
+import MissionCard from '../TaskStatus/MissionCard.vue';
 import moment from 'moment';
 import { dot } from 'element-plus'
 export default {
   name: 'vehicle-info-card',
+  components: {
+    MissionCard
+  },
   data() {
     return {
     }
@@ -159,6 +172,10 @@ export default {
       return userStore.getters.IsOPLogining;
     },
     StyleOfAGVDisplayColor() {
+      if (this.vehicleStateData.OnlineStatus == 0)
+        return {
+          backgroundColor: 'rgb(156, 156, 156)',
+        }
       const agv_name = this.vehicleStateData.AGV_Name;
       var color = 'blue'
       if (MapStore.getters.CustomAGVStyles[agv_name])
@@ -207,9 +224,19 @@ export default {
         order: orderExecuting,
         isExecuting: orderExecuting != undefined
       }
-    }
+    },
+    batteryStatusColor() {
+      let batLevel = this.vehicleStateData.BatteryLevel_1;
+      if (batLevel < 30)
+        return 'red';
+      else if (batLevel < 60)
+        return 'orange';
+      else
+        return 'rgb(64, 158, 255)';
+    },
   },
   methods: {
+
     /**由狀態取得充電按鈕的類別 */
     getChargeButtnClass() {
       var battery_status = agv_states_store.getters.VehicleBatteryStatus(this.vehicleStateData.AGV_Name);
@@ -266,6 +293,16 @@ export default {
       text-align: left;
       font-size: 1.3rem;
       font-weight: 700;
+      letter-spacing: 0.1rem;
+    }
+    .v-Offline {
+      color: rgb(156, 156, 156);
+      border: none;
+    }
+    .v-Online {
+      color: rgb(88, 88, 88);
+      border: none;
+      font-weight: 800;
     }
   }
   .center-content {
@@ -321,6 +358,21 @@ export default {
         font-weight: bold;
       }
     }
+    .battery-low {
+      border: 3px solid red;
+      animation: battery-low-blink 1s infinite;
+    }
+
+    @keyframes battery-low-blink {
+      0%,
+      100% {
+        border-color: red;
+      }
+      50% {
+        border-color: rgb(255, 255, 255);
+      }
+    }
+
     .station-name {
       color: rgb(0, 119, 255);
       font-weight: bold;
@@ -387,15 +439,19 @@ export default {
 }
 
 .v-Offline {
-  background-color: rgb(231, 231, 231);
+  background-color: rgb(219, 219, 219);
   //   color: white !important;
   border: 1px solid rgb(148, 148, 148);
+}
+.v-Online {
+  background-color: rgb(255, 255, 255);
+  border: 3px solid rgb(0, 55, 107);
 }
 .vehicle-card-disconnect {
   background-color: rgb(255, 112, 112);
 }
 .vehicle-info-card:hover {
-  border: 3px solid rgb(39, 82, 175);
+  border: 5px solid rgb(0, 190, 238);
 }
 </style>
   

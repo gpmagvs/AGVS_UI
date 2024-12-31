@@ -8,7 +8,7 @@
         class="mx-2 border py-1 px-2 rounded text-light text-nowrap"
         :class="actionTagClass"
       >{{ action }}</h6>
-      <h6 class="flex-fill text-nowrap"># {{ mission.TaskName }}</h6>
+      <h6 class="flex-fill text-nowrap text-truncate"># {{ mission.TaskName }}</h6>
       <!-- <label>Local</label> -->
       <el-button
         type="danger"

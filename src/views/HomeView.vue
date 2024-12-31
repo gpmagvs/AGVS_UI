@@ -11,9 +11,33 @@
         <b-card no-body class="p-1 bg-light h-100">
           <b-tabs pills v-model="selectTab">
             <b-tab title="Vehicles">
+              <template #title>
+                <el-badge
+                  v-if="IsAnyVehicleLowBattery||IsAnyVehicleStatusDown"
+                  value="!"
+                  :max-value="99"
+                  class="item"
+                  offset="60"
+                >
+                  <span>{{ $t('HomeView.Vehicles') }}</span>
+                </el-badge>
+                <span v-else>{{ $t('HomeView.Vehicles') }}</span>
+              </template>
               <AGVStatusVue DisplayMode="cards" @onTaskIDClicked="handleTaskIDClicked"></AGVStatusVue>
             </b-tab>
             <b-tab title="Missions">
+              <template #title>
+                <el-badge
+                  v-if="InCompletedTaskNumber>0"
+                  :value="InCompletedTaskNumber"
+                  :max-value="99"
+                  class="item"
+                  offset="10"
+                >
+                  <span>{{ $t('HomeView.Missions') }}</span>
+                </el-badge>
+                <span v-else>{{ $t('HomeView.Missions') }}</span>
+              </template>
               <TaskStatusVue height="80vh" :show_card_title="false" :taskIDSelected="selectTaskID"></TaskStatusVue>
             </b-tab>
             <b-tab :title="$t('HomeView.EQ_Status')">
@@ -107,7 +131,7 @@ import EQStatus from '@/components/HomeView/EQStatus.vue'
 import TaskStatusVue from '@/components/HomeView/TaskStatus.vue';
 import TaskAllocationVue from '@/components/HomeView/TaskAllocation.vue';
 import bus from '@/event-bus.js'
-import { userStore, agvs_settings_store } from '@/store';
+import { userStore, agvs_settings_store, TaskStore, agv_states_store } from '@/store';
 import { DArrowRight as MenuExpandIcon, DArrowLeft as MenuFoldIcon } from '@element-plus/icons-vue'
 
 import Header from '@/components/App/Header.vue'
@@ -157,6 +181,15 @@ export default {
     IsOpUsing() {
       return userStore.getters.IsOPLogining;
     },
+    InCompletedTaskNumber() {
+      return TaskStore.state.IncompletedTaskListData.length;
+    },
+    IsAnyVehicleLowBattery() {
+      return agv_states_store.state.agv_states.some(state => state.BatteryLevel_1 < 30);
+    },
+    IsAnyVehicleStatusDown() {
+      return agv_states_store.state.agv_states.some(state => state.MainStatus == 3);
+    }
   },
   data() {
     return {
