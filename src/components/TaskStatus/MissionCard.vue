@@ -50,12 +50,13 @@
       <div>
         <label class="item-name-label">VEHICLE</label>
         <div>
-          <el-tooltip placement="bottom-end" effect="light">
+          <el-tooltip v-if="executingVehicleInfo" placement="bottom-end" effect="light">
             <template #content>
-              <VehicleInfoCard v-if="executingVehicleInfo" :vehicleStateData="executingVehicleInfo"></VehicleInfoCard>
+              <VehicleInfoCard :vehicleStateData="executingVehicleInfo"></VehicleInfoCard>
             </template>
             <el-tag effect="dark">{{ vehicleName }}</el-tag>
           </el-tooltip>
+          <el-tag v-else effect="dark">{{ vehicleName }}</el-tag>
         </div>
       </div>
       <div style="width: 140px;">

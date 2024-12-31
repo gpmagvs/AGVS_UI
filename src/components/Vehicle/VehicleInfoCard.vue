@@ -9,6 +9,20 @@
         class="flex-fill"
         :class="vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online'"
       >{{ vehicleStateData.AGV_Name }}</h6>
+      <div v-if="IsEmulationMode">
+        <el-tooltip content="EMULATION MODE" placement="right-end" effect="light">
+          <template #content>
+            <AgvEmulator :AgvName="vehicleStateData.AGV_Name" />
+          </template>
+          <el-button class="text-primary" text>Simulation</el-button>
+        </el-tooltip>
+      </div>
+      <el-button
+        v-if="vehicleStateData.Model == 2 || IsEmulationMode"
+        class="text-primary"
+        text
+        @click="()=>{$emit('OnTagLocatingClicked',vehicleStateData)}"
+      >定位</el-button>
       <el-tooltip content="點擊顯示車載頁面" placement="top">
         <i
           class="bi bi-globe mx-2"
@@ -144,12 +158,11 @@ import { TaskAllocation } from '@/api/TaskAllocation';
 import { MapStore } from '../Map/store';
 import { userStore, agv_states_store, TaskStore } from '@/store';
 import MissionCard from '../TaskStatus/MissionCard.vue';
-import moment from 'moment';
-import { dot } from 'element-plus'
+import AgvEmulator from './AgvEmulator.vue';
 export default {
   name: 'vehicle-info-card',
   components: {
-    MissionCard
+    MissionCard, AgvEmulator
   },
   data() {
     return {
@@ -170,6 +183,9 @@ export default {
   computed: {
     IsOpUsing() {
       return userStore.getters.IsOPLogining;
+    },
+    IsEmulationMode() {
+      return this.vehicleStateData.Simulation;
     },
     StyleOfAGVDisplayColor() {
       if (this.vehicleStateData.OnlineStatus == 0)

@@ -12,6 +12,7 @@ import clsTaskState from '@/ViewModels/TaskState.js';
 import SecsPlatformAPI from '@/api/SecsPlatform'
 import { GetEQData } from '@/api/EquipmentAPI'
 import { GetUncheckedAlarms } from '@/api/AlarmAPI'
+import { EmuAPI } from '@/api/VMSAPI'
 import { ElNotification } from 'element-plus';
 import { useRoute } from 'vue-router';
 var cachesKeyMap = {
@@ -143,6 +144,18 @@ export const agv_states_store = createStore({
       'AGV_002': 0,
       'AGV_003': 0,
       'AGV_004': 0,
+    },
+    emulationParameters: {
+      'AGV_001': {
+        MoveSpeedRatio: 0.7,
+        TapMoveSpeedRatio: 0.15,
+        RotationSpeed: 15,
+        ForkLifterSpeed: 0,
+        SpeedUpRate: 10,
+        BatteryChargeSpeed: 9,
+        BatteryUsed_Run: 0.1,
+        WorkingTime: 15
+      },
     }
   },
   getters: {
@@ -197,6 +210,9 @@ export const agv_states_store = createStore({
       status.batLv = !agvState ? -1 : agvState.BatteryLevel_1;
       status.isCharging = !agvState ? false : agvState.IsCharging;
       return status;
+    },
+    GetAGVEmuParameters: state => (name) => {
+      return state.emulationParameters[name]
     }
   },
   mutations: {
@@ -208,6 +224,19 @@ export const agv_states_store = createStore({
     },
     setVehiclesBatteryStatus(state, data) {
       state.vehiclesBatteryStatus = data
+    },
+    setEmulationParameters(state, data) {
+      state.emulationParameters = data
+    }
+  },
+  actions: {
+    async downloadEmulationParameters({ commit }) {
+      var result = await EmuAPI.GetEmulationParameters()
+      commit("setEmulationParameters", result)
+    },
+    async updateEmulationParameters({ commit }, { agvName, parameters }) {
+      await EmuAPI.SetEmulationParameters(agvName, parameters);
+      await this.dispatch('downloadEmulationParameters');
     }
   }
 })
@@ -576,3 +605,5 @@ export const AlarmStore = createStore({
     }
   }
 })
+
+agv_states_store.dispatch('downloadEmulationParameters')

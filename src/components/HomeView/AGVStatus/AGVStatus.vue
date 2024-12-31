@@ -338,6 +338,7 @@
           ShowOnlineStateChangeModal(vstate.AGV_Name,vstate.OnlineStatus,vstate.Model)
         }"
         @OnLocateClicked="(agvName)=>{HandleShowAGVInMapCenter(agvName)}"
+        @OnTagLocatingClicked="(vstate)=>{HandleAGVLocatingClick(vstate)}"
         @OnTrackingVehicleClick="(agvName)=>{TrackingVehicle(agvName)}"
         @OnWebSiteIconClicked="(vstate)=>{HandleAGVNameClicked(vstate)}"
         @ShowAGVChargeConfirmDialog="(vstate)=>ShowAGVChargeConfirmDialog(vstate)"

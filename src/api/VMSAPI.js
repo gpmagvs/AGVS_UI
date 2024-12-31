@@ -106,6 +106,17 @@ export const VehicleBatteryAPI = {
 }
 
 export const EmuAPI = {
+
+  GetEmulationParameters: async (agvName) => {
+    var response = await axios_entity_vms.get(`api/AGVSimulation/GetSimulationParameters`)
+    return response.data;
+  },
+  SetEmulationParameters: async (agvName, payload) => {
+    var response = await axios_entity_vms.post(`api/AGVSimulation/ModifySimulationParamters?AGVName=${agvName}`, payload)
+    return response.data;
+  },
+
+
   Initialize: async (agvName) => {
     var response = await axios_entity_vms.get(`api/AGVSimulation/Initialize?AGVName=${agvName}`)
     return response.data;
