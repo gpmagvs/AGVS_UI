@@ -7,7 +7,7 @@
       <div class="vehicle-icon" :style="StyleOfAGVDisplayColor"></div>
       <h6
         class="flex-fill"
-        :class="vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online'"
+        :class="[vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',vehicleStateData.Connected?'connected':'disconnect']"
       >{{ vehicleStateData.AGV_Name }}</h6>
       <div v-if="IsEmulationMode">
         <el-tooltip content="EMULATION MODE" placement="right-end" effect="light">
@@ -305,6 +305,12 @@ export default {
     color: black;
     display: flex;
     align-items: center;
+    .connected {
+    }
+    .disconnect {
+      color: red !important;
+      background-color: transparent !important;
+    }
     h6 {
       text-align: left;
       font-size: 1.3rem;

@@ -509,23 +509,13 @@ export const EqStore = createStore({
       state.WIPsData = data;
       state.HasDataButNoCargoWIPs = data.filter(item => item.IsAnyPortHasDataButNoCargo);
       state.IsAnyPortHasDataButNoCargo = state.HasDataButNoCargoWIPs.length > 0;
-      // if (state.IsAnyPortHasDataButNoCargo) {
-      //   state.HasDataButNoCargoWIPs.forEach(item => {
-      //     setTimeout(() => {
-      //       ElNotification({
-      //         message: `[${item.WIPName}(${item.DeviceID})] 儲格有帳籍但貨物不存在`,
-      //         type: 'warning',
-      //         offset: 114,
-      //         duration: 60000,
-      //         showClose: true,
-      //         customClass: 'rack-has-data-not-cargo-notify',
-      //         onClick: () => {
-      //           window.location.href = '/racks_status'
-      //         }
-      //       })
-      //     }, 400);
-      //   })
-      // }
+      if (state.IsAnyPortHasDataButNoCargo) {
+        let _mesg = ''
+        state.HasDataButNoCargoWIPs.forEach(item => {
+          _mesg += `[${item.WIPName}(${item.DeviceID})] 儲格有帳籍但貨物不存在\n`;
+        })
+        bus.emit('rack_has_data_not_cargo', _mesg)
+      }
       bus.emit('rack_data_changed', data)
     },
     setEQData(state, data) {

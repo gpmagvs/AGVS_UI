@@ -176,12 +176,16 @@ export default {
       if (!this.isCarryOrder)
         return '-';
       const _slot = this.mission.From_Slot < 0 ? 0 : this.mission.From_Slot;
+      if (_slot == 0)
+        return this.GetStationName(this.mission.From_Station);
       return this.GetStationName(this.mission.From_Station) + `(Slot:${_slot})`;
     },
     destine() {
       const _slot = this.mission.To_Slot < 0 ? 0 : this.mission.To_Slot;
       const _stationName = this.GetStationName(this.mission.To_Station);
       if (this.mission.Action == 0)
+        return _stationName;
+      if (_slot == 0)
         return _stationName;
       return `${_stationName}(Slot:${_slot})`;
     },

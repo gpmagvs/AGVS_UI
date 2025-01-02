@@ -355,6 +355,17 @@ export default {
     bus.on('home-reload-request', (reason) => {
       this.reloadAfterBackToHome = true;
     })
+    bus.on('rack_has_data_not_cargo', _mesg => {
+      this.$swal.fire(
+        {
+          text: _mesg,
+          title: '注意!有儲格有帳籍但貨物不存在',
+          icon: 'warning',
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        })
+    })
     const route = useRoute()
     watch(
       () => route.path,
@@ -479,7 +490,8 @@ html {
 }
 
 .mcs-message {
-  font-size: 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
   .msg-text-danger {
     color: red;
   }
