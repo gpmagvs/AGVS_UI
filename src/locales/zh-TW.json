@@ -43,7 +43,8 @@
     "Instruments Measure Result": "儀器量測結果查詢",
     "utilization rate": "稼動率",
     "Traffic State": "交管狀態統計",
-    "secs_gem_settings": "SECS/GEM 設定"
+    "secs_gem_settings": "SECS/GEM 設定",
+    "dispatch_settings": "派工設定"
   },
   "HomeView": {
     "AGVStatus": {
@@ -349,5 +350,19 @@
     "CancelOrder": "取消任務",
     "AbortOrder": "中止任務"
   },
-  "DeepCharge": "深充"
+  "DeepCharge": "深充",
+  "Rename": "重新命名",
+  "CarrierID": "貨物 ID",
+  "CarrierExistSensor_Tray": "貨物在席(Tray)",
+  "CarrierExistSensor_Rack": "貨物在席(Rack)",
+  "TrayDirection": "Tray 方向檢",
+  "InstallTime": "放入時間",
+  "Enable": "啟用",
+  "Disable": "禁用",
+  "Disabled": "已禁用",
+  "Display Mode": "顯示模式",
+  "Tabs": "分頁顯示",
+  "Single Page": "單頁顯示",
+  "WaitingForExecution": "等待執行",
+  "Executing": "執行中"
 }

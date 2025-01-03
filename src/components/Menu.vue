@@ -201,6 +201,15 @@
           </el-icon>
           <template #title>{{ $t('Menu.secs_gem_settings') }}</template>
         </el-menu-item>
+        <el-menu-item
+          index="/sys_settings/dispatch_settings"
+          v-if="UserPermission.systemConfigurationSubMenu.ChargerManagnment==1"
+        >
+          <el-icon>
+            <setting />
+          </el-icon>
+          <template #title>{{ $t('Menu.dispatch_settings') }}</template>
+        </el-menu-item>
       </el-sub-menu>
     </el-menu>
   </div>
@@ -299,7 +308,7 @@ export default {
   }
 
   .el-menu-vertical-demo:not(.el-menu--collapse) {
-    width: 230px;
+    width: 240px;
     border: none;
     font-weight: bold;
     letter-spacing: 2px;

@@ -2,7 +2,15 @@
   <div class="rack-port" v-bind:class="[ProductQualityClassName,UsableStateClass]">
     <div class="bg-light border-bottom d-flex py-1">
       <span class="flex-fill text-start px-1">
-        <label class="port-no-display">{{ PortNameDisplay }}</label>
+        <el-tooltip v-if="IsDeveloperLogining" placement="right" effect="light">
+          <template #content>
+            <div>
+              <el-button @click="HandleRenamePortNoClicked">{{$t('Rename')}}</el-button>
+            </div>
+          </template>
+          <label class="port-no-display">{{ PortNameDisplay }}</label>
+        </el-tooltip>
+        <label v-else class="port-no-display">{{ PortNameDisplay }}</label>
       </span>
       <div
         v-show="AnySensorFlash"
@@ -15,8 +23,8 @@
       </div>
       <div v-if="IsUserLoginAndPermissionAboveOP" class="px-2">
         <el-switch
-          active-text="啟用"
-          inactive-text="禁用"
+          :active-text="$t('Enable')"
+          :inactive-text="$t('Disable')"
           :active-value="1"
           :inactive-value="0"
           inactive-color="rgb(146, 148, 153)"
@@ -25,7 +33,7 @@
         ></el-switch>
       </div>
       <div v-else>
-        <span class="text-danger" v-if="port_info.Properties.PortUsable==0">已禁用</span>
+        <span class="text-danger" v-if="port_info.Properties.PortUsable==0">{{$t('Disabled')}}</span>
       </div>
       <!-- <div class="px-2" v-if="!IsOvenAsRacks">
         <el-tag
@@ -37,7 +45,7 @@
       </div>-->
     </div>
     <div class="item">
-      <div class="title">Carrier ID</div>
+      <div class="title">{{$t('CarrierID')}}</div>
       <div class="values d-flex">
         <el-tag
           size="large"
@@ -58,7 +66,7 @@
       class="item"
       v-if="!IsOvenAsRacks && port_info.Properties.HasTraySensor && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0)"
     >
-      <div class="title">Exist Sensor(Tray)</div>
+      <div class="title">{{$t('CarrierExistSensor_Tray')}}</div>
       <div class="values d-flex">
         <div
           class="exist-sensor round my-1"
@@ -77,7 +85,7 @@
       class="item"
       v-if="!IsOvenAsRacks && port_info.Properties.HasRackSensor&&( port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)"
     >
-      <div class="title">Exist Sensor(Rack)</div>
+      <div class="title">{{$t('CarrierExistSensor_Rack')}}</div>
       <div class="values d-flex">
         <div
           class="exist-sensor round my-1"
@@ -98,7 +106,7 @@
       class="item"
       v-if="!IsOvenAsRacks && port_info.Properties.HasTrayDirectionSensor&&( port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)"
     >
-      <div class="title">Tray Direction</div>
+      <div class="title">{{$t('TrayDirection')}}</div>
       <div class="values d-flex">
         <div
           class="exist-sensor round my-1"
@@ -140,8 +148,8 @@
       </div>
     </div>
     <div class="item">
-      <div class="title">Install Time</div>
-      <div class="values">{{ port_info.InstallTime }}</div>
+      <div class="title">{{$t('InstallTime')}}</div>
+      <div class="values">{{ InstallTime }}</div>
     </div>
     <!-- <div class="item">
       <div class="title"></div>
@@ -154,16 +162,49 @@
       </div>
       <el-button v-else @click="CstIDEditHandle" class="m-1" type="info">{{ $t('Rack.Creat_ID') }}</el-button>
     </div>
+
+    <el-dialog
+      v-model="showPortNoRenameDialog"
+      :title="`Port No Rename: ${port_info.Properties.ID}`"
+      width="30%"
+      draggable
+      :close-on-click-modal="false"
+      :modal="false"
+    >
+      <el-form label-position="top">
+        <el-form-item label="Current Port No:">
+          <el-input v-model="port_info.Properties.PortNo" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="New Port No:" required>
+          <el-input
+            v-model="newPortNo"
+            placeholder="Enter new port number"
+            autofocus
+            ref="portNoInput"
+            :rules="[
+              { required: true, message: 'Port number is required' },
+              { pattern: /^[A-Za-z0-9-_]+$/, message: 'Only letters, numbers, hyphens and underscores allowed' },
+              { min: 1, max: 20, message: 'Length must be between 1-20 characters' }
+            ]"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div class="dialog-footer">
+        <el-button @click="showPortNoRenameDialog = false">Cancel</el-button>
+        <el-button type="primary" @click="handlePortNoRename">Confirm</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
 import Clipboard from 'clipboard'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
-import { ModifyCargoID, RemoveCargoID, PortUsableSwitch } from '@/api/WIPAPI.js'
+import { ModifyCargoID, RemoveCargoID, PortUsableSwitch, PortNoRename } from '@/api/WIPAPI.js'
 import { userStore } from '@/store'
 import { RackEmuAPI, SetToFullRackStatusByEqTag, SetToEmptyRackStatusByEqTag } from '@/api/EquipmentAPI'
 import { EqStore } from '@/store'
 import bus from '@/event-bus'
+import moment from 'moment'
 export default {
   props: {
     rack_name: {
@@ -218,6 +259,9 @@ export default {
       },
       selectedRackContentType: '',
       radioGroupDisable: false,
+      showPortNoRenameDialog: false,
+      newPortNo: '',
+
     }
   },
   computed: {
@@ -261,6 +305,12 @@ export default {
     },
     IsDeveloperLogining() {
       return userStore.getters.IsDeveloperLogining;
+    },
+    InstallTime() {
+      if (!this.port_info.CarrierID || this.port_info.CarrierID == '')
+        return '';
+      else
+        return moment(this.port_info.InstallTime).format('YYYY-MM-DD HH:mm:ss');
     }
   },
 
@@ -397,6 +447,52 @@ export default {
         }
       }, 300);
       return false;
+    },
+    HandleRenamePortNoClicked() {
+      this.showPortNoRenameDialog = true;
+      setTimeout(() => {
+        this.$refs.portNoInput.focus();
+      }, 100);
+    },
+    async handlePortNoRename() {
+      console.log(this.newPortNo)
+      if (!this.newPortNo) {
+        ElMessage({
+          message: '請輸入新的Port編號',
+          type: 'warning',
+          duration: 2000
+        })
+        return
+      }
+      if (this.newPortNo.length < 1 || this.newPortNo.length > 20) {
+        ElMessage({
+          message: '編號長度必須在1-20個字元之間',
+          type: 'warning',
+          duration: 2000
+        })
+        return
+      }
+      try {
+
+        let result = await PortNoRename(this.rack_name, this.port_info.Properties.ID, this.newPortNo);
+        ElMessage({
+          message: `Port編號已更新為 ${this.newPortNo}`,
+          type: 'success',
+          duration: 2000
+        })
+        this.showPortNoRenameDialog = false;
+      } catch (error) {
+        this.showPortNoRenameDialog = false;
+        this.$swal.fire({
+          text: error.message,
+          title: '',
+          icon: 'error',
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+        }).then(() => {
+          this.showPortNoRenameDialog = true;
+        })
+      }
     }
   },
 }
@@ -456,7 +552,7 @@ export default {
 }
 .has-data-but-no-cargo-port,
 .has-cargo-but-no-cst-port {
-  background: rgb(255, 62, 62);
+  background: rgb(230, 162, 60);
   color: rgb(255, 255, 255);
 }
 

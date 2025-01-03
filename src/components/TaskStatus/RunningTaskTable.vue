@@ -121,7 +121,7 @@
       </el-table-column>
     </el-table>
     <div v-else class="py-2 text-start" style="height: 80vh;overflow-y: auto;">
-      <label class="px-3">執行中</label>
+      <label class="px-3">{{ $t('Executing') }}</label>
       <MissionCard
         v-for="task in ExecutingTasks"
         :key="task.TaskName"
@@ -131,7 +131,7 @@
       <div class="no-mission-notify" v-if="ExecutingTasks.length==0">No Missions.</div>
       <el-divider></el-divider>
 
-      <label class="px-3">等待執行</label>
+      <label class="px-3">{{ $t('WaitingForExecution') }}</label>
       <MissionCard v-for="task in WaitingForExecutTasks" :key="task.TaskName" :mission="task"></MissionCard>
       <div class="no-mission-notify" v-if="WaitingForExecutTasks.length==0">No Missions.</div>
     </div>

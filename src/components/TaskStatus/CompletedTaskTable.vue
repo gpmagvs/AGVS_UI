@@ -106,6 +106,9 @@
         </template>
       </el-table-column>
     </el-table>
+    <div v-if="false" class="h-100">
+      <MissionCard v-for="mission in SortedOrders" :key="mission.TaskName" :mission="mission" />
+    </div>
   </div>
 </template>
 <script>
@@ -114,8 +117,11 @@ import { MapStore } from '@/components/Map/store'
 import clsTaskState from '@/ViewModels/TaskState';
 import { TaskAllocation } from '@/api/TaskAllocation';
 import { userStore } from '@/store';
-
+import MissionCard from './MissionCard.vue';
 export default {
+  components: {
+    MissionCard
+  },
   props: {
     CompletedTaskList: {
       type: Array,

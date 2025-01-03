@@ -469,7 +469,7 @@ export default {
       routePath: '',
       showFullEmptyContentSetting: false,
       DynamicStyle: {
-        right: '132px'
+        right: '22px'
       },
       fixLoc: 'right',
       grabStates: {
@@ -1426,7 +1426,7 @@ export default {
         this.grabStates.updateKey++;
       } else if (loc == 'right') {
         this.DynamicStyle = {
-          right: '132px'
+          right: '22px'
         }
         this.grabStates.oriRightOffset = this.grabStates.newRightOffset = 28;
         this.grabStates.updateKey++;

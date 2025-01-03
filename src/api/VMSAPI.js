@@ -130,3 +130,14 @@ export const EmuAPI = {
     return response.data;
   }
 }
+
+export const DispatchAPI = {
+  GetEQStationDedicatedSetting: async () => {
+    var response = await axios_entity_vms.get(`api/DispatchSetting/GetEQStationDedicatedSetting`)
+    return response.data;
+  },
+  SetEQStationDedicatedSetting: async (payload) => {
+    var response = await axios_entity_vms.post(`api/DispatchSetting/SetEQStationDedicatedSetting`, payload)
+    return response.data;
+  }
+}

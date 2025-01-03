@@ -44,4 +44,7 @@ export async function GetRackStatusData() {
     return ret.data;
 }
 
-
+export async function PortNoRename(wipName, portID, newPortNo) {
+    var ret = await axios_entity.post(`/api/WIP/PortNoRename?WIPID=${wipName}&PortID=${portID}&NewPortNo=${newPortNo}`)
+    return ret.data;
+}

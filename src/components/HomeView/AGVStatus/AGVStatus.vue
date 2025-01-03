@@ -1,5 +1,5 @@
 <template>
-  <div class="agv-status card-like">
+  <div class="agv-status border my-1">
     <div class="title d-flex flex-row">
       <!-- <div class="flex-fill">
         <i class="bi bi-three-dots-vertical"></i>

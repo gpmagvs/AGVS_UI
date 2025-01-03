@@ -1,10 +1,19 @@
 <template>
   <div
     class="vehicle-info-card"
-    :class="[vehicleStateData.Connected?'connected':'vehicle-card-disconnect',vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online']"
+    :class="[vehicleStateData.Connected?'connected':'vehicle-card-disconnect',vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',IsOrderRunning?'order-run':'no-order-run']"
   >
     <div class="vehicle-info-card-header p-2 border-bottom">
-      <div class="vehicle-icon" :style="StyleOfAGVDisplayColor"></div>
+      <el-tooltip
+        :content="vehicleStateData.Model==0?'Forklifter AGV':'Submarine AGV'"
+        placement="bottom-start"
+      >
+        <div
+          class="vehicle-icon"
+          :class="vehicleStateData.Model==0?'fork-icon':'agv-icon-1'"
+          :style="StyleOfAGVDisplayColor"
+        ></div>
+      </el-tooltip>
       <h6
         class="flex-fill"
         :class="[vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',vehicleStateData.Connected?'connected':'disconnect']"
@@ -296,11 +305,21 @@ export default {
   flex-wrap: nowrap;
   .vehicle-info-card-header {
     .vehicle-icon {
-      width: 10px;
+      width: 20px;
       height: 20px;
       margin-right: 5px;
       position: relative;
       bottom: 3px;
+      background-size: 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      border-radius: 5px;
+    }
+    .vehicle-icon {
+      background-image: url("@/assets/images/submarineIcon.png");
+    }
+    .fork-icon {
+      background-image: url("@/assets/images/forkIcon.png");
     }
     color: black;
     display: flex;
@@ -346,7 +365,7 @@ export default {
     left: 0;
     margin: 0;
     .button-like-container {
-      border: 3px solid rgb(194, 194, 194);
+      border: 2px solid rgb(197, 197, 197);
       padding: 2px 10px;
       border-radius: 0.41rem;
     }
@@ -456,7 +475,9 @@ export default {
     }
   }
 }
-
+.order-run {
+  box-shadow: 2px -2px 6px 0px rgb(106 133 173);
+}
 .connected {
 }
 
@@ -467,13 +488,67 @@ export default {
 }
 .v-Online {
   background-color: rgb(255, 255, 255);
-  border: 3px solid rgb(0, 55, 107);
+  border: 3px solid rgb(212, 220, 228);
 }
 .vehicle-card-disconnect {
   background-color: rgb(255, 112, 112);
 }
 .vehicle-info-card:hover {
-  border: 5px solid rgb(0, 190, 238);
+  border: 3px solid rgb(13, 110, 253);
+  // animation: border-flow 3s linear infinite;
+}
+
+@keyframes border-flow {
+  0% {
+    border-image: linear-gradient(
+        0deg,
+        rgb(13, 110, 253) 0%,
+        transparent 25%,
+        transparent 75%,
+        rgb(13, 110, 253) 100%
+      )
+      1;
+  }
+  25% {
+    border-image: linear-gradient(
+        90deg,
+        rgb(13, 110, 253) 0%,
+        transparent 25%,
+        transparent 75%,
+        rgb(13, 110, 253) 100%
+      )
+      1;
+  }
+  50% {
+    border-image: linear-gradient(
+        180deg,
+        rgb(13, 110, 253) 0%,
+        transparent 25%,
+        transparent 75%,
+        rgb(13, 110, 253) 100%
+      )
+      1;
+  }
+  75% {
+    border-image: linear-gradient(
+        270deg,
+        rgb(13, 110, 253) 0%,
+        transparent 25%,
+        transparent 75%,
+        rgb(13, 110, 253) 100%
+      )
+      1;
+  }
+  100% {
+    border-image: linear-gradient(
+        360deg,
+        rgb(13, 110, 253) 0%,
+        transparent 25%,
+        transparent 75%,
+        rgb(13, 110, 253) 100%
+      )
+      1;
+  }
 }
 </style>
   

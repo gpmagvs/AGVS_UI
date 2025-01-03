@@ -514,7 +514,7 @@ export const EqStore = createStore({
         state.HasDataButNoCargoWIPs.forEach(item => {
           _mesg += `[${item.WIPName}(${item.DeviceID})] 儲格有帳籍但貨物不存在\n`;
         })
-        bus.emit('rack_has_data_not_cargo', _mesg)
+        // bus.emit('rack_has_data_not_cargo', _mesg)
       }
       bus.emit('rack_data_changed', data)
     },

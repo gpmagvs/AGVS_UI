@@ -43,7 +43,8 @@
     "Instruments Measure Result": "Instruments Measure",
     "utilization rate": "Utilization",
     "Traffic State": "Traffic State",
-    "secs_gem_settings": "SECS/GEM Settings"
+    "secs_gem_settings": "SECS/GEM Settings",
+    "dispatch_settings": "Dispatch Settings"
   },
   "HomeView": {
     "AGVStatus": {
@@ -195,12 +196,12 @@
     "FailureReason": "Failure Reason"
   },
   "Rack": {
-    "Creat_ID": "Creat ID",
+    "Creat_ID": "Add Carrier ID",
     "Edit_ID": "Edit ID",
     "Remove_ID": "Remove ID",
     "copy": "copy",
     "Sensor_Flash": "Sensor Flash",
-    "Cargo_Spaces": "Cargo Spaces"
+    "Cargo_Spaces": "Capacity Level"
   },
   "Map": {
     "Options": {
@@ -344,5 +345,12 @@
     "CancelOrder": "Cancel",
     "AbortOrder": "Abort"
   },
-  "DeepCharge": "Deep Charge"
+  "DeepCharge": "Deep Charge",
+  "Rename": "Rename",
+  "CarrierID": "Carrier ID",
+  "CarrierExistSensor_Tray": "Exist State(Tray)",
+  "CarrierExistSensor_Rack": "Exist State(Rack)",
+  "TrayDirection": "Tray Direction",
+  "InstallTime": "Install Time",
+  "WaitingForExecution": "Waiting For Execution"
 }

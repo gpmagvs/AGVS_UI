@@ -2,11 +2,11 @@
   <div class="rack-status-view custom-tabs-head p-1">
     <div class="display-mode-container text-start border-bottom my-1 py-1">
       <span class="px-2 text-primary">
-        <b>顯示方式</b>
+        <b>{{$t('Display Mode')}}</b>
       </span>
       <el-select class="mx-2" v-model="display" style="width:120px">
-        <el-option label="分頁顯示" value="tabs"></el-option>
-        <el-option label="單頁顯示" value="div"></el-option>
+        <el-option :label="$t('Tabs')" value="tabs"></el-option>
+        <el-option :label="$t('Single Page')" value="div"></el-option>
       </el-select>
     </div>
     <!-- {{ GroupedWipData }} -->
@@ -43,7 +43,7 @@
         </div>
       </b-tab>-->
     </b-tabs>
-    <div v-else>
+    <div v-else style="height: 100vh; overflow: auto;">
       <div v-for="zone in GroupedWipData" :key="zone.zoneName" class="my-2 border">
         <h3 class="bg-dark text-light">{{ zone.zoneName }}</h3>
         <div class="d-flex flex-row">

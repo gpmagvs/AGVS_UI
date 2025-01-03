@@ -1744,6 +1744,7 @@ export default {
         if (feature) {
           //TODO Post to backend
           LogMapFeatureClicked(feature)
+          bus.emit('/map/feature_clicked', feature)
           this.clickedFeature = feature;
           if (this.editable)
             this.previousSelectedFeatures = [feature]
@@ -4390,7 +4391,13 @@ export default {
         selectedFeatures.clear();
       });
     },
-
+    HighLightSpeficFeatureWithTags(tags = [], color = 'orange') {
+      const features = this.PointLayer.getSource().getFeatures();
+      const featuresFound = features.filter(_feature => tags.includes(_feature.get('data').TagNumber));
+      if (!featuresFound)
+        return;
+      this.HighLightFeatureSelected(featuresFound, color, true)
+    }
   },
   mounted() {
     this.loading = true;

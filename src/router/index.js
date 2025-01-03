@@ -165,6 +165,16 @@ const routes = [
           Display_Eng: "SECS/GEM Settings"
         },
         component: () => import('@/views/SecsGemSettings.vue')
+      },
+      {
+        path: 'dispatch_settings',
+        name: 'dispatch_settings',
+        meta: {
+          requiresAuth: true,
+          Display: "任務派送設定",
+          Display_Eng: "Dispatch Settings"
+        },
+        component: () => import('@/components/SystemSettings/Dispatch/Index.vue')
       }
     ],
     meta: {
