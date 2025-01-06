@@ -20,3 +20,8 @@ export async function SaveReturnCodeSetting(requestData = { transferCompletedRes
     var ret = await axios_entity.post(`/api/SecsGemConfiguration/saveReturnCodeSetting`, requestData);
     return ret.data;
 }
+
+export async function SaveSECSConfig(requestData = { SECSConfig: {} }) {
+    var ret = await axios_entity.post(`/api/SecsGemConfiguration/saveSECSGemSetting`, requestData);
+    return ret.data;
+}
