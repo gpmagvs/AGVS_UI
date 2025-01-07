@@ -204,6 +204,16 @@
     "Sensor_Flash": "在席Sensor閃爍",
     "Cargo_Spaces": "水位"
   },
+  "RackPort": {
+    "CarrierID": "貨物ID",
+    "HasCargo": "有貨",
+    "NoCargo": "無貨",
+    "CarrierExist": "貨物在席",
+    "EmptyorFillFrame": "空/實框",
+    "InstallTime": "放貨時間",
+    "EmptyFrame": "空框",
+    "FillFrame": "實框"
+  },
   "Map": {
     "Options": {
       "DisplayMode": "顯示模式",

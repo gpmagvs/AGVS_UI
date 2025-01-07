@@ -202,6 +202,16 @@
     "Sensor_Flash": "Sensor Flash",
     "Cargo_Spaces": "Cargo Spaces"
   },
+  "RackPort": {
+    "CarrierID": "CarrierID",
+    "HasCargo": "Exist",
+    "NoCargo": "Empty",
+    "CarrierExist": "CarrierExist",
+    "EmptyorFillFrame": "Empty / FillFrame",
+    "InstallTime": "InstallTime",
+    "EmptyFrame": "Empty",
+    "FillFrame": "Fill"
+  },
   "Map": {
     "Options": {
       "DisplayMode": "Display",

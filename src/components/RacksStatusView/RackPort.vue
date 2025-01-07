@@ -1,39 +1,30 @@
 <template>
-  <div class="rack-port" v-bind:class="[ProductQualityClassName,UsableStateClass]">
+  <div class="rack-port" v-bind:class="[ProductQualityClassName, UsableStateClass]">
     <div class="bg-light border-bottom d-flex py-1">
       <span class="flex-fill text-start px-1">
         <el-tooltip v-if="IsDeveloperLogining" placement="right" effect="light">
           <template #content>
             <div>
-              <el-button @click="HandleRenamePortNoClicked">{{$t('Rename')}}</el-button>
+              <el-button @click="HandleRenamePortNoClicked">{{ $t('Rename') }}</el-button>
             </div>
           </template>
           <label class="port-no-display">{{ PortNameDisplay }}</label>
         </el-tooltip>
         <label v-else class="port-no-display">{{ PortNameDisplay }}</label>
       </span>
-      <div
-        v-show="AnySensorFlash"
-        class="text-danger bg-light w-100 text-start"
-        style=" max-height: 0;  position: relative;left:3px;top:0px;"
-      >
+      <div v-show="AnySensorFlash" class="text-danger bg-light w-100 text-start"
+        style=" max-height: 0;  position: relative;left:3px;top:0px;">
         <i class="bi bi-exclamation"></i>
         {{
-        $t('Rack.Sensor_Flash') }}
+    $t('Rack.Sensor_Flash') }}
       </div>
       <div v-if="IsUserLoginAndPermissionAboveOP" class="px-2">
-        <el-switch
-          :active-text="$t('Enable')"
-          :inactive-text="$t('Disable')"
-          :active-value="1"
-          :inactive-value="0"
-          inactive-color="rgb(146, 148, 153)"
-          v-model="port_info.Properties.PortUsable"
-          :before-change="HandlePortUsableSwitchClicked"
-        ></el-switch>
+        <el-switch :active-text="$t('Enable')" :inactive-text="$t('Disable')" :active-value="1" :inactive-value="0"
+          inactive-color="rgb(146, 148, 153)" v-model="port_info.Properties.PortUsable"
+          :before-change="HandlePortUsableSwitchClicked"></el-switch>
       </div>
       <div v-else>
-        <span class="text-danger" v-if="port_info.Properties.PortUsable==0">{{$t('Disabled')}}</span>
+        <span class="text-danger" v-if="port_info.Properties.PortUsable == 0">{{ $t('Disabled') }}</span>
       </div>
       <!-- <div class="px-2" v-if="!IsOvenAsRacks">
         <el-tag
@@ -45,99 +36,69 @@
       </div>-->
     </div>
     <div class="item">
-      <div class="title">{{$t('CarrierID')}}</div>
+      <div class="title">{{ $t('RackPort.CarrierID') }}</div>
       <div class="values d-flex">
-        <el-tag
-          size="large"
-          effect="dark"
-          :type="port_info.CarrierID==''?'info':'primary'"
-          style="width: 135px; font-weight: bold; letter-spacing: 3px;"
-        >{{ port_info.CarrierID }}</el-tag>
+        <el-tag size="large" effect="dark" :type="port_info.CarrierID == '' ? 'info' : 'primary'"
+          style="width: 135px; font-weight: bold; letter-spacing: 3px;">{{ port_info.CarrierID }}</el-tag>
         <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-          <i
-            v-if="port_info.CarrierID != ''"
-            @click="CopyText(port_info.CarrierID)"
-            class="copy-button copy-icon bi bi-clipboard"
-          ></i>
+          <i v-if="port_info.CarrierID != ''" @click="CopyText(port_info.CarrierID)"
+            class="copy-button copy-icon bi bi-clipboard"></i>
         </el-tooltip>
       </div>
     </div>
-    <div
-      class="item"
-      v-if="!IsOvenAsRacks && port_info.Properties.HasTraySensor && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0)"
-    >
-      <div class="title">{{$t('CarrierExistSensor_Tray')}}</div>
+    <div class="item"
+      v-if="!IsOvenAsRacks && port_info.Properties.HasTraySensor && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 0)">
+      <div class="title">{{ $t('CarrierExistSensor_Tray') }}</div>
       <div class="values d-flex">
-        <div
-          class="exist-sensor round my-1"
-          v-bind:style="ExistSensorTray_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
-          @click="HandleExistSensorStateClick('tray', 0)"
-        ></div>
-        <div
-          class="exist-sensor round my-1 mx-3"
+        <div class="exist-sensor round my-1" v-bind:style="ExistSensorTray_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
+          @click="HandleExistSensorStateClick('tray', 0)"></div>
+        <div class="exist-sensor round my-1 mx-3"
           v-bind:style="ExistSensorTray_2 ? ExistSensorOnStyle : ExistSensorOFFStyle"
-          @click="HandleExistSensorStateClick('tray', 1)"
-        ></div>
+          @click="HandleExistSensorStateClick('tray', 1)"></div>
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
-    <div
-      class="item"
-      v-if="!IsOvenAsRacks && port_info.Properties.HasRackSensor&&( port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)"
-    >
-      <div class="title">{{$t('CarrierExistSensor_Rack')}}</div>
+    <div class="item"
+      v-if="!IsOvenAsRacks && port_info.Properties.HasRackSensor && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)">
+      <div class="title">{{ $t('CarrierExistSensor_Rack') }}</div>
       <div class="values d-flex">
-        <div
-          class="exist-sensor round my-1"
-          v-bind:style="ExistSensorRack_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
-          @click="HandleExistSensorStateClick('rack', 0)"
-        ></div>
-        <div
-          class="exist-sensor round my-1 mx-3"
+        <div class="exist-sensor round my-1" v-bind:style="ExistSensorRack_1 ? ExistSensorOnStyle : ExistSensorOFFStyle"
+          @click="HandleExistSensorStateClick('rack', 0)"></div>
+        <div class="exist-sensor round my-1 mx-3"
           v-bind:style="ExistSensorRack_2 ? ExistSensorOnStyle : ExistSensorOFFStyle"
-          @click="HandleExistSensorStateClick('rack', 1)"
-        ></div>
+          @click="HandleExistSensorStateClick('rack', 1)"></div>
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
 
     <!--  -->
-    <div
-      class="item"
-      v-if="!IsOvenAsRacks && port_info.Properties.HasTrayDirectionSensor&&( port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)"
-    >
-      <div class="title">{{$t('TrayDirection')}}</div>
+    <div class="item"
+      v-if="!IsOvenAsRacks && port_info.Properties.HasTrayDirectionSensor && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)">
+      <div class="title">{{ $t('TrayDirection') }}</div>
       <div class="values d-flex">
-        <div
-          class="exist-sensor round my-1"
-          v-bind:style="TrayDirectionSensor ? ExistSensorOnStyle : ExistSensorOFFStyle"
-        ></div>
+        <div class="exist-sensor round my-1"
+          v-bind:style="TrayDirectionSensor ? ExistSensorOnStyle : ExistSensorOFFStyle">
+        </div>
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
 
     <!--  -->
     <div class="item" v-if="IsOvenAsRacks">
-      <div class="title">貨物在席</div>
+      <div class="title">{{ $t('RackPort.CarrierExist') }}</div>
       <div class="values">
-        <el-tag
-          size="large"
-          effect="dark"
-          :type="port_info.CarrierExist?'success':'danger'"
-        >{{port_info.CarrierExist?'有貨':'無貨'}}</el-tag>
+        <el-tag size="large" effect="dark" :type="port_info.CarrierExist ? 'success' : 'danger'">{{
+    port_info.CarrierExist ?
+      $t('RackPort.HasCargo') : $t('RackPort.NoCargo') }}</el-tag>
       </div>
     </div>
     <div class="item" v-if="IsOvenAsRacks">
-      <div class="title">空/實框</div>
+      <div class="title">{{ $t('RackPort.EmptyorFillFrame') }}</div>
       <div class="values">
-        <el-radio-group
-          :disabled="radioGroupDisable"
-          size="large"
-          v-model="port_info.RackContentState"
-          fill="rgb(8, 87, 60)"
-        >
-          <el-radio-button @click="EmptyContentClick" :value="0" label="空框"></el-radio-button>
-          <el-radio-button @click="FullContentClick" :value="1" label="實框"></el-radio-button>
+        <el-radio-group :disabled="radioGroupDisable" size="large" v-model="port_info.RackContentState"
+          fill="rgb(8, 87, 60)">
+          <el-radio-button @click="EmptyContentClick" :value="0">{{ $t('RackPort.EmptyFrame') }}</el-radio-button>
+          <el-radio-button @click="FullContentClick" :value="1">{{ $t('RackPort.FillFrame') }}</el-radio-button>
         </el-radio-group>
       </div>
     </div>
@@ -148,7 +109,7 @@
       </div>
     </div>
     <div class="item">
-      <div class="title">{{$t('InstallTime')}}</div>
+      <div class="title">{{ $t('RackPort.InstallTime') }}</div>
       <div class="values">{{ InstallTime }}</div>
     </div>
     <!-- <div class="item">
@@ -163,30 +124,18 @@
       <el-button v-else @click="CstIDEditHandle" class="m-1" type="info">{{ $t('Rack.Creat_ID') }}</el-button>
     </div>
 
-    <el-dialog
-      v-model="showPortNoRenameDialog"
-      :title="`Port No Rename: ${port_info.Properties.ID}`"
-      width="30%"
-      draggable
-      :close-on-click-modal="false"
-      :modal="false"
-    >
+    <el-dialog v-model="showPortNoRenameDialog" :title="`Port No Rename: ${port_info.Properties.ID}`" width="30%"
+      draggable :close-on-click-modal="false" :modal="false">
       <el-form label-position="top">
         <el-form-item label="Current Port No:">
           <el-input v-model="port_info.Properties.PortNo" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="New Port No:" required>
-          <el-input
-            v-model="newPortNo"
-            placeholder="Enter new port number"
-            autofocus
-            ref="portNoInput"
-            :rules="[
-              { required: true, message: 'Port number is required' },
-              { pattern: /^[A-Za-z0-9-_]+$/, message: 'Only letters, numbers, hyphens and underscores allowed' },
-              { min: 1, max: 20, message: 'Length must be between 1-20 characters' }
-            ]"
-          ></el-input>
+          <el-input v-model="newPortNo" placeholder="Enter new port number" autofocus ref="portNoInput" :rules="[
+    { required: true, message: 'Port number is required' },
+    { pattern: /^[A-Za-z0-9-_]+$/, message: 'Only letters, numbers, hyphens and underscores allowed' },
+    { min: 1, max: 20, message: 'Length must be between 1-20 characters' }
+  ]"></el-input>
         </el-form-item>
       </el-form>
       <div class="dialog-footer">
@@ -504,6 +453,7 @@ export default {
   //   background-color: rgb(236, 236, 236);
   border: 3px solid rgb(0, 0, 0);
   margin: 2px;
+
   .item {
     display: flex;
     flex-direction: row;
@@ -542,14 +492,17 @@ export default {
     letter-spacing: 3px;
   }
 }
+
 .rack-port:hover {
   border: 5px solid rgb(51, 51, 51);
   border-radius: 8px;
 }
+
 .ok-port {
   font-weight: bold;
   background: rgb(255, 255, 255);
 }
+
 .has-data-but-no-cargo-port,
 .has-cargo-but-no-cst-port {
   background: rgb(230, 162, 60);
@@ -560,16 +513,20 @@ export default {
   background: rgb(61, 61, 61);
   color: rgb(255, 255, 255);
 }
+
 .empty-port {
   background: rgb(255, 255, 255);
 }
+
 .ng-port {
   background: rgb(255, 196, 196);
 }
+
 .oven-port {
   background-color: rgb(213, 213, 213);
   color: black;
 }
+
 .port-not-usable {
   border: 6px solid red;
 }
