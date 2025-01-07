@@ -72,6 +72,8 @@
     },
     "TaskStatus": "任務狀態",
     "Map": "地圖",
+    "Vehicles": "車輛狀態",
+    "Missions": "任務列表",
     "EQ_Status": "設備狀態",
     "EQStatus": {
       "EQStatus": {
@@ -103,9 +105,7 @@
         "IsMaintaining": "維修",
         "IsPartsReplacing": "換紙捲"
       }
-    },
-    "Vehicles": "車輛",
-    "Missions": "任務"
+    }
   },
   "Action": "動作",
   "Vehicle": "車輛",
@@ -164,8 +164,8 @@
     "Final": "執行結果",
     "TaskStatus": "狀態",
     "ExcuteAgvName": "執行車輛",
-    "Source": "來源",
-    "Destine": "目的地",
+    "Source": "起點",
+    "Destine": "終點",
     "Source_Slot": "起點 Slot",
     "Destine_Slot": "終點 Slot",
     "Dispatcher": "派工人員",
@@ -344,25 +344,15 @@
     "SourceEqMachechStateError": "來源設備機械狀態錯誤",
     "SourceEqDown": "來源設備異常",
     "DestineRackPortHasCargo": "目的地 Rack Port 已有貨物",
-    "SourceRackPortNotHasCargo": "來源 Rack Port 無貨物"
-  },
-  "MissionCard": {
-    "CancelOrder": "取消任務",
-    "AbortOrder": "中止任務"
-  },
-  "DeepCharge": "深充",
-  "Rename": "重新命名",
-  "CarrierID": "貨物 ID",
-  "CarrierExistSensor_Tray": "貨物在席(Tray)",
-  "CarrierExistSensor_Rack": "貨物在席(Rack)",
-  "TrayDirection": "Tray 方向檢",
-  "InstallTime": "放入時間",
-  "Enable": "啟用",
-  "Disable": "禁用",
-  "Disabled": "已禁用",
-  "Display Mode": "顯示模式",
-  "Tabs": "分頁顯示",
-  "Single Page": "單頁顯示",
-  "WaitingForExecution": "等待執行",
-  "Executing": "執行中"
+    "SourceRackPortNotHasCargo": "來源 Rack Port 無貨物",
+    "DeviceID": "設備ID",
+    "CarrierLOCPrefixName": "前綴名稱設定",
+    "SystemID": "系統ID",
+    "UnknowTrayIDFlowNumberUsed": "已使用的UnknowID(TRAY)",
+    "UnknowRackIDFlowNumberUsed": "已使用的UnknowID(RACK)",
+    "DoubleUnknowDFlowNumberUsed": "已使用的重複ID(TRAY)",
+    "DoubleUnknowRackIDFlowNumberUsed": "已使用的重複ID(RACK)",
+    "MissMatchTrayIDFlowNumberUsed": "已使用的不相符ID(TRAY)",
+    "MissMatchRackIDFlowNumberUsed": "已使用的不相符ID(RACK)"
+  }
 }
