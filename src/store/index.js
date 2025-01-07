@@ -237,6 +237,10 @@ export const agv_states_store = createStore({
     async updateEmulationParameters({ commit }, { agvName, parameters }) {
       await EmuAPI.SetEmulationParameters(agvName, parameters);
       await this.dispatch('downloadEmulationParameters');
+    },
+    async setCIDAbnormalSimualtion({ commit }, { agvName, isCIDReadFail, isCIDReadMismatch }) {
+      await EmuAPI.SetCIDAbnormalSimualtion(agvName, isCIDReadFail, isCIDReadMismatch);
+      await this.dispatch('downloadEmulationParameters');
     }
   }
 })

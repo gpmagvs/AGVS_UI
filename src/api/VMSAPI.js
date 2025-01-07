@@ -128,6 +128,10 @@ export const EmuAPI = {
   EMO: async (agvName) => {
     var response = await axios_entity_vms.get(`api/AGVSimulation/EMO?AGVName=${agvName}`)
     return response.data;
+  },
+  SetCIDAbnormalSimualtion: async (agvName, isCIDReadFail, isCIDReadMismatch) => {
+    var response = await axios_entity_vms.post(`api/AGVSimulation/SetCIDAbnormalSimualtion?AGVName=${agvName}&isCIDReadFail=${isCIDReadFail}&isCIDReadMismatch=${isCIDReadMismatch}`)
+    return response.data;
   }
 }
 

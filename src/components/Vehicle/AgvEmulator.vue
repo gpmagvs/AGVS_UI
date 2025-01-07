@@ -79,6 +79,19 @@
           @change="HandleInputChanged"
         />
       </el-form-item>
+      <el-divider />
+      <el-form-item label="CID Read Fail 模擬">
+        <el-switch
+          v-model="Parameters.IsCIDReadFailSimulation"
+          @mousedown="HandleCIDReadFailChanged"
+        />
+      </el-form-item>
+      <el-form-item label="CID Read Mismatch 模擬">
+        <el-switch
+          v-model="Parameters.IsCIDReadMismatchSimulation"
+          @mousedown="HandleCIDReadMismatchChanged"
+        />
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -104,7 +117,9 @@ export default {
         SpeedUpRate: 10,
         BatteryChargeSpeed: 9,
         BatteryUsed_Run: 0.1,
-        WorkingTime: 15
+        WorkingTime: 15,
+        IsCIDReadMismatchSimulation: false,
+        IsCIDReadFailSimulation: false
       }
     }
   },
@@ -124,6 +139,24 @@ export default {
           console.error('Failed to update emulation parameters:', error);
         }
       }, 500);
+    },
+    async HandleCIDReadFailChanged() {
+      let _isCIDReadFail = !this.Parameters.IsCIDReadFailSimulation;
+      let _isCIDReadMismatch = _isCIDReadFail ? false : this.Parameters.IsCIDReadMismatchSimulation;
+      await agv_states_store.dispatch('setCIDAbnormalSimualtion', { agvName: this.AgvName, isCIDReadFail: _isCIDReadFail, isCIDReadMismatch: _isCIDReadMismatch })
+
+      setTimeout(() => {
+        this.Parameters = agv_states_store.getters.GetAGVEmuParameters(this.AgvName)
+      }, 1000)
+    },
+    async HandleCIDReadMismatchChanged() {
+      let _isCIDReadMismatch = !this.Parameters.IsCIDReadMismatchSimulation;
+      let _isCIDReadFail = _isCIDReadMismatch ? false : this.Parameters.IsCIDReadFailSimulation;
+      await agv_states_store.dispatch('setCIDAbnormalSimualtion', { agvName: this.AgvName, isCIDReadFail: _isCIDReadFail, isCIDReadMismatch: _isCIDReadMismatch })
+
+      setTimeout(() => {
+        this.Parameters = agv_states_store.getters.GetAGVEmuParameters(this.AgvName)
+      }, 1000)
     }
   }
 };
