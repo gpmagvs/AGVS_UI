@@ -78,7 +78,6 @@ export default createStore({
       if (state.secsmessages.length > 50) {
         state.secsmessages.shift();
       }
-      console.info(state.secsmessages);
     },
     setSecsMessages(state, messages) {
       state.secsmessages = messages;
