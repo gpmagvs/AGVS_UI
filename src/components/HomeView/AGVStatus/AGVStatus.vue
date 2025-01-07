@@ -346,6 +346,19 @@
         @StopDeepCharge="(agvName)=>StopDeepCharge(agvName)"
         @onTaskIdClick="taskid=>{$emit('onTaskIDClicked',taskid)}"
       ></vehicle-info-card>
+      <div class="admin-actions-container">
+        <el-tooltip placement="right-start" effect="light">
+          <template #content>
+            <div style="width: 120px;" class="d-flex flex-column align-items-center">
+              <el-button class="w-100 mx-1 mb-3" type="primary" @click="HandleOnlineAllAGV">上線所有車輛</el-button>
+              <el-button class="w-100 mx-1 mb-1" type="danger" @click="HandleOfflineAllAGV">下線所有車輛</el-button>
+            </div>
+          </template>
+          <el-button circle>
+            <i class="bi bi-three-dots"></i>
+          </el-button>
+        </el-tooltip>
+      </div>
     </div>
   </div>
   <!--Modals-->
@@ -406,6 +419,7 @@ import moment from 'moment'
 import { MapStore } from '@/components/Map/store';
 import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import VehicleInfoCard from '@/components/Vehicle/VehicleInfoCard.vue';
+import { ElNotification } from 'element-plus';
 export default {
   components: {
     VehicleInfoCard,
@@ -455,6 +469,30 @@ export default {
     }
   },
   methods: {
+    async HandleOnlineAllAGV() {
+      this.AGVDatas.forEach(async (agv) => {
+        setTimeout(async () => {
+          var res = await OnlineRequest(agv.AGV_Name, agv.Model);
+          if (res.data.ReturnCode != 0) {
+            ElNotification.error(`${agv.AGV_Name} 上線失敗:${res.data.Message}`);
+          } else {
+            ElNotification.success(`${agv.AGV_Name} 上線成功`);
+          }
+        }, 100)
+      });
+    },
+    async HandleOfflineAllAGV() {
+      this.AGVDatas.forEach(async (agv) => {
+        setTimeout(async () => {
+          var res = await OfflineRequest(agv.AGV_Name, agv.Model);
+          if (res.data.ReturnCode != 0) {
+            ElNotification.error(`${agv.AGV_Name} 下線失敗:${res.data.Message}`);
+          } else {
+            ElNotification.success(`${agv.AGV_Name} 下線成功`);
+          }
+        }, 100)
+      });
+    },
     HandleAGVNameClicked(agvInfo) {
       const vcsHost = `http://${agvInfo.IP}:${agvInfo.Port}`;
       window.open(vcsHost);
@@ -1020,6 +1058,18 @@ export default {
     }
     50% {
       background-color: rgb(136, 136, 136);
+    }
+  }
+  .admin-actions-container {
+    position: fixed;
+    bottom: 46px;
+    left: 80px;
+
+    button {
+      color: #a9a9a9a5;
+      &:hover {
+        color: #000000a5;
+      }
     }
   }
 }
