@@ -12,7 +12,6 @@
       <!-- <label>Local</label> -->
       <el-button
         type="danger"
-        size="small"
         @click="CancelTaskHandler(mission.TaskName)"
       >{{ mission.State==1 ?$t('MissionCard.AbortOrder') :$t('MissionCard.CancelOrder')}}</el-button>
     </div>
