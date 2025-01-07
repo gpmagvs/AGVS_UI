@@ -17,13 +17,16 @@
                   value="!"
                   :max-value="99"
                   class="item"
-                  offset="60"
+                 :offset="[10,0]"
                 >
                   <span>{{ $t('HomeView.Vehicles') }}</span>
                 </el-badge>
                 <span v-else>{{ $t('HomeView.Vehicles') }}</span>
               </template>
-              <AGVStatusVue DisplayMode="cards" @onTaskIDClicked="handleTaskIDClicked"></AGVStatusVue>
+              <AGVStatusVue
+                DisplayMode="cards"
+                @taskIDClicked="(taskid)=>handleTaskIDClicked(taskid)"
+              ></AGVStatusVue>
             </b-tab>
             <b-tab title="Missions">
               <template #title>
@@ -32,7 +35,7 @@
                   :value="InCompletedTaskNumber"
                   :max-value="99"
                   class="item"
-                  offset="10"
+                  :offset="[10,0]"
                 >
                   <span>{{ $t('HomeView.Missions') }}</span>
                 </el-badge>

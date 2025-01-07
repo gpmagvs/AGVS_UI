@@ -118,7 +118,6 @@
             <el-button
               class="mx-1"
               size="small"
-              type="default"
               @click="() => { scope.row.ValidDownStreamEndPointNames = GetAvaluableEqNameList(scope.row.Name) }"
             >使用所有設備</el-button>
             <el-button
@@ -183,11 +182,7 @@
       <el-table-column label="操作" min-width="100" fixed="right">
         <template #default="scope">
           <div>
-            <el-button
-              size="small"
-              type="default"
-              @click="ConnectionSettingBtnHandle(scope.row)"
-            >連線設定</el-button>
+            <el-button size="small" @click="ConnectionSettingBtnHandle(scope.row)">連線設定</el-button>
             <!-- <el-button
               :size="cell_item_size"
               type="primary"
@@ -236,7 +231,6 @@
           </el-form-item>
           <!-- <el-button
             :loading="connection_testing"
-            type="default"
             @click="ConnectTestHandle(selected_eq_option)"
           >通訊測試</el-button>-->
           <el-divider>IO位置</el-divider>

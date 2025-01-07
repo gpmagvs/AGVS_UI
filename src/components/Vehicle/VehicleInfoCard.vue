@@ -115,17 +115,11 @@
       </div>
       <div
         class="button-like-container battery-info"
-        :class="vehicleStateData.BatteryLevel_1 < 30 ? 'battery-low':'battery-normal'"
+        :class="BatteryPercentage < 30 ? 'battery-low':'battery-normal'"
       >
-        <el-progress
-          :percentage="vehicleStateData.BatteryLevel_1"
-          stroke-width="20"
-          :color="batteryStatusColor"
-        >
+        <el-progress :percentage="BatteryPercentage" :stroke-width="20" :color="batteryStatusColor">
           <div class="battery-head"></div>
-          <div
-            class="battery-level-text"
-          >{{vehicleStateData.BatteryLevel_1?vehicleStateData.BatteryLevel_1.toFixed(0):0}}%</div>
+          <div class="battery-level-text">{{BatteryPercentage}}%</div>
         </el-progress>
       </div>
       <div class="button-like-container mx-1" style="width: 290px;">
@@ -187,7 +181,7 @@ export default {
   },
   props: {
     vehicleStateData: {
-      type: clsAGVStateDto,
+      type: Object,
       default() {
         return new clsAGVStateDto()
       }
@@ -235,7 +229,7 @@ export default {
       }
       else if (status_code == 4) {
         statusText = this.$t('AGVStatus.CHARGING')
-        tagType = 'default'
+        tagType = 'primary'
       }
       return {
         text: statusText,
@@ -257,6 +251,16 @@ export default {
         order: orderExecuting,
         isExecuting: orderExecuting != undefined
       }
+    },
+    BatteryPercentage() {
+      if (!this.vehicleStateData || !this.vehicleStateData.BatteryLevel_1)
+        return 0;
+      const percentage = parseInt(this.vehicleStateData.BatteryLevel_1.toFixed(0));
+      if (percentage > 100)
+        return 100;
+      if (percentage < 0)
+        return 0;
+      return percentage;
     },
     batteryStatusColor() {
       let batLevel = this.vehicleStateData.BatteryLevel_1;

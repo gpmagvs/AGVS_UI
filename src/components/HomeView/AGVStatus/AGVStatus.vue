@@ -344,7 +344,7 @@
         @ShowAGVChargeConfirmDialog="(vstate)=>ShowAGVChargeConfirmDialog(vstate)"
         @ShowAGVDeepChargeConfirmDialog="(vstate)=>ShowAGVChargeConfirmDialog(vstate,true)"
         @StopDeepCharge="(agvName)=>StopDeepCharge(agvName)"
-        @onTaskIdClick="taskid=>{$emit('onTaskIDClicked',taskid)}"
+        @onTaskIdClick="(taskid)=>HandleTaskIdClick(taskid)"
       ></vehicle-info-card>
       <div class="admin-actions-container">
         <el-tooltip placement="right-start" effect="light">
@@ -421,6 +421,7 @@ import clsAGVStateDto from '@/ViewModels/clsAGVStateDto';
 import VehicleInfoCard from '@/components/Vehicle/VehicleInfoCard.vue';
 import { ElNotification } from 'element-plus';
 export default {
+  emits: ['taskIDClicked'],
   components: {
     VehicleInfoCard,
   },
@@ -469,6 +470,9 @@ export default {
     }
   },
   methods: {
+    HandleTaskIdClick(taskid) {
+      this.$emit('taskIDClicked', taskid)
+    },
     async HandleOnlineAllAGV() {
       this.AGVDatas.forEach(async (agv) => {
         setTimeout(async () => {
@@ -893,7 +897,9 @@ export default {
   },
   computed: {
     AGVDatas() {
-      return agv_states_store.getters.AGVStatesData;
+      let datas = [new clsAGVStateDto()];
+      Object.assign(datas, agv_states_store.getters.AGVStatesData);
+      return datas;
     },
     AnyAGVIsSimulation() {
       var simulations = this.AGVDatas.filter(agv => agv.Simulation)

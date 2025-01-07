@@ -12,7 +12,7 @@
       <!-- <label>Local</label> -->
       <el-button
         type="danger"
-        size="sm"
+        size="small"
         @click="CancelTaskHandler(mission.TaskName)"
       >{{ mission.State==1 ?$t('MissionCard.AbortOrder') :$t('MissionCard.CancelOrder')}}</el-button>
     </div>
@@ -50,13 +50,14 @@
       <div>
         <label class="item-name-label">VEHICLE</label>
         <div>
-          <el-tooltip v-if="executingVehicleInfo" placement="bottom-end" effect="light">
+          <!-- <el-tooltip v-if="executingVehicleInfo" placement="bottom-end" effect="light">
             <template #content>
-              <VehicleInfoCard :vehicleStateData="executingVehicleInfo"></VehicleInfoCard>
+              <vehicleInfoCard :vehicleStateData="executingVehicleInfo"></vehicleInfoCard>
             </template>
             <el-tag effect="dark">{{ vehicleName }}</el-tag>
           </el-tooltip>
-          <el-tag v-else effect="dark">{{ vehicleName }}</el-tag>
+          <el-tag v-else effect="dark">{{ vehicleName }}</el-tag>-->
+          <el-tag effect="dark">{{ vehicleName }}</el-tag>
         </div>
       </div>
       <div style="width: 140px;">
@@ -74,10 +75,10 @@ import { TaskAllocation } from '@/api/TaskAllocation'
 import { MapStore } from '../Map/store';
 import { userStore, agv_states_store } from '@/store';
 import moment from 'moment';
-import VehicleInfoCard from '../Vehicle/VehicleInfoCard.vue';
+import vehicleInfoCard from '../Vehicle/VehicleInfoCard.vue';
 export default {
   components: {
-    VehicleInfoCard,
+    vehicleInfoCard,
   },
   data() {
     return {
@@ -89,7 +90,7 @@ export default {
   },
   props: {
     mission: {
-      type: clsTaskState,
+      type: Object,
       default() {
         return new clsTaskState({})
       }
