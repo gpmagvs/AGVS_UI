@@ -1,11 +1,38 @@
 <template>
   <div class="bg-light h-100 d-flex" v-loading="loading">
     <b-tabs class="w-100" v-model="tabSelected">
+      <b-tab class title="Basic">
+        <div class="tab-container">
+          <div class="p-2 d-flex bg-light border-bottom">
+            <el-button size="large" type="primary" @click="SECSConfigHandleSaveButtonClicked">儲存</el-button>
+            <el-button size="large" @click="() => { DownloadConfigurations(); }">重新載入</el-button>
+          </div>
+          <el-row class="m-3">
+            <el-col :lg="8" class="border px-5">
+              <div class="w-100">
+                <h3 class="text-start text-danger border-bottom my-3">SECS Config設定</h3>
+                <el-form
+                  label-position="left"
+                  label-width="320px"
+                  style="max-height: 70vh; overflow-y: auto;"
+                >
+                  <template v-for="(value, key) in configuration.baseConfiguration" :key="key">
+                    <el-form-item :label="'-' + $t(`${key}`)">
+                      <el-input v-model="configuration.baseConfiguration[key]"></el-input>
+                    </el-form-item>
+                  </template>
+                </el-form>
+              </div>
+            </el-col>
+            <el-col :lg="12"></el-col>
+          </el-row>
+        </div>
+      </b-tab>
       <b-tab class title="Return Code 設定">
         <div class="tab-container">
           <div class="p-2 d-flex bg-light border-bottom">
             <el-button size="large" type="primary" @click="HandleSaveButtonClicked">儲存</el-button>
-            <el-button size="large" @click="()=>{DownloadConfigurations();}">重新載入</el-button>
+            <el-button size="large" @click="() => { DownloadConfigurations(); }">重新載入</el-button>
           </div>
           <el-row class="m-3">
             <el-col :lg="8" class="border px-5">
@@ -36,9 +63,6 @@
           </el-row>
         </div>
       </b-tab>
-      <b-tab class title="尚未開放">
-        <div class="tab-container">AAA</div>
-      </b-tab>
     </b-tabs>
     <div v-if="false" class="w-20 border">
       <pre class="text-start">{{ configuration }}</pre>
@@ -47,7 +71,7 @@
 </template>
 
 <script>
-import { GetConfigurations, SaveReturnCodeSetting } from '@/api/SecsGemAPI'
+import { GetConfigurations, SaveReturnCodeSetting, SaveSECSConfig } from '@/api/SecsGemAPI'
 import { ElNotification } from 'element-plus';
 export default {
   data() {
@@ -120,6 +144,20 @@ export default {
     },
     async HandleSaveButtonClicked() {
       try {
+        const resultCodes = this.configuration.transferReportConfiguration.ResultCodes;
+        const isDuplicate = this.ShowRepeatedResultCode(resultCodes);
+        if (isDuplicate.hasDuplicates) {
+          this.$swal.fire(
+            {
+              text: `有重複的Result Code: ${isDuplicate.duplicateValues.join(', ')}`,
+              title: '',
+              icon: 'warning',
+              showCancelButton: false,
+              confirmButtonText: 'OK',
+              customClass: 'my-sweetalert'
+            })
+          return;
+        }
         let response = await SaveReturnCodeSetting({
           transferCompletedResultCodes: this.configuration.transferReportConfiguration.ResultCodes
         })
@@ -137,6 +175,46 @@ export default {
       } catch (error) {
         ElNotification({ message: '儲存失敗-' + error.message, type: 'success' })
       }
+    },
+    async SECSConfigHandleSaveButtonClicked() {
+      try {
+        let response = await SaveSECSConfig(this.configuration.baseConfiguration)
+
+        if (!response) {
+          ElNotification({ message: '儲存失敗', type: 'error' })
+          return;
+        }
+
+        if (response.confirm)
+          ElNotification({ message: '儲存成功', type: 'success' })
+        else
+          ElNotification({ message: '儲存失敗-' + response.message, type: 'success' })
+
+      } catch (error) {
+        ElNotification({ message: '儲存失敗-' + error.message, type: 'success' })
+      }
+    },
+
+    /**若無重複 返回  true , 反之 false */
+
+    ShowRepeatedResultCode(resultCodes) {
+      const values = Object.values(resultCodes);
+      console.log('All Result Codes:', values);
+      const valueCountMap = new Map();
+      // 計算每個值出現的次數
+      values.forEach(value => {
+        valueCountMap.set(value, (valueCountMap.get(value) || 0) + 1);
+      });
+      // 找出重複的值
+      const duplicateValues = Array.from(valueCountMap.entries())
+        .filter(([value, count]) => count > 1)
+        .map(([value]) => value);
+      console.log('Duplicate Result Codes:', duplicateValues);
+      // 返回是否有重複以及重複的值
+      return {
+        hasDuplicates: duplicateValues.length > 0,
+        duplicateValues: duplicateValues
+      };
     }
   },
   watch: {
