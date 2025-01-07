@@ -1,7 +1,9 @@
 <template>
   <div
     class="vehicle-info-card"
-    :class="[vehicleStateData.Connected?'connected':'vehicle-card-disconnect',vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',IsOrderRunning?'order-run':'no-order-run']"
+    :class="[vehicleStateData.Connected?'connected':'vehicle-card-disconnect',vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',IsOrderRunning?'order-run':'no-order-run'
+      , this.vehicleStateData.MainStatus==3?'vehicle-info-card-status-down':''
+    ]"
   >
     <div class="vehicle-info-card-header p-2 border-bottom">
       <el-tooltip
@@ -298,6 +300,10 @@ export default {
   </script>
   
   <style lang="scss" scoped>
+.vehicle-info-card-status-down {
+  animation: status-down-border-blink 2s infinite !important;
+}
+
 .vehicle-info-card {
   --battery-outline-color: rgb(180, 180, 180);
   --battery-width: 41px;
@@ -484,8 +490,6 @@ export default {
 .order-run {
   box-shadow: 2px -2px 6px 0px rgb(106 133 173);
 }
-.connected {
-}
 
 .v-Offline {
   background-color: rgb(219, 219, 219);
@@ -502,6 +506,16 @@ export default {
 .vehicle-info-card:hover {
   border: 3px solid rgb(13, 110, 253);
   // animation: border-flow 3s linear infinite;
+}
+
+@keyframes status-down-border-blink {
+  0%,
+  100% {
+    border: 4px solid rgb(212, 220, 228);
+  }
+  50% {
+    border: 4px solid rgb(255, 28, 28);
+  }
 }
 
 @keyframes border-flow {
