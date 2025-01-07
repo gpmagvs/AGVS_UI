@@ -12,6 +12,6 @@ module.exports = defineConfig({
     }
   },
   filenameHashing: true,
-  outputDir: '../AGVSystem/wwwroot_beta',
+  outputDir: '../AGVSystem/wwwroot',
   runtimeCompiler: isDevelopment, // 開發模式為 true，否則為 false
 });
