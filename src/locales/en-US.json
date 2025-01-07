@@ -43,8 +43,7 @@
     "Instruments Measure Result": "Instruments Measure",
     "utilization rate": "Utilization",
     "Traffic State": "Traffic State",
-    "secs_gem_settings": "SECS/GEM Settings",
-    "dispatch_settings": "Dispatch Settings"
+    "secs_gem_settings": "SECS/GEM Settings"
   },
   "HomeView": {
     "AGVStatus": {
@@ -72,7 +71,9 @@
     },
     "TaskStatus": "TASK STATUS",
     "Map": "Map",
-    "EQ_Status": "EQ Status",
+    "Vehicles": "Vehicles",
+    "Missions": "Missions",
+    "EQ_Status": "EQ_Status",
     "EQStatus": {
       "EQStatus": {
         "ViewMode": "ViewMode",
@@ -103,9 +104,7 @@
         "IsMaintaining": "Maintaining",
         "IsPartsReplacing": "Replacing"
       }
-    },
-    "Vehicles": "Vehicles",
-    "Missions": "Missions"
+    }
   },
   "Action": "Action",
   "Vehicle": "Vehicle",
@@ -164,8 +163,8 @@
     "Final": "Final",
     "TaskStatus": "Status",
     "ExcuteAgvName": "AGV Name",
-    "Source": "SOURCE",
-    "Destine": "DESTINE",
+    "Source": "From",
+    "Destine": "Destine",
     "Source_Slot": "Source Slot",
     "Destine_Slot": "Destine Slot",
     "Dispatcher": "Dispatcher",
@@ -196,12 +195,22 @@
     "FailureReason": "Failure Reason"
   },
   "Rack": {
-    "Creat_ID": "Add Carrier ID",
+    "Creat_ID": "Creat ID",
     "Edit_ID": "Edit ID",
     "Remove_ID": "Remove ID",
     "copy": "copy",
     "Sensor_Flash": "Sensor Flash",
-    "Cargo_Spaces": "Capacity Level"
+    "Cargo_Spaces": "Cargo Spaces"
+  },
+  "RackPort": {
+    "CarrierID": "CarrierID",
+    "HasCargo": "Exist",
+    "NoCargo": "Empty",
+    "CarrierExist": "CarrierExist",
+    "EmptyorFillFrame": "Empty / FillFrame",
+    "InstallTime": "InstallTime",
+    "EmptyFrame": "Empty",
+    "FillFrame": "Fill"
   },
   "Map": {
     "Options": {
@@ -339,7 +348,16 @@
     "SourceEqMachechStateError": "Source Equipment Mechanical State Error",
     "SourceEqDown": "Source Equipment Down",
     "DestineRackPortHasCargo": "Destination Rack Port Has Carrier",
-    "SourceRackPortNotHasCargo": "Source Rack Port No Carrier"
+    "SourceRackPortNotHasCargo": "Source Rack Port No Carrier",
+    "DeviceID": "DeviceID",
+    "CarrierLOCPrefixName": "CarrierLOCPrefixName",
+    "SystemID": "SystemID",
+    "UnknowTrayIDFlowNumberUsed": "UnknowNumberUsed(TrayID)",
+    "UnknowRackIDFlowNumberUsed": "UnknowNumberUsed(RACKID)",
+    "DoubleUnknowDFlowNumberUsed": "DoubleNumberUsed(TrayID)",
+    "DoubleUnknowRackIDFlowNumberUsed": "DoubleNumberUsed(RACKID)",
+    "MissMatchTrayIDFlowNumberUsed": "MissMatchNumberUsed(TrayID)",
+    "MissMatchRackIDFlowNumberUsed": "MissMatchNumberUsed(RACKID)"
   },
   "MissionCard": {
     "CancelOrder": "Cancel",
@@ -353,5 +371,6 @@
   "TrayDirection": "Tray Direction",
   "InstallTime": "Install Time",
   "WaitingForExecution": "Waiting For Execution",
-  "DeepCharging": "Deep Charging"
+  "DeepCharging": "Deep Charging",
+  "SourceRackPortNotHasCargo": "Source Rack Port No Carrier"
 }
