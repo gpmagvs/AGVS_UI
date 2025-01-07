@@ -364,5 +364,6 @@
   "Tabs": "分頁顯示",
   "Single Page": "單頁顯示",
   "WaitingForExecution": "等待執行",
-  "Executing": "執行中"
+  "Executing": "執行中",
+  "DeepCharging": "深充中"
 }

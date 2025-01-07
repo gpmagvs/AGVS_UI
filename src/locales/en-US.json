@@ -352,5 +352,6 @@
   "CarrierExistSensor_Rack": "Exist State(Rack)",
   "TrayDirection": "Tray Direction",
   "InstallTime": "Install Time",
-  "WaitingForExecution": "Waiting For Execution"
+  "WaitingForExecution": "Waiting For Execution",
+  "DeepCharging": "Deep Charging"
 }

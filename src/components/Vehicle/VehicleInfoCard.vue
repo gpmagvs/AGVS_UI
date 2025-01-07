@@ -133,7 +133,13 @@
               type="success"
               v-bind:class="getChargeButtnClass()"
               @click="()=> $emit('ShowAGVChargeConfirmDialog',vehicleStateData)"
-            >{{ vehicleStateData.Model == 2 ? $t('Exchange Battery') : $t('Charge') }}</el-button>
+            >
+              <span v-if="vehicleStateData.Model == 2">{{ $t('Exchange Battery') }}</span>
+              <span
+                v-else-if="getChargeButtnClass()=='charge-deep-charging'"
+              >{{ $t('DeepCharging') }}</span>
+              <span v-else>{{ $t('Charge') }}</span>
+            </el-button>
           </template>
           <template #default>
             <div class="charge-button-container d-flex flex-column">

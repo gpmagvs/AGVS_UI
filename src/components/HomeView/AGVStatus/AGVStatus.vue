@@ -323,7 +323,7 @@
       </el-table-column>
       <!-- 空間 column -->
       <el-table-column width="1">
-        <template #default="scope">
+        <template>
           <div v-bind:style="{ height: IsRunMode ? '110px' : '125px' }" class="d-flex flex-column"></div>
         </template>
       </el-table-column>
