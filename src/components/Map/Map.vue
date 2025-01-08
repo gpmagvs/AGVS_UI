@@ -3259,12 +3259,19 @@ export default {
       return output;
     },
 
-    ResetMapCenterViaAGVLoc(agv_name) {
+    ResetMapCenterViaAGVLoc(agv_name, animate = false, duration = 300) {
       //Get AGV Coordination
       var agvfeatures = this.AGVFeatures[agv_name]
       if (agvfeatures) {
         var coordination = agvfeatures.agv_feature.getGeometry().getCoordinates()
-        this.map.getView().setCenter(coordination)
+        if (animate) {
+          this.map.getView().animate({
+            center: coordination,
+            duration: duration
+          })
+        } else {
+          this.map.getView().setCenter(coordination)
+        }
         //this.map.getView().setZoom(4)
       }
     },
@@ -4501,7 +4508,7 @@ export default {
       //TODO bus.on 
       bus.on('/show_agv_at_center', agv_name => {
         // alert(agv_name)
-        this.ResetMapCenterViaAGVLoc(agv_name)
+        this.ResetMapCenterViaAGVLoc(agv_name, true)
       })
 
       bus.on('/rerender_agv_layer', () => {
@@ -4516,8 +4523,8 @@ export default {
         if (agvName != '') {
           //start tracking
           this.trackingAGVTimer = setInterval(() => {
-            this.ResetMapCenterViaAGVLoc(agvName);
-          }, 500);
+            this.ResetMapCenterViaAGVLoc(agvName, true, 100);
+          }, 100);
         }
       })
       bus.on('/cancel_tracking_agv', () => {
