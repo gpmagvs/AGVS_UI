@@ -267,6 +267,8 @@ export default {
       return percentage;
     },
     batteryStatusColor() {
+      if (this.IsCharging)
+        return 'rgb(0, 208, 3)';
       let batLevel = this.vehicleStateData.BatteryLevel_1;
       if (batLevel < 30)
         return 'red';
