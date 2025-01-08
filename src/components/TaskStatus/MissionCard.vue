@@ -314,6 +314,24 @@ export default {
     text-wrap: nowrap;
   }
 
+  ::v-deep .el-step__title.is-process {
+    color: rgb(13, 110, 253);
+    font-weight: bold;
+    font-size: 14px;
+    animation: in-process-title-flash 1s infinite;
+  }
+  @keyframes in-process-title-flash {
+    0%,
+    100% {
+      color: rgb(125, 125, 125);
+    }
+    50% {
+      color: rgb(13, 110, 253);
+    }
+  }
+  ::v-deep .el-step__head.is-process {
+    color: rgb(13, 110, 253);
+  }
   ::v-deep .el-step__title {
     font-size: 12px;
     line-height: 25px;
