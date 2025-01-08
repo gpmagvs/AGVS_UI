@@ -438,6 +438,14 @@ export const EqStore = createStore({
       return state.WIPSlotOptions[tag]
     },
     QueryCargoExist: (state, getters) => (tag, slot) => {
+
+      let _GetEq = (tag) => {
+        return state.EQ.find(eq => eq.Tag == tag);
+      }
+      let _eq = _GetEq(tag);
+      if (slot == 0 && _eq) {
+        return _eq.Port_Exist;
+      }
       const rackPort = getters.GetRackPort(tag, slot);
       return rackPort?.CargoExist || false;
     },
