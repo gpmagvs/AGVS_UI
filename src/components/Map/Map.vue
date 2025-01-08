@@ -507,7 +507,18 @@
                   ></el-switch>
                 </div>
                 <div v-if="!editable" class="rounded">
-                  <span class="mx-1">Pan/Zoom</span>
+                  <el-tooltip placement="left">
+                    <template #content>
+                      <div>Setting Pan/Zoom controlable of this map</div>
+                      <div v-if="userLevel>0">
+                        <el-switch
+                          v-model="opDragableDefault"
+                          @change="HandleOPDragableSwitchChanged"
+                        >OP Mode</el-switch>
+                      </div>
+                    </template>
+                    <span class="mx-1">Pan/Zoom</span>
+                  </el-tooltip>
                   <el-switch
                     class="my-2"
                     inactive-text="Disable"
@@ -735,6 +746,10 @@ export default {
     canva_height: {
       type: String,
       default: '670px'
+    },
+    zoomDisabledDefault: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -964,6 +979,7 @@ export default {
       rackPortFeatures: [], // 需要顯示標籤的 features
       postRenderThrottleTimer: null,
       agvRenderDebounceTimer: null,
+      opDragableDefault: false,
     }
   },
   computed: {
@@ -1084,6 +1100,12 @@ export default {
     }
   },
   methods: {
+    HandleOPDragableSwitchChanged(enabled) {
+      if (enabled) {
+        localStorage.setItem('home-map-op-zoomable-default', 1);
+      } else
+        localStorage.setItem('home-map-op-zoomable-default', 0);
+    },
     saveMapImage(filename = `MapImageShot_${Date.now()}.png`) {
       html2canvas(this.map.getTargetElement()).then(canvas => {
         const link = document.createElement('a');
@@ -2373,7 +2395,6 @@ export default {
         this.map.getView().setCenter(this.settings.center);
         this.map.getView().setZoom(this.settings.zoom);
         this.ImageLayer.setVisible(this.map_image_display == 'visible')
-
         if (this.editable)
           this.dragActionLock = true;
         else {
@@ -4566,6 +4587,13 @@ export default {
         })
       }
       this.UpdateAGVLocLocation();
+
+      this.opDragableDefault = localStorage.getItem('home-map-op-zoomable-default') == '1';
+      if (this.id == 'homemap' && this.IsOpUsing && this.opDragableDefault) {
+        this.dragActionLock = true;
+        this.setDragPanEnabled(this.dragActionLock)
+      }
+
       this.loading = false;
 
     }, 100);
