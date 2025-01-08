@@ -329,6 +329,7 @@
               </div>
             </el-col>
           </el-row>
+          <div v-if="data.IsSimulation" class="charger-station-simulation-indicator">Simulation</div>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -564,6 +565,11 @@ export default {
 }
 </script>
 <style lang="scss">
+.charger-station-simulation-indicator {
+  position: absolute;
+  right: 10px;
+  top: 10%;
+}
 .el-tabs__content {
   padding: 3px;
   color: #6b778c;
