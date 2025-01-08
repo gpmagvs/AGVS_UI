@@ -120,6 +120,7 @@
         <el-progress :percentage="BatteryPercentage" :stroke-width="20" :color="batteryStatusColor">
           <div class="battery-head"></div>
           <div class="battery-level-text">{{BatteryPercentage}}%</div>
+          <i v-if="IsCharging" class="battery-charging-icon bi bi-lightning-charge-fill"></i>
         </el-progress>
       </div>
       <div class="button-like-container mx-1" style="width: 290px;">
@@ -251,6 +252,9 @@ export default {
         order: orderExecuting,
         isExecuting: orderExecuting != undefined
       }
+    },
+    IsCharging() {
+      return !this.vehicleStateData ? false : this.vehicleStateData.IsCharging;
     },
     BatteryPercentage() {
       if (!this.vehicleStateData || !this.vehicleStateData.BatteryLevel_1)
@@ -398,7 +402,8 @@ export default {
       }
 
       .battery-head,
-      .battery-level-text {
+      .battery-level-text,
+      .battery-charging-icon {
         position: absolute;
       }
       .battery-head {
@@ -413,6 +418,23 @@ export default {
         top: 0px;
         text-wrap: nowrap;
         font-weight: bold;
+      }
+      .battery-charging-icon {
+        // left: calc(var(--battery-width));
+        left: 15%;
+        font-size: smaller;
+        top: 0px;
+        animation: charger-icon-flash 1s infinite;
+      }
+
+      @keyframes charger-icon-flash {
+        0%,
+        100% {
+          color: rgb(255, 255, 255);
+        }
+        50% {
+          color: rgb(255, 208, 0);
+        }
       }
     }
     .battery-low {
