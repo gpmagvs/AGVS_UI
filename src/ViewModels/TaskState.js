@@ -2,7 +2,7 @@ import moment from 'moment'
 
 /**任務模型 */
 class clsTaskState {
-  constructor(task) {
+  constructor(task = {}) {
     this.TaskName = task.TaskName
     this.State = task.State
     this.StateName = task.StateName
