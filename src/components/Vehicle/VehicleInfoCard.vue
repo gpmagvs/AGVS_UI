@@ -134,20 +134,19 @@
           <i v-if="IsCharging" class="battery-charging-icon bi bi-lightning-charge-fill"></i>
         </el-progress>
       </div>
-      <div class="button-like-container mx-1" style="width: 290px;">
-        <el-popover width="150" placement="right">
+      <div class="button-like-container mx-1 d-flex" style="width: 200px;padding-right: 0px;">
+        <el-button
+          type="success"
+          v-bind:class="getChargeButtnClass()"
+          @click="()=> $emit('ShowAGVChargeConfirmDialog',vehicleStateData)"
+        >
+          <span v-if="vehicleStateData.Model == 2">{{ $t('Exchange Battery') }}</span>
+          <span v-else-if="getChargeButtnClass()=='charge-deep-charging'">{{ $t('DeepCharging') }}</span>
+          <span v-else>{{ $t('Charge') }}</span>
+        </el-button>
+        <el-popover width="150" placement="bottom">
           <template #reference>
-            <el-button
-              type="success"
-              v-bind:class="getChargeButtnClass()"
-              @click="()=> $emit('ShowAGVChargeConfirmDialog',vehicleStateData)"
-            >
-              <span v-if="vehicleStateData.Model == 2">{{ $t('Exchange Battery') }}</span>
-              <span
-                v-else-if="getChargeButtnClass()=='charge-deep-charging'"
-              >{{ $t('DeepCharging') }}</span>
-              <span v-else>{{ $t('Charge') }}</span>
-            </el-button>
+            <i class="bi bi-three-dots-vertical"></i>
           </template>
           <template #default>
             <div class="charge-button-container d-flex flex-column">
