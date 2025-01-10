@@ -1,5 +1,6 @@
 <template>
   <div
+    id="vehicle-info-card"
     class="vehicle-info-card"
     :class="[vehicleStateData.Connected?'connected':'vehicle-card-disconnect',vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',IsOrderRunning?'order-run':'no-order-run'
       , this.vehicleStateData.MainStatus==3?'vehicle-info-card-status-down':''

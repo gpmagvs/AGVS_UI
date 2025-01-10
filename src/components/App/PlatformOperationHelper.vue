@@ -91,6 +91,12 @@
   </el-tour>
   <el-tour v-model="openVehicleInfoCardUseTour" show-close-button @finish="openDrawer">
     <el-tour-step
+      target="#vehicle-info-card"
+      title="車輛資訊-AGV資訊卡"
+      description="卡片顏色為灰色，表示AGV未上線;若卡片顏色為'紅色'，表示AGV斷線。"
+      placement="bottom"
+    />
+    <el-tour-step
       target="#vehicle-info-card-name"
       title="車輛資訊-AGV名稱"
       description="AGV名稱顯示"
@@ -167,7 +173,9 @@
 
 <script setup>
 import { ref, defineEmits } from 'vue';
+import Swal from 'sweetalert2';
 
+const swal = Swal;
 const emit = defineEmits(['onCloseDrawerRequested', 'onOpenDrawerRequested']);
 
 const activeNames = ref(['1', '2', '3']);
