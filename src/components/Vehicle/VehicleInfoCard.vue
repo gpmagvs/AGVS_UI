@@ -99,19 +99,30 @@
 
     <div class="footer">
       <div class="button-like-container w-100" :class="IsOrderRunning?'order-run':'no-order-run'">
-        {{ $t('HomeView.AGVStatus.AGVStatus.From') }}
-        <span
-          class="station-name"
-        >{{ vehicleStateData.TaskSourceStationName }}</span>
+        <div class="w-100 d-flex">
+          <div
+            class="text-start"
+            style="width: 100px;"
+          >{{ $t('HomeView.AGVStatus.AGVStatus.From') }}</div>
+          <span class="station-name text-truncate">{{ vehicleStateData.TaskSourceStationName }}</span>
+        </div>
+        <div class="w-100 d-flex" v-if="IsOrderRunning && CurrentOrderStatus.fromSlot!='-1'">
+          <div class="text-start" style="width: 100px;">Slot</div>
+          <span class="station-name text-truncate">{{ CurrentOrderStatus.fromSlot }}</span>
+        </div>
       </div>
       <div
         class="button-like-container w-100 mx-1"
         :class="IsOrderRunning?'order-run':'no-order-run'"
       >
-        {{ $t('HomeView.AGVStatus.AGVStatus.To') }}
-        <span
-          class="station-name"
-        >{{ vehicleStateData.TaskDestineStationName }}</span>
+        <div class="w-100 d-flex">
+          <div class="text-start" style="width: 100px;">{{ $t('HomeView.AGVStatus.AGVStatus.To') }}</div>
+          <span class="station-name text-truncate">{{ vehicleStateData.TaskDestineStationName }}</span>
+        </div>
+        <div class="w-100 d-flex" v-if="IsOrderRunning && CurrentOrderStatus.toSlot!='-1'">
+          <div class="text-start" style="width: 100px;">Slot</div>
+          <span class="station-name text-truncate">{{ CurrentOrderStatus.toSlot }}</span>
+        </div>
       </div>
       <div
         class="button-like-container battery-info"
@@ -247,10 +258,13 @@ export default {
     },
     CurrentOrderStatus() {
       const _agvName = this.vehicleStateData.AGV_Name;
-      const orderExecuting = TaskStore.state.IncompletedTaskListData.find(_order => _order.State == 1 && _order.DesignatedAGVName == _agvName);
+      let orderExecuting = new clsTaskState({});
+      orderExecuting = TaskStore.state.IncompletedTaskListData.find(_order => _order.State == 1 && _order.DesignatedAGVName == _agvName);
       return {
         order: orderExecuting,
-        isExecuting: orderExecuting != undefined
+        isExecuting: orderExecuting != undefined,
+        fromSlot: orderExecuting ? orderExecuting.From_Slot : '',
+        toSlot: orderExecuting ? orderExecuting.To_Slot : ''
       }
     },
     IsCharging() {
@@ -457,11 +471,14 @@ export default {
     .station-name {
       color: rgb(0, 119, 255);
       font-weight: bold;
+      width: 100%;
+      text-align: center;
     }
     .no-order-run {
       color: grey;
     }
     .order-run {
+      color: rgb(106, 133, 173);
     }
   }
   .from-to-info {
