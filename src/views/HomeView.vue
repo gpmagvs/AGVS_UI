@@ -17,7 +17,7 @@
                   value="!"
                   :max-value="99"
                   class="item"
-                 :offset="[10,0]"
+                  :offset="[10,0]"
                 >
                   <span>{{ $t('HomeView.Vehicles') }}</span>
                 </el-badge>
@@ -123,6 +123,11 @@
       v-if="IsLogin"
       @on-click="() => { show_new_dispatch_panel = true }"
     ></TaskDispathActionButton>
+    <el-tour v-model="openTour">
+      <el-tour-step target="#dispatch-btn" title="按一下開始任務派送" description="Put you files here." />
+      <el-tour-step :target="el" title="Save" description="Save your changes" />
+      <el-tour-step :target="btnRef?.$el" title="Other Actions" description="Click to see other" />
+    </el-tour>
   </div>
 </template>
 <script>
@@ -203,7 +208,8 @@ export default {
       MenuExpanded: true,
       previousLeftSideWidthStyle: '',
       selectTab: 0,
-      selectTaskID: ''
+      selectTaskID: '',
+      openTour: false
     }
   },
   watch: {

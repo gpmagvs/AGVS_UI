@@ -19,6 +19,7 @@
           v-for="(mode, key) in modes"
           :key="mode.name"
           v-show="GetModeVisible(key)"
+          :id="mode.id"
         >
           <span class="mx-1">{{ $i18n.locale == 'zh-TW' ? mode.name : mode.name_eng }}</span>
           <el-switch
@@ -52,6 +53,15 @@
             width="80px"
           ></el-switch>
         </div>
+
+        <div class="helpers-container">
+          <b-button
+            ref="helpButton"
+            type="text"
+            style="border: none;background-color: transparent;color:white"
+            @click="openPlatformOperationHelper = true"
+          >Help</b-button>
+        </div>
         <div>
           <!-- <el-popover placement="top" title width trigger="hover" content popper-class="bg-light">
           <template #reference>-->
@@ -66,7 +76,7 @@
             {{ $i18n.locale == 'zh-TW' ? 'ENGLISH' : "中文" }}
           </b-button>
         </div>
-        <div class="user-login-container" @click="LoginClickHandler">
+        <div id="user-login-container" class="user-login-container" @click="LoginClickHandler">
           <el-popover
             placement="bottom"
             title
@@ -158,6 +168,13 @@
         </div>
       </div>
     </div>
+
+    <el-drawer title="平台操作說明" v-model="openPlatformOperationHelper" direction="ltr" size="30%">
+      <PlatformOperationHelper
+        @onCloseDrawerRequested="openPlatformOperationHelper = false"
+        @onOpenDrawerRequested="openPlatformOperationHelper = true"
+      />
+    </el-drawer>
   </div>
 </template>
 <script>
@@ -171,9 +188,10 @@ import { useRoute } from 'vue-router'
 import { agvs_settings_store, userStore, UIStore, AlarmStore } from '@/store'
 import { Expand as MenuExpandIcon, Fold as MenuFoldIcon, UserFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElNotification } from 'element-plus';
+import PlatformOperationHelper from '@/components/App/PlatformOperationHelper.vue'
 export default {
   components: {
-    MenuExpandIcon, MenuFoldIcon, UserFilled
+    MenuExpandIcon, MenuFoldIcon, UserFilled, PlatformOperationHelper
   },
   data() {
     return {
@@ -185,6 +203,7 @@ export default {
       maintain_mode: true,
       modes: {
         system_operation_mode: {
+          id: 'system_operation_mode',
           name: '操作模式',
           name_eng: 'Operation Mode',
           actived: false,
@@ -195,6 +214,7 @@ export default {
           beforeChangeHandler: () => this.SysOptModeChangeRequest()
         },
         transfer_mode: {
+          id: 'transfer_mode',
           name: "派工模式",
           name_eng: 'Dispatch Mode',
           enabled: false,
@@ -205,6 +225,7 @@ export default {
           beforeChangeHandler: () => this.TransferModeChangeRequest()
         },
         host_conn_mode: {
+          id: 'host_conn_mode',
           name: 'HOST連線',
           name_eng: 'Host Connect',
           enabled: false,
@@ -215,6 +236,7 @@ export default {
           beforeChangeHandler: () => this.HostConnModeChangeRequest()
         },
         host_operation_mode: {
+          id: 'host_operation_mode',
           name: 'HOST模式',
           name_eng: 'Host Mode',
           enabled: false,
@@ -234,7 +256,11 @@ export default {
       eq_alrm_text: '',
       showAlarm: true,
       isEasyMode: false,
-      systemAlarmInterval: undefined
+      systemAlarmInterval: undefined,
+      openPlatformOperationHelper: false,
+      openLoginTour: false,
+      openOperationSwitchTour: false,
+      openMapTour: false
     }
   },
   props: {
@@ -345,6 +371,9 @@ export default {
     this.AlarmDisplayHandler();
   },
   methods: {
+    handleHelpItemsClicked() {
+      this.$refs.helpPopover.hide();
+    },
     HandleAutoDispatchBtnClick() {
       if (!userStore.getters.IsLogin) {
         this.$swal.fire(
@@ -759,6 +788,11 @@ export default {
 
       .is-text {
         font-size: 16px;
+      }
+    }
+    .helper-bottoms-container {
+      button {
+        text-align: left !important;
       }
     }
   }

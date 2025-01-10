@@ -506,7 +506,7 @@
                     @change="()=>{SaveSettingsToLocalStorage();}"
                   ></el-switch>
                 </div>
-                <div v-if="!editable" class="rounded">
+                <div v-if="!editable" class="rounded" id="map-pan-zoom-switch">
                   <el-tooltip placement="left">
                     <template #content>
                       <div>Setting Pan/Zoom controlable of this map</div>

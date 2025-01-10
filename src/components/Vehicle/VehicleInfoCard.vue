@@ -11,12 +11,14 @@
         placement="bottom-start"
       >
         <div
+          id="vehicle-info-card-icon"
           class="vehicle-icon"
           :class="vehicleStateData.Model==0?'fork-icon':'agv-icon-1'"
           :style="StyleOfAGVDisplayColor"
         ></div>
       </el-tooltip>
       <h6
+        id="vehicle-info-card-name"
         class="flex-fill"
         :class="[vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',vehicleStateData.Connected?'connected':'disconnect']"
       >{{ vehicleStateData.AGV_Name }}</h6>
@@ -36,12 +38,14 @@
       >定位</el-button>
       <el-tooltip content="點擊顯示車載頁面" placement="top">
         <i
+          id="vehicle-info-card-web-site-icon"
           class="bi bi-globe mx-2"
           style="cursor:pointer;"
           @click="()=>{$emit('OnWebSiteIconClicked',vehicleStateData)}"
         ></i>
       </el-tooltip>
       <el-button
+        id="vehicle-online-button"
         :class="vehicleStateData.OnlineStatus==0||!vehicleStateData.Connected ? 'text-danger':'text-success'"
         style="font-size:16px"
         @click="HandleOnlineButtonClicked"
@@ -54,13 +58,13 @@
       </el-button>
     </div>
     <div class="center-content d-flex justify-content-between p-2 m-1">
-      <div>
+      <div id="vehicle-info-card-status">
         <label class="item-name-label">{{ $t('HomeView.AGVStatus.AGVStatus.status') }}</label>
         <el-tag class="w-100" effect="dark" :type="AGVMainStatusDto.type" style="height:2rem">
           <b>{{ AGVMainStatusDto.text }}</b>
         </el-tag>
       </div>
-      <div>
+      <div id="vehicle-info-card-position">
         <div>
           <label class="item-name-label">{{ $t('HomeView.AGVStatus.AGVStatus.position') }}</label>
           <el-tooltip content="追隨AGV，AGV將保持顯示於地圖中央" placement="top">
@@ -73,16 +77,24 @@
             ></i>
           </el-tooltip>
         </div>
-        <div
-          class="text-bold"
-          @click="()=>{$emit('OnLocateClicked',vehicleStateData.AGV_Name)}"
-        >{{ vehicleStateData.StationName }}</div>
+        <div class="text-bold" @click="()=>{$emit('OnLocateClicked',vehicleStateData.AGV_Name)}">
+          <el-popover
+            placement="top"
+            effect="dark"
+            width="auto"
+            content="Click to center AGV on map"
+          >
+            <template #reference>
+              <span class="text-primary">{{ vehicleStateData.StationName }}</span>
+            </template>
+          </el-popover>
+        </div>
       </div>
-      <div>
+      <div id="vehicle-info-card-carrier-id">
         <label class="item-name-label">{{ $t('TaskTable.CstID') }}</label>
         <div class="text-bold">{{ vehicleStateData.CurrentCarrierID }}</div>
       </div>
-      <div>
+      <div id="vehicle-info-card-task-id">
         <label class="item-name-label">{{ $t('TaskTable.TaskName') }}</label>
         <el-tooltip content="點擊顯示任務詳情" placement="right" effect="light">
           <template #content>
@@ -98,7 +110,11 @@
     </div>
 
     <div class="footer">
-      <div class="button-like-container w-100" :class="IsOrderRunning?'order-run':'no-order-run'">
+      <div
+        id="vehicle-info-card-from-station"
+        class="button-like-container w-100"
+        :class="IsOrderRunning?'order-run':'no-order-run'"
+      >
         <div class="w-100 d-flex">
           <div
             class="text-start"
@@ -112,6 +128,7 @@
         </div>
       </div>
       <div
+        id="vehicle-info-card-to-station"
         class="button-like-container w-100 mx-1"
         :class="IsOrderRunning?'order-run':'no-order-run'"
       >
@@ -125,6 +142,7 @@
         </div>
       </div>
       <div
+        id="vehicle-info-card-battery-info"
         class="button-like-container battery-info"
         :class="BatteryPercentage < 30 ? 'battery-low':'battery-normal'"
       >
@@ -136,6 +154,7 @@
       </div>
       <div class="button-like-container mx-1 d-flex" style="width: 200px;padding-right: 0px;">
         <el-button
+          id="charge-task-assignment-button"
           type="success"
           v-bind:class="getChargeButtnClass()"
           @click="()=> $emit('ShowAGVChargeConfirmDialog',vehicleStateData)"
