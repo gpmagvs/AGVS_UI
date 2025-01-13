@@ -127,7 +127,12 @@
   "auto-choise-vehicle": "自動選車",
   "Transfer": "搬運",
   "Charge": "充電",
+  "NormalCharge": "一般充電",
+  "DepCharge": "深度充電",
+  "CancelDeepCharge": "解除深度充電",
   "Exchange Battery": "交換電池",
+  "ConfirmTask": "確定要將",
+  "ToCharge": "派送至充電站",
   "Measure": "巡檢量測",
   "Move": "移動",
   "Park": "停車",
@@ -180,7 +185,8 @@
     "AGVReadID": "AGV讀取ID",
     "Reassign": "重新執行",
     "AutoSelectVehicle": "自動選車",
-    "HighestPriorityTask": "最優先任務"
+    "HighestPriorityTask": "最優先任務",
+    "Vehicle": "車輛"
   },
   "AlarmTable": {
     "Time": "時間",

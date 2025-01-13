@@ -1,109 +1,51 @@
 <template>
   <div class="running-task-table">
-    <el-table
-      v-if="display_mode == 'table'"
-      :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
-      :data="taskWithSorted"
-      row-key="TaskName"
-      size="large"
-      :row-class-name="row_class_name"
-      :empty-text="$t('TaskTable.NoTasks')"
-      @header-dragend="HandleHeaderDragEnd"
-      border
-      fit
-      :height="height"
-      @filter-change="handleFilterChange"
-    >
-      <el-table-column
-        :label="$t('TaskTable.TaskName')"
-        width="100"
-        prop="TaskName"
-        show-overflow-tooltip
-      ></el-table-column>
-      <el-table-column
-        :label="$t('TaskTable.Time')"
-        align="center"
-        prop="RecieveTime_Formated"
-        width="90"
-        show-overflow-tooltip
-      ></el-table-column>
-      <el-table-column
-        :label="$t('TaskTable.Action')"
-        align="center"
-        :filters="TaskActionFileterOptions"
-        column-key="Action"
-        :filter-method="filterTaskAction"
-        width="80"
-      >
+    <el-table v-if="display_mode == 'table'" :header-cell-style="{ color: 'black', backgroundColor: 'white' }"
+      :data="taskWithSorted" row-key="TaskName" size="large" :row-class-name="row_class_name"
+      :empty-text="$t('TaskTable.NoTasks')" @header-dragend="HandleHeaderDragEnd" border fit :height="height"
+      @filter-change="handleFilterChange">
+      <el-table-column :label="$t('TaskTable.TaskName')" width="100" prop="TaskName"
+        show-overflow-tooltip></el-table-column>
+      <el-table-column :label="$t('TaskTable.Time')" align="center" prop="RecieveTime_Formated" width="90"
+        show-overflow-tooltip></el-table-column>
+      <el-table-column :label="$t('TaskTable.Action')" align="center" :filters="TaskActionFileterOptions"
+        column-key="Action" :filter-method="filterTaskAction" width="80">
         <template #default="scope">
           <el-tag :type="TaskActionTagTypes[scope.row.Action] || TaskActionTagTypes.default">
             <b>{{ scope.row.ActionName }}</b>
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column
-        :label="$t('TaskTable.TaskStatus')"
-        align="center"
-        prop="StateName"
-        width="80"
-        :filters="RunningTaskStateOptions"
-        column-key="State"
-        :filter-method="filterTaskState"
-      >
+      <el-table-column :label="$t('TaskTable.TaskStatus')" align="center" prop="StateName" width="80"
+        :filters="RunningTaskStateOptions" column-key="State" :filter-method="filterTaskState">
         <template #default="scope">
-          <el-tooltip :content="scope.row.State+''" placement="top">
-            <el-tag
-              effect="dark"
-              :type="GetTaskStateType(scope.row.State)"
-            >{{ scope.row.StateName }}</el-tag>
+          <el-tooltip :content="scope.row.State + ''" placement="top">
+            <el-tag effect="dark" :type="GetTaskStateType(scope.row.State)">{{ scope.row.StateName }}</el-tag>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column
-        :label="$t('TaskTable.ExcuteAgvName')"
-        align="center"
-        width="120"
-        prop="DesignatedAGVName"
-        show-overflow-tooltip
-      >
+      <el-table-column :label="$t('TaskTable.Vehicle')" align="center" width="120" prop="DesignatedAGVName"
+        show-overflow-tooltip>
         <template #default="scope">
           <div class="agv-name">{{ scope.row.DesignatedAGVName }}</div>
         </template>
       </el-table-column>
-      <el-table-column
-        :label="$t('TaskTable.Source')"
-        align="center"
-        prop="From_Station"
-        width="110"
-      >
+      <el-table-column :label="$t('TaskTable.Source')" align="center" prop="From_Station" width="110">
         <template #default="scope">
-          <el-tooltip
-            :content="'Tag:'+scope.row.From_Station+''"
-            placement="right"
-            popper-class="bg-primary"
-          >
+          <el-tooltip :content="'Tag:' + scope.row.From_Station + ''" placement="right" popper-class="bg-primary">
             <div>{{ GetStationName(scope.row.From_Station) }}</div>
           </el-tooltip>
-          <div v-if="scope.row.From_Slot!='-1'">(Slot:{{ scope.row.From_Slot }})</div>
+          <div v-if="scope.row.From_Slot != '-1'">(Slot:{{ scope.row.From_Slot }})</div>
         </template>
         <!-- <el-table-column label="站點" prop="From_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="From_Slot" width="50"></el-table-column> -->
       </el-table-column>
-      <el-table-column
-        :label="$t('TaskTable.Destine')"
-        align="center"
-        prop="To_Station"
-        width="110"
-      >
+      <el-table-column :label="$t('TaskTable.Destine')" align="center" prop="To_Station" width="110">
         <template #default="scope">
-          <el-tooltip
-            :content="'Tag:'+scope.row.To_Station+''"
-            placement="right"
-            popper-class="bg-primary"
-          >
+          <el-tooltip :content="'Tag:' + scope.row.To_Station + ''" placement="right" popper-class="bg-primary">
             <div>{{ GetStationName(scope.row.To_Station) }}</div>
           </el-tooltip>
-          <div v-if="scope.row.To_Slot!='-1'">(Slot:{{ scope.row.To_Slot }})</div>
+          <div v-if="scope.row.To_Slot != '-1'">(Slot:{{ scope.row.To_Slot }})</div>
         </template>
         <!-- <el-table-column label="站點" prop="To_Station"></el-table-column> -->
         <!-- <el-table-column label="Port" prop="To_Slot" width="50"></el-table-column> -->
@@ -122,18 +64,14 @@
     </el-table>
     <div v-else class="py-2 text-start" style="height: 80vh;overflow-y: auto;">
       <label class="px-3">{{ $t('Executing') }}</label>
-      <MissionCard
-        v-for="task in ExecutingTasks"
-        :key="task.TaskName"
-        :mission="task"
-        :selected="task.TaskName == taskIDSelected"
-      ></MissionCard>
-      <div class="no-mission-notify" v-if="ExecutingTasks.length==0">No Missions.</div>
+      <MissionCard v-for="task in ExecutingTasks" :key="task.TaskName" :mission="task"
+        :selected="task.TaskName == taskIDSelected"></MissionCard>
+      <div class="no-mission-notify" v-if="ExecutingTasks.length == 0">No Missions.</div>
       <el-divider></el-divider>
 
       <label class="px-3">{{ $t('WaitingForExecution') }}</label>
       <MissionCard v-for="task in WaitingForExecutTasks" :key="task.TaskName" :mission="task"></MissionCard>
-      <div class="no-mission-notify" v-if="WaitingForExecutTasks.length==0">No Missions.</div>
+      <div class="no-mission-notify" v-if="WaitingForExecutTasks.length == 0">No Missions.</div>
     </div>
   </div>
 </template>
@@ -333,6 +271,7 @@ export default {
   .el-table .highest-priority-task-row {
     background: linear-gradient(45deg, #ff4d4d, #f5afaf);
     color: white;
+
     &:hover {
       background: linear-gradient(45deg, #ff854d, #facdcd) !important;
       color: black !important;
@@ -357,6 +296,7 @@ export default {
       color: rgb(13, 110, 253) !important;
     }
   }
+
   .no-mission-notify {
     width: 100%;
     text-align: center;

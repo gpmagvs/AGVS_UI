@@ -126,7 +126,12 @@
   "auto-choise-vehicle": "Auto Assignment",
   "Transfer": "Transfer",
   "Charge": "Charge",
+  "NormalCharge": "NormalCharge",
+  "DepCharge": "DeepCharge",
+  "CancelDeepCharge": "CancelDeepCharge",
   "Exchange Battery": "Exchange Battery",
+  "ConfirmTask": "Are you sure",
+  "ToCharge": "to chargestation",
   "Measure": "Measure",
   "Move": "Move",
   "Park": "Park",
@@ -178,7 +183,8 @@
     "StartLocation": "Start Location",
     "AGVReadID": "AGV Read ID",
     "Reassign": "Re-Assign",
-    "AutoSelectVehicle": "Auto Select Vehicle"
+    "AutoSelectVehicle": "Auto Select Vehicle",
+    "Vehicle": "Vehicle"
   },
   "AlarmTable": {
     "Time": "Time",
