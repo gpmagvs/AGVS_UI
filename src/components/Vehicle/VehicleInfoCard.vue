@@ -86,7 +86,7 @@
             content="Click to center AGV on map"
           >
             <template #reference>
-              <span class="text-primary">{{ vehicleStateData.StationName }}</span>
+              <span>{{ vehicleStateData.StationName }}</span>
             </template>
           </el-popover>
         </div>
@@ -121,9 +121,14 @@
             class="text-start"
             style="width: 100px;"
           >{{ $t('HomeView.AGVStatus.AGVStatus.From') }}</div>
-          <span class="station-name text-truncate">{{ vehicleStateData.TaskSourceStationName }}</span>
+          <span
+            class="station-name text-truncate"
+          >{{vehicleStateData.TaskSourceStationName=='-1'?'-': vehicleStateData.TaskSourceStationName }}</span>
         </div>
-        <div class="w-100 d-flex" v-if="IsOrderRunning && CurrentOrderStatus.fromSlot!='-1'">
+        <div
+          class="w-100 d-flex"
+          v-if="IsOrderRunning && IsCarryOrder && CurrentOrderStatus.fromSlot!='-1'"
+        >
           <div class="text-start" style="width: 100px;">Slot</div>
           <span class="station-name text-truncate">{{ CurrentOrderStatus.fromSlot }}</span>
         </div>
@@ -135,9 +140,14 @@
       >
         <div class="w-100 d-flex">
           <div class="text-start" style="width: 100px;">{{ $t('HomeView.AGVStatus.AGVStatus.To') }}</div>
-          <span class="station-name text-truncate">{{ vehicleStateData.TaskDestineStationName }}</span>
+          <span
+            class="station-name text-truncate"
+          >{{vehicleStateData.TaskDestineStationName=='-1'? '-': vehicleStateData.TaskDestineStationName }}</span>
         </div>
-        <div class="w-100 d-flex" v-if="IsOrderRunning && CurrentOrderStatus.toSlot!='-1'">
+        <div
+          class="w-100 d-flex"
+          v-if="IsOrderRunning && IsCarryOrder&& CurrentOrderStatus.toSlot!='-1'"
+        >
           <div class="text-start" style="width: 100px;">Slot</div>
           <span class="station-name text-truncate">{{ CurrentOrderStatus.toSlot }}</span>
         </div>
@@ -269,6 +279,12 @@ export default {
     },
     IsOrderRunning() {
       return this.CurrentOrderStatus.isExecuting;
+    },
+    IsCarryOrder() {
+      if (!this.IsOrderRunning)
+        return false;
+      const carryOrderActionTypes = [1, 2, 7, 9];
+      return carryOrderActionTypes.includes(this.CurrentOrderStatus.order.Action);
     },
     CurrentOrderID() {
       if (!this.IsOrderRunning)

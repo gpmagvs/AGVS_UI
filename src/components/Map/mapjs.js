@@ -292,7 +292,15 @@ export function GetStationStyle(text = '', station_type = 0, map_data = new MapP
     var _normalStationTextFontSize = MapStore.getters.Settings.normalStationTextFontSize;
     var _workStationTextFontSize = MapStore.getters.Settings.workStationTextFontSize;
 
+    var _parkableTextColor = 'black'
+
+    const chargeableStationTypes = [];
+    //IsParking
+
     var textFillColor = !map_data.Enable ? 'rgb(255, 102, 92)' : (station_type == 0 ? _normalStationTextColor : _workStationTextColor);
+    if (map_data.IsParking)
+        textFillColor = _parkableTextColor;
+
     var fontSize = station_type == 0 ? _normalStationTextFontSize : _workStationTextFontSize;
 
     var textStyle = new Style({

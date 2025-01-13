@@ -1487,8 +1487,9 @@ export default {
           agvText += agv_information.WaitingInfo.IsWaiting ? '\r\n' + agv_information.WaitingInfo.Descrption : '';
           text.setText(agvText);
 
-          var fill = text.getBackgroundFill()
-          fill.setColor(!agv_information.AgvStates.is_online ? 'rgb(147, 147, 147)' : agv_information.TextColor)
+          var fill = text.getBackgroundFill();
+          var nameFillColor = this.convertColorNameToRGBA(agv_information.TextColor, .9);
+          fill.setColor(!agv_information.AgvStates.is_online ? 'rgba(147, 147, 147,.85)' : nameFillColor)
           text.setBackgroundFill(fill);
           agvfeatures.agv_feature.setStyle(style)
           agvfeatures.path_feature.setGeometry(new LineString(path_coordinations))
@@ -1511,7 +1512,7 @@ export default {
             const _agvSaftyCircle = new Circle(agv_information.Coordination, vehicleSaftyRotationRadious) //TODO 車輛安全區域半徑數據取得
             const _agvBodyPolygon = new Polygon(_polygon_coordinations)
             // 構造一個新的 RGBA 字串
-            var nameFillColor = this.convertColorNameToRGBA(agv_information.TextColor, 1);
+            var nameFillColor = this.convertColorNameToRGBA(agv_information.TextColor, .8);
             var bodyColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.4);
             var safyRegionColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.2);
             var safyRegionStrokeColor = this.convertColorNameToRGBA(agv_information.TextColor, 0.8);
@@ -3605,7 +3606,7 @@ export default {
 
         //set backgroundFill color by transfer status
         const unloadableColor = 'rgba(67, 149, 237,0.4)';
-        const loadableColor = 'rgb(255, 220, 61)';
+        const loadableColor = 'rgba(255, 220, 61,.7)';
         const unloadAndloadableColor = 'rgba(10, 101, 69,.6)';
         const eqDownStatusColor = 'rgba(255, 0, 0,.8)';
         const noRequestColor = 'rgba(255,255,255,.1)';
