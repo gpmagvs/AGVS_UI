@@ -632,8 +632,16 @@
             <el-tag effect="dark">{{ scope.row.PathID }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="起點Index" prop="StartPtIndex"></el-table-column>
-        <el-table-column label="終點Index" prop="EndPtIndex"></el-table-column>
+        <el-table-column label="起點 Tag" prop="StartPtIndex">
+          <template #default="scope">
+            <span>{{ scope.row.StartPoint.TagNumber }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="終點 Tag" prop="EndPtIndex">
+          <template #default="scope">
+            <span>{{ scope.row.EndPoint.TagNumber }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="狀態" prop="IsPassable">
           <template #default="scope">
             <el-tag
@@ -3754,22 +3762,33 @@ export default {
       this.RemoveInteraction(this.edit_forbid_regions_interaction);
       this.RemoveInteraction(this.delete_forbid_regions_interaction);
     },
-    OpenPath_editor(feature = new Feature()) {
+    async OpenPath_editor(feature = new Feature()) {
       var pathid = feature.get('path_id')
       if (pathid) {
         var path_data = this.PathesSegmentsForEdit.find(path => path.PathID == pathid)
         var reverse_pathid = path_data.EndPtIndex + '_' + path_data.StartPtIndex;
         var reverse_path_data = this.PathesSegmentsForEdit.find(path => path.PathID == reverse_pathid)
-        this.IsPathEditing = true;
         this.SelectedPathData = path_data;
         this.HandlePathTbRowClick(path_data);
+
+
+        let pt1 = await MapStore.dispatch('GetMapPointByIndex', path_data.StartPtIndex);
+        let pt2 = await MapStore.dispatch('GetMapPointByIndex', path_data.EndPtIndex);
+        console.log(pt1, pt2);
+        path_data.StartPoint = pt1;
+        path_data.EndPoint = pt2;
+
         if (reverse_path_data) {
+          reverse_path_data.StartPoint = pt2;
+          reverse_path_data.EndPoint = pt1;
           this.ShowPathSelectDialog = true;
           this.PathesCandicats = [path_data, reverse_path_data];
         } else {
           this.HandlePathTbRowClick(path_data);
           this.$refs['path_editor'].Show(path_data);
         }
+        this.IsPathEditing = true;
+
       }
     },
     HandlePathSelected(path_data) {
