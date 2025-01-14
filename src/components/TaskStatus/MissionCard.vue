@@ -173,6 +173,10 @@ const action = computed(() => {
   }
 });
 
+const dispatcherName = computed(() => {
+  return props.mission.DispatcherName == '' ? 'Not Assigned' : props.mission.DispatcherName;
+});
+
 const isCarryOrder = computed(() => props.mission.Action == 9);
 const isChargeOrder = computed(() => props.mission.Action == 8 || props.mission.Action == 17);
 

@@ -100,9 +100,15 @@ export default {
       return MapStore.getters.MapData.Points[this.PathDataEdit.EndPtIndex];
     },
     StartPointTagNumber() {
+      if (!this.StartPoint) {
+        return "";
+      }
       return this.StartPoint.TagNumber;
     },
     EndPointTagNumber() {
+      if (!this.EndPoint) {
+        return "";
+      }
       return this.EndPoint.TagNumber;
     }
   },
