@@ -1,28 +1,12 @@
 <template>
-  <div
-    id="vehicle-info-card"
-    class="vehicle-info-card"
-    :class="[vehicleStateData.Connected?'connected':'vehicle-card-disconnect',vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',IsOrderRunning?'order-run':'no-order-run'
+  <div id="vehicle-info-card" class="vehicle-info-card" :class="[vehicleStateData.Connected?'connected':'vehicle-card-disconnect',vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',IsOrderRunning?'order-run':'no-order-run'
       , this.vehicleStateData.MainStatus==3?'vehicle-info-card-status-down':''
-    ]"
-  >
+    ]">
     <div class="vehicle-info-card-header p-2 border-bottom">
-      <el-tooltip
-        :content="vehicleStateData.Model==0?'Forklifter AGV':'Submarine AGV'"
-        placement="bottom-start"
-      >
-        <div
-          id="vehicle-info-card-icon"
-          class="vehicle-icon"
-          :class="vehicleStateData.Model==0?'fork-icon':'agv-icon-1'"
-          :style="StyleOfAGVDisplayColor"
-        ></div>
+      <el-tooltip :content="vehicleStateData.Model==0?'Forklifter AGV':'Submarine AGV'" placement="bottom-start">
+        <div id="vehicle-info-card-icon" class="vehicle-icon" :class="vehicleStateData.Model==0?'fork-icon':'agv-icon-1'" :style="StyleOfAGVDisplayColor"></div>
       </el-tooltip>
-      <h6
-        id="vehicle-info-card-name"
-        class="flex-fill"
-        :class="[vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',vehicleStateData.Connected?'connected':'disconnect']"
-      >{{ vehicleStateData.AGV_Name }}</h6>
+      <h6 id="vehicle-info-card-name" class="flex-fill" :class="[vehicleStateData.OnlineStatus==0? 'v-Offline':'v-Online',vehicleStateData.Connected?'connected':'disconnect']">{{ vehicleStateData.AGV_Name }}</h6>
       <div v-if="IsEmulationMode">
         <el-tooltip content="EMULATION MODE" placement="right-end" effect="light">
           <template #content>
@@ -31,26 +15,11 @@
           <el-button class="text-primary" text>Simulation</el-button>
         </el-tooltip>
       </div>
-      <el-button
-        v-if="vehicleStateData.Model == 2 || IsEmulationMode"
-        class="text-primary"
-        text
-        @click="()=>{$emit('OnTagLocatingClicked',vehicleStateData)}"
-      >定位</el-button>
+      <el-button v-if="vehicleStateData.Model == 2 || IsEmulationMode" class="text-primary" text @click="()=>{$emit('OnTagLocatingClicked',vehicleStateData)}">定位</el-button>
       <el-tooltip content="點擊顯示車載頁面" placement="top">
-        <i
-          id="vehicle-info-card-web-site-icon"
-          class="bi bi-globe mx-2"
-          style="cursor:pointer;"
-          @click="()=>{$emit('OnWebSiteIconClicked',vehicleStateData)}"
-        ></i>
+        <i id="vehicle-info-card-web-site-icon" class="bi bi-globe mx-2" style="cursor:pointer;" @click="()=>{$emit('OnWebSiteIconClicked',vehicleStateData)}"></i>
       </el-tooltip>
-      <el-button
-        id="vehicle-online-button"
-        :class="vehicleStateData.OnlineStatus==0||!vehicleStateData.Connected ? 'text-danger':'text-success'"
-        style="font-size:16px"
-        @click="HandleOnlineButtonClicked"
-      >
+      <el-button id="vehicle-online-button" :class="vehicleStateData.OnlineStatus==0||!vehicleStateData.Connected ? 'text-danger':'text-success'" style="font-size:16px" @click="HandleOnlineButtonClicked">
         <template #icon>
           <i class="bi bi-circle-fill" style="font-size:10px"></i>
         </template>
@@ -69,22 +38,11 @@
         <div>
           <label class="item-name-label">{{ $t('HomeView.AGVStatus.AGVStatus.position') }}</label>
           <el-tooltip content="追隨AGV，AGV將保持顯示於地圖中央" placement="top">
-            <i
-              v-if="!IsOpUsing"
-              style="cursor: pointer;height: 22px;position: relative;top: 2px;border-radius: 30px;width: 22px;padding-left: 4px;font-size: 18px;"
-              class="bi bi-eyeglasses mx-1"
-              @click="()=>{$emit('OnTrackingVehicleClick',vehicleStateData.AGV_Name)}"
-              v-bind:style="isMapViewTracking? {backgroundColor:'rgb(13, 110, 253)',color:'white'}:{}"
-            ></i>
+            <i v-if="!IsOpUsing" style="cursor: pointer;height: 22px;position: relative;top: 2px;border-radius: 30px;width: 22px;padding-left: 4px;font-size: 18px;" class="bi bi-eyeglasses mx-1" @click="()=>{$emit('OnTrackingVehicleClick',vehicleStateData.AGV_Name)}" v-bind:style="isMapViewTracking? {backgroundColor:'rgb(13, 110, 253)',color:'white'}:{}"></i>
           </el-tooltip>
         </div>
         <div class="text-bold" @click="()=>{$emit('OnLocateClicked',vehicleStateData.AGV_Name)}">
-          <el-popover
-            placement="top"
-            effect="dark"
-            width="auto"
-            content="Click to center AGV on map"
-          >
+          <el-popover placement="top" effect="dark" width="auto" content="Click to center AGV on map">
             <template #reference>
               <span>{{ vehicleStateData.StationName }}</span>
             </template>
@@ -101,62 +59,33 @@
           <template #content>
             <MissionCard style="width: 620px" :mission="CurrentOrderStatus.order" />
           </template>
-          <div
-            class="text-truncate text-bold task-id"
-            @click="HandleTaskIDClicked"
-            style="width: 120px"
-          >{{ CurrentOrderID }}</div>
+          <div class="text-truncate text-bold task-id" @click="HandleTaskIDClicked" style="width: 120px">{{ CurrentOrderID }}</div>
         </el-tooltip>
       </div>
     </div>
 
     <div class="footer">
-      <div
-        id="vehicle-info-card-from-station"
-        class="button-like-container w-100"
-        :class="IsOrderRunning?'order-run':'no-order-run'"
-      >
+      <div id="vehicle-info-card-from-station" class="button-like-container w-100" :class="IsOrderRunning?'order-run':'no-order-run'">
         <div class="w-100 d-flex">
-          <div
-            class="text-start"
-            style="width: 100px;"
-          >{{ $t('HomeView.AGVStatus.AGVStatus.From') }}</div>
-          <span
-            class="station-name text-truncate"
-          >{{vehicleStateData.TaskSourceStationName=='-1'?'-': vehicleStateData.TaskSourceStationName }}</span>
+          <div class="text-start" style="width: 100px;">{{ $t('HomeView.AGVStatus.AGVStatus.From') }}</div>
+          <span class="station-name text-truncate">{{vehicleStateData.TaskSourceStationName=='-1'?'-': vehicleStateData.TaskSourceStationName }}</span>
         </div>
-        <div
-          class="w-100 d-flex"
-          v-if="IsOrderRunning && IsCarryOrder && CurrentOrderStatus.fromSlot!='-1'"
-        >
+        <div class="w-100 d-flex" v-if="IsOrderRunning && IsCarryOrder && CurrentOrderStatus.fromSlot!='-1'">
           <div class="text-start" style="width: 100px;">Slot</div>
           <span class="station-name text-truncate">{{ CurrentOrderStatus.fromSlot }}</span>
         </div>
       </div>
-      <div
-        id="vehicle-info-card-to-station"
-        class="button-like-container w-100 mx-1"
-        :class="IsOrderRunning?'order-run':'no-order-run'"
-      >
+      <div id="vehicle-info-card-to-station" class="button-like-container w-100 mx-1" :class="IsOrderRunning?'order-run':'no-order-run'">
         <div class="w-100 d-flex">
           <div class="text-start" style="width: 100px;">{{ $t('HomeView.AGVStatus.AGVStatus.To') }}</div>
-          <span
-            class="station-name text-truncate"
-          >{{vehicleStateData.TaskDestineStationName=='-1'? '-': vehicleStateData.TaskDestineStationName }}</span>
+          <span class="station-name text-truncate">{{vehicleStateData.TaskDestineStationName=='-1'? '-': vehicleStateData.TaskDestineStationName }}</span>
         </div>
-        <div
-          class="w-100 d-flex"
-          v-if="IsOrderRunning && IsCarryOrder&& CurrentOrderStatus.toSlot!='-1'"
-        >
+        <div class="w-100 d-flex" v-if="IsOrderRunning && IsCarryOrder&& CurrentOrderStatus.toSlot!='-1'">
           <div class="text-start" style="width: 100px;">Slot</div>
           <span class="station-name text-truncate">{{ CurrentOrderStatus.toSlot }}</span>
         </div>
       </div>
-      <div
-        id="vehicle-info-card-battery-info"
-        class="button-like-container battery-info"
-        :class="BatteryPercentage < 30 ? 'battery-low':'battery-normal'"
-      >
+      <div id="vehicle-info-card-battery-info" class="button-like-container battery-info" :class="BatteryPercentage < 30 ? 'battery-low':'battery-normal'">
         <el-progress :percentage="BatteryPercentage" :stroke-width="20" :color="batteryStatusColor">
           <div class="battery-head"></div>
           <div class="battery-level-text">{{BatteryPercentage}}%</div>
@@ -164,12 +93,7 @@
         </el-progress>
       </div>
       <div class="button-like-container mx-1 d-flex" style="width: 200px;padding-right: 0px;">
-        <el-button
-          id="charge-task-assignment-button"
-          type="success"
-          v-bind:class="getChargeButtnClass()"
-          @click="()=> $emit('ShowAGVChargeConfirmDialog',vehicleStateData)"
-        >
+        <el-button id="charge-task-assignment-button" type="success" v-bind:class="getChargeButtnClass()" @click="()=> $emit('ShowAGVChargeConfirmDialog',vehicleStateData)">
           <span v-if="vehicleStateData.Model == 2">{{ $t('Exchange Battery') }}</span>
           <span v-else-if="getChargeButtnClass()=='charge-deep-charging'">{{ $t('DeepCharging') }}</span>
           <span v-else>{{ $t('Charge') }}</span>
@@ -180,21 +104,12 @@
           </template>
           <template #default>
             <div class="charge-button-container d-flex flex-column">
-              <b-button
-                variant="warning"
-                style="width: 100%; margin-bottom: 8px;"
-                @click="()=>$emit('ShowAGVChargeConfirmDialog',vehicleStateData)"
-              >一般充電</b-button>
-              <b-button
-                variant="success"
-                style="width: 100%; margin-bottom: 8px;"
-                @click="()=>$emit('ShowAGVDeepChargeConfirmDialog',vehicleStateData)"
-              >深度充電</b-button>
-              <b-button
-                variant="light"
-                style="width: 100%; margin-bottom: 8px;"
-                @click="()=> $emit('StopDeepCharge',vehicleStateData.AGV_Name)"
-              >解除深度充電</b-button>
+              <b-button variant="warning" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('ShowAGVChargeConfirmDialog', vehicleStateData)">{{ $t('NormalCharge')
+                }}</b-button>
+              <b-button variant="success" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('ShowAGVDeepChargeConfirmDialog', vehicleStateData)">{{ $t('DepCharge')
+                }}</b-button>
+              <b-button variant="danger" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('StopDeepCharge', vehicleStateData.AGV_Name)">{{ $t('CancelDeepCharge')
+                }}</b-button>
             </div>
           </template>
         </el-popover>
