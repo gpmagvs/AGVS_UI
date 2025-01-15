@@ -2,95 +2,45 @@
   <div class="agv-emulator">
     <el-form label-position="left" label-width="180px">
       <el-form-item label="Move Speed Ratio">
-        <el-input-number
-          v-model="Parameters.MoveSpeedRatio"
-          :min="0"
-          :max="1"
-          :step="0.1"
-          :precision="2"
-          @change="HandleInputChanged"
-        />
+        <el-input-number v-model="Parameters.MoveSpeedRatio" :min="0" :max="1" :step="0.1" :precision="2" @change="HandleInputChanged" />
       </el-form-item>
 
       <el-form-item label="Tap Move Speed Ratio">
-        <el-input-number
-          v-model="Parameters.TapMoveSpeedRatio"
-          :min="0"
-          :max="1"
-          :step="0.05"
-          :precision="2"
-          @change="HandleInputChanged"
-        />
+        <el-input-number v-model="Parameters.TapMoveSpeedRatio" :min="0" :max="1" :step="0.05" :precision="2" @change="HandleInputChanged" />
       </el-form-item>
 
       <el-form-item label="Rotation Speed">
-        <el-input-number
-          v-model="Parameters.RotationSpeed"
-          :min="0"
-          :max="180"
-          :step="5"
-          @change="HandleInputChanged"
-        />
+        <el-input-number v-model="Parameters.RotationSpeed" :min="0" :max="180" :step="5" @change="HandleInputChanged" />
       </el-form-item>
 
       <el-form-item label="Fork Lifter Speed">
-        <el-input-number
-          v-model="Parameters.ForkLifterSpeed"
-          :min="0"
-          :step="1"
-          @change="HandleInputChanged"
-        />
+        <el-input-number v-model="Parameters.ForkLifterSpeed" :min="0" :step="1" @change="HandleInputChanged" />
       </el-form-item>
 
       <el-form-item label="Speed Up Rate">
-        <el-input-number
-          v-model="Parameters.SpeedUpRate"
-          :min="0"
-          :step="1"
-          @change="HandleInputChanged"
-        />
+        <el-input-number v-model="Parameters.SpeedUpRate" :min="0" :step="1" @change="HandleInputChanged" />
       </el-form-item>
 
       <el-form-item label="Battery Charge Speed">
-        <el-input-number
-          v-model="Parameters.BatteryChargeSpeed"
-          :min="0"
-          :step="1"
-          @change="HandleInputChanged"
-        />
+        <el-input-number v-model="Parameters.BatteryChargeSpeed" :min="0" :step="1" @change="HandleInputChanged" />
       </el-form-item>
 
       <el-form-item label="Battery Used (Run)">
-        <el-input-number
-          v-model="Parameters.BatteryUsed_Run"
-          :min="0"
-          :max="1"
-          :step="0.1"
-          :precision="2"
-          @change="HandleInputChanged"
-        />
+        <el-input-number v-model="Parameters.BatteryUsed_Run" :min="0" :max="1" :step="0.1" :precision="2" @change="HandleInputChanged" />
       </el-form-item>
 
       <el-form-item label="Working Time">
-        <el-input-number
-          v-model="Parameters.WorkingTime"
-          :min="0"
-          :step="1"
-          @change="HandleInputChanged"
-        />
+        <el-input-number v-model="Parameters.WorkingTime" :min="0" :step="1" @change="HandleInputChanged" />
+      </el-form-item>
+      <el-form-item label="電量">
+        <el-input-number v-model="batteryLevelSimlation" :min="0" :max="100" :step="1" @change="HandleBatteryLevelChanged" />
       </el-form-item>
       <el-divider />
       <el-form-item label="CID Read Fail 模擬">
-        <el-switch
-          v-model="Parameters.IsCIDReadFailSimulation"
-          @mousedown="HandleCIDReadFailChanged"
-        />
+        <el-switch v-model="Parameters.IsCIDReadFailSimulation" @mousedown="HandleCIDReadFailChanged" />
       </el-form-item>
       <el-form-item label="CID Read Mismatch 模擬">
-        <el-switch
-          v-model="Parameters.IsCIDReadMismatchSimulation"
-          @mousedown="HandleCIDReadMismatchChanged"
-        />
+        <el-switch v-model="Parameters.IsCIDReadMismatchSimulation" @mousedown="HandleCIDReadMismatchChanged" />
       </el-form-item>
     </el-form>
   </div>
@@ -109,6 +59,7 @@ export default {
   data() {
     return {
       debounceTimer: null,
+      batteryLevelSimlation: 80,
       Parameters: {
         MoveSpeedRatio: 0.7,
         TapMoveSpeedRatio: 0.15,
@@ -124,7 +75,8 @@ export default {
     }
   },
   mounted() {
-    this.Parameters = agv_states_store.getters.GetAGVEmuParameters(this.AgvName)
+    this.Parameters = agv_states_store.getters.GetAGVEmuParameters(this.AgvName);
+    this.batteryLevelSimlation = agv_states_store.getters.GetVehicleCurrentBatteryLevel(this.AgvName);
   },
   methods: {
     HandleInputChanged() {
@@ -137,6 +89,18 @@ export default {
           await agv_states_store.dispatch('updateEmulationParameters', { agvName: this.AgvName, parameters: this.Parameters });
         } catch (error) {
           console.error('Failed to update emulation parameters:', error);
+        }
+      }, 500);
+    },
+    HandleBatteryLevelChanged() {
+      if (this.debounceTimer) {
+        clearTimeout(this.debounceTimer);
+      }
+      this.debounceTimer = setTimeout(async () => {
+        try {
+          await agv_states_store.dispatch('setBatteryLevelSimulation', { agvName: this.AgvName, batteryLevel: this.batteryLevelSimlation });
+        } catch (error) {
+          console.error('Failed to update battery level simulation:', error);
         }
       }, 500);
     },

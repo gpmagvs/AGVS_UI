@@ -132,6 +132,10 @@ export const EmuAPI = {
   SetCIDAbnormalSimualtion: async (agvName, isCIDReadFail, isCIDReadMismatch) => {
     var response = await axios_entity_vms.post(`api/AGVSimulation/SetCIDAbnormalSimualtion?AGVName=${agvName}&isCIDReadFail=${isCIDReadFail}&isCIDReadMismatch=${isCIDReadMismatch}`)
     return response.data;
+  },
+  SetBatteryLevel: async (agvName, batteryLevel) => {
+    var response = await axios_entity_vms.post(`api/AGVSimulation/SetBatteryLevel?AGVName=${agvName}&lv=${batteryLevel}`)
+    return response.data;
   }
 }
 

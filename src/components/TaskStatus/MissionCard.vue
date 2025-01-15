@@ -1,22 +1,13 @@
 <template>
-  <div
-    class="mission-card"
-    :class="[mission.State==1 ? 'executing' : 'waiting', selectedClassName]"
-  >
+  <div class="mission-card" :class="[mission.State==1 ? 'executing' : 'waiting', selectedClassName]">
     <div class="mission-card-header py-1 border-bottom">
-      <h6
-        class="mx-2 border py-1 px-2 rounded text-light text-nowrap"
-        :class="actionTagClass"
-      >{{ action }}</h6>
+      <h6 class="mx-2 border py-1 px-2 rounded text-light text-nowrap" :class="actionTagClass">{{ action }}</h6>
       <div class="flex-fill d-flex text-truncate">
         <h6 class="text-nowrap" @click="copyText(mission.TaskName)"># {{ mission.TaskName }}</h6>
         <i class="bi bi-clipboard mx-2" style="cursor: pointer;"></i>
       </div>
       <!-- <label>Local</label> -->
-      <el-button
-        type="danger"
-        @click="CancelTaskHandler(mission.TaskName)"
-      >{{ mission.State==1 ?t('MissionCard.AbortOrder') :t('MissionCard.CancelOrder')}}</el-button>
+      <el-button type="danger" @click="CancelTaskHandler(mission.TaskName)">{{ mission.State==1 ?t('MissionCard.AbortOrder') :t('MissionCard.CancelOrder')}}</el-button>
     </div>
     <div class="from-to-info d-flex p-2 m-1">
       <div style="width: 140px;">
@@ -24,11 +15,7 @@
         <div :class="mission.State==1?'executing':''">{{ source }}</div>
       </div>
       <div class="flex-fill">
-        <el-steps
-          style="width:100%;padding-top: 0px; padding-right: 10px;"
-          :active="currentStep"
-          finish-status="success"
-        >
+        <el-steps style="width:100%;padding-top: 0px; padding-right: 10px;" :active="currentStep" finish-status="success">
           <el-step :style=" isCarryOrder?{}: {visibility: 'hidden'}" :title="t('Move')" />
           <el-step :style=" isCarryOrder?{}: {visibility: 'hidden'}" :title="t('Unload')" />
           <el-step :title="t('Move')" />
@@ -214,6 +201,10 @@ const executingVehicleInfo = computed(() => {
   if (!vehicleName.value || vehicleName.value == '') return undefined;
   const vehicleStates = agv_states_store.getters.AGVStatesData;
   return vehicleStates.find(v => v.AGV_Name == vehicleName.value);
+});
+//carrierID
+const carrierID = computed(() => {
+  return props.mission.Carrier_ID == '' ? '' : props.mission.Carrier_ID;
 });
 
 // Lifecycle hooks

@@ -212,6 +212,9 @@ export const agv_states_store = createStore({
     },
     GetAGVEmuParameters: state => (name) => {
       return state.emulationParameters[name]
+    },
+    GetVehicleCurrentBatteryLevel: state => (name) => {
+      return state.agv_states.find(agv => agv.AGV_Name == name)?.BatteryLevel_1 || 0
     }
   },
   mutations: {
@@ -240,6 +243,9 @@ export const agv_states_store = createStore({
     async setCIDAbnormalSimualtion({ commit }, { agvName, isCIDReadFail, isCIDReadMismatch }) {
       await EmuAPI.SetCIDAbnormalSimualtion(agvName, isCIDReadFail, isCIDReadMismatch);
       await this.dispatch('downloadEmulationParameters');
+    },
+    async setBatteryLevelSimulation({ commit }, { agvName, batteryLevel }) {
+      await EmuAPI.SetBatteryLevel(agvName, batteryLevel);
     }
   }
 })
