@@ -72,8 +72,11 @@ export default {
   methods: {
     getCargoExisStateClass(tagNumber, slot) {
       let className = '';
-      if (EqStore.getters.QueryCargoExist(tagNumber, slot))
+      const cargoState = EqStore.getters.QueryCargoStateOfRackPort(tagNumber, slot);
+      if (cargoState.cargoExist)
         className += ' exist-cargo';
+      if (!cargoState.cargoExist && cargoState.cargoID != undefined && cargoState.cargoID != '')
+        className += ' no-cargo-but-id-exist';
       if (TaskStore.getters.AnyOrderAssignTagAndSlot(tagNumber, slot))//TODO 是否有任務的終點或起點是這個儲格
         className += ' port-order-assigned';
       if (EqStore.getters.QueryPortDisabled(tagNumber, slot))
@@ -178,6 +181,9 @@ export default {
     }
     .exist-cargo {
       background-color: var(--map-rack-port-cargo-exist-color);
+    }
+    .no-cargo-but-id-exist {
+      background-color: var(--map-rack-port-no-cargo-but-id-exist-color);
     }
     .port-disable {
       border: 4px solid red;

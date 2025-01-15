@@ -437,8 +437,7 @@ export const EqStore = createStore({
     GetWIPSlotsOptionsByStationTag: state => (tag) => {
       return state.WIPSlotOptions[tag]
     },
-    QueryCargoExist: (state, getters) => (tag, slot) => {
-
+    QueryCargoStateOfRackPort: (state, getters) => (tag, slot) => {
       let _GetEq = (tag) => {
         return state.EQ.find(eq => eq.Tag == tag);
       }
@@ -447,7 +446,10 @@ export const EqStore = createStore({
         return _eq.Port_Exist;
       }
       const rackPort = getters.GetRackPort(tag, slot);
-      return rackPort?.CargoExist || false;
+      return {
+        cargoExist: rackPort?.CargoExist || false,
+        cargoID: rackPort?.CarrierID || ''
+      };
     },
     QueryPortDisabled: (state, getters) => (tag, slot) => {
       const portOption = getters.GetRackPortOption(tag, slot);

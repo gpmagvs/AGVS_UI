@@ -398,7 +398,7 @@ export default {
         case 'system_operation_mode':
           return permission.systemModesOperations.RunModeSwitch == 1;
         case 'transfer_mode':
-          return permission.systemModesOperations.AutoTransferModeSwitch == 1;
+          return userStore.state.user.Role != -1 && permission.systemModesOperations.AutoTransferModeSwitch == 1;
         case 'host_conn_mode':
           return permission.systemModesOperations.HostOnlineSwitch == 1;
         case 'host_operation_mode':
