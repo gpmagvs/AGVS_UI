@@ -173,9 +173,9 @@ export var TaskAllocation = {
   async RedoTask(clsTaskState = new clsTaskState({}), autoSelectVehicle = false) {
     return await CallAPI('/api/Task/ReAssignTask', clsTaskState, `autoSelectVehicle=${autoSelectVehicle}`)
   },
-  async Cancel(taskName) {
+  async Cancel(taskName, reason = "", raiserName = "") {
     try {
-      var ret = await axios_entity.get(`/api/Task/Cancel?task_name=${taskName}`)
+      var ret = await axios_entity.get(`/api/Task/Cancel?task_name=${taskName}&reason=${reason}&raiserName=${raiserName}`)
       return ret.data;
     } catch (err) {
       throw err

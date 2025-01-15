@@ -1,15 +1,6 @@
 <template>
   <div class="forbid-region-edit-drawer">
-    <el-drawer
-      v-model="show"
-      size="35%"
-      :close-on-press-escape="true"
-      :close-on-click-modal="true"
-      @closed="$emit('closed', PathDataEdit)"
-      :show-close="false"
-      :modal="true"
-      modal-class="modal-style"
-    >
+    <el-drawer v-model="show" size="35%" :close-on-press-escape="true" :close-on-click-modal="true" @closed="$emit('closed', PathDataEdit)" :show-close="false" :modal="true" modal-class="modal-style">
       <template #header>
         <div class="header border-bottom">
           <h3>區域設置:{{ region_name }}</h3>
@@ -27,53 +18,20 @@
             </el-select>
           </el-form-item>
           <el-form-item label="進入/等待點">
-            <el-select
-              v-model="RegionData.EnteryTags"
-              multiple
-              placeholder="Select"
-              @change="HandlePropChanged"
-            >
-              <el-option
-                v-for="ptOption in NoramlPointsOptions"
-                :key="ptOption.tag"
-                :label="ptOption.tag+`(${ptOption.name_display})`"
-                :value="ptOption.tag"
-              />
+            <el-select v-model="RegionData.EnteryTags" multiple placeholder="Select" @change="HandlePropChanged">
+              <el-option v-for="ptOption in NoramlPointsOptions" :key="ptOption.tag" :label="ptOption.tag+`(${ptOption.name_display})`" :value="ptOption.tag" />
             </el-select>
           </el-form-item>
           <el-form-item label="路徑僅使用於目的地為">
-            <el-select
-              v-model="RegionData.PathOnlyUseForTagsWhenVehicleFromOutsideRegion"
-              multiple
-              placeholder="Select"
-              @change="HandlePropChanged"
-              clearable
-            >
-              <el-option
-                v-for="ptOption in AllNonVirtualPointsOptions"
-                :key="ptOption.tag"
-                :label="ptOption.tag+`(${ptOption.name_display})`"
-                :value="ptOption.tag"
-              />
+            <el-select v-model="RegionData.PathOnlyUseForTagsWhenVehicleFromOutsideRegion" multiple placeholder="Select" @change="HandlePropChanged" clearable>
+              <el-option v-for="ptOption in AllNonVirtualPointsOptions" :key="ptOption.tag" :label="ptOption.tag+`(${ptOption.name_display})`" :value="ptOption.tag" />
             </el-select>
           </el-form-item>
           <el-form-item label="可容納車輛數">
-            <el-input-number
-              @change="HandlePropChanged"
-              :min="1"
-              :max="20"
-              :step="1"
-              v-model="RegionData.MaxVehicleCapacity"
-            ></el-input-number>
+            <el-input-number @change="HandlePropChanged" :min="1" :max="20" :step="1" v-model="RegionData.MaxVehicleCapacity"></el-input-number>
           </el-form-item>
           <el-form-item label="閒置時停車角度限制">
-            <el-input-number
-              @change="HandlePropChanged"
-              :min="-180"
-              :max="180"
-              :step="0.1"
-              v-model="RegionData.ThetaLimitWhenAGVIdling"
-            ></el-input-number>
+            <el-input-number @change="HandlePropChanged" :min="-180" :max="180" :step="0.1" v-model="RegionData.ThetaLimitWhenAGVIdling"></el-input-number>
           </el-form-item>
           <el-form-item label="窄道區域">
             <el-checkbox @change="HandlePropChanged" v-model="RegionData.IsNarrowPath"></el-checkbox>

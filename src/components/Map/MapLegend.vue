@@ -18,31 +18,16 @@
       <div class="desc">{{ $t('Map.MapLegend.Maintaining') }}</div>
     </div>
 
-    <div
-      class="legend-item-container agv-container"
-      v-for="(item,key) in CustomAGVStyles"
-      :key="key"
-      @click="HandleAGVLedgendClick(key)"
-      @contextmenu.prevent="onContextMenu($event, item)"
-    >
+    <div class="legend-item-container agv-container" v-for="(item,key) in CustomAGVStyles" :key="key" @click="HandleAGVLedgendClick(key)" @contextmenu.prevent="onContextMenu($event, item)">
       <div class="image-icon agv">
         <div class="agv-icon" v-bind:style="{ backgroundColor:item.DisplayColor }"></div>
       </div>
       <div class="desc">{{key}}</div>
     </div>
-    <div
-      v-if="showAgvContextmenu"
-      ref="agv_contextmenu"
-      class="agv-contextmunu border rounded"
-      v-bind:style="contextmunuStyle"
-    >
+    <div v-if="showAgvContextmenu" ref="agv_contextmenu" class="agv-contextmunu border rounded" v-bind:style="contextmunuStyle">
       <div class="header d-flex flex-row border-bottom">
         <span class="flex-fill text-start font-weight-bold">{{ selectedAGVName }}</span>
-        <i
-          style="cursor: pointer; "
-          @click="()=>{showAgvContextmenu=false;}"
-          class="bi bi-x-circle-fill text-danger"
-        ></i>
+        <i style="cursor: pointer; " @click="()=>{showAgvContextmenu=false;}" class="bi bi-x-circle-fill text-danger"></i>
       </div>
       <div class="d-flex flex-column">
         <b-button variant="primary" @click="HandleLockAGVBtnClick">鎖定</b-button>

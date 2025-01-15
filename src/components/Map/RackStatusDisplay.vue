@@ -2,15 +2,7 @@
   <div class="rack-status-display" :style="dynamicStyle">
     <div class="buffer-cargo-exist-container">
       <!-- rack column display -->
-      <div
-        v-for="index in [2,1,0]"
-        :key="`${tagNumber}-${index}`"
-        class="port"
-        v-bind:class="[getCargoExisStateClass(tagNumber,index),index==0?'first-slot':'']"
-        @click="HandleRackPortClicked(tagNumber,index)"
-        @mouseover="HandleRackPortMouseOver(index)  "
-        @mouseleave="HandleRackPortMouseLeave(index)"
-      >
+      <div v-for="index in [2,1,0]" :key="`${tagNumber}-${index}`" class="port" v-bind:class="[getCargoExisStateClass(tagNumber,index),index==0?'first-slot':'']" @click="HandleRackPortClicked(tagNumber,index)" @mouseover="HandleRackPortMouseOver(index)" @mouseleave="HandleRackPortMouseLeave(index)">
         <!-- <div v-if="true" class="port-tooltip" :style="dynamicTooltipStyle"> -->
         <div v-if="isPortHover[index] && !IsRotated" class="port-tooltip" style="z-index: 2323;">
           <div class="tooltip-content">

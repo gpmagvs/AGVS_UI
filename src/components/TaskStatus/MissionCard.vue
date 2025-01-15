@@ -143,7 +143,8 @@ const CancelTaskHandler = (task_name) => {
 
 const SendCancelTaskRequest = async () => {
   try {
-    await TaskAllocation.Cancel(props.mission.TaskName);
+    const canclerName = userStore.state.user.UserName;
+    await TaskAllocation.Cancel(props.mission.TaskName, "Cancel From GUI Cancel Button", canclerName);
   } catch (error) {
     if (error.response?.status === 401) {
       console.error("Unauthorized access. Please log in again.");

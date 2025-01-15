@@ -156,11 +156,23 @@
       <div class="values">BBB</div>
     </div>-->
     <div class="item justify-content-center">
-      <div v-if="IsCarrierIDExist" class="w-100 d-flex justify-content-center">
-        <el-button ref="modify_btn" @click="CstIDEditHandle" type="success">{{ $t('Rack.Edit_ID') }}</el-button>
-        <el-button @click="RemoveCSTID" type="danger">{{ $t('Rack.Remove_ID') }}</el-button>
-      </div>
-      <el-button v-else @click="CstIDEditHandle" class="m-1" type="info">{{ $t('Rack.Creat_ID') }}</el-button>
+      <el-button
+        v-if="IsCarrierIDExist && IsCarrierExist"
+        ref="modify_btn"
+        @click="CstIDEditHandle"
+        type="success"
+      >{{ $t('Rack.Edit_ID') }}</el-button>
+      <el-button
+        v-if="!IsCarrierIDExist && IsCarrierExist"
+        @click="CstIDEditHandle"
+        class="m-1"
+        type="info"
+      >{{ $t('Rack.Creat_ID') }}</el-button>
+      <el-button
+        v-if="IsCarrierIDExist && !IsCarrierExist"
+        @click="RemoveCSTID"
+        type="danger"
+      >{{ $t('Rack.Remove_ID') }}</el-button>
     </div>
 
     <el-dialog
@@ -289,6 +301,9 @@ export default {
     },
     IsCarrierIDExist() {
       return this.port_info.CarrierID && this.port_info.CarrierID != '';
+    },
+    IsCarrierExist() {
+      return this.port_info.CarrierExist;
     },
     ModifyButtonText() {
       return !this.IsCarrierIDExist ? '新增帳籍' : '修改帳籍';

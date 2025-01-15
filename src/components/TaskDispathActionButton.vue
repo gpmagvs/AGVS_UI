@@ -1415,7 +1415,7 @@ export default {
           this.HandleSelectSoureStationFromMapBtnClick();
         }, 1000);
       }
-    }, 3000);
+    }, 1100);
 
   },
   watch: {

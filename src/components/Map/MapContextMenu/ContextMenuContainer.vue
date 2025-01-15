@@ -1,19 +1,11 @@
 <template>
-  <div
-    v-show="show"
-    class="map-context-menu-container border rounded p-3"
-    v-bind:style="locationStyle"
-  >
+  <div v-show="show" class="map-context-menu-container border rounded p-3" v-bind:style="locationStyle">
     <div class="title text-light">{{ getTitle }}</div>
     <MenuForVehicle v-if="useFor=='agv'" :agvName="options.agvName"></MenuForVehicle>
     <MenuForEQStationSelected v-if="useFor=='eq'" :eqTag="stationTag"></MenuForEQStationSelected>
-    <MenuForMultiPointsSelected
-      v-if="useFor=='multi-point'"
-      :selectedFeatures="options.selectedFeatures"
-      @onDelete="()=>{
+    <MenuForMultiPointsSelected v-if="useFor=='multi-point'" :selectedFeatures="options.selectedFeatures" @onDelete="()=>{
         show=false;
-      }"
-    ></MenuForMultiPointsSelected>
+      }"></MenuForMultiPointsSelected>
   </div>
 </template>
 

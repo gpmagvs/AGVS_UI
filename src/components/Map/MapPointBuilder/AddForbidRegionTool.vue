@@ -9,13 +9,11 @@
         <img src="/images/icons8-south-dakota-48.png" />通行區
       </el-radio-button>
       <el-radio-button value="forbid">
-        <img src="/images/icons8-truck-ban-48.png" />
-        禁制區
+        <img src="/images/icons8-truck-ban-48.png" /> 禁制區
       </el-radio-button>
     </el-radio-group>
   </div>
 </template>
-
 <script>
 import { ToolSelect } from './ToolModels';
 import { watch } from 'vue';
@@ -36,7 +34,6 @@ export default {
 
 }
 </script>
-
 <style lang="scss" scoped>
 .add-forbid-region-tool {
   :deep(.el-radio-button .el-radio-button__inner) {

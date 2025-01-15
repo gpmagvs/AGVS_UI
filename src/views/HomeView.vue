@@ -120,7 +120,7 @@
       @onTaskDispatch="() => {
       right_side_tabSelected = 'map';
     }"
-      v-if="IsLogin"
+      v-if="IsDevelopLogin||(IsLogin&&!IsHostRemoteModeNow)"
       @on-click="() => { show_new_dispatch_panel = true }"
     ></TaskDispathActionButton>
     <el-tour v-model="openTour">
@@ -189,6 +189,9 @@ export default {
     IsOpUsing() {
       return userStore.getters.IsOPLogining;
     },
+    IsDevelopLogin() {
+      return userStore.state.user.Role == 2 || userStore.state.user.Role == 3;
+    },
     InCompletedTaskNumber() {
       return TaskStore.state.IncompletedTaskListData.length;
     },
@@ -197,6 +200,9 @@ export default {
     },
     IsAnyVehicleStatusDown() {
       return agv_states_store.state.agv_states.some(state => state.MainStatus == 3);
+    },
+    IsHostRemoteModeNow() {
+      return agvs_settings_store.state.sys_settings.operations.host_remote_mode;
     }
   },
   data() {

@@ -1,15 +1,6 @@
 <template>
   <div class="map-path-editor">
-    <el-drawer
-      v-model="show"
-      size="35%"
-      :close-on-press-escape="true"
-      :close-on-click-modal="true"
-      @closed="$emit('closed', PathDataEdit)"
-      :show-close="false"
-      :modal="true"
-      modal-class="modal-style"
-    >
+    <el-drawer v-model="show" size="35%" :close-on-press-escape="true" :close-on-click-modal="true" @closed="$emit('closed', PathDataEdit)" :show-close="false" :modal="true" modal-class="modal-style">
       <template #header>
         <div class="header border-bottom text-start">
           <h3>路徑設定:{{ StartPointTagNumber }}->{{ EndPointTagNumber }}</h3>
