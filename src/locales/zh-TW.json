@@ -201,7 +201,8 @@
     "Duration": "持續時間(s)",
     "Clear_OP": "清除警報人員",
     "Solution": "排除方法",
-    "FailureReason": "異常描述"
+    "FailureReason": "異常描述",
+    "AGV_Name": "AGV名稱"
   },
   "Rack": {
     "Creat_ID": "新增帳籍",

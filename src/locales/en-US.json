@@ -199,7 +199,8 @@
     "Duration": "Duration",
     "Clear_OP": "Clear OP",
     "Solution": "Solution",
-    "FailureReason": "Failure Reason"
+    "FailureReason": "Failure Reason",
+    "AGV_Name": "AGV Name"
   },
   "Rack": {
     "Creat_ID": "Creat ID",
