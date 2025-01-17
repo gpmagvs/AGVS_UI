@@ -184,7 +184,8 @@
     "AGVReadID": "AGV Read ID",
     "Reassign": "Re-Assign",
     "AutoSelectVehicle": "Auto Select Vehicle",
-    "Vehicle": "Vehicle"
+    "Vehicle": "Vehicle",
+    "SearchSourceDestine": "Source & Destine"
   },
   "AlarmTable": {
     "Time": "Time",

@@ -186,7 +186,8 @@
     "Reassign": "重新執行",
     "AutoSelectVehicle": "自動選車",
     "HighestPriorityTask": "最優先任務",
-    "Vehicle": "車輛"
+    "Vehicle": "車輛",
+    "SearchSourceDestine": "起終點搜尋"
   },
   "AlarmTable": {
     "Time": "時間",
