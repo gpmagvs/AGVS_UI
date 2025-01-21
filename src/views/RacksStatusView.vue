@@ -1,8 +1,9 @@
 <template>
   <div class="rack-status-view custom-tabs-head p-1">
     <div class="display-mode-container text-start border-bottom my-1 py-1">
+      <el-button link type="primary" :disabled="!Permission" @click="showLowLevelSettingDrawer = true">低水位提醒設置</el-button>
       <span class="px-2 text-primary">
-        <b>{{$t('Display Mode')}}</b>
+        <b>{{ $t('Display Mode') }}</b>
       </span>
       <el-select class="mx-2" v-model="display" style="width:120px">
         <el-option :label="$t('Tabs')" value="tabs"></el-option>
@@ -10,23 +11,16 @@
       </el-select>
     </div>
     <!-- {{ GroupedWipData }} -->
-    <b-tabs v-if="display=='tabs'">
+    <b-tabs v-if="display == 'tabs'">
       <b-tab v-for="zone in GroupedWipData" :key="zone.zoneName">
         <template #title>
-          <span>{{zone.zoneName}}</span>
-          <el-badge class="mx-2" type="warning" :value="IsHasDataButNoCargo(zone.zoneName)?'!':''"></el-badge>
+          <span>{{ zone.zoneName }}</span>
+          <el-badge class="mx-2" type="warning" :value="IsHasDataButNoCargo(zone.zoneName) ? '!' : ''"></el-badge>
         </template>
         <div class="d-flex flex-row">
           <b>{{ $t('Rack.Cargo_Spaces') }}</b>
           <div class="flex-fill p-2">
-            <el-progress
-              :stroke-width="18"
-              :percentage="zone.level"
-              text-inside
-              striped
-              striped-flow
-              :duration="500"
-            >
+            <el-progress :stroke-width="18" :percentage="zone.level" text-inside striped striped-flow :duration="500">
               <span>{{ zone.hasCstPortNum }}/{{ zone.totalPorts }}</span>
             </el-progress>
           </div>
@@ -49,14 +43,7 @@
         <div class="d-flex flex-row">
           <b>{{ $t('Rack.Cargo_Spaces') }}</b>
           <div class="flex-fill">
-            <el-progress
-              :stroke-width="18"
-              :percentage="zone.level"
-              text-inside
-              striped
-              striped-flow
-              :duration="500"
-            >
+            <el-progress :stroke-width="18" :percentage="zone.level" text-inside striped striped-flow :duration="500">
               <span>{{ zone.hasCstPortNum }}/{{ zone.totalPorts }}</span>
             </el-progress>
           </div>
@@ -68,18 +55,24 @@
         </div>
       </div>
     </div>
+    <el-drawer v-model="showLowLevelSettingDrawer" title="低水位提醒設置" size="50%">
+      <ZoneLowLevelNotifySetting :opened="showLowLevelSettingDrawer"></ZoneLowLevelNotifySetting>
+    </el-drawer>
   </div>
 </template>
 <script>
 import RackStatus from '@/components/RacksStatusView/RackStatus.vue'
-import { EqStore } from '@/store'
+import ZoneLowLevelNotifySetting from '@/components/RacksStatusView/ZoneLowLevelNotifySetting.vue'
+import { EqStore, userStore } from '@/store'
 export default {
   components: {
     RackStatus,
+    ZoneLowLevelNotifySetting
   },
   data() {
     return {
-      display: 'div'//div
+      display: 'div',//div,
+      showLowLevelSettingDrawer: false,
     }
   },
   computed: {
@@ -118,6 +111,9 @@ export default {
 
       const deviceIDList = [...new Set(wipDatas.map(rack => rack.DeviceID))];
       return deviceIDList.map(id => GetZoneData(id))
+    },
+    Permission() {
+      return userStore.state.user.Role > 1;
     }
   },
   watch: {

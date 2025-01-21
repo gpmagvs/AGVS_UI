@@ -48,3 +48,16 @@ export async function PortNoRename(wipName, portID, newPortNo) {
     var ret = await axios_entity.post(`/api/WIP/PortNoRename?WIPID=${wipName}&PortID=${portID}&NewPortNo=${newPortNo}`)
     return ret.data;
 }
+
+/**取得低水位提醒設置 */
+export async function GetZoneLowLevelNotifySetting() {
+    var ret = await axios_entity.get(`/api/WIP/LowLevelNotifyOptions`)
+    return ret.data;
+}
+
+/**設定低水位提醒設置 */
+export async function SetZoneLowLevelNotifySetting(data) {
+    var ret = await axios_entity.post(`/api/WIP/LowLevelNotifyOptions`, data)
+    return ret.data;
+}
+
