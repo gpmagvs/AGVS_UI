@@ -1,42 +1,24 @@
 <template>
   <div class="home-view h-100" v-loading="loading">
-    <div
-      v-bind:style="{
+    <div v-bind:style="{
       visibility: isEasyMode ? 'hidden' : 'visible'
-    }"
-      class="d-flex flex-row"
-    >
+    }" class="d-flex flex-row">
       <div v-show="MenuExpanded" class="left-col border-right left-panel">
         <!-- <Header v-if="IsOpUsing"></Header> -->
         <b-card no-body class="p-1 bg-light h-100">
           <b-tabs pills v-model="selectTab">
             <b-tab title="Vehicles">
               <template #title>
-                <el-badge
-                  v-if="IsAnyVehicleLowBattery||IsAnyVehicleStatusDown"
-                  value="!"
-                  :max-value="99"
-                  class="item"
-                  :offset="[10,0]"
-                >
+                <el-badge v-if="IsAnyVehicleLowBattery||IsAnyVehicleStatusDown" value="!" :max-value="99" class="item" :offset="[10,0]">
                   <span>{{ $t('HomeView.Vehicles') }}</span>
                 </el-badge>
                 <span v-else>{{ $t('HomeView.Vehicles') }}</span>
               </template>
-              <AGVStatusVue
-                DisplayMode="cards"
-                @taskIDClicked="(taskid)=>handleTaskIDClicked(taskid)"
-              ></AGVStatusVue>
+              <AGVStatusVue DisplayMode="cards" @taskIDClicked="(taskid)=>handleTaskIDClicked(taskid)"></AGVStatusVue>
             </b-tab>
             <b-tab title="Missions">
               <template #title>
-                <el-badge
-                  v-if="InCompletedTaskNumber>0"
-                  :value="InCompletedTaskNumber"
-                  :max-value="99"
-                  class="item"
-                  :offset="[10,0]"
-                >
+                <el-badge v-if="InCompletedTaskNumber>0" :value="InCompletedTaskNumber" :max-value="99" class="item" :offset="[10,0]">
                   <span>{{ $t('HomeView.Missions') }}</span>
                 </el-badge>
                 <span v-else>{{ $t('HomeView.Missions') }}</span>
@@ -49,23 +31,18 @@
           </b-tabs>
         </b-card>
       </div>
-      <div
-        v-bind:style=" IsOpUsing? {
+      <div v-bind:style=" IsOpUsing? {
         width: '0px',
         visibility: 'hidden'  
         }: {
         width: '25px',
-      }"
-        class="resizer text-primary d-flex flex-column"
-      >
+      }" class="resizer text-primary d-flex flex-column">
         <div class="menu-icon">
           <el-icon v-if="!MenuExpanded">
             <MenuExpandIcon @click="() => { MenuExpanded = true; RestoreSizeOfRightSide() }" />
           </el-icon>
           <el-icon v-else>
-            <MenuFoldIcon
-              @click="() => { MenuExpanded = false; AdjustSizeOfRightSideFullPage(); }"
-            />
+            <MenuFoldIcon @click="() => { MenuExpanded = false; AdjustSizeOfRightSideFullPage(); }" />
           </el-icon>
         </div>
         <div class="flex-fill d-flex flex-column justify-content-center">
@@ -91,16 +68,13 @@
       </div>
       <TaskAllocationVue></TaskAllocationVue>
     </div>
-    <div
-      v-bind:style="{
+    <div v-bind:style="{
       visibility: isEasyMode ? 'visible' : 'hidden',
       position: 'absolute',
       top: '70px',
       width: '100%',
       height: '82vh'
-    }"
-      class="easy_mode d-flex"
-    >
+    }" class="easy_mode d-flex">
       <div>
         <AGVStatusVue :IsEasyMode="true"></AGVStatusVue>
       </div>
@@ -108,21 +82,10 @@
         <HomeMap id="homemap-easymode"></HomeMap>
       </div>
     </div>
-    <TaskDispatchNewUI
-      class="new-dispatch-pnl"
-      v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'"
-      @close="() => { show_new_dispatch_panel = false }"
-      v-show="show_new_dispatch_panel"
-    ></TaskDispatchNewUI>
-    <TaskDispathActionButton
-      ref="task-dispatch-action-btn"
-      class="fixed-bottom"
-      @onTaskDispatch="() => {
+    <TaskDispatchNewUI class="new-dispatch-pnl" v-bind:class="show_new_dispatch_panel ? 'dispatch-show' : 'hide'" @close="() => { show_new_dispatch_panel = false }" v-show="show_new_dispatch_panel"></TaskDispatchNewUI>
+    <TaskDispathActionButton ref="task-dispatch-action-btn" class="fixed-bottom" @onTaskDispatch="() => {
       right_side_tabSelected = 'map';
-    }"
-      v-if="IsDevelopLogin||(IsLogin&&!IsHostRemoteModeNow)"
-      @on-click="() => { show_new_dispatch_panel = true }"
-    ></TaskDispathActionButton>
+    }" v-if="IsLogin" @on-click="() => { show_new_dispatch_panel = true }"></TaskDispathActionButton>
     <el-tour v-model="openTour">
       <el-tour-step target="#dispatch-btn" title="按一下開始任務派送" description="Put you files here." />
       <el-tour-step :target="el" title="Save" description="Save your changes" />

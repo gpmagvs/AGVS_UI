@@ -11,18 +11,10 @@
             <el-col :lg="8" class="border px-5">
               <div class="w-100">
                 <h3 class="text-start text-danger border-bottom my-3">SECS Config設定</h3>
-                <el-form
-                  label-position="left"
-                  label-width="320px"
-                  style="max-height: 70vh; overflow-y: auto;"
-                >
+                <el-form label-position="left" label-width="320px" style="max-height: 70vh; overflow-y: auto;">
                   <template v-for="(value, key) in configuration.baseConfiguration" :key="key">
                     <el-form-item :label="'-' + $t(`secsGem.${key}`)">
-                      <el-input
-                        v-model="configuration.baseConfiguration[key]"
-                        :controls="false"
-                        style="text-align: center !important"
-                      ></el-input>
+                      <el-input v-model="configuration.baseConfiguration[key]" :controls="false" style="text-align: center !important"></el-input>
                     </el-form-item>
                   </template>
                 </el-form>
@@ -42,22 +34,10 @@
             <el-col :lg="8" class="border px-5">
               <div class="w-100">
                 <h3 class="text-start text-danger border-bottom my-3">Transfer Complete Result Code</h3>
-                <el-form
-                  label-position="left"
-                  label-width="320px"
-                  style="max-height: 70vh; overflow-y: auto;"
-                >
-                  <template
-                    v-for="(value, key) in configuration.transferReportConfiguration.ResultCodes"
-                    :key="key"
-                  >
+                <el-form label-position="left" label-width="320px" style="max-height: 70vh; overflow-y: auto;">
+                  <template v-for="(value, key) in configuration.transferReportConfiguration.ResultCodes" :key="key">
                     <el-form-item :label="'-' + $t(`secsGem.${key.replace('ResultCode', '')}`)">
-                      <el-input-number
-                        v-model="configuration.transferReportConfiguration.ResultCodes[key]"
-                        :min="0"
-                        :max="999"
-                        :controls="false"
-                      ></el-input-number>
+                      <el-input-number v-model="configuration.transferReportConfiguration.ResultCodes[key]" :min="0" :max="999" :controls="false"></el-input-number>
                     </el-form-item>
                   </template>
                 </el-form>
@@ -159,7 +139,7 @@ export default {
               confirmButtonText: 'OK',
               customClass: 'my-sweetalert'
             })
-          return;
+          //return;
         }
         let response = await SaveReturnCodeSetting({
           transferCompletedResultCodes: this.configuration.transferReportConfiguration.ResultCodes

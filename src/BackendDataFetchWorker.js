@@ -137,6 +137,13 @@ async function StartHubsConnection() {
     agvsHubConnection.on('DatabaseState', dataDto => {
         store.commit('updateDatabaseState', dataDto);
     })
+    agvsHubConnection.on('RackPortStatusAbnormalNotify', dataDto => {
+        //store.commit('updateDatabaseState', dataDto);
+    })
+    //ZoneUsableCarrierNotEnoughNotify
+    agvsHubConnection.on('ZoneUsableCarrierNotEnoughNotify', message => {
+        bus.emit('ZoneUsableCarrierNotEnoughNotify', message);
+    })
     vmsHubConnection.on("ReceiveData", (user, data) => {
         StoreVMSData(data);
     });
