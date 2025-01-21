@@ -6,32 +6,20 @@
       <label>{{ $t('Search.End_Time') }}</label>
       <input type="datetime-local" v-model="queryCondition.EndTime" prop="End Time" />
       <label>{{ $t('TaskTable.TaskName') }}</label>
-      <el-input
-        v-model="queryCondition.TaskName"
-        placeholder="ALL"
-        style="width:220px"
-        clearable
-        @clear="TaskQuery()"
-      />
-      <label>{{ $t('TaskTable.EQ_Name') }}</label>
-      <el-select
-        prop="EQ Name"
-        v-model="queryCondition.AgvName"
-        clearable
-        @clear="TaskQuery()"
-        style="width:120px"
-      >
+      <el-input v-model="queryCondition.TaskName" placeholder="ALL" style="width:160px" clearable
+        @clear="TaskQuery()" />
+      <label>{{ $t('TaskTable.SearchSourceDestine') }}</label>
+      <el-input v-model="queryCondition.Source" placeholder clearable style="width:120px"
+        @clear="TaskQuery()"></el-input>
+      <label>{{ $t('TaskTable.AGV_Name') }}</label>
+      <el-select prop="EQ Name" v-model="queryCondition.AgvName" clearable @clear="TaskQuery()" style="width:120px">
         <el-option label="ALL" value>ALL</el-option>
         <el-option v-for="name in AgvNameList" :key="name" :label="name" :value="name"></el-option>
       </el-select>
+
+
       <label>{{ $t('TaskTable.Action') }}</label>
-      <el-select
-        prop="EQ Name"
-        v-model="queryCondition.ActionType"
-        clearable
-        @clear="TaskQuery()"
-        style="width:120px"
-      >
+      <el-select prop="EQ Name" v-model="queryCondition.ActionType" clearable @clear="TaskQuery()" style="width:120px">
         <el-option :value="actionTypeList.Unknown" label="ALL"></el-option>
         <el-option :value="actionTypeList.None" :label="$t('Search.Move')"></el-option>
         <el-option :value="actionTypeList.Unload" :label="$t('Search.Load')"></el-option>
@@ -42,12 +30,7 @@
         <el-option :value="actionTypeList.ExchangeBattery" :label="$t('Search.ExchangeBattrey')"></el-option>
       </el-select>
       <label>{{ $t('TaskTable.Final') }}</label>
-      <el-select
-        v-model="queryCondition.TaskResult"
-        clearable
-        @clear="TaskQuery()"
-        style="width:120px"
-      >
+      <el-select v-model="queryCondition.TaskResult" clearable @clear="TaskQuery()" style="width:120px">
         <el-option :value="taskResultList.UNKNOWN" label="ALL"></el-option>
         <el-option :value="taskResultList.ACTION_FINISH" :label="$t('Search.Completed')"></el-option>
         <el-option :value="taskResultList.FAILURE" :label="$t('Search.Fail')"></el-option>
@@ -61,138 +44,55 @@
       </select>-->
       <label>{{ $t('TaskTable.FailureReason') }}</label>
       <!-- <input type="text" v-model="Fail_reason" placeholder="ALL" size="20" /> -->
-      <el-input
-        v-model="queryCondition.Description"
-        placeholder
-        clearable
-        style="width:120px"
-        @clear="TaskQuery()"
-      ></el-input>
-      <b-button
-        @click="TaskQuery()"
-        :TaskQuery="TaskQuery"
-        class="Select-Query"
-        variant="primary mx-1"
-        size="sm"
-        style="float:right"
-      >{{ $t('Search.Search') }}</b-button>
-      <b-button
-        @click="SaveTocsv()"
-        :SaveTocsv="SaveTocsv"
-        class="SaveTocsv mx-2"
-        variant="primary"
-        size="sm"
-        style="float:right"
-      >{{ $t('Search.Output_csv_file') }}</b-button>
+      <el-input v-model="queryCondition.Description" placeholder clearable style="width:120px"
+        @clear="TaskQuery()"></el-input>
+      <b-button @click="TaskQuery()" :TaskQuery="TaskQuery" class="Select-Query" variant="primary mx-1" size="sm"
+        style="float:right">{{ $t('Search.Search') }}</b-button>
+      <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm"
+        style="float:right">{{ $t('Search.Output_csv_file') }}</b-button>
 
-      <b-button
-        v-show="isDevLogin"
-        @click="HandleExportToAutoRptFolder()"
-        :SaveTocsv="SaveTocsv"
-        class="SaveTocsv mx-2"
-        variant="danger"
-        size="sm"
-        style="float:right"
-      >輸出至自動匯出目錄</b-button>
+      <b-button v-show="isDevLogin" @click="HandleExportToAutoRptFolder()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2"
+        variant="danger" size="sm" style="float:right">輸出至自動匯出目錄</b-button>
     </div>
     <div class="flex-grow-1 overflow-y-auto" style="padding-bottom: 80px;">
-      <el-table
-        v-loading="loading"
-        :data="tasks"
-        empty-text="No Tasks"
-        row-class-name="row_state_class_name"
-        size="small"
-        style="width: 100%;font-weight: bold;"
-        border
-        id="Tasktable"
-      >
-        <el-table-column
-          :label="$t('TaskTable.TaskName')"
-          prop="TaskName"
-          width="280"
-          show-overflow-tooltip
-        >
+      <el-table v-loading="loading" :data="tasks" empty-text="No Tasks" row-class-name="row_state_class_name"
+        size="small" style="width: 100%;font-weight: bold;" border id="Tasktable">
+        <el-table-column :label="$t('TaskTable.TaskName')" prop="TaskName" width="280" show-overflow-tooltip>
           <template #default="scope">
             <div>
               {{ scope.row.TaskName }}
               <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-                <i
-                  @click="CopyText(scope.row.TaskName)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i @click="CopyText(scope.row.TaskName)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.RecievedTime')"
-          prop="RecieveTime"
-          width="160"
-          show-overflow-tooltip
-        >
+        <el-table-column :label="$t('TaskTable.RecievedTime')" prop="RecieveTime" width="160" show-overflow-tooltip>
           <template #default="scope">{{ formatTime(scope.row.RecieveTime) }}</template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.FinishTime')"
-          prop="FinishTime"
-          width="160"
-          show-overflow-tooltip
-        >
+        <el-table-column :label="$t('TaskTable.FinishTime')" prop="FinishTime" width="160" show-overflow-tooltip>
           <template #default="scope">{{ formatTime(scope.row.FinishTime) }}</template>
         </el-table-column>
         <el-table-column :label="$t('TaskTable.Final')" prop="StateName" width="100" align="center">
           <template #default="scope">
-            <el-tag
-              effect="dark"
-              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'"
-            >
+            <el-tag effect="dark"
+              :type="scope.row.State == 4 ? 'success' : scope.row.State == 6 ? 'danger' : 'warning'">
               {{
-              scope.row.StateName }}
+        scope.row.StateName }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.AGV_Name')"
-          prop="DesignatedAGVName"
-          width="100"
-          align="center"
-          :filters="getAGVListFilter"
-          :filter-method="filterAGVName"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Action')"
-          prop="ActionName"
-          width="60"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Source')"
-          prop="From_Station_Display"
-          width="120"
-          align="center"
-          show-overflow-tooltip
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Source_Slot')"
-          prop="From_Slot"
-          width="120"
-          align="center"
-        >
+        <el-table-column :label="$t('TaskTable.AGV_Name')" prop="DesignatedAGVName" width="100" align="center"
+          :filters="getAGVListFilter" :filter-method="filterAGVName"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Action')" prop="ActionName" width="60" align="center"></el-table-column>
+        <el-table-column :label="$t('TaskTable.Source')" prop="From_Station_Display" width="120" align="center"
+          show-overflow-tooltip></el-table-column>
+        <el-table-column :label="$t('TaskTable.Source_Slot')" prop="From_Slot" width="120" align="center">
           <template #default="scope">{{ scope.row.From_Slot == -1 ? '-' : scope.row.From_Slot }}</template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Destine')"
-          prop="To_Station_Display"
-          width="120"
-          align="center"
-          show-overflow-tooltip
-        ></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Destine_Slot')"
-          prop="To_Slot"
-          width="120"
-          align="center"
-        >
+        <el-table-column :label="$t('TaskTable.Destine')" prop="To_Station_Display" width="120" align="center"
+          show-overflow-tooltip></el-table-column>
+        <el-table-column :label="$t('TaskTable.Destine_Slot')" prop="To_Slot" width="120" align="center">
           <template #default="scope">{{ scope.row.To_Slot == -1 ? '-' : scope.row.To_Slot }}</template>
         </el-table-column>
         <el-table-column :label="$t('TaskTable.CstID')" prop="Carrier_ID" width="140">
@@ -200,30 +100,19 @@
             <div>
               {{ scope.row.Carrier_ID == '-1' ? '' : scope.row.Carrier_ID }}
               <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-                <i
-                  v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
-                  @click="CopyText(scope.row.Carrier_ID)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i v-if="scope.row.Carrier_ID != '-1' && scope.row.Carrier_ID != ''"
+                  @click="CopyText(scope.row.Carrier_ID)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
         </el-table-column>
-        <el-table-column
-          v-if="false"
-          :label="$t('TaskTable.AGVReadID')"
-          prop="Actual_Carrier_ID"
-          width="140"
-        >
+        <el-table-column v-if="false" :label="$t('TaskTable.AGVReadID')" prop="Actual_Carrier_ID" width="140">
           <template #default="scope">
             <div>
               {{ scope.row.Actual_Carrier_ID == '-1' ? '' : scope.row.Actual_Carrier_ID }}
               <el-tooltip placement="top-start" :content="$t('Rack.copy')">
-                <i
-                  v-if="scope.row.Actual_Carrier_ID != '-1' && scope.row.Actual_Carrier_ID != ''"
-                  @click="CopyText(scope.row.Actual_Carrier_ID)"
-                  class="copy-button copy-icon bi bi-clipboard"
-                ></i>
+                <i v-if="scope.row.Actual_Carrier_ID != '-1' && scope.row.Actual_Carrier_ID != ''"
+                  @click="CopyText(scope.row.Actual_Carrier_ID)" class="copy-button copy-icon bi bi-clipboard"></i>
               </el-tooltip>
             </div>
           </template>
@@ -234,58 +123,35 @@
         <el-table-column :label="$t('TaskTable.LoadTime')" prop="RecieveTime" width="160">
           <template #default="scope">{{ formatTime(scope.row.LoadTime) }}</template>
         </el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.StartLocation')"
-          prop="StartLocationDisplay"
-          width="160"
-        ></el-table-column>
+        <el-table-column :label="$t('TaskTable.StartLocation')" prop="StartLocationDisplay"
+          width="160"></el-table-column>
         <el-table-column :label="$t('TaskTable.Dispatcher')" prop="DispatcherName" width="100"></el-table-column>
-        <el-table-column
-          :label="$t('TaskTable.Fail_reason')"
-          prop="FailureReason"
-          min-width="220"
-          show-overflow-tooltip
-          fixed="right"
-        >
+        <el-table-column :label="$t('TaskTable.Fail_reason')" prop="FailureReason" min-width="220" show-overflow-tooltip
+          fixed="right">
           <template #default="scope">
             <div class="text-danger">
               <div v-for="alarm in scope.row.FailureReason.split(',')" :key="alarm">{{ alarm }}</div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column
-          :min-width="isDevLogin ? 220 : 120"
-          v-if="isDevLogin||isEngUserLogin"
-          label="Action"
-          fixed="right"
-        >
+        <el-table-column :min-width="isDevLogin ? 220 : 120" v-if="isDevLogin || isEngUserLogin" label="Action"
+          fixed="right">
           <template #default="scope">
             <div class="w-100">
               <b-button class="mx-1" variant="primary" squared @click="ShowLocus(scope.row)">軌跡</b-button>
-              <b-button
-                v-if="isDevLogin"
-                variant="danger"
-                squared
-                @click="DeleteTaskHandle(scope.row)"
-              >Delete</b-button>
+              <b-button v-if="isDevLogin" variant="danger" squared
+                @click="DeleteTaskHandle(scope.row)">Delete</b-button>
             </div>
           </template>
         </el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center fixed-bottom" style="margin-bottom: 3px;">
-        <b-pagination
-          :per-page="per_page_num"
-          :total-rows="rows"
-          aria-controls="Tasktable"
-          class="pagination justify-content-center"
-          v-model="queryCondition.CurrentPage"
-          @click="handlePageChange"
-        ></b-pagination>
+        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="Tasktable"
+          class="pagination justify-content-center" v-model="queryCondition.CurrentPage"
+          @click="handlePageChange"></b-pagination>
         <div class="mx-3">
           {{ $t('Search.Total_First') }}
-          <span
-            style="font-weight: bold; font-size: large;"
-          >{{ rows }}</span>
+          <span style="font-weight: bold; font-size: large;">{{ rows }}</span>
           <span>,成功:{{ completeNum }},失敗:{{ failNum }},取消:{{ cancelNum }}</span>
         </div>
       </div>
@@ -319,6 +185,8 @@ export default {
       completeNum: 0,
       failNum: 0,
       cancelNum: 0,
+      Source: '',
+      Destine: '',
     }
   },
   computed: {
@@ -344,6 +212,23 @@ export default {
       return [
         ...uniqueAgvList.map(agv => ({ text: agv, value: agv })),
       ]
+    },
+    SourceList() {
+      const sourceList = this.tasks.map(task => task.From_Station_Display || ""); // 提取 Source 欄位
+      return [...new Set(sourceList)].filter(Boolean).sort(); // 過濾空值並排序
+    },
+    DestineList() {
+      const destineList = this.tasks.map(task => task.To_Station_Display || ""); // 提取 Destine 欄位
+      return [...new Set(destineList)].filter(Boolean).sort(); // 過濾空值並排序
+    },
+    FilterSourceandDestine() {
+      const keyword = this.queryCondition.TaskName.toLowerCase(); // 獲取輸入的篩選字串
+      return this.tasks.filter(task => {
+        // 模糊匹配 Source 和 Destine 欄位
+        const source = task.From_Station_Display?.toLowerCase() || '';
+        const destine = task.To_Station_Display?.toLowerCase() || '';
+        return source.includes(keyword) || destine.includes(keyword);
+      });
     }
   },
   mounted() {
@@ -455,6 +340,7 @@ export default {
   padding: 0px;
   height: 100%;
   overflow-y: auto;
+
   .Task-options {
     label {
       margin: auto 10px;
