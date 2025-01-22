@@ -13,9 +13,7 @@
         <label v-else class="port-no-display">{{ PortNameDisplay }}</label>
       </span>
       <div v-show="AnySensorFlash" class="text-danger bg-light w-100 text-start" style=" max-height: 0;  position: relative;left:3px;top:0px;">
-        <i class="bi bi-exclamation"></i>
-        {{
-        $t('Rack.Sensor_Flash') }}
+        <i class="bi bi-exclamation"></i> {{ $t('Rack.Sensor_Flash') }}
       </div>
       <div v-if="IsUserLoginAndPermissionAboveOP" class="px-2">
         <el-switch :active-text="$t('Enable')" :inactive-text="$t('Disable')" :active-value="1" :inactive-value="0" inactive-color="rgb(146, 148, 153)" v-model="port_info.Properties.PortUsable" :before-change="HandlePortUsableSwitchClicked"></el-switch>
@@ -57,7 +55,6 @@
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
-
     <!--  -->
     <div class="item" v-if="!IsOvenAsRacks && port_info.Properties.HasTrayDirectionSensor && (port_info.Properties.CargoTypeStore == 2 || port_info.Properties.CargoTypeStore == 1)">
       <div class="title">{{ $t('TrayDirection') }}</div>
@@ -66,16 +63,11 @@
       </div>
       <!-- <div class="values">{{ port_info.CstExist }}</div> -->
     </div>
-
     <!--  -->
     <div class="item" v-if="IsOvenAsRacks">
       <div class="title">{{ $t('RackPort.CarrierExist') }}</div>
       <div class="values">
-        <el-tag size="large" effect="dark" :type="port_info.CarrierExist ? 'success' : 'danger'">
-          {{
-          port_info.CarrierExist ?
-          $t('RackPort.HasCargo') : $t('RackPort.NoCargo') }}
-        </el-tag>
+        <el-tag size="large" effect="dark" :type="port_info.CarrierExist ? 'success' : 'danger'"> {{ port_info.CarrierExist ? $t('RackPort.HasCargo') : $t('RackPort.NoCargo') }} </el-tag>
       </div>
     </div>
     <div class="item" v-if="IsOvenAsRacks">
@@ -106,7 +98,6 @@
       <el-button v-if="!IsCarrierIDExist && IsCarrierExist" @click="CstIDEditHandle" class="m-1" type="info">{{ $t('Rack.Creat_ID') }}</el-button>
       <el-button v-if="IsCarrierIDExist && !IsCarrierExist" @click="RemoveCSTID" type="danger">{{ $t('Rack.Remove_ID') }}</el-button>
     </div>
-
     <el-dialog v-model="showPortNoRenameDialog" :title="`Port No Rename: ${port_info.Properties.ID}`" width="30%" draggable :close-on-click-modal="false" :modal="false">
       <el-form label-position="top">
         <el-form-item label="Current Port No:">
@@ -114,10 +105,10 @@
         </el-form-item>
         <el-form-item label="New Port No:" required>
           <el-input v-model="newPortNo" placeholder="Enter new port number" autofocus ref="portNoInput" :rules="[
-    { required: true, message: 'Port number is required' },
-    { pattern: /^[A-Za-z0-9-_]+$/, message: 'Only letters, numbers, hyphens and underscores allowed' },
-    { min: 1, max: 20, message: 'Length must be between 1-20 characters' }
-  ]"></el-input>
+            { required: true, message: 'Port number is required' },
+            { pattern: /^[A-Za-z0-9-_]+$/, message: 'Only letters, numbers, hyphens and underscores allowed' },
+            { min: 1, max: 20, message: 'Length must be between 1-20 characters' }
+          ]"></el-input>
         </el-form-item>
       </el-form>
       <div class="dialog-footer">
@@ -212,6 +203,8 @@ export default {
       return 'empty-port'
     },
     UsableStateClass() {
+      if (this.port_info.disabledTempotary)
+        return 'port-not-usable-temportary'
       return this.port_info.Properties.PortUsable == 1 ? 'port-usable' : 'port-not-usable';
     },
     PortNameDisplay() {
@@ -514,5 +507,9 @@ export default {
 
 .port-not-usable {
   border: 6px solid red;
+}
+
+.port-not-usable-temportary {
+  border: 4px dashed rgb(253, 138, 6);
 }
 </style>

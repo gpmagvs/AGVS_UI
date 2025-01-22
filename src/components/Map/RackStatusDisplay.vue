@@ -2,25 +2,25 @@
   <div class="rack-status-display" :style="dynamicStyle">
     <div class="buffer-cargo-exist-container">
       <!-- rack column display -->
-      <div v-for="index in [2,1,0]" :key="`${tagNumber}-${index}`" class="port" v-bind:class="[getCargoExisStateClass(tagNumber,index),index==0?'first-slot':'']" @click="HandleRackPortClicked(tagNumber,index)" @mouseover="HandleRackPortMouseOver(index)" @mouseleave="HandleRackPortMouseLeave(index)">
+      <div v-for="index in [2, 1, 0]" :key="`${tagNumber}-${index}`" class="port" v-bind:class="[getCargoExisStateClass(tagNumber, index), index == 0 ? 'first-slot' : '']" @click="HandleRackPortClicked(tagNumber, index)" @mouseover="HandleRackPortMouseOver(index)"
+        @mouseleave="HandleRackPortMouseLeave(index)">
         <!-- <div v-if="true" class="port-tooltip" :style="dynamicTooltipStyle"> -->
         <div v-if="isPortHover[index] && !IsRotated" class="port-tooltip" style="z-index: 2323;">
           <div class="tooltip-content">
             <div>Cargo ID:</div>
-            <el-button :loading="cargoIdLoading" text class="text-primary">{{displayCargoID}}</el-button>
+            <el-button :loading="cargoIdLoading" text class="text-primary">{{ displayCargoID }}</el-button>
           </div>
         </div>
         <div v-if="isPortHover[index] && IsRotated" :style="dynamicTooltipStyle">
           <div class="tooltip-content" :style="dynamicToolTipContentStyle">
             <div>Cargo ID:</div>
-            <el-button :loading="cargoIdLoading" text class="text-primary">{{displayCargoID}}</el-button>
+            <el-button :loading="cargoIdLoading" text class="text-primary">{{ displayCargoID }}</el-button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import store, { EqStore, TaskStore } from '@/store';
 import bus from '@/event-bus.js';
@@ -73,6 +73,8 @@ export default {
         className += ' port-order-assigned';
       if (EqStore.getters.QueryPortDisabled(tagNumber, slot))
         className += ' port-disable';
+      if (EqStore.getters.QueryPortDisabledTempotary(tagNumber, slot))
+        className += ' port-not-usable-temportary';
       return className;
     },
     HandleRackPortClicked(tag, slot) {
@@ -149,55 +151,69 @@ export default {
   }
 }
 </script>
-
 <style scoped lang="scss">
 .rack-status-display {
   .buffer-cargo-exist-container {
     // background-color: red;
     // transform: rotate(-90deg);
     transform-origin: left top;
+
     .first-slot {
       border-bottom: 7px solid rgb(0, 0, 0) !important;
       height: calc(var(--map-rack-port-display-height) + 4px) !important;
       // background: red !important;
     }
+
     .port {
       width: var(--map-rack-port-display-width);
       height: var(--map-rack-port-display-height);
       background-color: rgba(161, 161, 161, 1);
       border: 1px dashed black;
     }
+
     .port:hover {
       cursor: pointer;
       border: 4px solid rgb(115, 255, 0);
     }
+
     .exist-cargo {
       background-color: var(--map-rack-port-cargo-exist-color);
     }
+
     .no-cargo-but-id-exist {
       background-color: var(--map-rack-port-no-cargo-but-id-exist-color);
     }
+
     .port-disable {
       border: 4px solid red;
     }
+
+    .port-not-usable-temportary {
+      border: 4px solid rgb(253, 138, 6);
+    }
+
     .port-order-assigned {
       animation: rackHasOrderFlash 1s infinite;
     }
 
     @keyframes rackHasOrderFlash {
+
       0%,
       100% {
         border: 4px solid rgb(0, 3, 204);
       }
+
       50% {
         border: 3px solid grey;
       }
     }
+
     .port-tooltip {
       position: absolute;
       left: calc(var(--map-rack-port-display-width) + 10px);
       transform-origin: none !important;
     }
+
     .tooltip-content {
       font-size: 18px;
       background-color: white;
@@ -212,6 +228,7 @@ export default {
       flex-wrap: nowrap;
       gap: 1px;
       font-weight: bold;
+
       .el-button {
         padding: 2px;
         font-size: 20px;

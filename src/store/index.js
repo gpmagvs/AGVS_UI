@@ -464,6 +464,9 @@ export const EqStore = createStore({
       } else
         return true;
     },
+    QueryPortDisabledTempotary: (state, getters) => (tag, slot) => {
+      return getters.GetRackPort(tag, slot).disabledTempotary;
+    },
     GetRackPort: state => (tag, slot) => {
       var _getWIPTags = (wip) => {
         if (wip.ColumnsTagMap)
