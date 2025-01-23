@@ -104,7 +104,10 @@
         "UnLoad": "可移出",
         "IsMaintaining": "維修",
         "IsPartsReplacing": "換紙捲"
-      }
+      },
+      "Disconnected": "斷線",
+      "Loadable": "可收料",
+      "UnLoadable": "可出料"
     }
   },
   "Action": "動作",
@@ -393,5 +396,20 @@
   "WaitingForExecution": "等待執行",
   "Executing": "執行中",
   "DeepCharging": "深充中",
-  "SourceRackPortNotHasCargo": "來源 Rack Port 無貨物"
+  "SourceRackPortNotHasCargo": "來源 Rack Port 無貨物",
+  "InsufficientPermissions": "權限不足",
+  "NoChargePermissionPleaseLogin": "未有指派充電任務的權限，請先進行登入",
+  "NoPermissionToChangeOnlineStatus": "沒有請求車子上下線的權限，請先進行登入",
+  "Helper": {
+    "HowToAssignTransportTask": "如何指派搬運任務?",
+    "HowToLogin": "如何登入?",
+    "HowToSwitchOperationMode": "運轉模式、HOST模式切換?",
+    "WhyMapCannotDragAndZoom": "為什麼地圖沒辦法拖拉、縮放?",
+    "HowToOnlineVehicle": "如何將車輛上線?",
+    "HowToSendVehicleToChargeStation": "如何將車輛派送至充電站充電?",
+    "HowToUseVehicleInfoCard": "車輛資訊卡操作說明",
+    "AGVOperations": "AGV相關操作",
+    "UserLogin": "用戶登入",
+    "SystemOperations": "系統操作說明"
+  }
 }

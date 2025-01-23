@@ -95,15 +95,18 @@
         "EQ_Name": "EQ Name",
         "Main_Status": "Main Status",
         "TransferStatus": "Transfer Status",
-        "Exist": "Exist",
-        "Instock": "In stock",
-        "SoldOut": "Sold Out",
+        "Exist": "Cargo Exist",
+        "Instock": "Exist",
+        "SoldOut": "Empty",
         "CarrierID": "Carrier ID",
         "Load": "Load Request",
         "UnLoad": "UnLoad Request",
         "IsMaintaining": "Maintaining",
         "IsPartsReplacing": "Replacing"
-      }
+      },
+      "Disconnected": "Disconnected",
+      "Loadable": "Loadable",
+      "UnLoadable": "UnLoadable"
     }
   },
   "Action": "Action",
@@ -380,5 +383,20 @@
   "InstallTime": "Install Time",
   "WaitingForExecution": "Waiting For Execution",
   "DeepCharging": "Deep Charging",
-  "SourceRackPortNotHasCargo": "Source Rack Port No Carrier"
+  "SourceRackPortNotHasCargo": "Source Rack Port No Carrier",
+  "InsufficientPermissions": "Insufficient Permissions",
+  "NoChargePermissionPleaseLogin": "You don't have permission to dispatch charger task. Please Login First.",
+  "NoPermissionToChangeOnlineStatus": "You don't have permission to request agv online/offline. Please login first.",
+  "Helper": {
+    "HowToAssignTransportTask": "How to assign transport task?",
+    "HowToLogin": "How to login?",
+    "HowToSwitchOperationMode": "How to switch operation mode?",
+    "WhyMapCannotDragAndZoom": "Why map cannot drag and zoom?",
+    "HowToOnlineVehicle": "How to online vehicle?",
+    "HowToSendVehicleToChargeStation": "How to send vehicle to charge station?",
+    "HowToUseVehicleInfoCard": "How to use vehicle info card?",
+    "AGVOperations": "AGV Operations",
+    "UserLogin": "User Login",
+    "SystemOperations": "System Operations"
+  }
 }
