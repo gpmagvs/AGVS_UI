@@ -449,7 +449,10 @@ export const EqStore = createStore({
       }
       let _eq = _GetEq(tag);
       if (slot == 0 && _eq) {
-        return _eq.Port_Exist;
+        return {
+          cargoExist: _eq.Port_Exist,
+          cargoID: _eq.CarrierID
+        };
       }
       const rackPort = getters.GetRackPort(tag, slot);
       return {
