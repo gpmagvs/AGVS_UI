@@ -246,6 +246,9 @@ export const agv_states_store = createStore({
     },
     async setBatteryLevelSimulation({ commit }, { agvName, batteryLevel }) {
       await EmuAPI.SetBatteryLevel(agvName, batteryLevel);
+    },
+    async StopChargeSimulation({ commit }, { agvName }) {
+      await EmuAPI.StopChargeSimulation(agvName);
     }
   }
 })

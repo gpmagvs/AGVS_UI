@@ -136,6 +136,10 @@ export const EmuAPI = {
   SetBatteryLevel: async (agvName, batteryLevel) => {
     var response = await axios_entity_vms.post(`api/AGVSimulation/SetBatteryLevel?AGVName=${agvName}&lv=${batteryLevel}`)
     return response.data;
+  },
+  StopChargeSimulation: async (agvName) => {
+    var response = await axios_entity_vms.get(`api/AGVSimulation/UnCharge?AGVName=${agvName}`)
+    return response.data;
   }
 }
 

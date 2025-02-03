@@ -4,31 +4,24 @@
       <el-form-item label="Move Speed Ratio">
         <el-input-number v-model="Parameters.MoveSpeedRatio" :min="0" :max="1" :step="0.1" :precision="2" @change="HandleInputChanged" />
       </el-form-item>
-
       <el-form-item label="Tap Move Speed Ratio">
         <el-input-number v-model="Parameters.TapMoveSpeedRatio" :min="0" :max="1" :step="0.05" :precision="2" @change="HandleInputChanged" />
       </el-form-item>
-
       <el-form-item label="Rotation Speed">
         <el-input-number v-model="Parameters.RotationSpeed" :min="0" :max="180" :step="5" @change="HandleInputChanged" />
       </el-form-item>
-
       <el-form-item label="Fork Lifter Speed">
         <el-input-number v-model="Parameters.ForkLifterSpeed" :min="0" :step="1" @change="HandleInputChanged" />
       </el-form-item>
-
       <el-form-item label="Speed Up Rate">
         <el-input-number v-model="Parameters.SpeedUpRate" :min="0" :step="1" @change="HandleInputChanged" />
       </el-form-item>
-
       <el-form-item label="Battery Charge Speed">
         <el-input-number v-model="Parameters.BatteryChargeSpeed" :min="0" :step="1" @change="HandleInputChanged" />
       </el-form-item>
-
       <el-form-item label="Battery Used (Run)">
         <el-input-number v-model="Parameters.BatteryUsed_Run" :min="0" :max="1" :step="0.1" :precision="2" @change="HandleInputChanged" />
       </el-form-item>
-
       <el-form-item label="Working Time">
         <el-input-number v-model="Parameters.WorkingTime" :min="0" :step="1" @change="HandleInputChanged" />
       </el-form-item>
@@ -42,10 +35,10 @@
       <el-form-item label="CID Read Mismatch 模擬">
         <el-switch v-model="Parameters.IsCIDReadMismatchSimulation" @mousedown="HandleCIDReadMismatchChanged" />
       </el-form-item>
+      <el-button type="primary" @click="HandleStopCharge">解除充電狀態 </el-button>
     </el-form>
   </div>
 </template>
-
 <script>
 import { agv_states_store } from '@/store'
 export default {
@@ -121,11 +114,13 @@ export default {
       setTimeout(() => {
         this.Parameters = agv_states_store.getters.GetAGVEmuParameters(this.AgvName)
       }, 1000)
+    },
+    async HandleStopCharge() {
+      await agv_states_store.dispatch('StopChargeSimulation', { agvName: this.AgvName })
     }
   }
 };
 </script>
-
 <style scoped lang="scss">
 .agv-emulator {
   width: 100%;
