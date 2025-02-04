@@ -7,13 +7,13 @@
         <!-- <div v-if="true" class="port-tooltip" :style="dynamicTooltipStyle"> -->
         <div v-if="isPortHover[index] && !IsRotated" class="port-tooltip" style="z-index: 2323;">
           <div class="tooltip-content">
-            <div>Cargo ID:</div>
+            <div class="mx-1">Cargo ID</div>
             <el-button :loading="cargoIdLoading" text class="text-primary">{{ displayCargoID }}</el-button>
           </div>
         </div>
         <div v-if="isPortHover[index] && IsRotated" :style="dynamicTooltipStyle">
           <div class="tooltip-content" :style="dynamicToolTipContentStyle">
-            <div>Cargo ID:</div>
+            <div class="mx-1">Cargo ID</div>
             <el-button :loading="cargoIdLoading" text class="text-primary">{{ displayCargoID }}</el-button>
           </div>
         </div>
@@ -64,6 +64,7 @@ export default {
   methods: {
     getCargoExisStateClass(tagNumber, slot) {
       let className = '';
+
       const cargoState = EqStore.getters.QueryCargoStateOfRackPort(tagNumber, slot);
       if (cargoState.cargoExist)
         className += ' exist-cargo';
@@ -75,6 +76,11 @@ export default {
         className += ' port-disable';
       if (EqStore.getters.QueryPortDisabledTempotary(tagNumber, slot))
         className += ' port-not-usable-temportary';
+
+      // const portOption = EqStore.getters.GetRackPortOption(tagNumber, slot);
+      // if (portOption && portOption.EQInstall.IsUseForEQ) {
+      //   className += " rack-port-eq-exist";
+      // }
       return className;
     },
     HandleRackPortClicked(tag, slot) {
@@ -176,6 +182,10 @@ export default {
       border: 4px solid rgb(115, 255, 0);
     }
 
+    .rack-port-eq-exist {
+      background-color: black;
+    }
+
     .exist-cargo {
       background-color: var(--map-rack-port-cargo-exist-color);
     }
@@ -216,8 +226,9 @@ export default {
 
     .tooltip-content {
       font-size: 18px;
-      background-color: white;
-      border: 1px solid black;
+      color: rgb(116, 115, 115);
+      background-color: rgb(255, 255, 255);
+      border: 1px solid rgb(119, 119, 119);
       padding: 5px;
       border-radius: 5px;
       white-space: nowrap;
@@ -228,6 +239,9 @@ export default {
       flex-wrap: nowrap;
       gap: 1px;
       font-weight: bold;
+      align-items: center;
+      justify-content: center;
+
 
       .el-button {
         padding: 2px;

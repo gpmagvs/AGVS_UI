@@ -8,8 +8,7 @@
       :show-close="false"
       :modal="true"
       modal-class="modal-style"
-      :before-close="CancelBtnClickHandle"
-    >
+      :before-close="CancelBtnClickHandle">
       <template #header>
         <div class="header border-bottom">
           <h3>點位設定-{{ index }}</h3>
@@ -40,67 +39,27 @@
                     <el-input v-model="pointData_editing.Graph.Display"></el-input>
                   </div>
                   <div>
-                    <el-button
-                      v-show="IsEQPoint"
-                      @click="pointData_editing.Graph.Display = BindingEQInfo.Name"
-                    >使用繫連的EQ名稱</el-button>
+                    <el-button v-show="IsEQPoint" @click="pointData_editing.Graph.Display = BindingEQInfo.Name">使用繫連的EQ名稱</el-button>
                   </div>
                 </el-form-item>
                 <el-form-item v-if="IsWorkStation" label="顯示圖示">
                   <div class="d-flex mx-1 py-4 bg-light w-100" style="flex-wrap:wrap;height:200px">
-                    <div
-                      class="icon-container mx-2"
-                      style="width:64px;height:84px"
-                      v-for="path in EqIcons"
-                      :key="path"
-                    >
-                      <el-image
-                        v-bind:style="{
+                    <div class="icon-container mx-2" style="width:64px;height:84px" v-for="path in EqIcons" :key="path">
+                      <el-image v-bind:style="{
                         border: path == pointData_editing.Graph.ImageName ? '4px solid rgb(41, 215, 92)' : ''
-                      }"
-                        style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer"
-                        :src="path"
-                        :zoom-rate="1.2"
-                        :max-scale="7"
-                        :min-scale="0.2"
-                        fit="cover"
-                        @click="HandleImageClick(path)"
-                      >
+                      }" style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer" :src="path" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2" fit="cover" @click="HandleImageClick(path)">
                         <template #error>
                           <div class="image-slot">錯誤</div>
                         </template>
                       </el-image>
-                      <div
-                        squared
-                        class="image-name-display"
-                        style="position:relative;bottom:26px;width:100%;"
-                        @click="HandleImageClick(path)"
-                      >{{ path.split('/').pop() }}</div>
+                      <div squared class="image-name-display" style="position:relative;bottom:26px;width:100%;" @click="HandleImageClick(path)">{{ path.split('/').pop() }}</div>
                       <!-- <b-button squared class="delete-btn" style="position:relative;bottom:26px;width:100%;" variant="danger" size="sm" @click="HandleIconDelete(path)">刪除</b-button> -->
                     </div>
                     <!-- Upload images preview2-->
-                    <el-image
-                      v-for="path in fileList"
-                      :key="path"
-                      v-bind:style="{
+                    <el-image v-for="path in fileList" :key="path" v-bind:style="{
                       border: path.url == pointData_editing.Graph.ImageName ? '3px solid rgb(49, 132, 253)' : ''
-                    }"
-                      style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer;border:1px dashed red"
-                      :src="path.url"
-                      :zoom-rate="1.2"
-                      :max-scale="7"
-                      :min-scale="0.2"
-                      fit="cover"
-                      @click="HandleImageClick(path)"
-                    />
-                    <el-upload
-                      v-model:file-list="fileList"
-                      :action="icon_upload_url"
-                      list-type="picture-card"
-                      :auto-upload="true"
-                      :on-success="OnIconUploadSuccess"
-                      :show-file-list="false"
-                    >上傳圖示</el-upload>
+                    }" style="width: 64px; height: 64px;padding:3px;border-radius:8px;cursor:pointer;border:1px dashed red" :src="path.url" :zoom-rate="1.2" :max-scale="7" :min-scale="0.2" fit="cover" @click="HandleImageClick(path)" />
+                    <el-upload v-model:file-list="fileList" :action="icon_upload_url" list-type="picture-card" :auto-upload="true" :on-success="OnIconUploadSuccess" :show-file-list="false">上傳圖示</el-upload>
                     <!-- <div v-for="path in IconGroup.EqIcons" :key="path">{{ path }}</div> -->
                   </div>
                 </el-form-item>
@@ -122,12 +81,7 @@
                 </el-form-item>
                 <el-form-item label="站點類型">
                   <el-select v-model="pointData_editing.StationType" @change="StationTypeOnChange">
-                    <el-option
-                      v-for="pt_type in stationTypes"
-                      :key="pt_type.value"
-                      :label="pt_type.label"
-                      :value="pt_type.value"
-                    ></el-option>
+                    <el-option v-for="pt_type in stationTypes" :key="pt_type.value" :label="pt_type.label" :value="pt_type.value"></el-option>
                   </el-select>
                   <div v-show="IsEQPoint">
                     <el-input disabled v-model="BindingEQInfo.Name"></el-input>
@@ -141,15 +95,11 @@
                   <div class="mx-2 d-flex">
                     <div>
                       <label class="mx-2" for>等待進入區域時使用此角度</label>
-                      <el-checkbox
-                        v-model="pointData_editing.UseAvoidThetaWhenStopAtWaitingPointOfEntryRegion"
-                      ></el-checkbox>
+                      <el-checkbox v-model="pointData_editing.UseAvoidThetaWhenStopAtWaitingPointOfEntryRegion"></el-checkbox>
                     </div>
                     <div>
                       <label class="mx-2" for>交管停等中使用此角度</label>
-                      <el-checkbox
-                        v-model="pointData_editing.AlwayTurnToAvoidThetaWhenWaitingTrafficControl"
-                      ></el-checkbox>
+                      <el-checkbox v-model="pointData_editing.AlwayTurnToAvoidThetaWhenWaitingTrafficControl"></el-checkbox>
                     </div>
                   </div>
                 </el-form-item>
@@ -158,10 +108,7 @@
                 </el-form-item>
                 <el-form-item label="雷射模式">
                   <el-input-number v-model="pointData_editing.LsrMode" :step="1"></el-input-number>
-                  <i
-                    class="bi bi-question-circle information"
-                    @click="HandleLaserModeInfoIconClick"
-                  ></i>
+                  <i class="bi bi-question-circle information" @click="HandleLaserModeInfoIconClick"></i>
                 </el-form-item>
                 <el-form-item label="速度">
                   <el-input-number v-model="pointData_editing.Speed" :step="0.1" :precision="1"></el-input-number>
@@ -213,15 +160,9 @@
                 <el-checkbox v-model="pointData_editing.IsAutoDoor" label="自動門"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsExtinguishing" label="消防設備"></el-checkbox>
                 <el-checkbox v-model="pointData_editing.IsNarrowPath" label="窄道"></el-checkbox>
-                <el-checkbox
-                  v-model="pointData_editing.IsTransferStation"
-                  label="轉換站(換車用，比如RACK撈爪)"
-                ></el-checkbox>
+                <el-checkbox v-model="pointData_editing.IsTransferStation" label="轉換站(換車用，比如RACK撈爪)"></el-checkbox>
                 <div class="d-flex">
-                  <el-checkbox
-                    v-model="pointData_editing.IsHighestPriorityStation"
-                    label="最高優先執行任務站點"
-                  ></el-checkbox>
+                  <el-checkbox v-model="pointData_editing.IsHighestPriorityStation" label="最高優先執行任務站點"></el-checkbox>
                   <el-tooltip content="最高優先執行任務站點，系統會優先執行此站點的任務，且路權會優先給予。" placement="bottom">
                     <i class="bi bi-question-circle information"></i>
                   </el-tooltip>
@@ -233,15 +174,13 @@
                 <span class="collapse-title">註冊點</span>
               </template>
               <div class="text-start">
-                <el-button
-                  @click="() => {
+                <el-button @click="() => {
                   RegistersTable.push({
                     index: undefined,
                     tag: undefined,
                     name: undefined
                   })
-                }"
-                >新增</el-button>
+                }">新增</el-button>
               </div>
               <el-table row-key="index" height="320px" border :data="RegistersTable">
                 <el-table-column label="Index" prop="index">
@@ -252,8 +191,7 @@
                           v-for="pt in pointsOptions"
                           :key="pt.index"
                           :label="pt.index"
-                          :value="pt.index"
-                        ></el-option>
+                          :value="pt.index"></el-option>
                       </el-select>
                     </div>
                   </template>
@@ -267,8 +205,7 @@
                         RegistersTable.splice(RegistersTable.indexOf(scope.row), 1)
                       }"
                       type="danger"
-                      size="small"
-                    >移除</el-button>
+                      size="small">移除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -283,7 +220,6 @@
                 </el-form-item>
               </el-form>
             </el-collapse-item>
-
             <el-collapse-item name="5">
               <template #title>
                 <span class="collapse-title">顯示設定</span>
@@ -292,48 +228,24 @@
                 <el-form-item label="Text Offset">
                   <div class="d-flex text-offset">
                     <span class="mx-3">X</span>
-                    <el-input
-                      class="mx-2"
-                      type="number"
-                      v-model="pointData_editing.Graph.textOffsetX"
-                    ></el-input>
+                    <el-input class="mx-2" type="number" v-model="pointData_editing.Graph.textOffsetX"></el-input>
                     <span class="mx-3">Y</span>
-                    <el-input
-                      class="mx-2"
-                      type="number"
-                      v-model="pointData_editing.Graph.textOffsetY"
-                    ></el-input>
+                    <el-input class="mx-2" type="number" v-model="pointData_editing.Graph.textOffsetY"></el-input>
                   </div>
                 </el-form-item>
                 <el-form-item label="Rack 顯示">
                   <div class="d-flex text-offset">
                     <span class="mx-3">X</span>
-                    <el-input
-                      class="mx-2"
-                      type="number"
-                      v-model="pointData_editing.Graph.rackDisplay.OffsetX"
-                    ></el-input>
+                    <el-input class="mx-2" type="number" v-model="pointData_editing.Graph.rackDisplay.OffsetX"></el-input>
                     <span class="mx-3">Y</span>
-                    <el-input
-                      class="mx-2"
-                      type="number"
-                      v-model="pointData_editing.Graph.rackDisplay.OffsetY"
-                    ></el-input>
+                    <el-input class="mx-2" type="number" v-model="pointData_editing.Graph.rackDisplay.OffsetY"></el-input>
                     <span class="mx-3">Rotation</span>
-                    <el-input
-                      class="mx-2"
-                      type="number"
-                      v-model="pointData_editing.Graph.rackDisplay.Rotation"
-                    ></el-input>
+                    <el-input class="mx-2" type="number" v-model="pointData_editing.Graph.rackDisplay.Rotation"></el-input>
                   </div>
                 </el-form-item>
               </el-form>
             </el-collapse-item>
-
-            <el-collapse-item
-              v-if="pointData_editing.StationType == 3 || pointData_editing.StationType == 7"
-              name="6"
-            >
+            <el-collapse-item v-if="pointData_editing.StationType == 3 || pointData_editing.StationType == 7" name="6">
               <template #title>
                 <span class="collapse-title">進出點位設定</span>
               </template>
@@ -638,15 +550,17 @@ export default {
 </script>
 <style lang="scss" scoped>
 .map-point-setting-drawer {
-  ::v-deep .draw-content button {
+  :deep(.draw-content button) {
     width: 100%;
   }
+
 
   .collapse-title {
     font-size: 16px;
     font-weight: bold;
     color: rgb(0, 99, 247);
   }
+
   .modal-style {
     opacity: 0.3;
   }
@@ -700,7 +614,7 @@ export default {
     margin: auto 10px;
     cursor: pointer;
   }
-  .text-offset {
-  }
+
+  .text-offset {}
 }
 </style>

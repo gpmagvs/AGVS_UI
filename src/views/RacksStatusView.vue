@@ -1,6 +1,7 @@
 <template>
   <div class="rack-status-view custom-tabs-head p-1">
     <div class="display-mode-container text-start border-bottom my-1 py-1">
+      <el-button :loading="waitingClearAllNotCargoButHasIDPorts" link type="primary" :disabled="!Permission" @click="HandleClearAllNotCargoButHasIDPorts">清除所有無料帳籍</el-button>
       <el-button link type="primary" :disabled="!Permission" @click="showLowLevelSettingDrawer = true">低水位提醒設置</el-button>
       <span class="px-2 text-primary">
         <b>{{ $t('Display Mode') }}</b>
@@ -64,16 +65,20 @@
 import RackStatus from '@/components/RacksStatusView/RackStatus.vue'
 import ZoneLowLevelNotifySetting from '@/components/RacksStatusView/ZoneLowLevelNotifySetting.vue'
 import { EqStore, userStore } from '@/store'
+import { ClearAllNotCargoButHasIDPorts } from '@/api/WIPAPI'
 export default {
   components: {
     RackStatus,
+
     ZoneLowLevelNotifySetting
   },
   data() {
     return {
       display: 'div',//div,
       showLowLevelSettingDrawer: false,
+      waitingClearAllNotCargoButHasIDPorts: false,
     }
+
   },
   computed: {
     WIPData() {
@@ -128,11 +133,30 @@ export default {
     }
   },
   methods: {
+    async HandleClearAllNotCargoButHasIDPorts() {
+      const result = await this.$swal.fire({
+        title: '確認清除',
+        text: '是否要清除所有有帳無料的帳籍?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '確定',
+        cancelButtonText: '取消'
+      });
+
+      if (result.isConfirmed) {
+        this.waitingClearAllNotCargoButHasIDPorts = true;
+        const ret = await ClearAllNotCargoButHasIDPorts();
+        //ret={"total":0,"success":0,"fail":0}
+        this.$message.success(`有帳無料帳籍清除成功，共${ret.total}筆，成功${ret.success}筆，失敗${ret.fail}筆`);
+        this.waitingClearAllNotCargoButHasIDPorts = false;
+      }
+    },
     IsHasDataButNoCargo(zoneID) {
       const wip = EqStore.state.HasDataButNoCargoWIPs.find(wip => wip.DeviceID == zoneID);
       return wip != undefined;
     }
   }
+
 }
 </script>
 <style lang="scss">

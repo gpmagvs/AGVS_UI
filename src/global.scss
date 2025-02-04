@@ -257,3 +257,23 @@
 .rack-has-data-not-cargo-notify{
   font-size: 20px !important;
 }
+
+
+.query-option-container{
+  display: flex;
+  flex-direction: column;
+  margin: 0 5px;
+  label{
+    font-size: 16px;
+    margin-bottom: 5px;
+    // background-color: red;
+    font-weight: bold;
+    text-align: left;
+  }
+}
+
+.query-actions-container{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+}

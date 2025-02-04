@@ -211,10 +211,9 @@ export default {
   },
 }
 </script>
-
 <style lang="scss" scoped>
 .tab-container {
-  ::v-deep .el-input__inner {
+  :deep(.el-input__inner) {
     text-align: center;
   }
 }

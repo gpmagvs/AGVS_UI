@@ -1,5 +1,5 @@
 <template>
-  <div class="mission-card" :class="[mission.State==1 ? 'executing' : 'waiting', selectedClassName]">
+  <div class="mission-card" :class="[mission.State == 1 ? 'executing' : 'waiting', selectedClassName]">
     <div class="mission-card-header py-1 border-bottom">
       <h6 class="mx-2 border py-1 px-2 rounded text-light text-nowrap" :class="actionTagClass">{{ action }}</h6>
       <div class="flex-fill d-flex text-truncate">
@@ -7,33 +7,33 @@
         <i class="bi bi-clipboard mx-2" style="cursor: pointer;"></i>
       </div>
       <!-- <label>Local</label> -->
-      <el-button type="danger" @click="CancelTaskHandler(mission.TaskName)">{{ mission.State==1 ?t('MissionCard.AbortOrder') :t('MissionCard.CancelOrder')}}</el-button>
+      <el-button type="danger" @click="CancelTaskHandler(mission.TaskName)">{{ mission.State == 1 ? t('MissionCard.AbortOrder') : t('MissionCard.CancelOrder') }}</el-button>
     </div>
     <div class="from-to-info d-flex p-2 m-1">
       <div style="width: 140px;">
         <label class="item-name-label">{{ t('TaskTable.Source') }}</label>
-        <div :class="mission.State==1?'executing':''">{{ source }}</div>
+        <div :class="mission.State == 1 ? 'executing' : ''">{{ source }}</div>
       </div>
       <div class="flex-fill">
         <el-steps style="width:100%;padding-top: 0px; padding-right: 10px;" :active="currentStep" finish-status="success">
-          <el-step :style=" isCarryOrder?{}: {visibility: 'hidden'}" :title="t('Move')" />
-          <el-step :style=" isCarryOrder?{}: {visibility: 'hidden'}" :title="t('Unload')" />
+          <el-step :style="isCarryOrder ? {} : { visibility: 'hidden' }" :title="t('Move')" />
+          <el-step :style="isCarryOrder ? {} : { visibility: 'hidden' }" :title="t('Unload')" />
           <el-step :title="t('Move')" />
           <el-step :title="finalStepActionDisplay" />
         </el-steps>
       </div>
       <div style="width: 140px;">
         <label class="item-name-label w-100 text-end">{{ t('TaskTable.Destine') }}</label>
-        <div class="w-100 text-end" :class="mission.State==1?'executing':''">{{ destine }}</div>
+        <div class="w-100 text-end" :class="mission.State == 1 ? 'executing' : ''">{{ destine }}</div>
       </div>
     </div>
     <div class="d-flex justify-content-between p-2 m-1 border-top">
       <div>
-        <label class="item-name-label">{{t('TaskTable.RecievedTime')}}</label>
+        <label class="item-name-label">{{ t('TaskTable.RecievedTime') }}</label>
         <div>{{ recieveTime }}</div>
       </div>
       <div>
-        <label class="item-name-label">{{t('TaskTable.Dispatcher')}}</label>
+        <label class="item-name-label">{{ t('TaskTable.Dispatcher') }}</label>
         <div>{{ dispatcherName }}</div>
       </div>
       <div>
@@ -43,14 +43,13 @@
             <template #content>
               <vehicleInfoCard :vehicleStateData="executingVehicleInfo"></vehicleInfoCard>
             </template>
-            <el-tag effect="dark">{{ vehicleName }}</el-tag>
-          </el-tooltip>
-          <el-tag v-else effect="dark">{{ vehicleName }}</el-tag>-->
-          <el-tag effect="dark">{{ vehicleName }}</el-tag>
+<el-tag effect="dark">{{ vehicleName }}</el-tag>
+</el-tooltip>
+<el-tag v-else effect="dark">{{ vehicleName }}</el-tag>--> <el-tag effect="dark">{{ vehicleName }}</el-tag>
         </div>
       </div>
       <div style="width: 140px;">
-        <label class="item-name-label w-100 text-end">{{t('TaskTable.CstID')}}</label>
+        <label class="item-name-label w-100 text-end">{{ t('TaskTable.CstID') }}</label>
         <div class="w-100 text-end">{{ carrierID }}</div>
       </div>
       <!-- {{ state }} -->
@@ -212,7 +211,6 @@ onBeforeUnmount(() => {
   isLeaving.value = true;
 });
 </script>
-
 <style lang="scss" scoped>
 .mission-card {
   --card-border: 1px solid #818181;
@@ -226,9 +224,11 @@ onBeforeUnmount(() => {
   background-color: rgb(231, 231, 231);
   color: rgb(54, 54, 54);
   flex-wrap: nowrap;
+
   .mission-card-header {
     display: flex;
     align-items: center;
+
     h6 {
       text-align: left;
     }
@@ -248,43 +248,55 @@ onBeforeUnmount(() => {
     text-wrap: nowrap;
   }
 
-  ::v-deep .el-step__title.is-process {
+  :deep(.el-step__title.is-process) {
     color: rgb(13, 110, 253);
     font-weight: bold;
     font-size: 14px;
     animation: in-process-title-flash 1s infinite;
   }
+
   @keyframes in-process-title-flash {
+
     0%,
     100% {
       color: rgb(125, 125, 125);
     }
+
     50% {
       color: rgb(13, 110, 253);
     }
   }
-  ::v-deep .el-step__head.is-process {
+
+  :deep(.el-step__head.is-process) {
     color: rgb(13, 110, 253);
   }
-  ::v-deep .el-step__title {
+
+
+  :deep(.el-step__title) {
     font-size: 12px;
     line-height: 25px;
     font-weight: lighter;
   }
+
 }
+
 .selected {
   animation: blink-border 1s 3;
   border: 3px solid rgb(64, 158, 255);
+
   @keyframes blink-border {
+
     0%,
     100% {
       border-color: rgb(78, 78, 78);
     }
+
     50% {
       border-color: rgb(64, 158, 255);
     }
   }
 }
+
 .executing {
   background-color: rgb(255, 255, 255);
   color: black;

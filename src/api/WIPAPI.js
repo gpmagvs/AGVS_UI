@@ -61,3 +61,8 @@ export async function SetZoneLowLevelNotifySetting(data) {
     return ret.data;
 }
 
+/**清除所有無料帳籍 */
+export async function ClearAllNotCargoButHasIDPorts() {
+    var ret = await axios_entity.post(`/api/WIP/ClearAllIDWithoutCargo`)
+    return ret.data;
+}

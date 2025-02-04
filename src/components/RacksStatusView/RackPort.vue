@@ -8,7 +8,7 @@
               <el-button @click="HandleRenamePortNoClicked">{{ $t('Rename') }}</el-button>
             </div>
           </template>
-          <label :class="!IsInstallEQ ? 'port-no-display' : 'port-no-display-not-rack'">{{ PortNameDisplay }}</label>
+          <label :class="!IsInstallEQ ? 'port-no-display' : 'port-no-display-not-rack'">{{ PortNameDisplay }} </label>
         </el-tooltip>
       </span>
       <div v-show="AnySensorFlash" class="text-danger bg-light w-100 text-start" style=" max-height: 0;  position: relative;left:3px;top:0px;">
@@ -81,10 +81,6 @@
         <div class="title">{{ $t('RackPort.InstallTime') }}</div>
         <div class="values">{{ InstallTime }}</div>
       </div>
-      <!-- <div class="item">
-      <div class="title"></div>
-      <div class="values">BBB</div>
-    </div>-->
       <div class="item justify-content-center">
         <el-button v-if="IsCarrierIDExist && IsCarrierExist" ref="modify_btn" @click="CstIDEditHandle" type="success">{{ $t('Rack.Edit_ID') }}</el-button>
         <el-button v-if="!IsCarrierIDExist && IsCarrierExist" @click="CstIDEditHandle" class="m-1" type="info">{{ $t('Rack.Creat_ID') }}</el-button>
@@ -184,11 +180,19 @@ export default {
   },
   computed: {
     IsInstallEQ() {
-      return this.port_info.Properties.EQInstall.IsUseForEQ;
+      if (!this.port_info.Properties.EQInstall.IsUseForEQ)
+        return false;
+      const eqName = this.port_info.Properties.EQInstall.BindingEQName;
+      const eqOption = EqStore.state.EqOptions.find(e => e.Name == eqName);
+      return (eqOption && !eqOption.IsRoleAsZone)
+    },
+    BindingEQName() {
+      return this.port_info.Properties.EQInstall.BindingEQName;
     },
     IsUserLoginAndPermissionAboveOP() {
       return userStore.state.user.Role > 0;
     },
+
     ProductQualityClassName() {
       if (this.IsOvenAsRacks)
         return 'oven-port'
