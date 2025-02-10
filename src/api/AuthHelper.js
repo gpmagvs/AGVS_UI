@@ -106,5 +106,11 @@ export class WebViewPermission {
       HostOnlineSwitch: 1,
       HostRemoteSwitch: 1,
     }
+    this.chargeActionsPermission = {
+      NormalCharge: 0,
+      DeepCharge: 0,
+      StopDeepCharge: 0,
+    }
+
   }
 }

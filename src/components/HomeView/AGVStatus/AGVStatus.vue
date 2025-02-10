@@ -575,7 +575,7 @@ export default {
       }
       this.$swal.fire(
         {
-          title: `${this.$t('ConfirmTask')} ${_chargeTaskConfirmMessage(deepCharge)} ${this.$t('ToCharge')}`,
+          title: `${this.$t('ConfirmTask')} ${agv_status.AGV_Name} ${this.$t('ToCharge')} ${deepCharge ? this.$t('DeepCharge') : ''}?`,
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: this.$t('OK'),

@@ -93,7 +93,7 @@
         </el-progress>
       </div>
       <div class="button-like-container mx-1 d-flex" style="width: 200px;padding-right: 0px;">
-        <el-button id="charge-task-assignment-button" type="success" v-bind:class="getChargeButtnClass()" @click="() => $emit('ShowAGVChargeConfirmDialog', vehicleStateData)">
+        <el-button id="charge-task-assignment-button" type="success" v-bind:class="getChargeButtnClass()" @click="() => $emit('ShowAGVChargeConfirmDialog', vehicleStateData)" :disabled="chargeActionsPermission.NormalCharge == 0">
           <span v-if="vehicleStateData.Model == 2">{{ $t('Exchange Battery') }}</span>
           <span v-else-if="getChargeButtnClass() == 'charge-deep-charging'">{{ $t('DeepCharging') }}</span>
           <span v-else>{{ $t('Charge') }}</span>
@@ -104,9 +104,9 @@
           </template>
           <template #default>
             <div class="charge-button-container d-flex flex-column">
-              <b-button variant="warning" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('ShowAGVChargeConfirmDialog', vehicleStateData)">{{ $t('NormalCharge') }}</b-button>
-              <b-button variant="success" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('ShowAGVDeepChargeConfirmDialog', vehicleStateData)">{{ $t('DepCharge') }}</b-button>
-              <b-button variant="danger" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('StopDeepCharge', vehicleStateData.AGV_Name)">{{ $t('CancelDeepCharge') }}</b-button>
+              <b-button variant="warning" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('ShowAGVChargeConfirmDialog', vehicleStateData)" :disabled="chargeActionsPermission.NormalCharge == 0">{{ $t('NormalCharge') }}</b-button>
+              <b-button variant="success" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('ShowAGVDeepChargeConfirmDialog', vehicleStateData)" :disabled="chargeActionsPermission.DeepCharge == 0">{{ $t('DepCharge') }}</b-button>
+              <b-button variant="danger" style="width: 100%; margin-bottom: 8px;font-size: 12px;" @click="() => $emit('StopDeepCharge', vehicleStateData.AGV_Name)" :disabled="chargeActionsPermission.StopDeepCharge == 0">{{ $t('CancelDeepCharge') }}</b-button>
             </div>
           </template>
         </el-popover>
@@ -142,10 +142,11 @@ export default {
     isMapViewTracking: {
       type: Boolean,
       default: false
-    }
+    },
   },
   computed: {
     IsOpUsing() {
+
       return userStore.getters.IsOPLogining;
     },
     IsEmulationMode() {
@@ -238,7 +239,20 @@ export default {
       else
         return 'rgb(64, 158, 255)';
     },
+    chargeActionsPermission() {
+      let _permission = userStore.state.user.Permission.chargeActionsPermission;
+      if (!_permission)
+        return {
+          NormalCharge: 0,
+          DeepCharge: 0,
+          StopDeepCharge: 0
+        }
+      return _permission;
+    }
+
+
   },
+
   methods: {
 
     /**由狀態取得充電按鈕的類別 */
