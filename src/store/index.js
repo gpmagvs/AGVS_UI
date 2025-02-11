@@ -261,7 +261,8 @@ export const agvs_settings_store = createStore({
         system_run_mode: false,
         host_online_mode: false,
         host_remote_mode: false,
-        transfer_mode: false
+        transfer_mode: false,
+        isMaintaining: false
       }
     }
   },
@@ -280,6 +281,9 @@ export const agvs_settings_store = createStore({
     },
     setTransferRemote(state, actived) {
       state.sys_settings.operations.transfer_mode = actived
+    },
+    setIsMaintain(state, isMaintain) {
+      state.sys_settings.operations.isMaintaining = isMaintain;
     }
   },
   actions: {

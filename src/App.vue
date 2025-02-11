@@ -1,7 +1,6 @@
 <template>
   <div v-show="!isNoPermission" class="d-flex flex-row" v-loading="loading" element-loading-text="GPM AGVS" element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(31, 31, 31, 0.9)">
     <RegularULDHotRunStateView></RegularULDHotRunStateView>
-
     <el-container>
       <el-aside class="border" style="width:auto">
         <Menu :isCollapse="menu_collapse"></Menu>
@@ -28,7 +27,7 @@
     <b-alert class="fixed-bottom mb-3 mcs-message" v-model="showMCSMessage" :variant="mcsMessgeType" dismissible>
       <div class="d-flex">
         <div>{{ mcsMessageDto.time }}</div>
-        <div class="flex-fill" v-bind:class="'msg-text-'+mcsMessgeType">{{ mcsMessageDto.message }}</div>
+        <div class="flex-fill" v-bind:class="'msg-text-' + mcsMessgeType">{{ mcsMessageDto.message }}</div>
       </div>
     </b-alert>
     <el-transition name="el-fade-in-linear">
@@ -40,7 +39,7 @@
 </template>
 <script>
 import store from '@/store';
-import { EqStore } from '@/store';
+import { EqStore, agvs_settings_store } from '@/store';
 import Menu from '@/components/Menu.vue'
 import Header from '@/components/App/Header.vue'
 import AlarmDisplayVue from '@/components/App/AlarmDisplay.vue'
@@ -344,6 +343,16 @@ export default {
         topNotify.ShowMessage(message, 'danger');
       }
     })
+    bus.on('SystemMaintainNotify', () => {
+      agvs_settings_store.commit('setIsMaintain', true)
+      this.$router.push('/maintaining')
+    })
+
+    bus.on('FinishSystemMaintain', () => {
+      agvs_settings_store.commit('setIsMaintain', false)
+      this.$router.push('/')
+    })
+
     const route = useRoute()
     watch(
       () => route.path,
@@ -381,6 +390,9 @@ export default {
               EqStore.dispatch('downloadEQData')
             }
           }
+        }
+        if (newValue == '/maintaining' && !agvs_settings_store.state.sys_settings.operations.isMaintaining) {
+          this.$router.push('/')
         }
       }
     )
@@ -470,6 +482,7 @@ html {
 .mcs-message {
   font-size: 1.2rem;
   font-weight: bold;
+
   .msg-text-danger {
     color: red;
   }

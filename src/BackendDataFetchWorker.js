@@ -144,6 +144,14 @@ async function StartHubsConnection() {
     agvsHubConnection.on('ZoneUsableCarrierNotEnoughNotify', message => {
         bus.emit('ZoneUsableCarrierNotEnoughNotify', message);
     })
+
+    agvsHubConnection.on('SystemMaintainNotify', message => {
+        bus.emit('SystemMaintainNotify', message);
+    })
+    agvsHubConnection.on('FinishSystemMaintain', message => {
+        bus.emit('FinishSystemMaintain', message);
+    })
+
     vmsHubConnection.on("ReceiveData", (user, data) => {
         StoreVMSData(data);
     });

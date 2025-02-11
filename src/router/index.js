@@ -277,6 +277,16 @@ const routes = [
       Display_Eng: "SECS/GEM"
     },
     component: SECSGEM,
+  },
+  {
+    path: '/maintaining',
+    name: 'maintaining',
+    meta: {
+      requiresAuth: false,
+      Display: "SECS/GEM",
+      Display_Eng: "SECS/GEM"
+    },
+    component: () => import('../views/SystemMaintaining.vue'),
   }
 ]
 
