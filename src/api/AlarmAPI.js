@@ -22,6 +22,12 @@ export async function QueryAlarm(currentpage, start_time, end_time, AGV_Name = '
   return retquery.data;
 }
 
+/**警報查詢關鍵字*/
+export async function QueryAlarmWithKeyword(currentpage, start_time, end_time, keyword) {
+  var retquery = await axios_entity.get(`/api/Alarmquery/QueryAlarmWithKeyword?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&keyword=${keyword}`)
+  return retquery.data;
+}
+
 export async function DeleteAlarm(Time) {
   var retquery = await axios_entity.delete(`/api/Alarm/Delete?time=${Time}`)
   return retquery.data;

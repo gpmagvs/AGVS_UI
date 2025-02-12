@@ -411,5 +411,7 @@
     "AGVOperations": "AGV相關操作",
     "UserLogin": "用戶登入",
     "SystemOperations": "系統操作說明"
-  }
+  },
+  "Keyword": "關鍵字",
+  "KeywordSearch": "關鍵字搜索"
 }
