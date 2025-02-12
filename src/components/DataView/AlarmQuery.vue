@@ -3,36 +3,58 @@
     <div class="bg-light d-flex border-bottom py-2">
       <div class="query-option-container">
         <label>{{ $t('Search.Start_Time') }}</label>
-        <input type="datetime-local" v-model="start_time" prop="Start Time" />
+        <el-date-picker
+          v-model="start_time"
+          type="datetime"
+          :placeholder="$t('Search.Start_Time')"
+          format="YYYY-MM-DD HH:mm:ss"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          :clearable="false" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('Search.End_Time') }}</label>
-        <input type="datetime-local" v-model="end_time" prop="End Time" />
+        <el-date-picker
+          v-model="end_time"
+          type="datetime"
+          :placeholder="$t('Search.End_Time')"
+          format="YYYY-MM-DD HH:mm:ss"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          :clearable="false" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.Alarm_Type') }}</label>
-        <select
+        <el-select style="width: 100px;" v-model="AlarmTypeSelected" placeholder="">
+          <el-option label="ALL" value="ALL">
+          </el-option>
+          <el-option label="Alarm" value="Alarm">
+          </el-option>
+          <el-option label="Warning" value="Warning">
+          </el-option>
+        </el-select>
+        <!-- <select
           v-bind:class="AlarmTypeSelected == 'ALL' ? '' : AlarmTypeSelected == 'Alarm' ? 'bg-danger text-light' : 'bg-warning text-light'"
           prop="EQ Name" v-model="AlarmTypeSelected">
           <option>ALL</option>
           <option class="bg-danger text-light">Alarm</option>
           <option class="bg-warning text-light">Warning</option>
-        </select>
+        </select> -->
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.AGV_Name') }}</label>
-        <select prop="EQ Name" v-model="AGVSelected">
-          <option>ALL</option>
-          <option v-for="name in AgvNameList" :key="name">{{ name }}</option>
-        </select>
+        <el-select style="width: 100px;" v-model="AGVSelected" placeholder="">
+          <el-option label="ALL" value="ALL">
+          </el-option>
+          <el-option v-for="name in AgvNameList" :key="name" :label="name" :value="name">
+          </el-option>
+        </el-select>
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.TaskName') }}</label>
-        <input type="text" v-model="TaskName" placeholder="ALL" size="20" />
+        <el-input style="width: 180px;" v-model="TaskName" placeholder="ALL" size="20" clearable @clear="QueryAlarm()" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.FailureReason') }}</label>
-        <input type="text" v-model="Alarm_description" placeholder="ALL" size="20" />
+        <el-input style="width: 180px;" v-model="Alarm_description" placeholder="ALL" size="20" clearable @clear="QueryAlarm()" />
       </div>
       <div class="query-actions-container">
         <b-button @click="QueryAlarm()" :QueryAlarm="QueryAlarm" class="Select-Query" variant="primary" size="sm"
