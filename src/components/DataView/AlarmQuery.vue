@@ -10,6 +10,10 @@
         <input type="datetime-local" v-model="end_time" prop="End Time" />
       </div>
       <div class="query-option-container">
+        <label>{{ $t('AlarmTable.Alarm_code') }}</label>
+        <input type="text" v-model="alarms" placeholder="ALL" size="8" />
+      </div>
+      <div class="query-option-container">
         <label>{{ $t('AlarmTable.Alarm_Type') }}</label>
         <select
           v-bind:class="AlarmTypeSelected == 'ALL' ? '' : AlarmTypeSelected == 'Alarm' ? 'bg-danger text-light' : 'bg-warning text-light'"
@@ -47,8 +51,10 @@
         <el-table-column :label="$t('AlarmTable.Occur_Time')" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
         </el-table-column>
-        <el-table-column :label="$t('AlarmTable.EQ_Name')" prop="Equipment_Name" width="180" align="center"></el-table-column>
-        <el-table-column :label="$t('AlarmTable.Alarm_code')" prop="AlarmCode" width="60" align="center"></el-table-column>
+        <el-table-column :label="$t('AlarmTable.EQ_Name')" prop="Equipment_Name" width="180"
+          align="center"></el-table-column>
+        <el-table-column :label="$t('AlarmTable.Alarm_code')" prop="AlarmCode" width="60"
+          align="center"></el-table-column>
         <el-table-column :label="$t('AlarmTable.Alarm_description')" prop="Description_En" min-width="320">
           <template #default="scope">
             <div>{{ scope.row.Description_En }}({{ scope.row.Description_Zh }})</div>
@@ -56,7 +62,8 @@
         </el-table-column>
         <el-table-column :label="$t('AlarmTable.Alarm_Type')" prop="Level" width="100" align="center">
           <template #default="scope">
-            <el-tag style="width:80px" effect="dark" :type="scope.row.Level == 1 ? 'danger' : 'warning'"> {{ scope.row.Level == 1 ? 'Alarm' : 'Warning' }} </el-tag>
+            <el-tag style="width:80px" effect="dark" :type="scope.row.Level == 1 ? 'danger' : 'warning'"> {{
+          scope.row.Level == 1 ? 'Alarm' : 'Warning' }} </el-tag>
           </template>
         </el-table-column>
         <el-table-column :label="$t('AlarmTable.TaskName')" prop="Task_Name" width="280">
@@ -68,20 +75,22 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('AlarmTable.Occur_Tag')" prop="OccurLocation" width="120" align="center"></el-table-column>
+        <el-table-column :label="$t('AlarmTable.Occur_Tag')" prop="OccurLocation" width="120"
+          align="center"></el-table-column>
         <el-table-column :label="$t('AlarmTable.Solution')" prop="TrobleShootingMethod" width="320" align="center">
           <template #default="scope">
             <div>
               <span v-if="scope.row.TrobleShootingReference == ''">{{ scope.row.TrobleShootingMethod }}</span>
               <a class="cursor-pointer" v-else @click="() => {
-                selectedTroubleShootingDocument = scope.row.TrobleShootingReference
-                showTroubleShootingDocument = true;
-              }"> 📕 {{ scope.row.TrobleShootingMethod }} </a>
+          selectedTroubleShootingDocument = scope.row.TrobleShootingReference
+          showTroubleShootingDocument = true;
+        }"> 📕 {{ scope.row.TrobleShootingMethod }} </a>
             </div>
           </template>
         </el-table-column>
         <el-table-column :label="$t('AlarmTable.Duration')" prop="Duration" width="90" align="center"></el-table-column>
-        <el-table-column :label="$t('AlarmTable.Clear_OP')" prop="ResetAalrmMemberName" min-width="120"></el-table-column>
+        <el-table-column :label="$t('AlarmTable.Clear_OP')" prop="ResetAalrmMemberName"
+          min-width="120"></el-table-column>
         <el-table-column min-width="120" v-if="isDevLogin" label="Action">
           <template #default="scope">
             <div class="w-100">
@@ -91,13 +100,18 @@
         </el-table-column>
       </el-table>
       <div class="d-flex flex-row justify-content-center fixed-bottom py-4">
-        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="alarmtable" class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
-        <div class="mx-3 py-2"> {{ $t('Search.Total_First') }} <span style="font-weight: bold; font-size: large;"> {{ rows }} </span> {{ $t('Search.Total_Last') }} </div>
+        <b-pagination :per-page="per_page_num" :total-rows="rows" aria-controls="alarmtable"
+          class="pagination justify-content-center" v-model="currentpage" @click="PageChnageHandle"></b-pagination>
+        <div class="mx-3 py-2"> {{ $t('Search.Total_First') }} <span style="font-weight: bold; font-size: large;"> {{
+          rows }}
+          </span> {{ $t('Search.Total_Last') }} </div>
       </div>
     </div>
-    <el-dialog fullscreen :overflow="false" v-model="showTroubleShootingDocument" draggable :title="selectedTroubleShootingDocument">
+    <el-dialog fullscreen :overflow="false" v-model="showTroubleShootingDocument" draggable
+      :title="selectedTroubleShootingDocument">
       <div style="position: absolute; height: 100vh;width: 100vw;overflow: hidden;">
-        <iframe :src="CurrentSelectedTroubleShootingFileUrl" width="100%" height="100%" style="border: none;" allow="autoplay"></iframe>
+        <iframe :src="CurrentSelectedTroubleShootingFileUrl" width="100%" height="100%" style="border: none;"
+          allow="autoplay"></iframe>
       </div>
     </el-dialog>
   </div>
@@ -167,7 +181,7 @@ export default {
     },
     async QueryAlarm() {
       this.loading = true;
-      this.alarms = [];
+      this.alarms = this.alarms || "ALL";
       this.rows = 1;
       this.currentpage = 1;
       this.payload = 2;
@@ -176,6 +190,7 @@ export default {
           this.currentpage,
           this.start_time,
           this.end_time,
+          this.alarms,
           this.AGVSelected,
           this.TaskName,
           this.AlarmTypeSelected,
