@@ -3,11 +3,23 @@
     <div class="bg-light d-flex border-bottom py-2">
       <div class="query-option-container">
         <label>{{ $t('Search.Start_Time') }}</label>
-        <input type="datetime-local" v-model="start_time" prop="Start Time" />
+        <el-date-picker
+          v-model="start_time"
+          type="datetime"
+          :placeholder="$t('Search.Start_Time')"
+          format="YYYY-MM-DD HH:mm:ss"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          :clearable="false" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('Search.End_Time') }}</label>
-        <input type="datetime-local" v-model="end_time" prop="End Time" />
+        <el-date-picker
+          v-model="end_time"
+          type="datetime"
+          :placeholder="$t('Search.End_Time')"
+          format="YYYY-MM-DD HH:mm:ss"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          :clearable="false" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.Alarm_code') }}</label>
@@ -15,39 +27,60 @@
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.Alarm_Type') }}</label>
-        <select
+        <el-select style="width: 100px;" v-model="AlarmTypeSelected" placeholder="">
+          <el-option label="ALL" value="ALL">
+          </el-option>
+          <el-option label="Alarm" value="Alarm">
+            <span class="text-danger">Alarm</span>
+          </el-option>
+          <el-option label="Warning" value="Warning">
+            <span class="text-warning">Warning</span>
+          </el-option>
+        </el-select>
+        <!-- <select
           v-bind:class="AlarmTypeSelected == 'ALL' ? '' : AlarmTypeSelected == 'Alarm' ? 'bg-danger text-light' : 'bg-warning text-light'"
           prop="EQ Name" v-model="AlarmTypeSelected">
           <option>ALL</option>
           <option class="bg-danger text-light">Alarm</option>
           <option class="bg-warning text-light">Warning</option>
-        </select>
+        </select> -->
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.AGV_Name') }}</label>
-        <select prop="EQ Name" v-model="AGVSelected">
-          <option>ALL</option>
-          <option v-for="name in AgvNameList" :key="name">{{ name }}</option>
-        </select>
+        <el-select style="width: 100px;" v-model="AGVSelected" placeholder="">
+          <el-option label="ALL" value="ALL">
+          </el-option>
+          <el-option v-for="name in AgvNameList" :key="name" :label="name" :value="name">
+          </el-option>
+        </el-select>
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.TaskName') }}</label>
-        <input type="text" v-model="TaskName" placeholder="ALL" size="20" />
+        <el-input style="width: 180px;" v-model="TaskName" placeholder="ALL" size="20" clearable @clear="QueryAlarm()" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.FailureReason') }}</label>
-        <input type="text" v-model="Alarm_description" placeholder="ALL" size="20" />
+        <el-input style="width: 180px;" v-model="Alarm_description" placeholder="ALL" size="20" clearable @clear="QueryAlarm()" />
       </div>
       <div class="query-actions-container">
-        <b-button @click="QueryAlarm()" :QueryAlarm="QueryAlarm" class="Select-Query" variant="primary" size="sm"
-          style="float:right">{{ $t('Search.Search') }}</b-button>
-        <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm"
-          style="float:right">{{ $t('Search.Output_csv_file') }}</b-button>
+        <b-button @click="QueryAlarm()" class="Select-Query" variant="primary" size="sm" style="float:right">{{ $t('Search.Search') }}</b-button>
+      </div>
+      <div class="query-option-container">
+        <el-divider class="h-100" direction="vertical"></el-divider>
+      </div>
+      <div class="query-option-container">
+        <label>{{ $t('Keyword') }}</label>
+        <el-input style="width: 180px;" v-model="keyword" placeholder="Keyword" size="20" clearable @clear="QueryAlarmWithKeyword()" />
+      </div>
+      <div class="query-actions-container">
+        <b-button @click="QueryAlarmWithKeyword()" class="Select-Query" variant="primary" size="sm" style="float:right">{{ $t('KeywordSearch') }}</b-button>
+      </div>
+      <div class="query-actions-container">
+        <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm" style="float:right">{{ $t('Search.Output_csv_file') }}</b-button>
       </div>
     </div>
     <div>
-      <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small"
-        style="width: 100%; height: cal(100vh - 150px) ;font-weight: bold;" aria-current="currentpage" id="alarmtable">
+      <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small" style="width: 100%; height: cal(100vh - 150px) ;font-weight: bold;" aria-current="currentpage" id="alarmtable">
         <el-table-column :label="$t('AlarmTable.Occur_Time')" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
         </el-table-column>
@@ -117,7 +150,7 @@
   </div>
 </template>
 <script>
-import { QueryAlarm } from "@/api/AlarmAPI.js";
+import { QueryAlarm, QueryAlarmWithKeyword } from "@/api/AlarmAPI.js";
 import { SaveTocsv, DeleteAlarm } from "@/api/AlarmAPI.js";
 import moment from "moment";
 import Notifier from "@/api/NotifyHelper";
@@ -140,7 +173,9 @@ export default {
       loading: false,
       Alarm_description: "",
       showTroubleShootingDocument: false,
-      selectedTroubleShootingDocument: ''
+      selectedTroubleShootingDocument: '',
+      keyword: '',
+      searchMethod: 'condition'
     };
   },
 
@@ -179,12 +214,35 @@ export default {
       var level = this.alarms[rowIndex].Level;
       return level == 1 ? "alarm-row" : "warning-row";
     },
+    async QueryAlarmWithKeyword() {
+      this.loading = true;
+      this.alarms = [];
+      this.rows = 1;
+      this.currentpage = 1;
+      this.payload = 2;
+      this.searchMethod = 'keyword';
+      QueryAlarmWithKeyword(
+        this.currentpage,
+        this.start_time,
+        this.end_time,
+        this.keyword
+      )
+        .then((retquery) => {
+          this.alarms = retquery.alarms;
+          this.rows = retquery.count;
+          this.currentpage = retquery.currentpage;
+        })
+        .catch((er) => {
+          Notifier.Danger("警報查詢失敗後端服務異常");
+        });
+    },
     async QueryAlarm() {
       this.loading = true;
       this.alarms = this.alarms || "ALL";
       this.rows = 1;
       this.currentpage = 1;
       this.payload = 2;
+      this.searchMethod = 'condition';
       setTimeout(() => {
         QueryAlarm(
           this.currentpage,
@@ -220,21 +278,32 @@ export default {
       Notifier.Primary("檔案儲存成功");
     },
     PageChnageHandle(payload) {
-      QueryAlarm(
-        this.currentpage,
-        this.start_time,
-        this.end_time,
-        this.AGVSelected,
-        this.TaskName,
-        this.AlarmTypeSelected,
-        this.Alarm_description
-      )
-        .then((retquery) => {
+      if (this.searchMethod == 'condition') {
+        QueryAlarm(
+          this.currentpage,
+          this.start_time,
+          this.end_time,
+          this.AGVSelected,
+          this.TaskName,
+          this.AlarmTypeSelected,
+          this.Alarm_description
+        ).then((retquery) => {
           this.alarms = retquery.alarms;
-        })
-        .catch((er) => {
+        }).catch((er) => {
           Notifier.Danger("警報查詢失敗後端服務異常");
         });
+      } else {
+        QueryAlarmWithKeyword(
+          this.currentpage,
+          this.start_time,
+          this.end_time,
+          this.keyword
+        ).then((retquery) => {
+          this.alarms = retquery.alarms;
+        }).catch((er) => {
+          Notifier.Danger("警報查詢失敗後端服務異常");
+        });
+      }
     },
     CopyText(text) {
       CopyText(text);

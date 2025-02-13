@@ -3,11 +3,23 @@
     <div class="Task-options bg-light d-flex border-bottom w-100 py-2">
       <div class="query-option-container">
         <label>{{ $t('Search.Start_Time') }}</label>
-        <input type="datetime-local" v-model="queryCondition.StartTime" prop="Start Time" />
+        <el-date-picker
+          v-model="queryCondition.StartTime"
+          type="datetime"
+          :placeholder="$t('Search.Start_Time')"
+          format="YYYY-MM-DD HH:mm:ss"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          :clearable="false" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('Search.End_Time') }}</label>
-        <input type="datetime-local" v-model="queryCondition.EndTime" prop="End Time" />
+        <el-date-picker
+          v-model="queryCondition.EndTime"
+          type="datetime"
+          :placeholder="$t('Search.End_Time')"
+          format="YYYY-MM-DD HH:mm:ss"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          :clearable="false" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('TaskTable.TaskName') }}</label>
