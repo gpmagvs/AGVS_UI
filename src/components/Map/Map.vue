@@ -1284,6 +1284,7 @@ export default {
     },
     StartUpdateAGVCalculatingPath() {
       this.colorMap = {};
+      this.dataMap = {};
       const _getRectangleColor = (agvName, agvTextColor) => {
         if (this.colorMap[agvName]) {
           return this.colorMap[agvName];
@@ -1297,6 +1298,7 @@ export default {
       setInterval(() => {
         let _toRemoveFeatures = [];
         let _toAddFeatures = [];
+
         var _source = this.AGVLocLayer.getSource();
         if (this.map_display_mode == 'router') {
           let existsCalPathFeatures = _source.getFeatures().filter(ft => ft.get('calculating-path-id'));
@@ -1305,6 +1307,13 @@ export default {
         }
         this.agvs_info.AGVDisplays.forEach(agv_information => {
           var calculatingPathInfo = agv_information.calculatingPathInfo
+          const jsonData=JSON.stringify(calculatingPathInfo);
+          if(this.dataMap[agv_information.AgvName]==jsonData){
+            return;
+          }
+          
+          this.dataMap[agv_information.AgvName]=jsonData;
+
           if (!calculatingPathInfo || calculatingPathInfo.length == 0)
             return;
           const colors = _getRectangleColor(agv_information.AgvName, agv_information.TextColor);
@@ -1343,7 +1352,7 @@ export default {
         _toRemoveFeatures.forEach(ft => _source.removeFeature(ft))
         _source.addFeatures(_toAddFeatures);
 
-      }, 300)
+      }, 10)
     },
     /**將點的Graph X Y 重新設為實際座標 */
     async ResetRouteModeDisplay() {
