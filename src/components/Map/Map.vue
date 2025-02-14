@@ -1307,12 +1307,12 @@ export default {
         }
         this.agvs_info.AGVDisplays.forEach(agv_information => {
           var calculatingPathInfo = agv_information.calculatingPathInfo
-          const jsonData=JSON.stringify(calculatingPathInfo);
-          if(this.dataMap[agv_information.AgvName]==jsonData){
+          const jsonData = JSON.stringify(calculatingPathInfo);
+          if (this.dataMap[agv_information.AgvName] == jsonData) {
             return;
           }
-          
-          this.dataMap[agv_information.AgvName]=jsonData;
+
+          this.dataMap[agv_information.AgvName] = jsonData;
 
           if (!calculatingPathInfo || calculatingPathInfo.length == 0)
             return;
@@ -1465,6 +1465,9 @@ export default {
         this.agvSelectedState.agvName = _agvName;
         // this.agvSelectedState.agvName = agvName;
       }
+
+
+
       let FeatureClicked = (pixel) => {
         var _featureClicked = this.map.forEachFeatureAtPixel(pixel, (feature) => {
           if (feature) {
@@ -1480,7 +1483,6 @@ export default {
 
         if (!_featureHovering || !_featureHovering.get('isMapRegion')) {
           // Reset cursor when not hovering over any feature
-          this.map.getTargetElement().style.cursor = '';
           this.hoveredMapRegionFeature = null;
           if (this.hightLightedEntryFeatures) {
             this.RestoreStyleOfSelectedFeatures(this.hightLightedEntryFeatures);
@@ -1492,7 +1494,6 @@ export default {
           return;
         }
         // Change cursor to pointer when hovering over a feature`
-        this.map.getTargetElement().style.cursor = 'pointer';
         this.hoveredMapRegionFeature = _featureHovering;
         this.entryTags = mapRegionData.EnteryTags;
         this.hightLightedEntryFeatures = this.HighLightSpeficFeatureWithTags(this.entryTags, 'rgb(44, 166, 61)')

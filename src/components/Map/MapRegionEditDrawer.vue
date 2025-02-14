@@ -19,13 +19,14 @@
           </el-form-item>
           <el-form-item label="進入/等待點">
             <el-select v-model="RegionData.EnteryTags" multiple placeholder="Select" @change="HandlePropChanged">
-              <el-option v-for="ptOption in NoramlPointsOptions" :key="ptOption.tag" :label="ptOption.tag+`(${ptOption.name_display})`" :value="ptOption.tag" />
+              <el-option v-for="ptOption in NoramlPointsOptions" :key="ptOption.tag" :label="ptOption.tag + `(${ptOption.name_display})`" :value="ptOption.tag" />
             </el-select>
           </el-form-item>
           <el-form-item label="路徑僅使用於目的地為">
             <el-select v-model="RegionData.PathOnlyUseForTagsWhenVehicleFromOutsideRegion" multiple placeholder="Select" @change="HandlePropChanged" clearable>
-              <el-option v-for="ptOption in AllNonVirtualPointsOptions" :key="ptOption.tag" :label="ptOption.tag+`(${ptOption.name_display})`" :value="ptOption.tag" />
+              <el-option v-for="ptOption in AllNonVirtualPointsOptions" :key="ptOption.tag" :label="ptOption.tag + `(${ptOption.name_display})`" :value="ptOption.tag" />
             </el-select>
+            <el-checkbox @change="HandlePropChanged" v-model="RegionData.IsPathCanUseWhenAgvNoPathToUse">開放給無其他路徑可走車輛行駛</el-checkbox>
           </el-form-item>
           <el-form-item label="可容納車輛數">
             <el-input-number @change="HandlePropChanged" :min="1" :max="20" :step="1" v-model="RegionData.MaxVehicleCapacity"></el-input-number>
@@ -36,7 +37,6 @@
           <el-form-item label="窄道區域">
             <el-checkbox @change="HandlePropChanged" v-model="RegionData.IsNarrowPath"></el-checkbox>
           </el-form-item>
-
           <el-form-item label="區域">
             <el-button type="danger" @click="HandleReDrawBtnClicked">重繪區域</el-button>
           </el-form-item>

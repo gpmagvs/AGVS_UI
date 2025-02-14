@@ -954,6 +954,7 @@ export class MapRegion {
         this.RegionType = region_type
         this.IsOpend = true
         this.IsNarrowPath = true
+        this.IsPathCanUseWhenAgvNoPathToUse = false
         this.MaxVehicleCapacity = 2
         this.SpeedLimit = 1
         this.EnteryTags = []
