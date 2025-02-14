@@ -961,6 +961,11 @@ export class MapRegion {
         this.LeavingTags = []
         this.ThetaLimitWhenAGVIdling = 0
         this.PathOnlyUseForTagsWhenVehicleFromOutsideRegion = []
+        /**
+         * Map of entry tag numbers to their corresponding wait forward angles in degrees
+         * @type {Object.<number, number>} 
+         */
+        this.EnteryTagsWaitForwardAngles = {}
     }
 }
 export class MapContextMenuOptions {
