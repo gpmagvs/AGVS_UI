@@ -3,27 +3,17 @@
     <div class="bg-light d-flex border-bottom py-2">
       <div class="query-option-container">
         <label>{{ $t('Search.Start_Time') }}</label>
-        <el-date-picker
-          v-model="start_time"
-          type="datetime"
-          :placeholder="$t('Search.Start_Time')"
-          format="YYYY-MM-DD HH:mm:ss"
-          value-format="YYYY-MM-DD HH:mm:ss"
-          :clearable="false" />
+        <el-date-picker v-model="start_time" type="datetime" :placeholder="$t('Search.Start_Time')"
+          format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" :clearable="false" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('Search.End_Time') }}</label>
-        <el-date-picker
-          v-model="end_time"
-          type="datetime"
-          :placeholder="$t('Search.End_Time')"
-          format="YYYY-MM-DD HH:mm:ss"
-          value-format="YYYY-MM-DD HH:mm:ss"
-          :clearable="false" />
+        <el-date-picker v-model="end_time" type="datetime" :placeholder="$t('Search.End_Time')"
+          format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" :clearable="false" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.Alarm_code') }}</label>
-        <input type="text" v-model="alarms" placeholder="ALL" size="8" />
+        <input type="text" v-model="speficAlarcode" placeholder="ALL" size="8" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.Alarm_Type') }}</label>
@@ -56,31 +46,38 @@
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.TaskName') }}</label>
-        <el-input style="width: 180px;" v-model="TaskName" placeholder="ALL" size="20" clearable @clear="QueryAlarm()" />
+        <el-input style="width: 180px;" v-model="TaskName" placeholder="ALL" size="20" clearable
+          @clear="QueryAlarm()" />
       </div>
       <div class="query-option-container">
         <label>{{ $t('AlarmTable.FailureReason') }}</label>
-        <el-input style="width: 180px;" v-model="Alarm_description" placeholder="ALL" size="20" clearable @clear="QueryAlarm()" />
+        <el-input style="width: 180px;" v-model="Alarm_description" placeholder="ALL" size="20" clearable
+          @clear="QueryAlarm()" />
       </div>
       <div class="query-actions-container">
-        <b-button @click="QueryAlarm()" class="Select-Query" variant="primary" size="sm" style="float:right">{{ $t('Search.Search') }}</b-button>
+        <b-button @click="QueryAlarm()" class="Select-Query" variant="primary" size="sm" style="float:right">{{
+          $t('Search.Search') }}</b-button>
       </div>
       <div class="query-option-container">
         <el-divider class="h-100" direction="vertical"></el-divider>
       </div>
       <div class="query-option-container">
         <label>{{ $t('Keyword') }}</label>
-        <el-input style="width: 180px;" v-model="keyword" placeholder="Keyword" size="20" clearable @clear="QueryAlarmWithKeyword()" />
+        <el-input style="width: 180px;" v-model="keyword" placeholder="Keyword" size="20" clearable
+          @clear="QueryAlarmWithKeyword()" />
       </div>
       <div class="query-actions-container">
-        <b-button @click="QueryAlarmWithKeyword()" class="Select-Query" variant="primary" size="sm" style="float:right">{{ $t('KeywordSearch') }}</b-button>
+        <b-button @click="QueryAlarmWithKeyword()" class="Select-Query" variant="primary" size="sm"
+          style="float:right">{{ $t('KeywordSearch') }}</b-button>
       </div>
       <div class="query-actions-container">
-        <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm" style="float:right">{{ $t('Search.Output_csv_file') }}</b-button>
+        <b-button @click="SaveTocsv()" :SaveTocsv="SaveTocsv" class="SaveTocsv mx-2" variant="primary" size="sm"
+          style="float:right">{{ $t('Search.Output_csv_file') }}</b-button>
       </div>
     </div>
     <div>
-      <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small" style="width: 100%; height: cal(100vh - 150px) ;font-weight: bold;" aria-current="currentpage" id="alarmtable">
+      <el-table border :data="alarms" empty-text="No Alarms" :row-class-name="row_state_class_name" size="small"
+        style="width: 100%; height: cal(100vh - 150px) ;font-weight: bold;" aria-current="currentpage" id="alarmtable">
         <el-table-column :label="$t('AlarmTable.Occur_Time')" prop="Time" width="140">
           <template #default="scope">{{ formatTime(scope.row.Time) }}</template>
         </el-table-column>
@@ -165,6 +162,7 @@ export default {
       end_time: "2023-06-03 00:00:00",
       AGVSelected: "ALL",
       AlarmTypeSelected: "ALL",
+      speficAlarcode: "ALL",
       TaskName: "",
       alarms: [],
       per_page_num: 19,
@@ -248,7 +246,7 @@ export default {
           this.currentpage,
           this.start_time,
           this.end_time,
-          this.alarms,
+          this.speficAlarcode,
           this.AGVSelected,
           this.TaskName,
           this.AlarmTypeSelected,

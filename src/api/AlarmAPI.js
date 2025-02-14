@@ -17,8 +17,8 @@ export async function ResetEquipmentAlarm() {
 }
 
 /**警報查詢 */
-export async function QueryAlarm(currentpage, start_time, end_time, alarms, AGV_Name = 'ALL', TaskName = 'ALL', AlarmType = "ALL", Alarm_description = "ALL") {
-  var retquery = await axios_entity.get(`/api/Alarmquery/QueryAlarm?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&AlarmCode=${alarms}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&AlarmType=${AlarmType}&Alarm_description=${Alarm_description}`)
+export async function QueryAlarm(currentpage, start_time, end_time, alarmcode, AGV_Name = 'ALL', TaskName = 'ALL', AlarmType = "ALL", Alarm_description = "ALL") {
+  var retquery = await axios_entity.get(`/api/Alarmquery/QueryAlarm?currentpage=${currentpage}&StartTime=${start_time}&EndTime=${end_time}&alarmCodeParam=${alarmcode}&AGV_Name=${AGV_Name}&TaskName=${TaskName}&AlarmType=${AlarmType}&Alarm_description=${Alarm_description}`)
   return retquery.data;
 }
 
