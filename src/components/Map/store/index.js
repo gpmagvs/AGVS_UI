@@ -204,7 +204,7 @@ export const MapStore = createStore({
                     } else {
                         _agv_color = state.agv_colors[index];
                     }
-                    var agvDisplayModel = new clsAGVDisplay(name, agvType, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text, vehicleLength, vehicleWidth);
+                    var agvDisplayModel = new clsAGVDisplay(name, agvType, _agv_color, coordination, pathCoordinations, data.cargo_status, data.currentLocation, data.theta, data.waiting_info, data.currentAction, data.states, _agv_display_text, vehicleLength, vehicleWidth, data.calculatingPathInfo);
                     agvDataLs.push(agvDisplayModel)
                     index += 1;
                 }

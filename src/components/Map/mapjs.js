@@ -784,7 +784,7 @@ export class AGVOption {
 }
 
 export class clsAGVDisplay {
-    constructor(AgvName = "AGV", AgvModel = 0, TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "", vehicleLength = 145, vehicleWidth = 80) {
+    constructor(AgvName = "AGV", AgvModel = 0, TextColor = "pink", initCoordination = [0, 0], navCoorList = [], CargoStatus = new clsCargoStates(), Tag = 0, Theta = 0, WaitingInfo = new clsWaitingInfo(), CurrentAction = 0, AgvStates = new clsAgvStates(), DisplayText = "", vehicleLength = 145, vehicleWidth = 80, calculatingPathInfo = []) {
         this.AgvName = AgvName
         /**FORK = 0,YUNTECH_FORK_AGV = 1,INSPECTION_AGV = 2,SUBMERGED_SHIELD = 3,SUBMERGED_SHIELD_Parts = 4,Any = 999,Null = -1 */
         this.AgvModel = AgvModel
@@ -800,6 +800,7 @@ export class clsAGVDisplay {
         this.DisplayText = DisplayText == "" ? AgvName : DisplayText
         this.vehicleWidth = vehicleWidth;
         this.vehicleLength = vehicleLength;
+        this.calculatingPathInfo = calculatingPathInfo
     }
 }
 export class clsWaitingInfo {

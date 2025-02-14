@@ -1175,6 +1175,8 @@ export default {
           agvfeatures.cargo_icon_feature.setGeometry(new Point(coordination))
           agvfeatures.safty_region_feture.getGeometry().setCenter(coordination)
           agvfeatures.agv_body_feture.setGeometry(new Polygon(_polygon_coordinations))
+
+
           var style = agvfeatures.agv_feature.getStyle();
           var image = style.getImage()
 
@@ -1202,7 +1204,7 @@ export default {
 
           ChangeCargoIcon(agvfeatures.cargo_icon_feature, agv_information.CargoStatus)
 
-          //this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);
+          //this.UpdateAGVLocByMapMode(this.map_display_mode, agv_information);         
         }
         else {//動態新增AGV Feature
           try {
@@ -1275,7 +1277,73 @@ export default {
           }
 
         }
+
+
+
       });
+    },
+    StartUpdateAGVCalculatingPath() {
+      this.colorMap = {};
+      const _getRectangleColor = (agvName, agvTextColor) => {
+        if (this.colorMap[agvName]) {
+          return this.colorMap[agvName];
+        } else {
+          const color1 = this.convertColorNameToRGBA(agvTextColor, 0.2);
+          const color2 = this.convertColorNameToRGBA(agvTextColor, 0.6);
+          this.colorMap[agvName] = [color1, color2];
+          return [color1, color2];
+        }
+      }
+      setInterval(() => {
+        let _toRemoveFeatures = [];
+        let _toAddFeatures = [];
+        var _source = this.AGVLocLayer.getSource();
+        if (this.map_display_mode == 'router') {
+          let existsCalPathFeatures = _source.getFeatures().filter(ft => ft.get('calculating-path-id'));
+          existsCalPathFeatures.forEach(ft => _source.removeFeature(ft));
+          return;
+        }
+        this.agvs_info.AGVDisplays.forEach(agv_information => {
+          var calculatingPathInfo = agv_information.calculatingPathInfo
+          if (!calculatingPathInfo || calculatingPathInfo.length == 0)
+            return;
+          const colors = _getRectangleColor(agv_information.AgvName, agv_information.TextColor);
+          const rectangleColor = colors[0];
+          const rectangleStrokeColor = colors[1];
+          //calculatingPathInfo = [{center:[x,y],corners:[[x,y],[x,y],[x,y],[x,y]]}]
+          const _calculatingPathFeatures = calculatingPathInfo.map(rectangleInfo => {
+
+            var _rectangle = new Feature(
+              {
+                geometry: new Polygon([[
+                  [rectangleInfo.corners[0][0], rectangleInfo.corners[0][1]],
+                  [rectangleInfo.corners[1][0], rectangleInfo.corners[1][1]],
+                  [rectangleInfo.corners[2][0], rectangleInfo.corners[2][1]],
+                  [rectangleInfo.corners[3][0], rectangleInfo.corners[3][1]],
+                  [rectangleInfo.corners[0][0], rectangleInfo.corners[0][1]]  // 回到起點
+                ]])
+              })
+            _rectangle.setStyle(new Style({
+              fill: new Fill({ color: rectangleColor }),
+              stroke: new Stroke({ color: rectangleStrokeColor, width: 1 })
+            }))
+            _rectangle.set('calculating-path-id', `${agv_information.AgvName}`);
+            return _rectangle
+          })
+
+          let existsCalPathFeatures = _source.getFeatures().filter(ft => ft.get('calculating-path-id') == `${agv_information.AgvName}`);
+          console.log('to remove', existsCalPathFeatures)
+          if (existsCalPathFeatures) {
+            existsCalPathFeatures.forEach(ft => _toRemoveFeatures.push(ft))
+          }
+          _toAddFeatures.push(..._calculatingPathFeatures)
+
+          console.log(_calculatingPathFeatures.map(ft => ft.get('calculating-path-id')));
+        })
+        _toRemoveFeatures.forEach(ft => _source.removeFeature(ft))
+        _source.addFeatures(_toAddFeatures);
+
+      }, 300)
     },
     /**將點的Graph X Y 重新設為實際座標 */
     async ResetRouteModeDisplay() {
@@ -4359,6 +4427,10 @@ export default {
       }
 
       this.loading = false;
+
+      setTimeout(() => {
+        this.StartUpdateAGVCalculatingPath();
+      }, 1000)
 
     }, 100);
 
