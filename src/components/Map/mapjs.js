@@ -536,6 +536,7 @@ export function CreateRegionPolygon(name = "禁制區", polygon_coordinations = 
     polygon.set('type', "polygon")
     polygon.set('name', name)
     polygon.set('region_type', _region_type)
+    polygon.set('isMapRegion', true)
     const center = polygon.getGeometry().getInteriorPoint().getCoordinates();
     // 新增文字標籤
     var text = new Feature({
@@ -545,7 +546,7 @@ export function CreateRegionPolygon(name = "禁制區", polygon_coordinations = 
     text.set('type', "text")
     text.set('name', name)
     text.set('region_type', _region_type)
-
+    text.set('isMapRegion', true)
     text.setStyle(new Style({
         text: new Text({
             text: text.get('name'),

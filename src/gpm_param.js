@@ -4,8 +4,8 @@ var param = {
   get backend_host() {
     if (process.env.NODE_ENV == 'development') {
       return 'http://localhost:5216'//local測試
-      return 'http://10.22.153.36:5216'//UMTC-4F-YEL
       return 'http://192.168.0.3:5216'
+      return 'http://10.22.153.36:5216'//UMTC-4F-YEL
       return 'http://10.22.132.237:5216'//UMTC-3F-AOI
       return 'http://10.22.132.123:5216'//UMTC-3F-SE/MEC
       return 'http://192.168.0.1:5216'

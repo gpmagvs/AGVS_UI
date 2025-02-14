@@ -681,6 +681,7 @@ export default {
       agvRenderDebounceTimer: null,
       opDragableDefault: false,
       isMapViewChanging: false,
+      hoveredMapRegionFeature: null,
     }
   },
   computed: {
@@ -1044,7 +1045,7 @@ export default {
       EQLDULDStatusLayerSource.clear();
       EQLDULDStatusLayerSource.addFeatures(eqLDULDFeatures);
     },
-    UpdateForbidPointLayer() {
+    UpdateMapRegionLayer() {
       this.RegionLayer.getSource().clear();
       var _regions = MapStore.getters.Regions;
       _regions.forEach(element => {
@@ -1395,8 +1396,36 @@ export default {
         });
         return _featureClicked;
       }
-      this.map.on('pointermove', (event) => {
+      let HandleMapRegionFeatureHover = (pixel) => {
+        var _featureHovering = this.map.forEachFeatureAtPixel(pixel, function (feature) {
+          return feature;
+        });
 
+        if (!_featureHovering || !_featureHovering.get('isMapRegion')) {
+          // Reset cursor when not hovering over any feature
+          this.map.getTargetElement().style.cursor = '';
+          this.hoveredMapRegionFeature = null;
+          if (this.hightLightedEntryFeatures) {
+            this.RestoreStyleOfSelectedFeatures(this.hightLightedEntryFeatures);
+          }
+          return;
+        }
+        const mapRegionData = _featureHovering.get('data');
+        if (this.hoveredMapRegionFeature == _featureHovering || !mapRegionData) {
+          return;
+        }
+        // Change cursor to pointer when hovering over a feature`
+        this.map.getTargetElement().style.cursor = 'pointer';
+        this.hoveredMapRegionFeature = _featureHovering;
+        this.entryTags = mapRegionData.EnteryTags;
+        this.hightLightedEntryFeatures = this.HighLightSpeficFeatureWithTags(this.entryTags, 'rgb(44, 166, 61)')
+      }
+
+      this.map.on('pointermove', (event) => {
+        HandleMapRegionFeatureHover(event.pixel);
+        IsVehicleClicked(event.pixel);
+      });
+      this.map.on('pointermove', (event) => {
         if (this.DragBackgroundImageMode && this.dragStartPosition) {
           event.preventDefault();
           // 计算位移增量
@@ -1421,9 +1450,9 @@ export default {
           return feature;
         });
 
-        if (feature) {
-          this.map.getTargetElement().style.cursor = 'pointer';
-        } else
+        if (feature)
+          this.map.getTargetElement().style.cursor = '';
+        else
           this.map.getTargetElement().style.cursor = '';
 
       })
@@ -1828,6 +1857,7 @@ export default {
         feature.set('type', 'polygon')
         feature.set('name', _name)
         feature.set('region_type', region_type)
+        feature.set('isMapRegion', true)
         const center = feature.getGeometry().getInteriorPoint().getCoordinates();
         console.info(center)
         feature.setStyle(new Style({
@@ -1906,6 +1936,7 @@ export default {
             feature.set('type', 'polygon')
             feature.set('name', _name)
             feature.set('region_type', region_type)
+            feature.set('isMapRegion', true)
             if (speficName) {
               feature.set('redraw', true)
               //從舊數據拷貝數據
@@ -1933,6 +1964,7 @@ export default {
             textFeature.set('type', 'text')
             textFeature.set('name', _name)
             textFeature.set('region_type', region_type)
+            textFeature.set('isMapRegion', true)
             if (speficName)
               textFeature.set('redraw', true)
             // 定義文字樣式
@@ -3003,19 +3035,21 @@ export default {
       }
       this.previousSelectedFeatures = []
     },
-    HighLightFeatureSelected(features = [new Feature()], color = 'red', useForSearchResult = false) {
+    HighLightFeatureSelected(features = [new Feature()], textBgColor = 'red', textColor = 'white', useForSearchResult = false) {
       var _workStationTextFontSize = MapStore.state.MapData.Options.workStationTextFontSize;
 
       features.forEach(_ft => {
         try {
           var style = _ft.getStyle().clone();
+          var oriStyle = _ft.getStyle().clone();
           if (style) {
+            _ft.set('oriStyle', oriStyle);
             var text = style.getText().clone();
             if (text) {
               text.setBackgroundFill(new Fill({
-                color: color
+                color: textBgColor
               }))
-              text.setFill(new Fill({ color: 'white' }))
+              text.setFill(new Fill({ color: textColor }))
               text.setPadding([5, 5, 5, 5]);
 
               if (useForSearchResult) {
@@ -3033,7 +3067,7 @@ export default {
           }
         }
         catch (error) {
-
+          console.error('[HighLightFeatureSelected] error:', error)
         }
 
       });
@@ -3045,7 +3079,7 @@ export default {
           var oriStyle = _ft.get('oriStyle');
           _ft.setStyle(oriStyle);
         } catch (error) {
-
+          console.error('[RestoreStyleOfSelectedFeatures] error:', error)
         }
       });
     },
@@ -3451,7 +3485,7 @@ export default {
       this.UpdateStationPathLayer();
       this.UpdateStationPointLayer();
       this.MapDisplayModeOptHandler(false);
-      this.UpdateForbidPointLayer();
+      this.UpdateMapRegionLayer();
       this.ModifyMapRotation(MapStore.getters.Rotation);
       this.ResetImageExtend(this.map_img_extent);
     },
@@ -4057,7 +4091,7 @@ export default {
       this.map.getView().setZoom(3);
       featureFound.set('oriStyle', featureFound.getStyle().clone());
       // let _style = featureFound.getStyle().clone();
-      this.HighLightFeatureSelected([featureFound], 'rgb(13, 110, 253)', true)
+      this.HighLightFeatureSelected([featureFound], 'rgb(13, 110, 253)', 'white', true)
       this.clickedFeature = featureFound;
     },
     AddDrawBoxInteraction() {
@@ -4142,9 +4176,12 @@ export default {
     HighLightSpeficFeatureWithTags(tags = [], color = 'orange') {
       const features = this.PointLayer.getSource().getFeatures();
       const featuresFound = features.filter(_feature => tags.includes(_feature.get('data').TagNumber));
-      if (!featuresFound)
-        return;
-      this.HighLightFeatureSelected(featuresFound, color, true)
+      if (!featuresFound) {
+        console.log('[HighLightSpeficFeatureWithTags] no features found')
+        return null;
+      }
+      this.HighLightFeatureSelected(featuresFound, color, 'white', true)
+      return featuresFound;
     }
   },
   mounted() {
