@@ -314,7 +314,9 @@
                 class="mx-1"
                 v-bind:class="IsOpLogining ? 'w-100' : 'w-50'"
                 variant="primary"
-              >{{ $t('TaskDispathActionButton.dispatch-confirm') }}</b-button>
+                :disabled="IsDispatchButtonNotUsabe"
+                :style="IsDispatchButtonNotUsabe?{fontSize:'14px'}:{}"
+              >{{ $t('TaskDispathActionButton.dispatch-confirm')}}{{ IsDispatchButtonNotUsabe?'(已禁用)':'' }}</b-button>
               <!-- 重新選取來源 -->
               <b-button
                 @click="HandleSelectSoureStationFromMapBtnClick"
@@ -488,6 +490,15 @@ export default {
     },
     IsDeveloper() {
       return userStore.getters.IsDeveloperLogining;
+    },
+    IsDispatchButtonNotUsabe() {
+      if (!agvs_settings_store.state.sys_settings.operations.host_remote_mode)
+        return false;
+
+      if (!userStore.state.user.Permission.taskDispatchPermission)
+        return false;
+      //host remote 
+      return !userStore.state.user.Permission.taskDispatchPermission.LocalOrderDispatchWhenHostRemote;
     },
     IsOpLogining() {
       return userStore.getters.IsOPLogining;

@@ -1341,13 +1341,10 @@ export default {
           })
 
           let existsCalPathFeatures = _source.getFeatures().filter(ft => ft.get('calculating-path-id') == `${agv_information.AgvName}`);
-          console.log('to remove', existsCalPathFeatures)
           if (existsCalPathFeatures) {
             existsCalPathFeatures.forEach(ft => _toRemoveFeatures.push(ft))
           }
           _toAddFeatures.push(..._calculatingPathFeatures)
-
-          console.log(_calculatingPathFeatures.map(ft => ft.get('calculating-path-id')));
         })
         _toRemoveFeatures.forEach(ft => _source.removeFeature(ft))
         _source.addFeatures(_toAddFeatures);
@@ -1509,7 +1506,6 @@ export default {
           // 计算位移增量
           let deltaX = event.coordinate[0] - this.dragStartPosition[0];
           let deltaY = event.coordinate[1] - this.dragStartPosition[1];
-          console.log(deltaX, deltaY)
 
           this.new_map_img_extent[0] += deltaX,
             this.new_map_img_extent[1] += deltaY,
@@ -2126,7 +2122,6 @@ export default {
           _remove_keyboard_press_event_listner();
           var regionData = new MapRegion(_forbidRegionName, [])
           _.merge(regionData, ploygonFeature.get('data'));
-          console.log(regionData);
           _forbid_region_editor.Show(regionData, textFeature, ploygonFeature);
         }
       })
@@ -2698,7 +2693,6 @@ export default {
       first = map_stations_copy[0]
       last = map_stations_copy[map_stations_copy.length - 1]
       var mid_y = (last.coordination[1] + first.coordination[1]) / 2
-      console.log(mid_x, mid_y)
       return [mid_x, mid_y]
     },
     StationNameDisplayOptHandler() {
@@ -2861,7 +2855,6 @@ export default {
         this.loading = confirm;
         this.map_img_url_for_editor = null;
         await MapStore.dispatch('DownloadMapData', '');
-        console.log('re-done');
         this.RefreshMap();
         this.loading = false;
       }
@@ -3074,7 +3067,6 @@ export default {
         _regionData.RegionType = _regionType == 'forbid' ? 0 : 1;
         output.push(_regionData)
       })
-      console.log(output)
       return output;
     },
 
@@ -3519,7 +3511,6 @@ export default {
 
     },
     RenderEQLDULDStatus(data) {//TODO EQ狀態渲染
-      console.log('eq data changed');
       data.forEach(eq_states => {
         let _EQStatusDIDto = new EQStatusDIDto();
         Object.assign(_EQStatusDIDto, eq_states)
@@ -3583,10 +3574,8 @@ export default {
         this.SelectedPathData = path_data;
         this.HandlePathTbRowClick(path_data);
 
-
         let pt1 = await MapStore.dispatch('GetMapPointByIndex', path_data.StartPtIndex);
         let pt2 = await MapStore.dispatch('GetMapPointByIndex', path_data.EndPtIndex);
-        console.log(pt1, pt2);
         path_data.StartPoint = pt1;
         path_data.EndPoint = pt2;
 
@@ -4148,7 +4137,6 @@ export default {
       var ploygonFeature = featuresInLayer.find(ft => ft.get('name') == _forbidRegionName && ft.get('type') == 'polygon')
       var regionData = new MapRegion(_forbidRegionName, [])
       _.merge(regionData, ploygonFeature.get('data'));
-      console.log(regionData.Name);
       _forbid_region_editor.Show(regionData, textFeature, ploygonFeature);
     },
     HandleSearchTagSelected(tag) {
@@ -4255,7 +4243,6 @@ export default {
       const features = this.PointLayer.getSource().getFeatures();
       const featuresFound = features.filter(_feature => tags.includes(_feature.get('data').TagNumber));
       if (!featuresFound) {
-        console.log('[HighLightSpeficFeatureWithTags] no features found')
         return null;
       }
       this.HighLightFeatureSelected(featuresFound, color, 'white', true)
@@ -4347,7 +4334,6 @@ export default {
       })
 
       bus.on('/rerender_agv_layer', () => {
-        console.log('rerender_agv_layer');
         this.AGVLocLayer.getSource().clear();
         this.AGVFeatures = {};
       })

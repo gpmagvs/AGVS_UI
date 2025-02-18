@@ -111,6 +111,9 @@ export class WebViewPermission {
       DeepCharge: 0,
       StopDeepCharge: 0,
     }
+    this.taskDispatchPermission = {
+      LocalOrderDispatchWhenHostRemote: 0
+    }
 
   }
 }

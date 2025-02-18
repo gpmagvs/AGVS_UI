@@ -7,18 +7,21 @@
       <div
         v-for="(section, sectionKey) in permissionSections"
         :key="sectionKey"
-        class="permission-section">
+        class="permission-section"
+      >
         <h3>{{ section.title }}</h3>
         <el-form-item
           v-for="(value, key) in PermissionSetting[sectionKey]"
           :key="key"
-          :label="translateLabel(key)">
+          :label="translateLabel(key)"
+        >
           <el-switch
             v-model="PermissionSetting[sectionKey][key]"
             :active-value="1"
             :inactive-value="0"
             active-color="#13ce66"
-            inactive-color="#ff4949" />
+            inactive-color="#ff4949"
+          />
         </el-form-item>
       </div>
     </el-form>
@@ -50,7 +53,8 @@ export default {
         dataQuerySubMenu: { title: '資料查詢子選單權限' },
         systemConfigurationSubMenu: { title: '系統設定子選單權限' },
         systemModesOperations: { title: '系統運行模式操作權限' },
-        chargeActionsPermission: { title: '充電操作權限' }
+        chargeActionsPermission: { title: '充電操作權限' },
+        taskDispatchPermission: { title: '任務派送權限' }
       },
       isSaving: false
     }
@@ -104,6 +108,8 @@ export default {
         'NormalCharge': '一搬充電',
         'DeepCharge': '深度充電',
         'StopDeepCharge': '停止深充',
+
+        'LocalOrderDispatchWhenHostRemote': 'Remote模式下派送Local任務'
       };
       return translations[key] || key; // 如果沒有翻譯,返回原始key
     },
