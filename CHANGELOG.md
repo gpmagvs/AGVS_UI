@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.3.0 (2025-02-18)
+
+
+### Bug Fixes
+
+* GetLayersOfBuffer early return empty arrary when portNosOfColumn is undefined ([3a33870](https://github.com/gpmagvs/AGVS_UI/commit/3a338701151748538942b8ef5960fb2390decb33))
+
 ### [1.2.15](https://github.com/gpmagvs/AGVS_UI/compare/v1.2.14...v1.2.15) (2025-02-14)
 
 ### [1.2.14](https://github.com/gpmagvs/AGVS_UI/compare/v1.2.13...v1.2.14) (2025-02-14)
