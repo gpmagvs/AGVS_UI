@@ -314,9 +314,7 @@
                 class="mx-1"
                 v-bind:class="IsOpLogining ? 'w-100' : 'w-50'"
                 variant="primary"
-                :disabled="IsDispatchButtonNotUsabe"
-                :style="IsDispatchButtonNotUsabe?{fontSize:'14px'}:{}"
-              >{{ $t('TaskDispathActionButton.dispatch-confirm')}}{{ IsDispatchButtonNotUsabe?'(已禁用)':'' }}</b-button>
+              >{{ $t('TaskDispathActionButton.dispatch-confirm')}}</b-button>
               <!-- 重新選取來源 -->
               <b-button
                 @click="HandleSelectSoureStationFromMapBtnClick"
@@ -342,6 +340,14 @@
                 @click="HandleCancelBtnClick"
               >{{ $t('Cancel') }}</b-button>
             </div>
+          </div>
+          <div
+            v-if="IsHostRemoteAndOpNotDispatchPermission"
+            class="w-100 h-100 order-info-container order-info-container-disabled-modal d-flex justify-content-center align-items-center"
+          >
+            <el-tooltip :content="`需要將Host模式改為Local模式，或將'Remote模式下可派送本地任務'的權限打開`" placement="top">
+              <span class="p-4 bg-danger text-light rounded-2">Host模式為Remote，無派送權限</span>
+            </el-tooltip>
           </div>
         </el-popover>
         <b-button
@@ -424,6 +430,7 @@ import EQStatusDIDto from '@/ViewModels/clsEQStates'
 export default {
   data() {
     return {
+      userStore,
       action_menu_visible: false,
       order_info_visible: false,
       isSelectTransferToDestinAGV: false,
@@ -491,8 +498,11 @@ export default {
     IsDeveloper() {
       return userStore.getters.IsDeveloperLogining;
     },
-    IsDispatchButtonNotUsabe() {
+    IsHostRemoteAndOpNotDispatchPermission() {
       if (!agvs_settings_store.state.sys_settings.operations.host_remote_mode)
+        return false;
+
+      if (userStore.state.user.Role > 0) //op以上
         return false;
 
       if (!userStore.state.user.Permission.taskDispatchPermission)
@@ -1544,5 +1554,19 @@ export default {
   .el-row {
     margin-top: 10px;
   }
+}
+
+.order-info-container-disabled-modal {
+  background-color: rgb(215 215 215 / 47%);
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 </style>

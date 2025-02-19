@@ -150,9 +150,11 @@ export default {
 }
 
 .permission-form {
-  background-color: white;
+  /* background-color: rgb(49, 49, 49); */
   padding: 20px;
   border-radius: 4px;
+  overflow-y: auto;
+  height: calc(100vh - 280px);
 }
 
 .permission-section {
