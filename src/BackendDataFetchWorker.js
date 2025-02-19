@@ -152,6 +152,10 @@ async function StartHubsConnection() {
         bus.emit('FinishSystemMaintain', message);
     })
 
+    //TrySwitchToRemoteWhenHostReConnectedButOrdersRunning
+    agvsHubConnection.on('TrySwitchToRemoteWhenHostReConnectedButConditionNotAllow', message => {
+        bus.emit('TrySwitchToRemoteWhenHostReConnectedButConditionNotAllow', message);
+    })
     vmsHubConnection.on("ReceiveData", (user, data) => {
         StoreVMSData(data);
     });

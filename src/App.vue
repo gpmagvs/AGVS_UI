@@ -1,5 +1,12 @@
 <template>
-  <div v-show="!isNoPermission" class="d-flex flex-row" v-loading="loading" element-loading-text="GPM AGVS" element-loading-svg-view-box="-10, -10, 50, 50" element-loading-background="rgba(31, 31, 31, 0.9)">
+  <div
+    v-show="!isNoPermission"
+    class="d-flex flex-row"
+    v-loading="loading"
+    element-loading-text="GPM AGVS"
+    element-loading-svg-view-box="-10, -10, 50, 50"
+    element-loading-background="rgba(31, 31, 31, 0.9)"
+  >
     <RegularULDHotRunStateView></RegularULDHotRunStateView>
     <el-container>
       <el-aside class="border" style="width:auto">
@@ -7,7 +14,14 @@
       </el-aside>
       <el-container>
         <el-header style="padding:0;">
-          <Header ref="header" :MenuExpanded="menu_collapse" v-show="!loading" @update:HasSystemAlarm="(val) => { HeaderShowSysAlarm = true; }" @update:HasEqpAlarm="(val) => { HeaderShowEqpAlarm = true; }" @onMenuToggleClicked="ToggleMenu"></Header>
+          <Header
+            ref="header"
+            :MenuExpanded="menu_collapse"
+            v-show="!loading"
+            @update:HasSystemAlarm="(val) => { HeaderShowSysAlarm = true; }"
+            @update:HasEqpAlarm="(val) => { HeaderShowEqpAlarm = true; }"
+            @onMenuToggleClicked="ToggleMenu"
+          ></Header>
         </el-header>
         <el-main style="padding:0;overflow-y: hidden;" v-bind:style="router_view_style">
           <router-view v-show="!loading" v-slot="{ Component }">
@@ -18,20 +32,40 @@
         </el-main>
       </el-container>
     </el-container>
-    <b-modal v-model="ShowOKOnlyModal" :title="`${okOnlyModalProps.title}`" :centered="true" :okOnly="true" :headerBgVariant="okOnlyModalProps.title_variant" headerTextVariant="light">
+    <b-modal
+      v-model="ShowOKOnlyModal"
+      :title="`${okOnlyModalProps.title}`"
+      :centered="true"
+      :okOnly="true"
+      :headerBgVariant="okOnlyModalProps.title_variant"
+      headerTextVariant="light"
+    >
       <p>{{ okOnlyModalProps.content }}</p>
     </b-modal>
     <!-- <AlarmDisplayVue></AlarmDisplayVue> -->
     <!-- <MoveAGVNotifty></MoveAGVNotifty> -->
     <!-- <AGVAlarmMessageDisplay></AGVAlarmMessageDisplay> -->
-    <b-alert class="fixed-bottom mb-3 mcs-message" v-model="showMCSMessage" :variant="mcsMessgeType" dismissible>
+    <b-alert
+      class="fixed-bottom mb-3 mcs-message"
+      v-model="showMCSMessage"
+      :variant="mcsMessgeType"
+      dismissible
+    >
       <div class="d-flex">
         <div>{{ mcsMessageDto.time }}</div>
-        <div class="flex-fill" v-bind:class="'msg-text-' + mcsMessgeType">{{ mcsMessageDto.message }}</div>
+        <div
+          class="flex-fill"
+          v-bind:class="'msg-text-' + mcsMessgeType"
+        >{{ mcsMessageDto.message }}</div>
       </div>
     </b-alert>
     <el-transition name="el-fade-in-linear">
-      <b-alert class="fixed-bottom mb-3" v-model="showAGVSDissconnectDismissibleAlert" variant="danger" dismissible>派車系統斷線-AGVS Disconnect</b-alert>
+      <b-alert
+        class="fixed-bottom mb-3"
+        v-model="showAGVSDissconnectDismissibleAlert"
+        variant="danger"
+        dismissible
+      >派車系統斷線-AGVS Disconnect</b-alert>
     </el-transition>
     <FixFooter v-if="!IsOpUsing" :IsMenuExpanded="!menu_collapse"></FixFooter>
     <WindowTopNotify ref="topNotify"></WindowTopNotify>
@@ -351,6 +385,22 @@ export default {
     bus.on('FinishSystemMaintain', () => {
       agvs_settings_store.commit('setIsMaintain', false)
       this.$router.push('/')
+    })
+
+    bus.on('TrySwitchToRemoteWhenHostReConnectedButConditionNotAllow', (message) => {
+      //message 分號隔開
+      const messages = message.split(';');
+      this.$swal.fire(
+        {
+          title: '未完成自動 Remote',
+          html: `<ul class="list-unstyled">
+            ${messages.map(msg => `<li class="text-danger my-1">${msg}</li>`).join('')}
+            <li class="mt-3">確認後再手動切換為 Remote 模式</li>
+          </ul>`,
+          icon: 'warning',
+          confirmButtonText: 'OK',
+          customClass: 'my-sweetalert'
+        })
     })
 
     const route = useRoute()
