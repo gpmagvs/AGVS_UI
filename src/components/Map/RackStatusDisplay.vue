@@ -66,6 +66,9 @@ export default {
       let className = '';
 
       const cargoState = EqStore.getters.QueryCargoStateOfRackPort(tagNumber, slot);
+      if (cargoState.portNotDefined) {
+        return 'port-not-defined';
+      }
       if (cargoState.cargoExist)
         className += ' exist-cargo';
       if (!cargoState.cargoExist && cargoState.cargoID != undefined && cargoState.cargoID != '')
@@ -184,6 +187,10 @@ export default {
 
     .rack-port-eq-exist {
       background-color: black;
+    }
+
+    .port-not-defined {
+      visibility: hidden;
     }
 
     .exist-cargo {

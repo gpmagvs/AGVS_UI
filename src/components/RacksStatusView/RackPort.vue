@@ -206,7 +206,7 @@ export default {
       return 'empty-port'
     },
     UsableStateClass() {
-      if (this.port_info.disabledTempotary)
+      if (!this.port_info || this.port_info.disabledTempotary)
         return 'port-not-usable-temportary'
       return this.port_info.Properties.PortUsable == 1 ? 'port-usable' : 'port-not-usable';
     },

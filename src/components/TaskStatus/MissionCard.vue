@@ -177,6 +177,49 @@ const vehicleName = computed(() => {
   return props.mission.DesignatedAGVName == '' ? 'Not Assigned' : props.mission.DesignatedAGVName;
 });
 
+const currentStep = computed(() => {
+  const _currentProgress = props.mission.currentProgress;
+  if (_currentProgress == 2) {
+    //move to source
+    return 0;
+  }
+  if (_currentProgress == 4) {
+    //move to source
+    return 1;
+  }
+  if (_currentProgress == 3) {
+    //move to source
+    return 2;
+  }
+  if (_currentProgress == 5) {
+    //move to source
+    return 3;
+  }
+  return 0;
+});
+
+const finalStepActionDisplay = computed(() => {
+  const _actionInt = props.mission.Action;
+  switch (_actionInt) {
+    case 0:
+      return 'Destine'
+    case 1:
+      return t('Unload')
+    case 7:
+      return t('Load')
+    case 8:
+      return t('Charge')
+    case 9:
+      return t('Load')
+    case 12:
+      return t('Park')
+    case 17:
+      return t('DeepCharge')
+    default:
+      return _actionInt;
+  }
+});
+
 const recieveTime = computed(() => {
   return moment(props.mission.RecieveTime).format('M/D HH:mm:ss');
 });

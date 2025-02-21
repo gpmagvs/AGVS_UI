@@ -2,12 +2,9 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## 1.4.0 (2025-02-19)
+### [1.3.3](https://github.com/gpmagvs/AGVS_UI/compare/v1.3.2...v1.3.3) (2025-02-20)
 
-
-### Bug Fixes
-
-* GetLayersOfBuffer early return empty arrary when portNosOfColumn is undefined ([3a33870](https://github.com/gpmagvs/AGVS_UI/commit/3a338701151748538942b8ef5960fb2390decb33))
+### [1.3.2](https://github.com/gpmagvs/AGVS_UI/compare/v1.2.15...v1.3.2) (2025-02-20)
 
 ### [1.3.1](https://github.com/gpmagvs/AGVS_UI/compare/v1.3.0...v1.3.1) (2025-02-18)
 

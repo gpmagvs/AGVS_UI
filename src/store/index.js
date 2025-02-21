@@ -463,6 +463,7 @@ export const EqStore = createStore({
       }
       const rackPort = getters.GetRackPort(tag, slot);
       return {
+        portNotDefined: rackPort == undefined || rackPort == null,
         cargoExist: rackPort?.CargoExist || false,
         cargoID: rackPort?.CarrierID || ''
       };
@@ -475,7 +476,8 @@ export const EqStore = createStore({
         return true;
     },
     QueryPortDisabledTempotary: (state, getters) => (tag, slot) => {
-      return getters.GetRackPort(tag, slot).disabledTempotary;
+      const _port = getters.GetRackPort(tag, slot);
+      return _port ? _port.disabledTempotary : true;
     },
     GetRackPort: state => (tag, slot) => {
       var _getWIPTags = (wip) => {
