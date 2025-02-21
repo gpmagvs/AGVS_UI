@@ -14,10 +14,13 @@ export async function GetConfigurations() {
         throw error;
     }
 }
+export async function SaveReturnCodeSetting(requestData = { TaskConfiguration: {} }) {
+    var ret = await axios_entity.post(`/api/SecsGemConfiguration/SaveReturnCodeSetting`, requestData);
+    return ret.data;
+}
 
-
-export async function SaveReturnCodeSetting(requestData = { transferCompletedResultCodes: {} }) {
-    var ret = await axios_entity.post(`/api/SecsGemConfiguration/saveReturnCodeSetting`, requestData);
+export async function SaveResultCodeSetting(requestData = { transferCompletedResultCodes: {} }) {
+    var ret = await axios_entity.post(`/api/SecsGemConfiguration/SaveResultCodeSetting`, requestData);
     return ret.data;
 }
 

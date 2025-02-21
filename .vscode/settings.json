@@ -22,7 +22,10 @@
   },
   "peacock.color": "#61dafb",
   "vue-i18n.i18nPaths": "src\\locales",
-  "i18n-ally.localesPaths": ["src/locales"],
+  "i18n-ally.localesPaths": [
+    "src/locales"
+  ],
   "i18n-ally.keystyle": "nested",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "i18n-ally.sourceLanguage": "en-US"
 }
