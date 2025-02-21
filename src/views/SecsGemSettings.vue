@@ -34,7 +34,7 @@
           <el-row class="m-3">
             <el-col :lg="8" class="border px-5">
               <div class="w-100">
-                <h3 class="text-start text-danger border-bottom my-3">Transfer Complete Result Code</h3>
+                <h3 class="text-start text-danger border-bottom my-3">Transfer Complete Result Code(CEID=107)</h3>
                 <el-form label-position="left" label-width="320px" style="max-height: 70vh; overflow-y: auto;">
                   <template v-for="(value, key) in configuration.transferReportConfiguration.ResultCodes" :key="key">
                     <el-form-item :label="'-' + $t(`secsGem.${key.replace('ResultCode', '')}`)">
@@ -58,12 +58,12 @@
           <el-row class="m-3">
             <el-col :lg="8" class="border px-6">
               <div class="w-100">
-                <h3 class="text-start text-danger border-bottom my-3">Task Return Code</h3>
+                <h3 class="text-start text-danger border-bottom my-3">Task Return Code(S2F50 Reply)</h3>
                 <el-form label-position="left" label-width="500px" style="max-height: 70vh; overflow-y: auto;">
-                  <template v-for="(value, key) in configuration.TaskConfiguration.ReturnCodes" :key="key">
+                  <template v-for="(value, key) in configuration.taskreplyConfiguration" :key="key">
                     <el-form-item :label="'-' + $t(`${key.replace('ReturnCodes', '')}`)">
                       <!-- 🔹 十進制 (可編輯) -->
-                      <el-input-number v-model="configuration.TaskConfiguration.ReturnCodes[key]" :min="0" :max="255"
+                      <el-input-number v-model="configuration.taskreplyConfiguration[key]" :min="0" :max="255"
                         :controls="false">
                       </el-input-number>
                       <!-- 🔹 十六進制 (只讀) -->
@@ -133,46 +133,7 @@ export default {
             SourceRackPortNotHasCargoResultCode: 1
           }
         },
-        TaskConfiguration: {
-          ReturnCodes:
-          {
-            Control_State_Not_At_Online_Remote: 112,            // 派車非 Online/Remote 模式
-            Cannot_Create_Command_By_Exception: 113,           // 因異常無法創建命令
-            Not_Assign_Source_Port: 114,             // 未指定來源站點
-            Cannot_Find_Source_Port: 115,                 // 找不到來源站點
-            Not_Assign_Destination_Port: 116,                    // 未指定目標站點
-            Cannot_Find_Destination_Port: 117,             // 找不到目標站點
-            Cannot_Perform_Unload_For_Source_Port: 118,      // 無法在來源站點執行卸載
-            Cannot_Perform_Load_For_Destination_Port: 119,      // 無法在目標站點執行裝載
-            Save_Command_Data_To_Database_Fail: 120,           // 保存命令數據到數據庫失敗
-            Source_Port_Assign_Wrong_AGV: 121,             // 來源站點分配了錯誤的AGV
-            AGV_Cargo_Status_Mismatch_With_Command: 122,             // AGV貨物狀態與命令不匹配
-            Wrong_Command_Data_Cause_Exception: 123,               // 錯誤的命令數據導致異常
-            Signal_Is_Not_Load_Request_For_Destination_Port: 124,     // 目標站點無裝載請求信號
-            Signal_Is_Not_Unload_Request_For_Source_Port: 125,        // 來源站點無卸載請求信號
-            Cannot_Detect_Carrier_Exist_For_Source_Port: 126,       // 無法檢測到來源站點的載具存在
-            Equipment_Status_Is_Down: 128,                      // 設備狀態為停機
-            Detect_Carrier_Exist_For_Destination_Port: 129,            // 檢測到目標站點已有載具
-            Equipment_Load_Request_And_Unload_Request_Both_ON: 130, // 設備裝載和卸載請求信號同時開啟
-            Equipment_Load_Request_And_Unload_Request_Both_OFF: 131, // 設備裝載和卸載請求信號同時關閉
-            Unknown_Conditions: 132,                                   // 未知條件
-            Cannot_Find_The_Carrier_ID_In_Rack: 133,              // 在料架中找不到指定載具ID
-            Cannot_Find_Seat_For_The_Carrier_In_Rack: 134,           // 在料架中找不到載具的位置
-            Not_Assign_Vehicle_For_Abnormal_Transfer: 135,      // 異常搬運未指定車輛
-            Source_Port_Assign_AGV_But_Already_Exist_Same_Command: 136,// 來源站點已分配AGV但存在相同命令
-            Not_Assign_Carrier_ID_For_Command: 137,                   // 命令未指定載具ID
-            Rack_Source_Port_Already_Has_Task: 138,                   // 料架來源站點已有任務
-            Rack_Source_Port_Position_Is_Disable: 139,             // 料架來源站點位置已禁用
-            Rack_Source_Port_Exist_Multiple_Same_Carrier_Id: 140,    // 料架來源站點存在多個相同載具ID
-            Rack_Destination_Port_Already_Has_Task: 141,            // 料架目標站點已有任務
-            Rack_Destination_Port_Position_Is_Disable: 143,         // 料架目標站點位置已禁用
-            Rack_Destination_Port_Already_Has_Data: 144,          // 料架目標站點已有數據
-            Source_Port_Unload_Request_Is_OFF: 145,           // 來源站點卸載請求為關閉狀態
-            Destination_Port_Load_Request_Is_OFF: 146,                // 目標站點裝載請求為關閉狀態
-            Source_Port_Is_Disconnected: 147,                      // 來源站點已斷開連接
-            Destination_Port_Is_Disconnected: 148,               // 目標站點已斷開連接
-            Rack_Sensor_Is_Error: 149
-          }
+        taskreplyConfiguration: {
         },
         alarmConfigFilePath: "",
         transferReportConfigFilePath: ""
@@ -182,7 +143,7 @@ export default {
   computed: {
     hexReturnCodes() {
       return Object.fromEntries(
-        Object.entries(this.configuration.TaskConfiguration.ReturnCodes).map(([key, value]) =>
+        Object.entries(this.configuration.taskreplyConfiguration).map(([key, value]) =>
           [key, '0x' + parseInt(value).toString(16).toUpperCase()] // 轉換數字為十六進制字串
         )
       );
@@ -198,7 +159,7 @@ export default {
       try {
         this.configuration = await GetConfigurations();
       } catch (error) {
-        alert(error.message, "123")
+        alert(error.message)
       }
       finally {
         setTimeout(() => {
@@ -255,7 +216,7 @@ export default {
     },
     async taskreplyConfigHandleSaveButtonClicked() {
       try {
-        let response = await SaveReturnCodeSetting(this.configuration.baseConfiguration)
+        let response = await SaveReturnCodeSetting(this.configuration.taskreplyConfiguration)
 
         if (!response) {
           ElNotification({ message: '儲存失敗', type: 'error' })
